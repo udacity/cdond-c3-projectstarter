@@ -2,7 +2,7 @@
 
 Below is a template provided for use when building your README file for students.
 
-# Project Title
+# Give your Application Auto-Deploy Superpowers
 
 Project description goes here.
 
