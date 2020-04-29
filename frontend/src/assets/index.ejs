@@ -1,0 +1,29 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <script src="//cdn.polyfill.io/v2/polyfill.min.js"></script>
+  <title>
+    <%= htmlWebpackPlugin.options.TITLE %>
+  </title>
+</head>
+
+<body>
+  <div id="root"></div>
+</body>
+<script type="text/javascript"
+  src="//cloudfront.loggly.com/js/loggly.tracker-latest.min.js"
+  async></script>
+<% if (htmlWebpackPlugin.options.LOGGLY_TOKEN) { %>
+<script>
+  var _LTracker = _LTracker || [];
+  _LTracker.push({
+    'logglyKey': '<%= htmlWebpackPlugin.options.LOGGLY_TOKEN %>',
+    'sendConsoleErrors': true,
+    'tag': 'loggly-jslogger'
+  });
+</script>
+<% } %>
+
+</html>

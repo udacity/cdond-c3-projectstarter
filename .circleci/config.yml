@@ -1,0 +1,17 @@
+version: 2.1
+
+jobs:
+  hello-world:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Say Hello
+          command: |
+            echo "Hello World"
+
+workflows:
+  default:
+    jobs:
+      - hello-world

@@ -1,0 +1,21 @@
+/* .button {
+  color: #264b96;
+  border-radius: 4px;
+  background-color: #ffffff;
+  border: solid 1px #92a3c5;
+  margin: 0 5px;
+  margin-left: 8px;
+  text-align: center;
+  transition: all 0.4s ease-in-out;
+  font-weight: 400;
+}
+
+.button:hover:enabled {
+  background-color: #e1e6f0;
+  cursor: pointer;
+}
+
+.button:disabled {
+  border: solid 1px #e1e6f0;
+  color: #92a3c5;
+} */

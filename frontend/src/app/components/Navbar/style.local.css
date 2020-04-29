@@ -1,0 +1,13 @@
+.navbar {
+  height: 60px;
+  background-color: #fff;
+  padding: 0 20px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logo {
+  width: 180px;
+  height: 60%;
+}

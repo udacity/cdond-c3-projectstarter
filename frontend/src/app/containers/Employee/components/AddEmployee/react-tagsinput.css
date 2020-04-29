@@ -1,0 +1,105 @@
+.cont-tags,
+.react-tagsinput {
+  border: solid 1px #f4f4f4;
+  border-radius: 10px;
+  width: 96%;
+  padding: 2px;
+  font-size: 0.9em;
+}
+
+.cont-tags .react-tagsinput-tag,
+.react-tagsinput .react-tagsinput-tag {
+  border: solid 1px #cacaca;
+  border-radius: 10px;
+  padding: 8px;
+  display: inline-block;
+  margin: 0 1px 2px 0;
+}
+
+.cont-tags .react-tagsinput-remove,
+.react-tagsinput .react-tagsinput-remove {
+  color: #ff9051;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.cont-tags .react-tagsinput-remove::before,
+.react-tagsinput .react-tagsinput-remove::before {
+  content: 'x';
+  margin-left: 3px;
+  border: solid 1px #ff9051;
+  border-radius: 100px;
+  width: 18px;
+  height: 18px;
+  padding: 0.16em 0 0 0;
+  display: inline-block;
+  text-align: center;
+  font-size: 0.88em;
+  line-height: 0.99em;
+}
+
+.cont-tags .react-tagsinput-input,
+.react-tagsinput .react-tagsinput-input {
+  border: 0;
+  margin-bottom: 0;
+  border-radius: 10px;
+}
+
+.cont-tags .react-tagsinput-input:focus,
+.react-tagsinput .react-tagsinput-input:focus {
+  box-shadow: 0px 0px 4px #13bc74;
+}
+
+.cont-tags .react-tagsinput--focused,
+.react-tagsinput .react-tagsinput--focused {
+  border: solid 1px #13bc74;
+}
+
+.cont-tags ul.e-tags-list,
+.react-tagsinput ul.e-tags-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.cont-tags ul.e-tags-list li,
+.react-tagsinput ul.e-tags-list li {
+  border: solid 1px #cacaca;
+  border-radius: 10px;
+  padding: 8px;
+  display: inline-block;
+  margin: 0 1px 1px 0;
+}
+
+.cont-tags ul.e-tags-list li a.e-tag-remove,
+.react-tagsinput ul.e-tags-list li a.e-tag-remove {
+  color: #ff9051;
+}
+
+.cont-tags .e-tags-add,
+.react-tagsinput .e-tags-add {
+  display: inline-block;
+  width: 80%;
+}
+
+.cont-tags .e-tags-add input[type='text'],
+.react-tagsinput .e-tags-add input[type='text'] {
+  border: 0;
+  margin-bottom: 0;
+  border-radius: 10px;
+}
+
+.cont-tags .e-tags-add input[type='text']:-ms-input-placeholder,
+.react-tagsinput .e-tags-add input[type='text']:-ms-input-placeholder {
+  color: #13bc74;
+}
+
+.cont-tags .e-tags-add input[type='text']::placeholder,
+.react-tagsinput .e-tags-add input[type='text']::placeholder {
+  color: #13bc74;
+}
+
+.cont-tags .e-tags-add input[type='text']:focus,
+.react-tagsinput .e-tags-add input[type='text']:focus {
+  box-shadow: 0px 0px 4px #13bc74;
+}

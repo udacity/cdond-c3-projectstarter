@@ -1,0 +1,64 @@
+.axui-contextmenu {
+  position: absolute;
+  background-color: #fff;
+  box-shadow: 0px 1px 10px rgba(0, 0, 0, 0.14);
+  padding: 10px;
+  border-radius: 4px;
+  z-index: 10;
+  min-width: 130px;
+}
+
+.axui-contextmenu [data-ctx-item] {
+  position: relative;
+  padding: 0.7rem 0.5rem;
+  line-height: 14px;
+  white-space: nowrap;
+  font-size: inherit;
+  color: inherit;
+  font-weight: inherit;
+  display: flex;
+  flex-direction: row;
+  justify-content: stretch;
+  align-items: center;
+  cursor: pointer;
+}
+
+.axui-contextmenu [data-ctx-item] [data-label] {
+  flex: 1;
+}
+
+.axui-contextmenu [data-ctx-item] [data-label-icon] {
+  margin-right: 4px;
+}
+
+.axui-contextmenu [data-ctx-item] [data-checkbox] {
+  width: 14px;
+}
+
+.axui-contextmenu [data-ctx-item] [data-accelerator] {
+  font-size: 0.8em;
+}
+
+.axui-contextmenu [data-ctx-item]:hover {
+  color: #13bc74;
+}
+
+.axui-contextmenu [data-ctx-item][data-opened] {
+  color: #13bc74;
+}
+
+.axui-contextmenu [data-ctx-item][data-enabled='false'] {
+  opacity: 0.2;
+}
+
+.axui-contextmenu [data-ctx-item][data-enabled='false']:hover {
+  background-color: #f6f6f6;
+  color: #434343;
+}
+
+.axui-contextmenu [data-ctx-separator] {
+  height: 2px;
+  background-color: #e5e5e5;
+  padding: 0;
+  margin: 5px 0;
+}

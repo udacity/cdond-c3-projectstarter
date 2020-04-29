@@ -1,0 +1,21 @@
+.search-bar {
+  height: 60px;
+  background-color: #e1e6f0;
+  display: flex;
+  display: -ms-flexbox;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 25px;
+  border-bottom: solid 1px #92a3c5;
+  margin-bottom: 25px;
+}
+
+.bread-crumb-container {
+  display: inherit;
+  align-items: center;
+}
+
+.search-bar-container {
+  display: inherit;
+  align-items: center;
+}
