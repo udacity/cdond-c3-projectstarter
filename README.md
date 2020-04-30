@@ -7,6 +7,8 @@ In this project, you will prove your mastery of the following learning objective
 - Utilize a configuration management tool to accomplish deployment to cloud-based servers.
 - Surface critical server errors for diagnosis using centralized structured logging.
 
+![Diagram of CI/CD Pipeline we will be building.](udapeople-pipeline.png)
+
 ## Getting Started
 
 Instructions for how to get a copy of the project running on your local machine.
