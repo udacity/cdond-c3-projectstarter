@@ -200,7 +200,7 @@ Setting up servers and infrastructure is complicated business. There are many, m
   - Save the new back-end url for later use (the front-end needs it).
   - New S3 Bucket for front-end.
   - Save the old bucket arn in case you need it later (for rollback).
-- Create an Ansible playbook to set up the backend server.
+- Create an Ansible playbook to set up the back-end server.
   - Install Python, if needed.
   - Update/upgrade packages.
   - Install nodejs.
@@ -229,7 +229,7 @@ Now that the infrastructure is up and running, it’s time to configure for depe
 
 ###### 3. Smoke Test Phase
 
-All this automated deployment stuff is great, but what if there’s something we didn’t plan for that made it through to production? What if the UdaPeople website is now down due to a runtime bug that our unit tests didn’t catch? Users won’t be able to access their data! This same situation can happen with manual deployments, too. In a manual deployment situation, what’s the first thing you do after you finish deploying? You do a “smoke test” by going to the site and making sure you can still log in or navigate around. You might do a quick `curl` on the backend to make sure it is responding. In an automated scenario, you can do the same thing through code. Let’s add a job to provide the UdaPeople team with a little sanity check.
+All this automated deployment stuff is great, but what if there’s something we didn’t plan for that made it through to production? What if the UdaPeople website is now down due to a runtime bug that our unit tests didn’t catch? Users won’t be able to access their data! This same situation can happen with manual deployments, too. In a manual deployment situation, what’s the first thing you do after you finish deploying? You do a “smoke test” by going to the site and making sure you can still log in or navigate around. You might do a quick `curl` on the back-end to make sure it is responding. In an automated scenario, you can do the same thing through code. Let’s add a job to provide the UdaPeople team with a little sanity check.
 
 - Add a job to make a simple test on both front-end and back-end. Use the suggested tests below or come up with your own. 
   - Check `$API_URL/api/status` to make sure it returns a healthy response.
