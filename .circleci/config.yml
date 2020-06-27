@@ -11,7 +11,7 @@ jobs:
           command: |
             cd frontend
             npm install
-
+            npm run build
 workflows:
   default:
     jobs:
