@@ -1,16 +1,6 @@
 version: 2.1
 
 jobs:
-  hello-world:
-    docker:
-      - image: amazon/aws-cli
-    steps:
-      - checkout
-      - run:
-          name: Say Hello
-          command: |
-            echo "Hello World"
-            ls
   frontend:
     docker:
       - image: node:12.18.1
@@ -25,5 +15,4 @@ jobs:
 workflows:
   default:
     jobs:
-      - hello-world
       - frontend
