@@ -11,8 +11,19 @@ jobs:
           command: |
             echo "Hello World"
             ls
+  frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            cd frontend
+            npm install
 
 workflows:
   default:
     jobs:
       - hello-world
+      - frontend
