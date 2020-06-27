@@ -11,6 +11,9 @@ jobs:
           command: |
             cd frontend
             npm install
+      - run:
+          name: Build app
+          command: |
             npm run build
 workflows:
   default:
