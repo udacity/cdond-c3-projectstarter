@@ -14,6 +14,7 @@ jobs:
       - run:
           name: Build app
           command: |
+            cd frontend
             npm run build
 workflows:
   default:
