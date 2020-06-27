@@ -10,6 +10,7 @@ jobs:
           name: Say Hello
           command: |
             echo "Hello World"
+            ls
 
 workflows:
   default:
