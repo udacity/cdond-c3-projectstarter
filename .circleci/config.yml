@@ -1,61 +1,6 @@
 version: 2.1
 
 jobs:
-  audit:
-    docker:
-      - image: node:12.18.1
-    steps:
-      - checkout
-      - run:
-          name: Audit frontend packages
-          command: |
-            cd frontend
-            npm audit --audit-level=critical
-      - run:
-          name: Audit backend packages
-          command: |
-            cd backend
-            npm audit --audit-level=critical
-  frontend:
-    docker:
-      - image: node:12.18.1
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            cd frontend
-            npm install
-      - run:
-          name: Test app
-          command: |
-            cd frontend
-            npm run test
-      - run:
-          name: Build app
-          command: |
-            cd frontend
-            npm run build
-  backend:
-    docker:
-      - image: node:12.18.1
-    steps:
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            cd backend
-            npm install
-      - run:
-          name: Build app
-          command: |
-            cd backend
-            npm run build
-      - run:
-          name: Test app
-          command: |
-            cd backend
-            npm run test
   deploy:
     docker:
       - image: amazon/aws-cli
@@ -64,20 +9,11 @@ jobs:
       - run:
           name: Infrastructure
           command: |
+            ls
             aws cloudformation deploy \
               --template-file backend.yml \
               --stack-name udapeople-stack
 workflows:
   default:
     jobs:
-      - audit
-      - frontend:
-          requires:
-            - audit
-      - backend:
-          requires:
-            - audit
-      - deploy:
-          requires:
-            - backend
-            - frontend
+      - deploy
