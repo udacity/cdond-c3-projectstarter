@@ -1,19 +1,25 @@
 version: 2.1
 
 jobs:
-  deploy:
+  deploy_infrastructure:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
       - run:
-          name: Infrastructure
+          name: Deploy network
           command: |
             aws cloudformation deploy \
               --template-file network.yml \
               --stack-name udapeople-stack-network
+      - run:
+          name: Deploy backend
+          command: |
+            aws cloudformation deploy \
+              --template-file backend.yml \
+              --stack-name udapeople-stack-backend
 
 workflows:
   default:
     jobs:
-      - deploy
+      - deploy_infrastructure

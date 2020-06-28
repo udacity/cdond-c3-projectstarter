@@ -4,7 +4,7 @@ Description: >
 Parameters:
   ID:
     Description: Unique identifier.
-    Default: backend
+    Default: production
     Type: String
 
 Resources:
