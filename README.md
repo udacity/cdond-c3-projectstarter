@@ -17,7 +17,8 @@ Udacity's courses lack of information of the most sensitive part. The link attac
 this will causes A LOT of confusion to students that will simply create a new key (and will face errors when using Windows OS) instead
 of simply using the AWS key. That being said, there is the `hostname` info that is not clear at all what should be included there, or 
 if it is ok to just leave it empty.
-
+8. There is not enough information on how to tackle the infrastructure creation using the files, spent some time figuring out that 
+I should move the .circleci/files/ ymls to the root path of the directory.
 
 
 
