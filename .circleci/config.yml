@@ -59,17 +59,17 @@ jobs:
     deploy:
       docker:
         - image: amazon/aws-cli
-        steps:
-          - checkout
-          - run:
-              name: Infrastructure
-              command: |
-                aws cloudformation deploy \
-                  --template-file files/cloudfront.yml \
-                  --template-file files/network.yml \
-                  --template-file files/backend.yml \
-                  --template-file files/frontend.yml \
-                  --stack-name udapeople-stack
+      steps:
+        - checkout
+        - run:
+            name: Infrastructure
+            command: |
+              aws cloudformation deploy \
+                --template-file files/cloudfront.yml \
+                --template-file files/network.yml \
+                --template-file files/backend.yml \
+                --template-file files/frontend.yml \
+                --stack-name udapeople-stack
 workflows:
   default:
     jobs:
