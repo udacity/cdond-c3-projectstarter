@@ -7,9 +7,14 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Audit packages
+          name: Audit frontend packages
           command: |
             cd frontend
+            npm audit --audit-level=critical
+      - run:
+          name: Audit backend packages
+          command: |
+            cd backend
             npm audit --audit-level=critical
   frontend:
     docker:
