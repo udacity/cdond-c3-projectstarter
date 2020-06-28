@@ -4,7 +4,7 @@ Description: >
 Parameters:
   WorkflowID:
     Description: Unique identifier.
-    Default: jungle.
+    Default: jungle
     Type: String
 
 
