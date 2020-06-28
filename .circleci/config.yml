@@ -12,8 +12,6 @@ jobs:
             aws cloudformation deploy \
               --template-file backend.yml \
               --stack-name udapeople-stack
-              --parameter-overrides ID="TESTE"
-
 
 workflows:
   default:
