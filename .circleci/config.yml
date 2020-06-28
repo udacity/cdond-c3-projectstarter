@@ -7,16 +7,8 @@ jobs:
     steps:
       - checkout
       - run:
-          name: cloudfront
-          command: |
-            ls
-            aws cloudformation deploy \
-              --template-file cloudfront.yml \
-              --stack-name udapeople-stack
-      - run:
           name: Infrastructure
           command: |
-            ls
             aws cloudformation deploy \
               --template-file backend.yml \
               --stack-name udapeople-stack
