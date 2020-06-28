@@ -19,6 +19,7 @@ of simply using the AWS key. That being said, there is the `hostname` info that 
 if it is ok to just leave it empty.
 8. There is not enough information on how to tackle the infrastructure creation using the files, spent some time figuring out that 
 I should move the .circleci/files/ ymls to the root path of the directory.
+9. I had to create a [default VPC](https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html#create-default-vpc) even after deploying the `network` yml.
 
 
 
