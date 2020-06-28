@@ -13,6 +13,12 @@ jobs:
               --template-file network.yml \
               --stack-name udapeople-stack-network
       - run:
+          name: Deploy cloudfront
+          command: |
+            aws cloudformation deploy \
+              --template-file cloudfront.yml \
+              --stack-name udapeople-stack-cloudfront
+      - run:
           name: Deploy backend
           command: |
             aws cloudformation deploy \
