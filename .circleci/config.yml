@@ -24,7 +24,6 @@ jobs:
             aws cloudformation deploy \
               --template-file backend.yml \
               --stack-name udapeople-stack-backend
-
 workflows:
   default:
     jobs:
