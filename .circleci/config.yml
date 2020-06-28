@@ -60,9 +60,9 @@ workflows:
   default:
     jobs:
       - audit
-      - frontend
+      - frontend:
           requires:
             - audit
-      - backend
+      - backend:
           requires:
             - audit
