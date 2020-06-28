@@ -61,4 +61,8 @@ workflows:
     jobs:
       - audit
       - frontend
+          requires:
+            - audit
       - backend
+          requires:
+            - audit
