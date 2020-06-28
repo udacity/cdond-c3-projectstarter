@@ -5,7 +5,7 @@ import { CreateEmployee } from '../commands/create-employee.command';
 import { EmployeeCreated } from '../events/employee-created.event';
 
 @Entity()
-export class Employee extends AggregateRoot<string> {
+export class Employee extends AggregateRoot<number> {
   //change <string> to <number> above to fix the compile error
   constructor(params = {} as CreateEmployee) {
     super();
@@ -38,7 +38,7 @@ export class Employee extends AggregateRoot<string> {
 
   @PrimaryGeneratedColumn()
   //change <string> to <number> in line 8 to fix the compile error
-  id: string;
+  id: number;
 
   @Column({ length: 100 })
   public firstName: string;
