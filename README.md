@@ -2,6 +2,23 @@
 
 ### New implementation notes
 
+1. Circle CI setup instructions could be clearer about using the existent template, I ended up creating a new one by
+ default following the circle CI starter introduction.
+2. The instructions here: backend/src/modules/domain/employees/entities/employee.entity.ts are backwards.
+3. I couldn't use the `test tab` out of the box by just creating a new job that execute the tests, perhaps more guidance
+could be provided around that.
+4. After producing screenshots 03 and 04, I noticed that the other jobs had to be cancelled if the audit step fails, 
+so I fixed that and added a new screenshot named SCREENSHOT04-FIX-SEQUENCE that shows that setup
+5. More information could be provided regarding the AWS setup, especially the required permissions for the new CLI user,
+ which usually is a big source of student issues
+6. The same thing applies to Postgres creation, it is not obvious to students the tier and service details that must be used
+7. This is a constructive feedback: I was happy working with this project until reached the PEM key setup, as always
+Udacity's courses lack of information of the most sensitive part. The link attached shows a process to manually creating the key
+this will causes A LOT of confusion to students that will simply create a new key (and will face errors when using Windows OS) instead
+of simply using the AWS key. That being said, there is the `hostname` info that is not clear at all what should be included there, or 
+if it is ok to just leave it empty.
+
+
 
 
 In this project, you will prove your mastery of the following learning objectives:
