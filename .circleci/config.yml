@@ -16,6 +16,21 @@ jobs:
           command: |
             cd frontend
             npm run build
+  backend:
+    docker:
+      - image: node:12.18.1
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install
+      - run:
+          name: Build app
+          command: |
+            cd backend
+            npm run build
 workflows:
   default:
     jobs:
