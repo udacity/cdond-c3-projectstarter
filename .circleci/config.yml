@@ -13,6 +13,7 @@ jobs:
             aws cloudformation deploy \
               --template-file cloudfront.yml \
               --stack-name udapeople-stack
+            --parameter-overrides WorkspaceID="TESTE"
       - run:
           name: Infrastructure
           command: |
@@ -20,6 +21,9 @@ jobs:
             aws cloudformation deploy \
               --template-file backend.yml \
               --stack-name udapeople-stack
+              --parameter-overrides ID="TESTE"
+
+
 workflows:
   default:
     jobs:
