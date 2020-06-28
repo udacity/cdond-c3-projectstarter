@@ -65,10 +65,7 @@ jobs:
           name: Infrastructure
           command: |
             aws cloudformation deploy \
-              --template-file files/cloudfront.yml \
-              --template-file files/network.yml \
-              --template-file files/backend.yml \
-              --template-file files/frontend.yml \
+              --template-file backend.yml \
               --stack-name udapeople-stack
 workflows:
   default:
