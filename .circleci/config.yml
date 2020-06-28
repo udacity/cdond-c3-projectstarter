@@ -10,8 +10,8 @@ jobs:
           name: Infrastructure
           command: |
             aws cloudformation deploy \
-              --template-file backend.yml \
-              --stack-name udapeople-stack
+              --template-file network.yml \
+              --stack-name udapeople-stack-network
 
 workflows:
   default:
