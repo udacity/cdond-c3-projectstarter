@@ -12,6 +12,11 @@ jobs:
             cd frontend
             npm install
       - run:
+          name: Test app
+          command: |
+            cd frontend
+            npm run test
+      - run:
           name: Build app
           command: |
             cd frontend
@@ -31,6 +36,11 @@ jobs:
           command: |
             cd backend
             npm run build
+      - run:
+          name: Test app
+          command: |
+            cd backend
+            npm run test
 workflows:
   default:
     jobs:
