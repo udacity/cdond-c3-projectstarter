@@ -25,7 +25,17 @@
     production: yes
     state: present
 
+- name: "Creates directory"
+  file:
+    path: ~/test
+    state: directory
+
+- name: "Copy index test page"
+  template:
+    src: "files/index.js"
+    dest: "~/test/index.js"
+
 - name: "Executing node"
   shell: |
     npm install
-    pm2 start index.js
+    pm2 start ~/test/index.js
