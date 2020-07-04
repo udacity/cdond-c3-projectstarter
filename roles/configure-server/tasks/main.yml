@@ -38,4 +38,4 @@
 - name: "Executing node"
   shell: |
     npm install
-    pm2 start ~/test/index.js
+    pm2 start ~/test/index.js -f
