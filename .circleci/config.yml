@@ -16,69 +16,69 @@ jobs:
           command: |
             cd backend
             npm audit --audit-level=critical
-    frontend:
-      docker:
-        - image: node:12.18.1
-      steps:
-        - checkout
-        - run:
-            name: Install dependencies
-            command: |
-              cd frontend
-              npm install
-        - run:
-            name: Test app
-            command: |
-              cd frontend
-              npm run test
-        - run:
-            name: Build app
-            command: |
-              cd frontend
-              npm run build
-    backend:
-      docker:
-        - image: node:12.18.1
-      steps:
-        - checkout
-        - run:
-            name: Install dependencies
-            command: |
-              cd backend
-              npm install
-        - run:
-            name: Build app
-            command: |
-              cd backend
-              npm run build
-        - run:
-            name: Test app
-            command: |
-              cd backend
-              npm run test
-    deploy_infrastructure:
-      docker:
-        - image: amazon/aws-cli
-      steps:
-        - checkout
-        - run:
-            name: Deploy network
-            command: |
-              aws cloudformation deploy \
-                --template-file network.yml \
-                --stack-name udapeople-stack-network
-        - run:
-            name: Deploy cloudfront
-            command: |
-              aws cloudformation deploy \
-                --template-file cloudfront.yml \
-                --stack-name udapeople-stack-cloudfront
-        - run:
-            name: Deploy backend
-            command: |
-              aws cloudformation deploy \
-                --template-file backend.yml \
-                --stack-name udapeople-stack-backend
+  frontend:
+    docker:
+      - image: node:12.18.1
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            cd frontend
+            npm install
+      - run:
+          name: Test app
+          command: |
+            cd frontend
+            npm run test
+      - run:
+          name: Build app
+          command: |
+            cd frontend
+            npm run build
+  backend:
+    docker:
+      - image: node:12.18.1
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install
+      - run:
+          name: Build app
+          command: |
+            cd backend
+            npm run build
+      - run:
+          name: Test app
+          command: |
+            cd backend
+            npm run test
+  deploy_infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Deploy network
+          command: |
+            aws cloudformation deploy \
+              --template-file network.yml \
+              --stack-name udapeople-stack-network
+      - run:
+          name: Deploy cloudfront
+          command: |
+            aws cloudformation deploy \
+              --template-file cloudfront.yml \
+              --stack-name udapeople-stack-cloudfront
+      - run:
+          name: Deploy backend
+          command: |
+            aws cloudformation deploy \
+              --template-file backend.yml \
+              --stack-name udapeople-stack-backend
 workflows:
   default:
     jobs:
