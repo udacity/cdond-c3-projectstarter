@@ -25,12 +25,12 @@
     production: yes
     state: present
 
- name: Creates directory
+ name: "Creates directory"
   file:
     path: ~/{{ http_host }}
     state: directory
 
-- name: Copy index test page
+- name: "Copy index test page"
   template:
     src: "files/index.js"
     dest: "~/{{ http_host }}/index.js"
