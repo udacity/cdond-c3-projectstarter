@@ -108,3 +108,6 @@ workflows:
           requires:
             - frontend
             - backend
+      - configure_infrastructure:
+          requires:
+            - deploy_infrastructure
