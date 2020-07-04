@@ -21,7 +21,8 @@ if it is ok to just leave it empty.
 I should move the .circleci/files/ ymls to the root path of the directory.
 9. I had to create a [default VPC](https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html#create-default-vpc) even after deploying the `network` yml.
 10. I had to request AWS support to increase my CloudFront limit
-
+11. The AMI ID available in the backend.yml (`ami-068663a3c619dd892`) is not valid. I had to research and change to `ami-083af2bfea9e15579`
+12. I had to subsribe to use the Ubuntu 20.04 image (SCREENSHOT05_02)
 
 In this project, you will prove your mastery of the following learning objectives:
 
