@@ -79,21 +79,21 @@ jobs:
             aws cloudformation deploy \
               --template-file backend.yml \
               --stack-name udapeople-stack-backend
-    configure_infrastructure:
-      docker:
-        - image: python:3.7-alpine3.11
-      steps:
-        - checkout
-        - add_ssh_keys:
-            fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
-        - run:
-            name: Install dependencies
-            command: |
-              apk add --update ansible # install the dependencies needed for your playbook
-        - run:
-            name: Configure server
-            command: |
-              ansible-playbook -i inventory.txt playbook.yml
+  configure_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible # install the dependencies needed for your playbook
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.txt playbook.yml
 workflows:
   default:
     jobs:
