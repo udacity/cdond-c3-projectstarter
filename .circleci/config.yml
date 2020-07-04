@@ -86,10 +86,10 @@ workflows:
       - frontend:
           requires:
             - audit
-      - backend
+      - backend:
           requires:
             - audit
-      - deploy_infrastructure
+      - deploy_infrastructure:
           requires:
             - frontend
             - backend
