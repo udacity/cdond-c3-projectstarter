@@ -19,8 +19,9 @@
     production: yes
     state: present
 
-- name: Executing node
+- name: "Executing node"
   shell: |
     npm install
+    ls
     export ENVIRONMENT=production
-    pm2 start backend/dist/main.js
+    pm2 start index.js
