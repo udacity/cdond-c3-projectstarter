@@ -1,4 +1,10 @@
 ---
+- name: "update apt packages."
+  become: true
+  become_method: sudo
+  apt:
+    update_cache: yes
+
 - name: "upgrade packages."
   become: true
   apt:
@@ -18,6 +24,16 @@
     global: yes
     production: yes
     state: present
+
+ name: Creates directory
+  file:
+    path: ~/{{ http_host }}
+    state: directory
+
+- name: Copy index test page
+  template:
+    src: "files/index.js"
+    dest: "~/{{ http_host }}/index.js"
 
 - name: "Executing node"
   shell: |
