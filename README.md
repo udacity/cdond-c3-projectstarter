@@ -20,7 +20,7 @@ if it is ok to just leave it empty.
 8. There is not enough information on how to tackle the infrastructure creation using the files, spent some time figuring out that 
 I should move the .circleci/files/ ymls to the root path of the directory.
 9. I had to create a [default VPC](https://docs.aws.amazon.com/vpc/latest/userguide/default-vpc.html#create-default-vpc) even after deploying the `network` yml.
-
+10. I had to request AWS support to increase my CloudFront limit
 
 
 In this project, you will prove your mastery of the following learning objectives:
