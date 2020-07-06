@@ -5,7 +5,7 @@ import { CreateEmployee } from '../commands/create-employee.command';
 import { EmployeeCreated } from '../events/employee-created.event';
 
 @Entity()
-export class Employee extends AggregateRoot<string> {
+export class Employee extends AggregateRoot<number> {
   //change <string> to <number> above to fix the compile error
   constructor(params = {} as CreateEmployee) {
     super();
