@@ -18,7 +18,7 @@ In order for server instances to speak to Prometheus, we need to install an “e
 - Add a section to your back-end configuration job to install the `node_exporter` for Prometheus monitoring. This should be done using Ansible. Your playbook can simulate the steps in [this tutorial](https://codewizardly.com/prometheus-on-aws-ec2-part2/). 
 - After deploy, ensure your back-end is being discovered by the Prometheus Server.
 - Provide a screenshot of a graph of your EC2 instance including available memory, available disk space, and CPU usage. **[SCREENSHOT11]**
-- Provide a public URL to your Prometheus Server. **[URL06]**
+- Provide a public URL to your Prometheus Server. **[URL05]**
 
 #### 2. Setup Alerts
 

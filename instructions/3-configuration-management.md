@@ -4,11 +4,11 @@
 
 #### AWS
 1. Create and download a new key pair in AWS for CircleCI to use to work with AWS resources.
-  -  Tutorial: https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair (Option 1: Create a key pair using Amazon EC2)
+  -  [This tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) (Option 1: Create a key pair using Amazon EC2)
 2. Create IAM user for programmatic access only and copy the id and access keys. 
- - Tutorial: https://serverless-stack.com/chapters/create-an-iam-user.html
+ - [This tutorial](https://serverless-stack.com/chapters/create-an-iam-user.html)
 3. Add a PostgreSQL database in RDS that is publicly accessible. Take note of the connection details (hostname, username, password).
- - Tutorial: https://aws.amazon.com/getting-started/tutorials/create-connect-postgresql-db/
+ - [This tutorial](https://aws.amazon.com/getting-started/tutorials/create-connect-postgresql-db/)
 
 #### Circle CI
 
@@ -55,7 +55,7 @@ Setting up servers and infrastructure is complicated business. There are many, m
     - `TYPEORM_DATABASE`={your postgres database name in RDS}
   - [Configure PM2](https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps) to run back-end server .
 - In the back-end deploy job, execute Ansible playbook to configure the instance.
-- Provide a URL to the Ansible playbook in your GitHub repository. **[URL01]**
+- Provide a URL to your public GitHub repository. **[URL01]**
 - Provide the public Url to working CI/CD pipeline **[URL02]**
 
 #### 2. Deploy Phase
@@ -69,7 +69,7 @@ Now that the infrastructure is up and running, it’s time to configure for depe
   - Add the back-end url that you saved earlier to the job's `API_URL` environment variables before running re-compiling the code. This will ensure the front-end is pointing to the correct back-end. 
   - Run another `npm run build` so that the back-end url gets "baked into" the front-end. 
   - Copy the files to your new S3 Bucket using AWS CLI.
-- Provide the public URL for your S3 Bucket (aka, your front-end). **[URL03]**
+- Provide the public URL for your S3 Bucket (aka, your front-end). **[URL02]**
 
 #### 3. Smoke Test Phase
 
@@ -115,8 +115,8 @@ Assuming the smoke test came back clean, we should have a relatively high level 
 - Add a job that promotes our new front-end to production
   - Use a [CloudFormation template](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files) to change the origin of your CloudFront distribution to the new S3 bucket ARN.
 - Provide a screenshot of the successful job. **[SCREENSHOT08]**
-- Provide the public URL for your CloudFront distribution (aka, your production front-end). **[URL04]**
-- Provide the public URL for your back-end server in EC2. **[URL05]**
+- Provide the public URL for your CloudFront distribution (aka, your production front-end). **[URL03]**
+- Provide the public URL for your back-end server in EC2. **[URL04]**
 
 #### 6. Cleanup Phase
 

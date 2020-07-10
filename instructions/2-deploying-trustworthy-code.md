@@ -1,13 +1,13 @@
 ## Section 2 - Utilize Deployment Strategies to Design and Build CI/CD Pipelines that Support Continuous Delivery Processes
 
-#### Circle CI
+### Circle CI
 
 Circle CI is but one of many options for CI/CD tools. It is a “software as a service” and has a [free account](https://circleci.com/signup/?source-button=free) that you can use throughout this project, which is ideal for UdaPeople since it’s a start-up running on a shoestring budget. 
 
-1. [Create an account](https://circleci.com/signup/?source-button=free) with circleci.com if you haven't already. We recommend the free tier for this course. It includes 2500 credits per week which equals around 70 builds. This should be enough as long as you are conservative with your builds. 
+1. [Create an account](https://circleci.com/signup/?source-button=free) with circleci.com if you haven't already. We recommend the free tier for this course. It includes 2500 credits per week which equals around 70 builds. This should be enough as long as you are conservative with your builds. _If you run out of credits, you could potentially create another account and continue working._
 2. Create a new project in Circle CI using your GitHub repo.
  - Notice the `.circleci` folder. This is where your jobs will go.
-3. Ensure a workflow starts with at least one “Hello World” job.
+3. Ensure a workflow starts with at least one “Hello World” job. If you need to take a look at some samples, Circle CI was nice enough to [give us a few](https://circleci.com/docs/2.0/sample-config).
 
 ### Screenshots and URLs
 

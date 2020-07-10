@@ -6,9 +6,13 @@ Instructions for how to get a copy of the project running on your local machine.
 
 NodeJs v10 or higher
 
-#### Starter Code
+### Starter Code
 1. Clone the [starter code](https://github.com/udacity/cdond-c3-projectstarter) to your machine so that you can manipulate the files.
 2. Push your code into a repository in your account in Github.
+
+### Provided Cloud Formation Templates
+
+For your convenience, we have provided some CloudFormation templates that you can use throughout the deployment phase of your project. You can find those templates in [this folder](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). 
 
 ### Installation
 
