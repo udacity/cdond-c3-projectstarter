@@ -65,19 +65,25 @@ jobs:
           name: Deploy network
           command: |
             aws cloudformation deploy \
-              --template-file network.yml \
+              --template-file .circleci/network.yml \
               --stack-name udapeople-stack-network
       - run:
           name: Deploy cloudfront
           command: |
             aws cloudformation deploy \
-              --template-file cloudfront.yml \
+              --template-file .circleci/cloudfront.yml \
               --stack-name udapeople-stack-cloudfront
       - run:
           name: Deploy backend
           command: |
             aws cloudformation deploy \
-              --template-file backend.yml \
+              --template-file .circleci/backend.yml \
+              --stack-name udapeople-stack-backend
+      - run:
+          name: Deploy frontend
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/frontend.yml \
               --stack-name udapeople-stack-backend
   configure_infrastructure:
     docker:
@@ -93,6 +99,11 @@ jobs:
       - run:
           name: Configure server
           command: |
+            cd .circleci/ansible
+            echo "[web]" > inventory.txt
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text >> inventory.txt
             ansible-playbook -i inventory.txt playbook.yml
 workflows:
   default:

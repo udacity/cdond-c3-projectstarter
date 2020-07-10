@@ -1,0 +1,7 @@
+URL01=https://github.com/jungleBadger/cdond-c3-projectstarter
+URL02=https://app.circleci.com/pipelines/github/jungleBadger/cdond-c3-projectstarter
+URL03=ec2-3-14-4-32.us-east-2.compute.amazonaws.com
+URL04=
+URL05=
+URL06=
+

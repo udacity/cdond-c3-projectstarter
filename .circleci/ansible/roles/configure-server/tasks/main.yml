@@ -1,4 +1,10 @@
 ---
+- name: "update apt packages."
+  become: true
+  become_method: sudo
+  apt:
+    update_cache: yes
+
 - name: "upgrade packages."
   become: true
   apt:
@@ -19,18 +25,17 @@
     production: yes
     state: present
 
-- name: Creates directory
+- name: "Creates directory"
   file:
-    path: ~/{{ http_host }}
+    path: ~/test
     state: directory
 
-- name: Copy index test page
+- name: "Copy index test page"
   template:
     src: "files/index.js"
-    dest: "~/{{ http_host }}/index.js"
+    dest: "~/test/index.js"
 
-- name: Executing node
+- name: "Executing node"
   shell: |
     npm install
-    export ENVIRONMENT=production
-    pm2 start index.js
+    pm2 start ~/test/index.js -f
