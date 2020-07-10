@@ -3,12 +3,9 @@
 ### Setup
 
 #### AWS
-1. Create and download a new key pair in AWS for CircleCI to use to work with AWS resources.
-  -  [This tutorial](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) (Option 1: Create a key pair using Amazon EC2)
-2. Create IAM user for programmatic access only and copy the id and access keys. 
- - [This tutorial](https://serverless-stack.com/chapters/create-an-iam-user.html)
-3. Add a PostgreSQL database in RDS that is publicly accessible. Take note of the connection details (hostname, username, password).
- - [This tutorial](https://aws.amazon.com/getting-started/tutorials/create-connect-postgresql-db/)
+1. Create and download a new key pair in AWS for CircleCI to use to work with AWS resources. [This tutorial may help](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) (Option 1: Create a key pair using Amazon EC2).
+2. Create IAM user for programmatic access only and copy the id and access keys. [This tutorial may help.](https://serverless-stack.com/chapters/create-an-iam-user.html)
+3. Add a PostgreSQL database in RDS that is publicly accessible. Take note of the connection details (hostname, username, password). [This tutorial may help.](https://aws.amazon.com/getting-started/tutorials/create-connect-postgresql-db/)
 
 #### Circle CI
 
