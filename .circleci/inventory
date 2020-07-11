@@ -1,4 +1,2 @@
-[all]
-3.14.4.32
 [web]
-ec2-3-14-4-32.us-east-2.compute.amazonaws.com
+ec2-3-18-109-128.us-east-2.compute.amazonaws.com

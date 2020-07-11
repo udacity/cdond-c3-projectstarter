@@ -85,7 +85,36 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/frontend.yml \
               --stack-name udapeople-stack-backend
+  configure_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt playbook.yml
 workflows:
   default:
     jobs:
-      - deploy_infrastructure
+      - audit
+      - frontend:
+          requires:
+            - audit
+      - backend:
+          requires:
+            - audit
+      - deploy_infrastructure:
+          requires:
+            - frontend
+            - backend
+      - configure_infrastructure:
+          requires:
+            - deploy_infrastructure
