@@ -123,7 +123,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ls
+            ls test
+            cat test/inventory.txt
             pwd
             echo ENVIRONMENT=production > "backend/.env"
             echo TYPEORM_CONNECTION=postgres > "backend/.env"
@@ -135,8 +136,9 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME > "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD > "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE > "backend/.env"
+            cp -rlf test/inventory.txt .circleci/ansible
             cd .circleci/ansible
-            ansible-playbook -i inventory.txt playbook.yml
+            ansible-playbook -i test/inventory.txt playbook.yml
 workflows:
   default:
     jobs:
