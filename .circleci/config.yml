@@ -106,6 +106,7 @@ jobs:
     docker:
       - image: python:3.7-alpine3.11
     shell: /bin/sh -leo pipefail
+    working_directory: ~/project
     environment:
       - BASH_ENV: /etc/profile
 
