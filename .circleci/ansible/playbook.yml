@@ -7,7 +7,7 @@
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
-    - ansible_port: '3030'
+    - ansible_port: '22'
 
   pre_tasks:
     - name: "install python for Ansible."
@@ -19,3 +19,4 @@
   roles:
     - configure-prometheus-node-exporter
     - configure-server
+    - deploy
