@@ -99,6 +99,7 @@ jobs:
       - run:
           name: Configure server
           command: |
+            printenv >> "backend/.env"
             cd .circleci/ansible
             ansible-playbook -i inventory.txt playbook.yml
 workflows:
