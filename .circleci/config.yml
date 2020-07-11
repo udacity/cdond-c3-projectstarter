@@ -89,7 +89,10 @@ jobs:
               --filters "Name=tag:Name,Values=backend-production" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text >> .circleci/ansible/inventory.txt
-            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "$(cat .circleci/ansible/inventory.txt)" https://api.memstash.io/values/inventory
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
+              --request PUT \
+              --data "$(cat .circleci/ansible/inventory.txt)" \
+              https://api.memstash.io/values/inventory
       - run:
           name: Deploy frontend
           command: |
@@ -97,10 +100,7 @@ jobs:
               --template-file .circleci/frontend.yml \
               --stack-name udapeople-stack-frontend
       - persist_to_workspace:
-          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
-          # taken to be the root directory of the workspace.
           root: ~/project
-          # Must be relative path from root
           paths:
             - .
   configure_infrastructure:
@@ -114,7 +114,6 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          # Must be absolute path or relative path from working_directory
           at: ~/project
       - add_ssh_keys:
           fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
