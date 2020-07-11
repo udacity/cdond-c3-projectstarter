@@ -104,10 +104,11 @@ jobs:
     shell: /bin/sh -leo pipefail
     environment:
       - BASH_ENV: /etc/profile
-    - attach_workspace:
-        # Must be absolute path or relative path from working_directory
-        at: /tmp/workspace
+
     steps:
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: /tmp/workspace
       - checkout
       - add_ssh_keys:
           fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
