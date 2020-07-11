@@ -78,6 +78,10 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/cloudfront.yml \
               --stack-name udapeople-stack-cloudfront
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
+              --request PUT \
+              --data "$(aws cloudformation describe-stacks --stack-name udapeople-stack-frontend --query 'Stacks[0].Outputs[0].OutputValue' --output text)" \
+              https://api.memstash.io/values/websiteURL
       - run:
           name: Deploy backend
           command: |
