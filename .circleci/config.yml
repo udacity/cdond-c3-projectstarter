@@ -93,11 +93,12 @@ jobs:
               --stack-name udapeople-stack-backend
             ls
             pwd
-            echo "[web]" > workspace/inventory.txt
+            echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-production" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
-              --output text > workspace/inventory.txt
+              --output text > .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - run:
           name: Deploy frontend
           command: |
