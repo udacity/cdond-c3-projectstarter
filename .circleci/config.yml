@@ -97,7 +97,7 @@ jobs:
             curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT \
               --data "${backendURL}" \
-              https://api.memstash.io/values/inventory
+              https://api.memstash.io/values/backendURL
       - run:
           name: Implement frontend infrastructure
           command: |
