@@ -6,6 +6,7 @@ commands:
     steps:
       - run:
           name: Rollback infrastructure resources
+          no_output_timeout: 30m
           command: |
             aws cloudformation delete-stack --stack-name udapeople-stack-network
             aws cloudformation delete-stack --stack-name udapeople-stack-backend
@@ -220,7 +221,7 @@ jobs:
           name: Test frontend
           command: |
             export websiteURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/websiteURL)
-            if curl -s ${websiteURL}/#/employees | grep 'Invalid'
+            if curl -s ${websiteURL}/#/employees | grep 'Welcome'
             then
               exit 0
             else
