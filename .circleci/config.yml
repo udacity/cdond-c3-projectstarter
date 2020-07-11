@@ -91,14 +91,11 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/backend.yml \
               --stack-name udapeople-stack-backend
-            ls
-            pwd
             echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-production" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text > .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
       - run:
           name: Deploy frontend
           command: |
@@ -130,6 +127,8 @@ jobs:
       - run:
           name: Configure server
           command: |
+            ls
+            pwd
             echo ENVIRONMENT=production > "backend/.env"
             echo TYPEORM_CONNECTION=postgres > "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=./src/migrations > "backend/.env"
@@ -147,9 +146,9 @@ workflows:
   default:
     jobs:
       - deploy_infrastructure
-#      - configure_infrastructure:
-#          requires:
-#            - deploy_infrastructure
+      - configure_infrastructure:
+          requires:
+            - deploy_infrastructure
 
 
 #      - audit
