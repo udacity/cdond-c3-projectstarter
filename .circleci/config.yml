@@ -92,7 +92,8 @@ jobs:
             export backendURL=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-production" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
-              --output text) >> .circleci/ansible/inventory.txt
+              --output text)
+            echo $backendURL >> .circleci/ansible/inventory.txt
             curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT \
               --data "${backendURL}" \
