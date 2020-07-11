@@ -89,7 +89,7 @@ jobs:
               --filters "Name=tag:Name,Values=backend-production" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text >> .circleci/ansible/inventory.txt
-            curl -H "Content-Type: text/plain" -H "token: ${ $MEMSTASH_TOKEN }" --request PUT --data "$(cat .circleci/ansible/inventory.txt)" https://api.memstash.io/values/inventory
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "$(cat .circleci/ansible/inventory.txt)" https://api.memstash.io/values/inventory
       - run:
           name: Deploy frontend
           command: |
