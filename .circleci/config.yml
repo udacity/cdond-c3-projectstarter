@@ -136,7 +136,6 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME > "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD > "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE > "backend/.env"
-            cp -rlf test/ansible/inventory.txt .circleci/ansible
             cd .circleci/ansible
             ls -la
             ansible-playbook -i inventory.txt playbook.yml
