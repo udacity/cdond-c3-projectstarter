@@ -119,4 +119,4 @@ jobs:
 workflows:
   default:
     jobs:
-      - configure_infrastructure
+      deploy_infrastructure
