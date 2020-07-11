@@ -204,7 +204,7 @@ jobs:
 
   smoke_test:
     docker:
-      - image: node:12.18.1
+      - image: amazon/aws-cli
     steps:
       - run:
           name: Test backend
