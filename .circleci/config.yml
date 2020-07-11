@@ -192,10 +192,7 @@ jobs:
 
   smoke_test:
     docker:
-      - image: python:3.7-alpine3.11
-    shell: /bin/sh -leo pipefail
-    environment:
-      - BASH_ENV: /etc/profile
+      - image: node:12.18.1
     steps:
       - run:
           name: Test backend
