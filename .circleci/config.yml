@@ -93,6 +93,7 @@ jobs:
               --stack-name udapeople-stack-cloudfront
       - run:
           name: Implement backend infrastructure
+          no_output_timeout: 30m
           command: |
             aws cloudformation deploy \
               --template-file .circleci/backend.yml \
@@ -109,6 +110,7 @@ jobs:
               https://api.memstash.io/values/backendURL
       - run:
           name: Implement frontend infrastructure
+          no_output_timeout: 30m
           command: |
             aws cloudformation deploy \
               --template-file .circleci/frontend.yml \
@@ -136,13 +138,13 @@ jobs:
           fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
       - run:
           name: Install dependencies
+          no_output_timeout: 30m
           command: |
             apk add --update ansible
       - run:
           name: Configure server
+          no_output_timeout: 30m
           command: |
-            pwd
-            ls -la
             echo ENVIRONMENT=production > "backend/.env"
             echo TYPEORM_CONNECTION=postgres >> "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
@@ -154,8 +156,6 @@ jobs:
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cd .circleci/ansible
-            ls -la
-            cat inventory.txt
             ansible-playbook -i inventory.txt playbook.yml
 
   rebuild_frontend:
