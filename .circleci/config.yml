@@ -136,17 +136,23 @@ jobs:
 workflows:
   default:
     jobs:
-      - audit
-      - frontend:
-          requires:
-            - audit
-      - backend:
-          requires:
-            - audit
-      - deploy_infrastructure:
-          requires:
-            - frontend
-            - backend
+      - deploy_infrastructure
       - configure_infrastructure:
           requires:
             - deploy_infrastructure
+
+
+#      - audit
+#      - frontend:
+#          requires:
+#            - audit
+#      - backend:
+#          requires:
+#            - audit
+#      - deploy_infrastructure:
+#          requires:
+#            - frontend
+#            - backend
+#      - configure_infrastructure:
+#          requires:
+#            - deploy_infrastructure
