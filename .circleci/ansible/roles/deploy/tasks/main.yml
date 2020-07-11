@@ -18,7 +18,12 @@
   shell: |
     cd /home/ubuntu/backend
     npm run build
+    npm run prestart:prod
 - name: Run node migrations and saving to MemStash.io
   shell: |
     cd /home/ubuntu/backend
     npm run migrations > migrations.txt
+- name: Start PM2
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start dist/main.js --name backend
