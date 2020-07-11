@@ -145,12 +145,17 @@ jobs:
             ansible-playbook -i inventory.txt playbook.yml
 
 
-  deploy_frontend:
+
+  rebuild_frontend:
     docker:
-      - image: amazon/aws-cli
       - image: node:12.18.1
     steps:
       - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            cd frontend
+            npm install
       - run:
           name: Set frontend environment
           command: |
@@ -161,10 +166,23 @@ jobs:
           command: |
             cd frontend
             npm run build
+      - persist_to_workspace:
+          root: ~/project/
+          paths:
+            - frontend
+  deploy_frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/project
       - run:
           name: Copy frontend files to s3 bucket
           command: |
             cd frontend
+            ls
+            cat .env
             aws s3 sync dist s3://udapeople-production/
 
 workflows:
