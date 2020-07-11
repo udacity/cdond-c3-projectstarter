@@ -113,7 +113,7 @@ jobs:
       - checkout
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: .circleci
+          at: test
       - add_ssh_keys:
           fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
       - run:
@@ -123,8 +123,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ls .circleci/ansible/
-            cat .circleci/ansible/inventory.txt
+            ls test
+            cat test/ansible/inventory.txt
             pwd
             echo ENVIRONMENT=production > "backend/.env"
             echo TYPEORM_CONNECTION=postgres > "backend/.env"
@@ -136,6 +136,7 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME > "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD > "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE > "backend/.env"
+            cp -rlf test/ansible/inventory.txt .circleci/ansible
             cd .circleci/ansible
             ansible-playbook -i inventory.txt playbook.yml
 workflows:
