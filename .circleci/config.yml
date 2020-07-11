@@ -66,13 +66,6 @@ jobs:
           name: Install tar and gzip
           command: |
             yum install -y tar gzip
-      - persist_to_workspace:
-          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
-          # taken to be the root directory of the workspace.
-          root: .circleci
-          # Must be relative path from root
-          paths:
-            - ansible
       - run:
           name: Deploy network
           command: |
@@ -102,6 +95,13 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/frontend.yml \
               --stack-name udapeople-stack-frontend
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
+          # taken to be the root directory of the workspace.
+          root: ~/project
+          # Must be relative path from root
+          paths:
+            - .
   configure_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
@@ -110,10 +110,9 @@ jobs:
       - BASH_ENV: /etc/profile
 
     steps:
-      - checkout
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: test
+          at: ~/project
       - add_ssh_keys:
           fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
       - run:
@@ -123,9 +122,6 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ls test
-            ls -la test/ansible
-            cat test/ansible/inventory.txt
             pwd
             echo ENVIRONMENT=production > "backend/.env"
             echo TYPEORM_CONNECTION=postgres > "backend/.env"
@@ -139,6 +135,7 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE > "backend/.env"
             cp -rlf test/ansible/inventory.txt .circleci/ansible
             cd .circleci/ansible
+            ls -la
             ansible-playbook -i inventory.txt playbook.yml
 workflows:
   default:
