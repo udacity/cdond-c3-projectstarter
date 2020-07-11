@@ -66,6 +66,7 @@ jobs:
           name: Install tar
           command: |
             yum install -y tar gzip
+            pwd
             ls
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
