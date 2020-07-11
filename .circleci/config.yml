@@ -111,10 +111,6 @@ jobs:
 
     steps:
       - checkout
-      - run:
-          name: Install tar and gzip
-          command: |
-            yum install -y tar gzip
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
           at: .circleci/ansible
