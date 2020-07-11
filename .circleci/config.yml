@@ -198,18 +198,23 @@ jobs:
           name: Test backend
           command: |
             export backendURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backendURL)
-            if curl ${backendURL}/api/status | grep "status":"ok"
+            if curl ${backendURL}/api/status | grep '"status":"ok"'
             then
-            exit 0
+              exit 0
             else
-            exit 1
+              exit 1
             fi
       - run:
           name: Test frontend
           command: |
             export websiteURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/websiteURL)
-            curl -s ${websiteURL}/#/employees
-
+            curl
+            if curl -s ${websiteURL}/#/employees | grep 'Invalid'
+            then
+              exit 0
+            else
+              exit 1
+            fi
 workflows:
   default:
     jobs:
