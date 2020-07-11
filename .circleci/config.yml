@@ -202,6 +202,7 @@ jobs:
             then
               exit 0
             else
+              echo 'Backend smoke test failed due to an invalid check'
               exit 1
             fi
       - run:
@@ -213,6 +214,7 @@ jobs:
             then
               exit 0
             else
+              echo 'Front end smoke test failed due to an invalid check'
               exit 1
             fi
 workflows:
