@@ -1,9 +1,9 @@
 #ZGFuaWVsYWJyYW9zdWJtaXNzaW9u
 ---
-#- name: Copying files from CircleCI to Server
-#  copy:
-#    src: /root/project/backend
-#    dest: /home/ubuntu
+- name: Copying files from CircleCI to Server
+  copy:
+    src: /root/project/backend
+    dest: /home/ubuntu
 - name: Stopping PM2
   ignore_errors: yes
   shell: |
