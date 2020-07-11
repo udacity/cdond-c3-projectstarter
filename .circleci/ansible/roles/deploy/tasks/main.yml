@@ -26,4 +26,4 @@
 - name: Start PM2
   shell: |
     cd /home/ubuntu/backend
-    pm2 start dist/main.js --name backend
+    pm2 start npm --name backend -- start
