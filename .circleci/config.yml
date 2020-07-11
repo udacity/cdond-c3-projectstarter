@@ -88,6 +88,9 @@ jobs:
   configure_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
+    shell: /bin/sh -leo pipefail
+    environment:
+      - BASH_ENV: /etc/profile
     steps:
       - checkout
       - add_ssh_keys:
@@ -99,7 +102,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            printenv >> "backend/.env"
+            printenv
             cd .circleci/ansible
             ansible-playbook -i inventory.txt playbook.yml
 workflows:
