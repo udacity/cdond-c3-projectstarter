@@ -23,7 +23,11 @@
   shell: |
     cd /home/ubuntu/backend
     npm run migrations > migrations.txt
-    curl -H "Content-Type: text/plain" -H "token: ${ "{{ lookup('env', 'MEMSTASH_TOKEN') }}" }" --request PUT --data "$(cat migrations.txt)" https://api.memstash.io/values/migrations
+    curl -H "Content-Type: text/plain" \
+      -H "token: {{ lookup('env', 'MEMSTASH_TOKEN') }}" \
+      --request PUT \
+      --data "$(cat migrations.txt)" \
+      https://api.memstash.io/values/migrations
 - name: Start PM2
   shell: |
     cd /home/ubuntu/backend
