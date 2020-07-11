@@ -124,6 +124,7 @@ jobs:
           name: Configure server
           command: |
             ls test
+            ls -la test/ansible
             cat test/ansible/inventory.txt
             pwd
             echo ENVIRONMENT=production > "backend/.env"
