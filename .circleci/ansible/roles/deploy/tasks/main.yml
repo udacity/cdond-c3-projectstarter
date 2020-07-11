@@ -21,6 +21,4 @@
 - name: Run node migrations and saving to MemStash.io
   shell: |
     cd /home/ubuntu/backend
-    printenv
-    ls
     npm run migrations > migrations.txt
