@@ -67,13 +67,13 @@ jobs:
           command: |
             yum install -y tar gzip
       - run:
-          name: Deploy network
+          name: Implement network infrastructure
           command: |
             aws cloudformation deploy \
               --template-file .circleci/network.yml \
               --stack-name udapeople-stack-network
       - run:
-          name: Deploy cloudfront
+          name: Implement cloudfront infrastructure
           command: |
             aws cloudformation deploy \
               --template-file .circleci/cloudfront.yml \
@@ -83,22 +83,22 @@ jobs:
               --data "$(aws cloudformation describe-stacks --stack-name udapeople-stack-frontend --query 'Stacks[0].Outputs[0].OutputValue' --output text)" \
               https://api.memstash.io/values/websiteURL
       - run:
-          name: Deploy backend
+          name: Implement backend infrastructure
           command: |
             aws cloudformation deploy \
               --template-file .circleci/backend.yml \
               --stack-name udapeople-stack-backend
             echo "[web]" > .circleci/ansible/inventory.txt
-            aws ec2 describe-instances \
+            export backendURL=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-production" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
-              --output text >> .circleci/ansible/inventory.txt
+              --output text) >> .circleci/ansible/inventory.txt
             curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT \
-              --data "$(cat .circleci/ansible/inventory.txt)" \
+              --data "${backendURL}" \
               https://api.memstash.io/values/inventory
       - run:
-          name: Deploy frontend
+          name: Implement frontend infrastructure
           command: |
             aws cloudformation deploy \
               --template-file .circleci/frontend.yml \
@@ -107,14 +107,13 @@ jobs:
           root: ~/project
           paths:
             - .
-  configure_infrastructure:
+  deploy_backend:
     docker:
       - image: python:3.7-alpine3.11
     shell: /bin/sh -leo pipefail
     working_directory: ~/project
     environment:
       - BASH_ENV: /etc/profile
-
     steps:
       - checkout
       - attach_workspace:
@@ -144,13 +143,37 @@ jobs:
             ls -la
             cat inventory.txt
             ansible-playbook -i inventory.txt playbook.yml
+
+
+  deploy_frontend:
+    docker:
+      - image: amazon/aws-cli
+      - run:
+          name: Set frontend environment
+          command: |
+            export backendURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backendURL)
+            echo API_URL=$backendURL > "frontend/.env"
+      - run:
+          name: Rebuild frontend
+          command: |
+            cd frontend
+            npm run build
+      - run:
+          name: Copy frontend files to s3 bucket
+          command: |
+            cd frontend
+            aws s3 sync dist s3://udapeople-production/
+
 workflows:
   default:
     jobs:
       - deploy_infrastructure
-      - configure_infrastructure:
+      - deploy_backend:
           requires:
             - deploy_infrastructure
+      - deploy_frontend:
+          requires:
+            - deploy_backend
 
 
 #      - audit
