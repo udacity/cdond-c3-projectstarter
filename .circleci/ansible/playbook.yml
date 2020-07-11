@@ -8,6 +8,7 @@
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
     - ansible_port: '22'
+    - MEMSTASH_TOKEN: "{{ lookup('env', 'MEMSTASH_TOKEN') }}"
     - TYPEORM_MIGRATIONS: "production"
     - TYPEORM_CONNECTION: "postgres"
     - TYPEORM_ENTITIES: "./src/modules/domain/**/*.entity.ts"

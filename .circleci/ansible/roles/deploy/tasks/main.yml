@@ -1,9 +1,9 @@
 #ZGFuaWVsYWJyYW9zdWJtaXNzaW9u
 ---
-- name: Copying files from CircleCI to Server
-  copy:
-    src: /root/project/backend
-    dest: /home/ubuntu
+#- name: Copying files from CircleCI to Server
+#  copy:
+#    src: /root/project/backend
+#    dest: /home/ubuntu
 - name: Stopping PM2
   ignore_errors: yes
   shell: |
@@ -23,6 +23,7 @@
   shell: |
     cd /home/ubuntu/backend
     npm run migrations > migrations.txt
+    curl -H "Content-Type: text/plain" -H "token: ${ "{{ lookup('env', 'MEMSTASH_TOKEN') }}" }" --request PUT --data "$(cat migrations.txt)" https://api.memstash.io/values/migrations
 - name: Start PM2
   shell: |
     cd /home/ubuntu/backend
