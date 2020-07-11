@@ -84,7 +84,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/frontend.yml \
-              --stack-name udapeople-stack-backend
+              --stack-name udapeople-stack-frontend
   configure_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
