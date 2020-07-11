@@ -11,6 +11,7 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-stack-backend
             aws cloudformation delete-stack --stack-name udapeople-stack-cloudfront
             aws cloudformation delete-stack --stack-name udapeople-stack-frontend
+            exit 0
           when: on_fail
 
 jobs:
