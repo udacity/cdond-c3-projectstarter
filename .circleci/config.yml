@@ -200,9 +200,9 @@ jobs:
             export backendURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backendURL)
             if curl ${backendURL}/api/status | grep "status":"ok"
             then
-            return 1
+            exit 0
             else
-            return 0
+            exit 1
             fi
       - run:
           name: Test frontend
