@@ -89,6 +89,3 @@ workflows:
   default:
     jobs:
       - deploy_infrastructure
-      - configure_infrastructure:
-          requires:
-            - deploy_infrastructure
