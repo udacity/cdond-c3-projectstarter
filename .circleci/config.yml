@@ -148,6 +148,7 @@ jobs:
   deploy_frontend:
     docker:
       - image: amazon/aws-cli
+      - image: node:12.18.1
     steps:
       - checkout
       - run:
