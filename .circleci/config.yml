@@ -63,18 +63,16 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install tar
+          name: Install tar and gzip
           command: |
             yum install -y tar gzip
-            pwd
-            ls
       - persist_to_workspace:
           # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
           # taken to be the root directory of the workspace.
           root: .circleci
           # Must be relative path from root
           paths:
-            - ansible/inventory.txt
+            - ansible
       - run:
           name: Deploy network
           command: |
@@ -93,7 +91,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/backend.yml \
               --stack-name udapeople-stack-backend
-            cat workspace/inventory.txt
+            ls
+            pwd
             echo "[web]" > workspace/inventory.txt
             aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-production" \
@@ -113,10 +112,14 @@ jobs:
       - BASH_ENV: /etc/profile
 
     steps:
+      - checkout
+      - run:
+          name: Install tar and gzip
+          command: |
+            yum install -y tar gzip
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: /tmp/workspace
-      - checkout
+          at: .circleci/ansible
       - add_ssh_keys:
           fingerprints: ["21:19:c0:15:0f:12:94:29:80:f0:01:51:c2:b3:e8:97"]
       - run:
