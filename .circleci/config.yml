@@ -98,7 +98,7 @@ jobs:
             echo $backendURL >> .circleci/ansible/inventory.txt
             curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT \
-              --data "${backendURL}" \
+              --data "http://${backendURL}:3030" \
               https://api.memstash.io/values/backendURL
       - run:
           name: Implement frontend infrastructure
