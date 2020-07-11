@@ -209,7 +209,6 @@ jobs:
           name: Test frontend
           command: |
             export websiteURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/websiteURL)
-            curl
             if curl -s ${websiteURL}/#/employees | grep 'Invalid'
             then
               exit 0
