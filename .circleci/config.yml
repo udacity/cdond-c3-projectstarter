@@ -135,9 +135,9 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME > "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD > "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE > "backend/.env"
-            ls /tmp/workspace
+            cat .circleci/ansible/inventory.txt
             cd .circleci/ansible
-            ansible-playbook -i /tmp/workspace/inventory.txt playbook.yml
+            ansible-playbook -i inventory.txt playbook.yml
 workflows:
   default:
     jobs:
