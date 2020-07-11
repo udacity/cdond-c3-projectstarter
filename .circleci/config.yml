@@ -110,6 +110,7 @@ jobs:
       - BASH_ENV: /etc/profile
 
     steps:
+      - checkout
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
           at: ~/project
@@ -123,6 +124,7 @@ jobs:
           name: Configure server
           command: |
             pwd
+            ls -la
             echo ENVIRONMENT=production > "backend/.env"
             echo TYPEORM_CONNECTION=postgres > "backend/.env"
             echo TYPEORM_MIGRATIONS_DIR=./src/migrations > "backend/.env"
