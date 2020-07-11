@@ -1,0 +1,24 @@
+---
+- name: Copying files from CircleCI to Server
+  copy:
+    src: /root/project/backend
+    dest: /home/ubuntu
+
+- name: Stopping PM2
+  ignore_errors: yes
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 stop backend
+    pm2 delete backend
+- name: Installing node dependencies
+  shell: |
+    cd /home/ubuntu/backend
+    npm install
+- name: Building node service
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+- name: Run node migrations and saving to MemStash.io
+  shell: |
+    cd /home/ubuntu/backend
+    npm run migrations > migrations.txt
