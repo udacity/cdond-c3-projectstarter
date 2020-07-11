@@ -190,6 +190,19 @@ jobs:
             cat .env
             aws s3 sync dist s3://udapeople-production/
 
+  smoke_test:
+    docker:
+      - image: python:3.7-alpine3.11
+    shell: /bin/sh -leo pipefail
+    environment:
+      - BASH_ENV: /etc/profile
+    steps:
+      - run:
+          name: Test backend
+          command: |
+            export backendURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backendURL)
+            curl ${backendURL}/api/status
+
 workflows:
   default:
     jobs:
@@ -203,6 +216,10 @@ workflows:
       - deploy_frontend:
           requires:
             - rebuild_frontend
+      - smoke_test:
+          requires:
+            - deploy_backend
+            - deploy_frontend
 
 
 #      - audit
