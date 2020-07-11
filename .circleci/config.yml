@@ -228,6 +228,7 @@ jobs:
               echo 'Front end smoke test failed due to an invalid check'
               exit 1
             fi
+      - rollback_infrastructure
 workflows:
   default:
     jobs:
