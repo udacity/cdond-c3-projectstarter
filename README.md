@@ -24,6 +24,13 @@ I should move the .circleci/files/ ymls to the root path of the directory.
 11. The AMI ID available in the backend.yml (`ami-068663a3c619dd892`) is not valid. I had to research and change to `ami-083af2bfea9e15579`
 12. I had to subsribe to use the Ubuntu 20.04 image (SCREENSHOT05_02)
 
+
+### New notes
+
+1. I struggled to connect with the database, I remembered that I needed to allow public access from a previous project
+2. The ansible_port must be set to 22 instead of 3030
+3. The guide only says to add the `TYPEORM_ENTITIES` key to the env 
+
 In this project, you will prove your mastery of the following learning objectives:
 
 - Explain the fundamentals and benefits of CI/CD to achieve, build, and deploy automation for cloud-based software products.
