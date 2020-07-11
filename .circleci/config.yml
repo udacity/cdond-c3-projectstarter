@@ -86,12 +86,27 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/frontend.yml \
               --stack-name udapeople-stack-frontend
+            echo "[web]" > workspace/inventory.txt
+            aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-production" \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --output text > workspace/inventory.txt
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
+          # taken to be the root directory of the workspace.
+          root: workspace
+          # Must be relative path from root
+          paths:
+            - inventory.txt
   configure_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
     shell: /bin/sh -leo pipefail
     environment:
       - BASH_ENV: /etc/profile
+    - attach_workspace:
+        # Must be absolute path or relative path from working_directory
+        at: /tmp/workspace
     steps:
       - checkout
       - add_ssh_keys:
@@ -113,11 +128,23 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME > "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD > "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE > "backend/.env"
-
-            printenv >> "backend/.env"
+            ls /tmp/workspace
             cd .circleci/ansible
-            ansible-playbook -i inventory.txt playbook.yml
+            ansible-playbook -i /tmp/workspace/inventory.txt playbook.yml
 workflows:
   default:
     jobs:
-      - deploy_infrastructure
+      - audit
+      - frontend:
+          requires:
+            - audit
+      - backend:
+          requires:
+            - audit
+      - deploy_infrastructure:
+          requires:
+            - frontend
+            - backend
+      - configure_infrastructure:
+          requires:
+            - deploy_infrastructure
