@@ -61,6 +61,13 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
+      - persist_to_workspace:
+          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
+          # taken to be the root directory of the workspace.
+          root: workspace
+          # Must be relative path from root
+          paths:
+            - inventory.txt
       - checkout
       - run:
           name: Deploy network
@@ -80,24 +87,18 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/backend.yml \
               --stack-name udapeople-stack-backend
+            cat workspace/inventory.txt
+            echo "[web]" > workspace/inventory.txt
+            aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-production" \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --output text > workspace/inventory.txt
       - run:
           name: Deploy frontend
           command: |
             aws cloudformation deploy \
               --template-file .circleci/frontend.yml \
               --stack-name udapeople-stack-frontend
-            echo "[web]" > workspace/inventory.txt
-            aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-production" \
-              --query 'Reservations[*].Instances[*].PublicDnsName' \
-              --output text > workspace/inventory.txt
-      - persist_to_workspace:
-          # Must be an absolute path, or relative path from working_directory. This is a directory on the container which is
-          # taken to be the root directory of the workspace.
-          root: workspace
-          # Must be relative path from root
-          paths:
-            - inventory.txt
   configure_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
