@@ -181,6 +181,7 @@ jobs:
               --filters "Name=tag:Name,Values=backend-staging" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
+            echo $backendURL
             echo API_URL=http://${backendURL}:3030/api/status > "frontend/.env"
       - run:
           name: Rebuild frontend
@@ -265,6 +266,7 @@ jobs:
           name: Copy frontend files to s3 bucket
           command: |
             cd frontend
+            cat .env
             aws s3 sync dist s3://udapeople-production/
 workflows:
   default:
