@@ -180,7 +180,7 @@ jobs:
               --filters "Name=tag:Name,Values=backend-staging" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
-            echo API_URL="http://${backendURL}:3030/api/status" > "frontend/.env"
+            echo API_URL="http://${backendURL}:3030" > "frontend/.env"
       - run:
           name: Rebuild frontend
           command: |
@@ -276,6 +276,9 @@ workflows:
           requires:
             - audit
       - deploy_infrastructure:
+          filters:
+            branches:
+              only: master
           requires:
             - frontend
             - backend
