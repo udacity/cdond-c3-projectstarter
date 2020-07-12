@@ -125,7 +125,7 @@ NestJS uses TypeORM to create, generate, run migrations.
 To apply pending migrations you just need to run:
 
 ```bash
-npm run migrations:run
+npm run migrations
 ```
 
 If you have modified/created any entity you can generate a migration from it:
