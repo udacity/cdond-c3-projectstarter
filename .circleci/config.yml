@@ -105,7 +105,6 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
             echo $backendURL >> .circleci/ansible/inventory.txt
-            echo "http://${backendURL}:3030"
             curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT \
               --data "http://${backendURL}:3030" \
@@ -120,7 +119,6 @@ jobs:
             export websiteURL=$(aws cloudformation describe-stacks --stack-name udapeople-stack-frontend \
               --query 'Stacks[0].Outputs[0].OutputValue' \
               --output text)
-            echo $websiteURL
             curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT \
               --data "${websiteURL}" \
@@ -166,7 +164,7 @@ jobs:
 
   rebuild_frontend:
     docker:
-      - image: node:12.18.1
+      - image: warnerbros/node-awscli
     steps:
       - checkout
       - run:
