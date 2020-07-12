@@ -268,7 +268,8 @@ workflows:
       - smoke_test_frontend
       - smoke_test_backend
       - rebuild_frontend
-      - promote_frontend
+      - promote_frontend:
+          requires: rebuild_frontend
 
 #      - deploy_infrastructure
 #          - deploy_backend:
