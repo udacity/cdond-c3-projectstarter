@@ -8,6 +8,7 @@ commands:
           name: Rollback infrastructure resources
           no_output_timeout: 30m
           command: |
+            aws s3 rb s3://udapeople-production --force
             aws cloudformation delete-stack --stack-name udapeople-stack-frontend
             aws cloudformation delete-stack --stack-name udapeople-stack-network
             aws cloudformation delete-stack --stack-name udapeople-stack-cloudfront
@@ -179,11 +180,6 @@ jobs:
               --filters "Name=tag:Name,Values=backend-staging" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
-            aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-staging" \
-              --query 'Reservations[*].Instances[*].PublicDnsName' \
-              --output text
-            echo $backendURL
             echo API_URL="http://${backendURL}:3030/api/status" > "frontend/.env"
       - run:
           name: Rebuild frontend
@@ -268,42 +264,36 @@ jobs:
           name: Copy frontend files to s3 bucket
           command: |
             cd frontend
-            cat .env
             aws s3 sync dist s3://udapeople-production/
 workflows:
   default:
     jobs:
-      - rebuild_frontend
-
-
-#      - deploy_infrastructure
-#          - deploy_backend:
-#          requires:
-#            - deploy_infrastructure
-#            - smoke_test_backend:
-#                requires:
-#                  - deploy_backend
-#            - rebuild_frontend:
-#                requires:
-#                  - smoke_test_backend
-#            - deploy_frontend:
-#                requires:
-#                  - rebuild_frontend
-#            - smoke_test_frontend:
-#                requires:
-#                  - deploy_frontend
-
-#      - audit
-#      - frontend:
-#          requires:
-#            - audit
-#      - backend:
-#          requires:
-#            - audit
-#      - deploy_infrastructure:
-#          requires:
-#            - frontend
-#            - backend
-#      - configure_infrastructure:
-#          requires:
-#            - deploy_infrastructure
+      - audit
+      - frontend:
+          requires:
+            - audit
+      - backend:
+          requires:
+            - audit
+      - deploy_infrastructure:
+          requires:
+            - frontend
+            - backend
+      - deploy_backend:
+          requires:
+            - deploy_infrastructure
+      - smoke_test_backend:
+          requires:
+            - deploy_backend
+      - rebuild_frontend:
+          requires:
+            - smoke_test_backend
+      - deploy_frontend:
+          requires:
+            - rebuild_frontend
+      - smoke_test_frontend:
+          requires:
+            - deploy_frontend
+      - promote_frontend:
+          requires:
+            - smoke_test_frontend
