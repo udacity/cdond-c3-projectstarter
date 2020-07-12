@@ -252,8 +252,8 @@ jobs:
           name: Install tar and gzip
           command: |
             yum install -y tar gzip
-            - attach_workspace:
-                at: ~/project
+      - attach_workspace:
+          at: ~/project
       - run: |
           aws cloudformation deploy \
             --template-file .circleci/frontend.yml \
