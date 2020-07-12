@@ -266,7 +266,7 @@ workflows:
   default:
     jobs:
       - rebuild_frontend
-      - deploy_frontend:
+      - promote_frontend:
           requires:
             - rebuild_frontend
 
