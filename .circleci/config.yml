@@ -181,8 +181,12 @@ jobs:
               --filters "Name=tag:Name,Values=backend-staging" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
+            aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-staging" \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --output text
             echo $backendURL
-            echo API_URL=http://${backendURL}:3030/api/status > "frontend/.env"
+            echo API_URL="http://${backendURL}:3030/api/status" > "frontend/.env"
       - run:
           name: Rebuild frontend
           command: |
@@ -272,9 +276,6 @@ workflows:
   default:
     jobs:
       - rebuild_frontend
-      - promote_frontend:
-          requires:
-            - rebuild_frontend
 
 
 #      - deploy_infrastructure
