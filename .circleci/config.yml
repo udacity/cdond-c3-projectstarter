@@ -267,6 +267,8 @@ workflows:
     jobs:
       - smoke_test_frontend
       - smoke_test_backend
+      - rebuild_frontend
+      - promote_frontend
 
 #      - deploy_infrastructure
 #          - deploy_backend:
