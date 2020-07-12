@@ -208,25 +208,37 @@ jobs:
             cat .env
             aws s3 sync dist s3://udapeople-production/
 
-  smoke_test:
+  smoke_test_backend:
     docker:
       - image: amazon/aws-cli
     steps:
       - run:
           name: Test backend
           command: |
-            export backendURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backendURL)
-            if curl ${backendURL}/api/status | grep '"status":"ok"'
+#            export backendURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backendURL)
+            export backendURL=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-production" \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --output text)
+            if curl http://${backendURL}:3030/api/status | grep '"status":"ok"'
             then
               exit 0
             else
               echo 'Backend smoke test failed due to an invalid check'
               exit 1
             fi
+      - rollback_infrastructure
+  smoke_test_frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
       - run:
           name: Test frontend
           command: |
-            export websiteURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/websiteURL)
+#            export websiteURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/websiteURL)
+            export websiteURL=$(aws cloudformation describe-stacks --stack-name udapeople-stack-frontend \
+              --query 'Stacks[0].Outputs[0].OutputValue' \
+              --output text)
             if curl -s ${websiteURL}/#/employees | grep 'Welcome'
             then
               exit 0
@@ -242,12 +254,18 @@ workflows:
       - deploy_backend:
           requires:
             - deploy_infrastructure
+      - smoke_test_backend:
+          requires:
+            - deploy_backend
       - rebuild_frontend:
           requires:
             - deploy_backend
       - deploy_frontend:
           requires:
             - rebuild_frontend
+      - smoke_test_frontend:
+          requires:
+            - deploy_frontend
 
 #      - audit
 #      - frontend:
