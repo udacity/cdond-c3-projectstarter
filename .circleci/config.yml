@@ -236,7 +236,7 @@ jobs:
             export websiteURL=$(aws cloudformation describe-stacks --stack-name udapeople-stack-frontend \
               --query 'Stacks[0].Outputs[0].OutputValue' \
               --output text)
-            if curl -s ${websiteURL}/#/employees | grep 'Invalid'
+            if curl -s ${websiteURL}/#/employees | grep 'Welcome'
             then
               exit 0
             else
