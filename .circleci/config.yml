@@ -215,7 +215,6 @@ jobs:
       - run:
           name: Test backend
           command: |
-#            export backendURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backendURL)
             export backendURL=$(aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-production" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
@@ -235,7 +234,6 @@ jobs:
       - run:
           name: Test frontend
           command: |
-#            export websiteURL=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/websiteURL)
             export websiteURL=$(aws cloudformation describe-stacks --stack-name udapeople-stack-frontend \
               --query 'Stacks[0].Outputs[0].OutputValue' \
               --output text)
