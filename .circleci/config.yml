@@ -261,7 +261,7 @@ jobs:
             --parameter-overrides ID="production"
       - run: |
           cd frontend
-          aws s3 sync . s3://udapeople-stack-frontend-production --delete
+          aws s3 sync . s3://udapeople-production --delete
 workflows:
   default:
     jobs:
