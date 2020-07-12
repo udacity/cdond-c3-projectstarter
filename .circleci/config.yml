@@ -101,7 +101,7 @@ jobs:
               --stack-name udapeople-stack-backend
             echo "[web]" > .circleci/ansible/inventory.txt
             export backendURL=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-production" \
+              --filters "Name=tag:Name,Values=backend-staging" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
             echo $backendURL >> .circleci/ansible/inventory.txt
@@ -178,7 +178,7 @@ jobs:
           name: Set frontend environment
           command: |
             export backendURL=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-production" \
+              --filters "Name=tag:Name,Values=backend-staging" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
             echo API_URL=http://${backendURL}:3030/api/status > "frontend/.env"
@@ -208,7 +208,7 @@ jobs:
             cd frontend
             ls
             cat .env
-            aws s3 sync dist s3://udapeople-production/
+            aws s3 sync dist s3://udapeople-staging/
 
   smoke_test_backend:
     docker:
@@ -218,7 +218,7 @@ jobs:
           name: Test backend
           command: |
             export backendURL=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-production" \
+              --filters "Name=tag:Name,Values=backend-staging" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
             curl http://${backendURL}:3030/api/status
@@ -235,6 +235,17 @@ jobs:
               --output text)
             curl -s ${websiteURL}/#/employees | grep 'Welcome'
       - rollback_infrastructure
+  promote_frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: |
+          aws cloudformation deploy \
+            --template-file .circleci/frontend.yml \
+            --stack-name udapeople-stack-frontend-production \
+            --parameter-overrides ID="production"
+      - run: aws s3 sync . s3://udapeople-stack-frontend-production --delete
 workflows:
   default:
     jobs:
@@ -242,18 +253,29 @@ workflows:
       - deploy_backend:
           requires:
             - deploy_infrastructure
-      - smoke_test_backend:
-          requires:
-            - deploy_backend
       - rebuild_frontend:
           requires:
             - deploy_backend
       - deploy_frontend:
           requires:
             - rebuild_frontend
-      - smoke_test_frontend:
-          requires:
-            - deploy_frontend
+
+#      - deploy_infrastructure
+#          - deploy_backend:
+#          requires:
+#            - deploy_infrastructure
+#            - smoke_test_backend:
+#                requires:
+#                  - deploy_backend
+#            - rebuild_frontend:
+#                requires:
+#                  - smoke_test_backend
+#            - deploy_frontend:
+#                requires:
+#                  - rebuild_frontend
+#            - smoke_test_frontend:
+#                requires:
+#                  - deploy_frontend
 
 #      - audit
 #      - frontend:

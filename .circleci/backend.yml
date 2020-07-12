@@ -4,7 +4,7 @@ Description: >
 Parameters:
   ID:
     Description: Unique identifier.
-    Default: production
+    Default: staging
     Type: String
 
 Resources:

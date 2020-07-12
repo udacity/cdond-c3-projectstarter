@@ -4,7 +4,7 @@ Description: >
 Parameters:
   WorkflowID:
     Description: Unique identifier.
-    Default: production
+    Default: staging
     Type: String
 
 
