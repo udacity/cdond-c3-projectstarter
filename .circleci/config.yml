@@ -254,14 +254,18 @@ jobs:
             yum install -y tar gzip
       - attach_workspace:
           at: ~/project
-      - run: |
-          aws cloudformation deploy \
-            --template-file .circleci/frontend.yml \
-            --stack-name udapeople-stack-frontend-production \
-            --parameter-overrides ID="production"
-      - run: |
-          cd frontend
-          aws s3 sync . s3://udapeople-production --delete
+      - run:
+          name: Implement frontend infrastructure
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/frontend.yml \
+              --stack-name udapeople-stack-frontend-production \
+              --parameter-overrides ID="production"
+      - run:
+          name: Copy frontend files to s3 bucket
+          command: |
+            cd frontend
+            aws s3 sync dist s3://udapeople-production/
 workflows:
   default:
     jobs:
