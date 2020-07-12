@@ -206,8 +206,6 @@ jobs:
           name: Copy frontend files to s3 bucket
           command: |
             cd frontend
-            ls
-            cat .env
             aws s3 sync dist s3://udapeople-staging/
 
   smoke_test_backend:
@@ -221,8 +219,13 @@ jobs:
               --filters "Name=tag:Name,Values=backend-staging" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
-            curl http://${backendURL}:3030/api/status
-      - rollback_infrastructure
+            if curl http://${backendURL}:3030/api/status | grep '"status":"ok"'
+            then
+              exit 0
+            else
+              echo 'Backend smoke test failed due to an invalid check'
+              exit 1
+            fi
   smoke_test_frontend:
     docker:
       - image: amazon/aws-cli
@@ -233,32 +236,37 @@ jobs:
             export websiteURL=$(aws cloudformation describe-stacks --stack-name udapeople-stack-frontend \
               --query 'Stacks[0].Outputs[0].OutputValue' \
               --output text)
-            curl -s ${websiteURL}/#/employees | grep 'Welcome'
-      - rollback_infrastructure
+            if curl -s ${websiteURL}/#/employees | grep 'Invalid'
+            then
+              exit 0
+            else
+              echo 'Front end smoke test failed due to an invalid check'
+              exit 1
+            fi
   promote_frontend:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+          name: Install tar and gzip
+          command: |
+            yum install -y tar gzip
+            - attach_workspace:
+                at: ~/project
       - run: |
           aws cloudformation deploy \
             --template-file .circleci/frontend.yml \
             --stack-name udapeople-stack-frontend-production \
             --parameter-overrides ID="production"
-      - run: aws s3 sync . s3://udapeople-stack-frontend-production --delete
+      - run: |
+          cd frontend
+          aws s3 sync . s3://udapeople-stack-frontend-production --delete
 workflows:
   default:
     jobs:
-      - deploy_infrastructure
-      - deploy_backend:
-          requires:
-            - deploy_infrastructure
-      - rebuild_frontend:
-          requires:
-            - deploy_backend
-      - deploy_frontend:
-          requires:
-            - rebuild_frontend
+      - smoke_test_frontend
+      - smoke_test_backend
 
 #      - deploy_infrastructure
 #          - deploy_backend:
