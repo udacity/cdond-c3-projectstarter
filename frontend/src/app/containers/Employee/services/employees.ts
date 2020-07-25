@@ -15,7 +15,7 @@ export class EmployeesService {
   private readonly employeesUrl: string;
   private readonly httpService: HttpService;
 
-  constructor(baseUrl = window.localStorage.getItem('backendUrl')) {
+  constructor(baseUrl = process.env.API_URL) {
     this.employeesUrl = `${baseUrl}/api/Employees`;
     this.httpService = new HttpService();
   }
