@@ -31,6 +31,7 @@
 Setting up servers and infrastructure is complicated business. There are many, many moving parts and points of failure. The opportunity for failure is massive when all that infrastructure is handled manually by human beings. Let’s face it. We’re pretty horrible at consistency. That’s why UdaPeople adopted the IaC (“Infrastructure as Code”) philosophy after “Developer Dave” got back from the last DevOps conference. We’ll need a job that executes some CloudFormation templates so that the UdaPeople team never has to worry about a missed deployment checklist item.
 
 - Add jobs to your config file to create your infrastructure using [CloudFormation templates](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). Again, provide a screenshot demonstrating an appropriate job failure (failing for the right reasons). **[SCREENSHOT05]**
+  - Use the pipeline/workflow id to name, tag or otherwise mark your CloudFormation stacks so that you can reference them later on (ex: rollback). If you'd like, you can use the parameterized CloudFormation templates we provided. 
   - New EC2 Instance for back-end.
     - Make sure the EC2 instance has your back-end port opened up to public traffic (default port 3030).
   - Save the new back-end url for later use (the front-end needs it). This could be done with [MemStash.io](https://memstash.io).
