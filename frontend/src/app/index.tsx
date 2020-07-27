@@ -15,9 +15,6 @@ export class Root extends React.Component<Props, State> {
   };
 
   componentDidMount() {
-    if (!window.localStorage.getItem('backendUrl')) {
-      window.localStorage.setItem('backendUrl', process.env.API_URL || '');
-    }
     setTimeout(() => this.setState({ showLoader: false }), 1000);
   }
   render() {
