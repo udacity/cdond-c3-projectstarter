@@ -59,7 +59,7 @@ Setting up servers and infrastructure is complicated business. There are many, m
 
 Now that the infrastructure is up and running, it’s time to configure for dependencies and move our application files over. UdaPeople used to have this ops guy in the other building to make the copy every Friday, but now they want to make a full deploy on every single commit. Luckily for UdaPeople, you’re about to add a job that handles this automatically using Ansible. The ops guy will finally have enough time to catch up on his Netflix playlist.
 
-- Add a job that runs a database migration so that new changes are applied. Why fail? Because we need to make sure the smoke test CAN fail. For this, you will need to add a migration that removes a column to the db table (removing a column should cause the smoke test to fail). You can add the column back in later.
+- Add a job that runs database migrations so that new changes are applied. 
   - Save some evidence that any new migrations ran. This is useful information if you need to rollback. To do this, you can use bash to save the migration output to a file or a variable. Then you can use grep to check for certain words that show that new migrations were run. It might help to use [MemStash.io](https://memstash.io) to store a true or false if any migrations were run (hint: use something like `<< pipeline.id >>_migrations` as a key).
 - Add a job to build and copy the compiled back-end files to your new EC2 instance. Use Ansible to copy the files. 
 - Add a job to prepare the front-end code for distribution and deploy it. 
