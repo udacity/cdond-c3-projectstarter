@@ -98,9 +98,10 @@ fi
 
 Of course, we all hope every pipeline follows the “happy path.” But any experienced UdaPeople developer knows that it’s not always the case. If the smoke test fails, what should we do? The smart thing would be to hit CTRL-Z and undo all our changes. But is it really that easy? It will be once you build the next job!
 
-- Only trigger rollback jobs if the smoke tests or any following jobs fail. 
 - Add a “[command](https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands)” that rolls back the last change:
-  - Destroy the current CloudFormation stack.
+  - Only trigger rollback jobs if the smoke tests or any following jobs fail. 
+  - Delete files uploaded to S3.
+  - Destroy the current CloudFormation stacks using the same stack names you used when creating the stack earlier (front-end and back-end).
   - Revert the last migration (IF a new migration was applied) on the database to that it goes back to the way it was before. You can use that value you saved in [MemStash.io](https://memstash.io) to know if you should revert any migrations.
 - No more jobs should run after this.
 - Provide a screenshot for a successful rollback after a failed smoke test. **[SCREENSHOT07]**
