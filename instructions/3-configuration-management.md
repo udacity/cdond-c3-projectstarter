@@ -62,11 +62,11 @@ Now that the infrastructure is up and running, it’s time to configure for depe
 
 - Add a job that runs database migrations so that new changes are applied. 
   - Save some evidence that any new migrations ran. This is useful information if you need to rollback. To do this, you can use bash to save the migration output to a file or a variable. Then you can use grep to check for certain words that show that new migrations were run. It might help to use [MemStash.io](https://memstash.io) to store a true or false if any migrations were run (hint: use something like `<< pipeline.id >>_migrations` as a key).
-- Add a job to build and copy the compiled back-end files to your new EC2 instance. Use Ansible to copy the files. 
+- Add a job to build and copy the compiled back-end files to your new EC2 instance. Use Ansible to copy the files (compiled back-end files can be found in a folder called `./dist`).
 - Add a job to prepare the front-end code for distribution and deploy it. 
-  - Add the back-end url that you saved earlier to the job's `API_URL` environment variables before running re-compiling the code. This will ensure the front-end is pointing to the correct back-end. 
-  - Run another `npm run build` so that the back-end url gets "baked into" the front-end. 
-  - Copy the files to your new S3 Bucket using AWS CLI.
+  - Before building, add the back-end url that you saved earlier to the job's `API_URL` environment variables before running re-compiling the code. This will ensure the front-end is pointing to the correct back-end. 
+  - Run `npm run build` one last time so that the back-end url gets "baked into" the front-end. 
+  - Copy the files to your new S3 Bucket using AWS CLI (compiled front-end files can be found in a folder called `./dist`).
 - Provide the public URL for your S3 Bucket (aka, your front-end). **[URL02]**
 
 #### 3. Smoke Test Phase
