@@ -30,6 +30,8 @@
 
 Setting up servers and infrastructure is complicated business. There are many, many moving parts and points of failure. The opportunity for failure is massive when all that infrastructure is handled manually by human beings. Let’s face it. We’re pretty horrible at consistency. That’s why UdaPeople adopted the IaC (“Infrastructure as Code”) philosophy after “Developer Dave” got back from the last DevOps conference. We’ll need a job that executes some CloudFormation templates so that the UdaPeople team never has to worry about a missed deployment checklist item.
 
+![Job properly failing because of an error when creating infrastructure.](screenshots/SCREENSHOT05.png)
+
 - Add jobs to your config file to create your infrastructure using [CloudFormation templates](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). Again, provide a screenshot demonstrating an appropriate job failure (failing for the right reasons). **[SCREENSHOT05]**
   - Use the pipeline/workflow id to name, tag or otherwise mark your CloudFormation stacks so that you can reference them later on (ex: rollback). If you'd like, you can use the parameterized CloudFormation templates we provided. 
   - New EC2 Instance for back-end.
@@ -73,6 +75,8 @@ Now that the infrastructure is up and running, it’s time to configure for depe
 
 All this automated deployment stuff is great, but what if there’s something we didn’t plan for that made it through to production? What if the UdaPeople website is now down due to a runtime bug that our unit tests didn’t catch? Users won’t be able to access their data! This same situation can happen with manual deployments, too. In a manual deployment situation, what’s the first thing you do after you finish deploying? You do a “smoke test” by going to the site and making sure you can still log in or navigate around. You might do a quick `curl` on the backend to make sure it is responding. In an automated scenario, you can do the same thing through code. Let’s add a job to provide the UdaPeople team with a little sanity check.
 
+![Job properly failing because of a failed smoke test.](screenshots/SCREENSHOT06.png)
+
 - Add a job to make a simple test on both front-end and back-end. Use the suggested tests below or come up with your own. 
   - Check `$API_URL/api/status` to make sure it returns a healthy response.
 ```bash
@@ -98,6 +102,8 @@ fi
 
 Of course, we all hope every pipeline follows the “happy path.” But any experienced UdaPeople developer knows that it’s not always the case. If the smoke test fails, what should we do? The smart thing would be to hit CTRL-Z and undo all our changes. But is it really that easy? It will be once you build the next job!
 
+![Successful rollback job.](screenshots/SCREENSHOT07.png)
+
 - Add a “[command](https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands)” that rolls back the last change:
   - Only trigger rollback jobs if the smoke tests or any following jobs fail. 
   - Delete files uploaded to S3.
@@ -111,6 +117,8 @@ Of course, we all hope every pipeline follows the “happy path.” But any expe
 
 Assuming the smoke test came back clean, we should have a relatively high level of confidence that our deployment was a 99% success. Now’s time for the last 1%. UdaPeople uses the “Blue-Green Deployment Strategy” which means we deployed a second environment or stack next to our existing production stack. Now that we’re sure everything is "A-okay", we can switch from blue to green. 
 
+![Successful promotion job.](screenshots/SCREENSHOT08.png)
+
 - Add a job that promotes our new front-end to production
   - Use a [CloudFormation template](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files) to change the origin of your CloudFront distribution to the new S3 bucket ARN.
 - Provide a screenshot of the successful job. **[SCREENSHOT08]**
@@ -121,9 +129,13 @@ Assuming the smoke test came back clean, we should have a relatively high level 
 
 The UdaPeople finance department likes it when your AWS bills are more or less the same as last month OR trending downward. But, what if all this “Blue-Green” is leaving behind a trail of dead-end production environments? That upward trend probably means no Christmas bonus for the dev team. Let’s make sure everyone at UdaPeople has a Merry Christmas by adding a job to clean up old stacks.
 
+![Successful cleanup job.](screenshots/SCREENSHOT09.png)
+
 - Add a job that deletes the previous S3 bucket and EC2 instance. 
 - Provide a screenshot of the successful job. **[SCREENSHOT09]**
 
 #### Other Considerations
 
 - Make sure you only run deployment-related jobs on commits to the `master` branch. Provide screenshot of a build triggered by a non-master commit. It should only run the jobs prior to deployment. **[SCREENSHOT10]**
+
+![Deploy jobs only run on master](screenshots/SCREENSHOT10.png)
