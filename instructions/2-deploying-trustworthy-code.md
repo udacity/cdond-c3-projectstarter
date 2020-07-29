@@ -21,6 +21,8 @@ Throughout this project, you will be asked to take screenshots or provide URLs t
 
 The goal of a build phase is to compile or lint the source code to check for syntax errors or unintentional typos in code. It’s your first line of defense against bugs as you attempt to integrate the pieces of your project together. This is especially important to UdaPeople because we don’t want to waste credits or time running other steps if the code can’t even compile.
 
+![Job properly failing because of compile errors.](screenshots/SCREENSHOT01.png)
+
 - Add jobs to the `.circleci/config.yml` file to build/compile both front-end and back-end code (one job for each). 
 - You should have separate jobs for front-end and back-end so that failure alerts are more descriptive.
 - Job should fail if code cannot be compiled (fail for the right reasons). We have provided an easy-to-fix compile error in the code to prove the jobs fail. Provide a screenshot of jobs that failed because of compile errors. **[SCREENSHOT01]**
@@ -30,6 +32,8 @@ The goal of a build phase is to compile or lint the source code to check for syn
 #### 2. Test Phase
 
 Unit tests are one of the many very important building blocks of a system that enables Continuous Delivery (notice, we didn’t say “the only or most important thing”). UdaPeople believes that tests should come first just like they do in the scientific method. So, if a test fails, it's because the code is no longer trustworthy. Only trustworthy code should get a ticket to continue the ride!
+
+![Job properly failing because of test failures.](screenshots/SCREENSHOT02.png)
 
 - Add jobs to the config file to run all the unit tests in both layers. The command you use to run the tests should generate some sort of test results file in a standard format. You may need to check the test runner docs for this.
 - Again, this should be in separate jobs.
@@ -41,6 +45,8 @@ Unit tests are one of the many very important building blocks of a system that e
 #### 3. Analyze Phase
 
 UdaPeople handles some private information like social security numbers, salary amount, etc. It would be a shame if a package with a known vulnerability left a security hole in our application, giving hackers access to that information! That’s why we should include a job that checks for known vulnerabilities every time we check in new code.
+
+![Job properly failing because of security vulnerabilities.](screenshots/SCREENSHOT03.png)
 
 - Add jobs to the config file to check for security vulnerabilities in the packages used in the application.
   - Create a simple job to run nodejs commands. The product `npm` comes with an “audit” feature that will check for known package vulnerabilities. Just `cd` into the directory of front-end and back-end and run the following:
@@ -57,6 +63,8 @@ npm audit fix --audit-level=critical --force
 #### 4. Alerts
 
 When a build fails for any reason, the UdaPeople dev team needs to know about it. That way they can jump in and save the day (the day that they almost ruined by checking in bad code… but we digress). We’re going to add an alert so that botched builds raise a nice wavy red flag.
+
+![An alert when the build breaks.](screenshots/SCREENSHOT04.png)
 
 - Integrate Slack, email or another communication tool to receive alerts when jobs fail. 
 - Alerts should include a summary of what happened and a link to the job console output for quick troubleshooting.
