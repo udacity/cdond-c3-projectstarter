@@ -7,6 +7,9 @@ Instructions for how to get a copy of the project running on your local machine.
 NodeJs v10 or higher
 
 ### Starter Code
+
+[VIDEO: Walkthrough of starter code.]
+
 1. Clone the [starter code](https://github.com/udacity/cdond-c3-projectstarter) to your machine so that you can manipulate the files.
 2. Push your code into a repository in your account in Github. You might consider making your repository public so that Circle CI will give you more credits to run builds ([more information here](https://circleci.com/open-source/)).
 

@@ -3,11 +3,17 @@
 ### Setup
 
 #### AWS
+
+[VIDEO: Creating IAM]
+[VIDEO: Creating Postgres]
+
 1. Create and download a new key pair in AWS for CircleCI to use to work with AWS resources. [This tutorial may help](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) (Option 1: Create a key pair using Amazon EC2). You'll be using this key pair (pem file) in future steps so name it well and keep it in a memorable location. 
 2. Create IAM user for programmatic access only and copy the id and access keys. [This tutorial may help.](https://serverless-stack.com/chapters/create-an-iam-user.html) You'll need these keys if you want to try any AWS commands from your own command line. You'll also need these credentialsto add to Circle CI configuration in the next steps.
 3. Add a PostgreSQL database in RDS that has **public accessibility**. Take note of the connection details (hostname, username, password). [This tutorial may help.](https://aws.amazon.com/getting-started/tutorials/create-connect-postgresql-db/) As long as you marked "Public Accessibility" as "yes", you won't need to worry about VPC settings or security groups.
 
 #### Circle CI
+
+[VIDEO: key pair, pem file, adding to circle ci, env vars]
 
 1. Add SSH Key pair from EC2 as shown [here](https://circleci.com/docs/2.0/add-ssh-key/). To get the actual key pair, you'll need to open the pem file in a text editor and copy the contents. Then you can paste them into Circle CI.
 
