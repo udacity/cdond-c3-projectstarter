@@ -14,6 +14,7 @@
 2. Add the following environment variables to your Circle CI project by navigating to {project name} > Settings > Environment Variables as shown [here](https://circleci.com/docs/2.0/settings/):
   - `AWS_ACCESS_KEY_ID`=(from IAM user with programmatic access)
   - `AWS_SECRET_ACCESS_KEY`= (from IAM user with programmatic access)
+  - `AWS_DEFAULT_REGION`=(your default region in aws)
   - `TYPEORM_CONNECTION`=`postgres`
   - `TYPEORM_MIGRATIONS_DIR`=`./src/migrations`
   - `TYPEORM_ENTITIES`=`./src/modules/domain/**/*.entity.ts`
@@ -120,7 +121,7 @@ Assuming the smoke test came back clean, we should have a relatively high level 
 ![Successful promotion job.](screenshots/SCREENSHOT08.png)
 
 - Add a job that promotes our new front-end to production
-  - Use a [CloudFormation template](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files) to change the origin of your CloudFront distribution to the new S3 bucket ARN.
+  - Use a [CloudFormation template](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files) to change the origin of your CloudFront distribution to the new S3 bucket.
 - Provide a screenshot of the successful job. **[SCREENSHOT08]**
 - Provide the public URL for your CloudFront distribution (aka, your production front-end). **[URL03]**
 - Provide the public URL for your back-end server in EC2. **[URL04]**
