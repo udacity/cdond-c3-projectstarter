@@ -1,9 +1,11 @@
 ## Section 3 - Utilize a Configuration Management Tool to Accomplish Deployment to Cloud-Based Servers
 
+In this section, you will practice creating and configuring infrastructure before deploying code to it. You will accomplish this by preparing your AWS and Circle CI accounts just a bit, then by building Ansible Playbooks for use in your CircleCI configuration.
+
 ### Setup
 
 #### AWS
-1. Create and download a new key pair in AWS for CircleCI to use to work with AWS resources. [This tutorial may help](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) (Option 1: Create a key pair using Amazon EC2). You'll be using this key pair (pem file) in future steps so name it well and keep it in a memorable location. 
+1. Create and download a new key pair in AWS for CircleCI to use to work with AWS resources. Name this key pair "udacity" so that it works with your Cloud Formation templates. [This tutorial may help](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/ec2-key-pairs.html#having-ec2-create-your-key-pair) (look for "Option 1: Create a key pair using Amazon EC2"). You'll be using this key pair (pem file) in future steps so keep it in a memorable location. 
 2. Create IAM user for programmatic access only and copy the id and access keys. [This tutorial may help.](https://serverless-stack.com/chapters/create-an-iam-user.html) You'll need these keys if you want to try any AWS commands from your own command line. You'll also need these credentialsto add to Circle CI configuration in the next steps.
 3. Add a PostgreSQL database in RDS that has **public accessibility**. Take note of the connection details (hostname, username, password). [This tutorial may help.](https://aws.amazon.com/getting-started/tutorials/create-connect-postgresql-db/) As long as you marked "Public Accessibility" as "yes", you won't need to worry about VPC settings or security groups.
 
@@ -27,20 +29,24 @@
 
 ### To Do
 
+NOTE: Some AWS-related jobs may take awhile to complete. If a job takes too long, it could cause a timeout. If this is the case, just restart the job and keep your fingers crossed for faster network traffic.
+
 #### 1. Infrastructure Phase
 
 Setting up servers and infrastructure is complicated business. There are many, many moving parts and points of failure. The opportunity for failure is massive when all that infrastructure is handled manually by human beings. Let’s face it. We’re pretty horrible at consistency. That’s why UdaPeople adopted the IaC (“Infrastructure as Code”) philosophy after “Developer Dave” got back from the last DevOps conference. We’ll need a job that executes some CloudFormation templates so that the UdaPeople team never has to worry about a missed deployment checklist item.
 
 ![Job properly failing because of an error when creating infrastructure.](screenshots/SCREENSHOT05.png)
 
+In this phase, you will use add CircleCI jobs that execute Cloud Formation templates that create infrastructure as well as jobs that execute Ansible Playbooks to configure that newly created infrastructure.
+
 - Add jobs to your config file to create your infrastructure using [CloudFormation templates](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). Again, provide a screenshot demonstrating an appropriate job failure (failing for the right reasons). **[SCREENSHOT05]**
   - Use the pipeline/workflow id to name, tag or otherwise mark your CloudFormation stacks so that you can reference them later on (ex: rollback). If you'd like, you can use the parameterized CloudFormation templates we provided. 
-  - New EC2 Instance for back-end.
+  - Programmatically create a new EC2 Instance for your back-end.
     - Make sure the EC2 instance has your back-end port opened up to public traffic (default port 3030).
-  - Save the new back-end url for later use (the front-end needs it). This could be done with [MemStash.io](https://memstash.io).
-  - New S3 Bucket for front-end.
-  - Save the old bucket arn in case you need it later (for rollback). This could be done with [MemStash.io](https://memstash.io).
-- Create an Ansible playbook to set up the backend server.
+  - Programmatically save the new back-end url to memory or disk for later use (the front-end needs it). This could be done with [MemStash.io](https://memstash.io).
+  - Programmatically create a new S3 Bucket for your front-end.
+  - Programmatically save the old bucket arn to memory or disk in case you need it later (for rollback). This could be done with [MemStash.io](https://memstash.io).
+- Create an Ansible playbook to set up the backend server. Remember that you are running this Playbook against an EC2 instance that has been programmatically created (inside the CircleCI job). Your job will need to use the ssh key fingerprint as well as the username ("ubuntu") of the EC2 instance when executing the Playbook. Here are some steps to perform in your Playbook:
   - Install Python, if needed.
   - Update/upgrade packages.
   - Install nodejs.
@@ -57,7 +63,6 @@ Setting up servers and infrastructure is complicated business. There are many, m
   - [Configure PM2](https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps) to run back-end server .
 - In the back-end deploy job, execute Ansible playbook to configure the instance.
 - Provide a URL to your public GitHub repository. **[URL01]**
-- Provide the public Url to working CI/CD pipeline **[URL02]**
 
 #### 2. Deploy Phase
 
@@ -68,7 +73,7 @@ Now that the infrastructure is up and running, it’s time to configure for depe
 - Add a job to build and copy the compiled back-end files to your new EC2 instance. Use Ansible to copy the files (compiled back-end files can be found in a folder called `./dist`).
 - Add a job to prepare the front-end code for distribution and deploy it. 
   - Before building, add the back-end url that you saved earlier to the job's `API_URL` environment variables before running re-compiling the code. This will ensure the front-end is pointing to the correct back-end. 
-  - Run `npm run build` one last time so that the back-end url gets "baked into" the front-end. 
+  - Run `npm run build` one last time so that the back-end url gets "baked" into the front-end. 
   - Copy the files to your new S3 Bucket using AWS CLI (compiled front-end files can be found in a folder called `./dist`).
 - Provide the public URL for your S3 Bucket (aka, your front-end). **[URL02]**
 

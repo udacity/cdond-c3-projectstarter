@@ -5,7 +5,7 @@ Errors and unhealthy states are important to know about, wouldn’t you say? But
 UdaPeople chose Prometheus as a monitoring solution since it is open-source and versatile. Once configured properly, Prometheus will turn our server’s errors into sirens that no one can ignore.  
 
 ### Setup
-- Create an EC2 instance and SSH into it.
+- Manually create an EC2 instance and SSH into it.
 - Set up Prometheus Server on EC2 following [these instructions](https://codewizardly.com/prometheus-on-aws-ec2-part1/).
 - Configure Prometheus for AWS Service Discovery following [these instructions](https://codewizardly.com/prometheus-on-aws-ec2-part3/).
 
@@ -30,6 +30,6 @@ Now that Prometheus and our EC2 instance have an open line of communication, we 
 
 - SSH into your Prometheus Server
 - Install and configure AlertManager by following [these instructions](https://codewizardly.com/prometheus-on-aws-ec2-part4/).
-- You can decide if you will use Slack, email, or another messaging service.
+- You can decide if you will use Slack, email, or another messaging service. Our examples are using Slack, but you should feel free to use the messaging service to which you are most accustomed.
 - Set up an alert for low memory or some condition you can control to intentionally cause an alert.
 - Provide a screenshot of an alert that was sent by Prometheus. **[SCREENSHOT12]**

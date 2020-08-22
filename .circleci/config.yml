@@ -1,7 +1,18 @@
 version: 2.1
 
+### It's a good practice to keep your commands at the top of the config file. In this project, you'll need at least 2 commands:
+
+# commands:
+#   destroy-environment:
+#     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
+#     ...
+
+#   revert-migration:
+#     description: Revert the last migration if successfully run in the current workflow.
+#     ...
+
 jobs:
-  hello-world:
+  hello-world: # Delete this job when you get started
     docker:
       - image: amazon/aws-cli
     steps:
@@ -10,6 +21,32 @@ jobs:
           name: Say Hello
           command: |
             echo "Hello World"
+
+#  build-frontend:
+
+#  build-frontend:
+
+#  test-frontend:
+
+#  est-backend:
+
+#  can-frontend:
+
+#  scan-backend:
+
+#  deploy-infrastructure:
+
+#  configure-infrastructure:
+
+#  run-migrations:
+
+#  deploy-frontend:
+
+#  deploy-backend:  
+
+#  smoke-test:
+
+#  cloudfront-update:
 
 workflows:
   default:
