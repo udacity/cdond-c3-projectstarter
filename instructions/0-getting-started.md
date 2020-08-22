@@ -4,7 +4,9 @@ Instructions for how to get a copy of the project running on your local machine.
 
 ### Dependencies
 
-NodeJs v10 or higher
+* Git SCM
+* SSH client like OpenSSH
+* NodeJs v10 or higher (if you plan on compiling locally)
 
 ### Starter Code
 1. Clone the [starter code](https://github.com/udacity/cdond-c3-projectstarter) to your machine so that you can manipulate the files.
@@ -14,7 +16,11 @@ NodeJs v10 or higher
 
 For your convenience, we have provided some CloudFormation templates that you can use throughout the deployment phase of your project. You can find those templates in [this folder](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). 
 
-### Installation
+### Compiling/Running Locally (Optional)
+
+**PLEASE NOTE:** It is NOT necessary that you compile and run the project locally. The goal of this project is for you to show mastery in management of CI/CD systems, not React/NodeJS web applications. If you are experienced with React/NodeJS or don't mind an extra challenge, then be our guest! But, you can perfectly complete this project without compiling or running the code locally.
+
+The instructions and information that follows should help you build, test and deploy the web application either locally or in CI/CD.
 
 This is a "mono-repository" which means multiple servers or layers exist in the same repository. You'll find the following main folders:
 

@@ -66,6 +66,6 @@ When a build fails for any reason, the UdaPeople dev team needs to know about it
 
 ![An alert when the build breaks.](screenshots/SCREENSHOT04.png)
 
-- Integrate Slack, email or another communication tool to receive alerts when jobs fail. 
+- Integrate Slack, email or another communication tool to receive alerts when jobs fail. Our examples are using Slack, but you should feel free to use the communication tool to which you are most accustomed.
 - Alerts should include a summary of what happened and a link to the job console output for quick troubleshooting.
 - Provide a screenshot of an alert from one of your failed builds. **[SCREENSHOT04]**
