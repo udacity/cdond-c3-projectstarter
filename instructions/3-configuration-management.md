@@ -27,7 +27,6 @@ In this section, you will practice creating and configuring infrastructure befor
   - `TYPEORM_PASSWORD`={your postgres database password in RDS}
   - `TYPEORM_DATABASE`={your postgres database name in RDS}
 
-
 NOTE: Some AWS-related jobs may take awhile to complete. If a job takes too long, it could cause a timeout. If this is the case, just restart the job and keep your fingers crossed for faster network traffic. If this happens often, you might consider increasing the job timeout [as described here](https://support.circleci.com/hc/en-us/articles/360007188574-Build-has-hit-timeout-limit).
 
 ### To Do
