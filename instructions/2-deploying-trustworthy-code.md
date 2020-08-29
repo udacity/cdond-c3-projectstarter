@@ -9,7 +9,7 @@ Circle CI is but one of many options for CI/CD tools. It is a “software as a s
  - Notice the `.circleci` folder. This is where your jobs will go.
 3. Ensure a workflow starts with at least one “Hello World” job. If you need to take a look at some samples, Circle CI was nice enough to [give us a few](https://circleci.com/docs/2.0/sample-config).
 
-Please watch the [video walkthrough of the setting up CircleCI here](https://www.youtube.com/watch?v=SRBmYjUF-tA).
+Please watch the [video walkthrough of setting up CircleCI here](https://www.youtube.com/watch?v=SRBmYjUF-tA).
 
 ### Screenshots and URLs
 
