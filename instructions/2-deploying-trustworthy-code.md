@@ -9,6 +9,8 @@ Circle CI is but one of many options for CI/CD tools. It is a “software as a s
  - Notice the `.circleci` folder. This is where your jobs will go.
 3. Ensure a workflow starts with at least one “Hello World” job. If you need to take a look at some samples, Circle CI was nice enough to [give us a few](https://circleci.com/docs/2.0/sample-config).
 
+Please watch the [video walkthrough of the setting up CircleCI here](https://www.youtube.com/watch?v=SRBmYjUF-tA).
+
 ### Screenshots and URLs
 
 Throughout this project, you will be asked to take screenshots or provide URLs to aid in the evaluation process once you're done with the project. It's worth mentioning here since it's much harder to harvest some screen shots once you've passed certain milestones. It's best if you take screenshots along the way and store them in a folder on your computer until you're ready to turn the project in. Also, it's good to keep a document or notepad with the list of urls that are requested.
