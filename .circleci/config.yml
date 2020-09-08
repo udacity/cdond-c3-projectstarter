@@ -11,17 +11,36 @@ version: 2.1
 #     description: Revert the last migration if successfully run in the current workflow.
 #     ...
 
+parameters:
+  image:
+    type: string
+    default: circleci/node:latest
+
 jobs:
-  build-frontend:
+  hello:
     docker:
-      - image: circleci/node:latest
+      - image: << pipeline.parameters.image >>
     steps:
+      - run: echo "My pipeline id is << pipeline.id >> and my git branch is << pipeline.git.branch >>."
       - checkout
       - run: pwd
+      - run: ls -Rla ~
       - run: node -v
-      - run: |
-          cd frontend
-          npm run build
+  build-frontend:
+    docker:
+      - image: << pipeline.parameters.image >>
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            cd frontend
+            npm i
+      - run:
+          name: Compile the code
+          command: |
+            cd frontend
+            npm run build
 
 #  build-frontend:
 
@@ -50,4 +69,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
+      - hello
+      - build-frontend:
+          requires:
+            - hello
