@@ -48,8 +48,9 @@ jobs:
             npm install 
             npm run test
       - store_test_results:
-          path: ./frontend/coverage
-
+          path: ./frontend/coverage/
+      - store_artifacts:
+          path: ./frontend/coverage/
   test-backend:
     docker:
         - image: circleci/node:13.8.0
@@ -89,9 +90,9 @@ workflows:
       - test-frontend:
           requires:
             - build-frontend
-      - build-backend
+#      - build-backend
 #          requires:
 #            - test-frontend
-      - test-backend:
-          requires:
-            - build-backend
+#      - test-backend:
+#          requires:
+#            - build-backend
