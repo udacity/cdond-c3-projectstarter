@@ -47,6 +47,8 @@ jobs:
             cd frontend
             npm install 
             npm run test
+      - store_test_results:
+          path: ./frontend/coverage
 
   test-backend:
     docker:
@@ -59,6 +61,9 @@ jobs:
             cd backend
             npm install 
             npm run test
+      - store_test_results:
+          path: ./backend/coverage
+
 #  scan-frontend:
 
 #  scan-backend:
