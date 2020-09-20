@@ -58,7 +58,7 @@ jobs:
           command: |
             cd backend
             npm install 
-            npm run build
+            npm run test
 #  scan-frontend:
 
 #  scan-backend:
