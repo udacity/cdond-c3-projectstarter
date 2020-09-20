@@ -45,12 +45,14 @@ jobs:
           name: Frontend -> npm install && run tests
           command: |
             cd frontend
-            npm install 
-            npm run test
+            npm install
+            npm run test -- --reporters=jest-junit
+          environment:
+            JEST_JUNIT_OUTPUT_DIR: ./reports/junit/
       - store_test_results:
-          path: ./frontend/coverage/
+          path: ./reports/junit/
       - store_artifacts:
-          path: ./frontend/coverage/
+          path: ./reports/junit/
   test-backend:
     docker:
         - image: circleci/node:13.8.0
