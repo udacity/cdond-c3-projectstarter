@@ -81,12 +81,12 @@ workflows:
   default:
     jobs:
       - build-frontend
-      - test-frondend:
+      - test-frontend:
           requires:
             - build-frontend
       - build-backend
 #          requires:
-#            - test-frondend
+#            - test-frontend
       - test-backend:
           requires:
             - build-backend
