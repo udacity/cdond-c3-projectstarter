@@ -245,12 +245,12 @@ jobs:
       - run:
           name: LS
           command: |
-            ls -al
-            ls -al ~/
+            ls -al ~/project/backend/dist
             ls -al backend/dist
       - run:
-          name: Check Ansible
-          command: | # pip install ansible==2.9.12
+          name: Install Ansible
+          command: |
+            pip install ansible==2.9.12
             ansible --version
       - slack/status:
           fail_only: true
