@@ -2,12 +2,18 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@3.4.2
-### It's a good practice to keep your commands at the top of the config file. In this project, you'll need at least 2 commands:
 
-# commands:
-#   destroy-environment:
-#     description: Destroy backend and frontend cloudformation stacks given a workflow ID.
-#     ...
+commands:
+  destroy-environment:
+    parameters:
+      stack-name:
+        type: string
+        default: StackName
+    steps:
+      - run:
+          name: Destroy Environment
+          command: |
+            aws cloudformation delete-stack --stack-name << parameters.stack-name >>
 
 #   revert-migration:
 #     description: Revert the last migration if successfully run in the current workflow.
@@ -105,7 +111,21 @@ jobs:
       - slack/status:
           fail_only: true
 
-#  deploy-infrastructure:
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Create CloudFront Stack
+          command: |
+            aws cloudformation deploy \
+              --template-file files/cloudfront.yml \
+              --parameters WorkflowID=${CIRCLE_WORKFLOW_ID} \
+              --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID}
+      - destroy_environment:
+          stack-name: cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID}
+          when: on_fail
 
 #  configure-infrastructure:
 
@@ -120,21 +140,24 @@ jobs:
 #  cloudfront-update:
 
 workflows:
-  frontend:
+  # frontend:
+  #   jobs:
+  #     - build-frontend
+  #     - test-frontend:
+  #         requires:
+  #             - build-frontend
+  #     - scan-frontend:
+  #         requires:
+  #             - test-frontend
+  # backend:
+  #   jobs:
+  #     - build-backend
+  #     - test-backend:
+  #         requires:
+  #           - build-backend
+  #     - scan-backend:
+  #         requires:
+  #           - test-backend
+  infrastructure:
     jobs:
-      - build-frontend
-      - test-frontend:
-          requires:
-              - build-frontend
-      - scan-frontend:
-          requires:
-              - test-frontend
-  backend:
-    jobs:
-      - build-backend
-      - test-backend:
-          requires:
-            - build-backend
-      - scan-backend:
-          requires:
-            - test-backend
+      - deploy-infrastructure
