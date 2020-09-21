@@ -169,15 +169,11 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
-      - python/install-packages:
-          args: ansible
-          pkg-manager: pip
-          pypi-cache: false
-      # - run:
-      #     name: Install Ansible
-      #     command: |
-      #       apk add --update ansible
-      #       ansible --version
+      - run:
+          name: Install Ansible
+          command: |
+            pip install ansible==2.9.12
+            ansible --version
       # - run:
       #     name: Install curl
       #     command: apk add curl
