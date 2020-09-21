@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@3.4.2
+  python: circleci/python@1.0.0
 
 commands:
   destroy-environment:
@@ -160,29 +161,31 @@ jobs:
           fail_only: true
 
   configure-infrastructure:
-    docker:
-      - image: python:3.7-alpine3.11
+    #docker:
+    #  - image: python:3.7-alpine3.11
+    executor: python/default
     steps:
       - checkout
       - add_ssh_keys:
           fingerprints:
             - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
-      - run:
-          name: Install Ansible
-          command: |
-            apk add --update ansible
-            ansible --version
-      - run:
-          name: Install curl
-          command: apk add curl
+      - python/install-packages:
+          args: ansible
+          pkg-manager: pip
+          pypi-cache: false
+      # - run:
+      #     name: Install Ansible
+      #     command: |
+      #       apk add --update ansible
+      #       ansible --version
+      # - run:
+      #     name: Install curl
+      #     command: apk add curl
       - run:
           name: Run ansible-playbook for backend server
           command: |
-            pwd
-            ls -al 
             BACKEND_DNS_NAME=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backend_dns_name)
-            echo ${BACKEND_DNS_NAME}
-            echo ${BACKEND_DNS_NAME} >> .circleci/ansible/inventory
+            echo "ec2-34-212-122-198.us-west-2.compute.amazonaws.com" >> .circleci/ansible/inventory
             cd .circleci/ansible
             pwd
             cat inventory
