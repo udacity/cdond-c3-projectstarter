@@ -120,7 +120,7 @@ workflows:
             - build-backend
       - scan-frontend:
           requires:
-              - test-fronted
+              - test-frontend
       - scan-backend:
           requires:
               - test-backend
