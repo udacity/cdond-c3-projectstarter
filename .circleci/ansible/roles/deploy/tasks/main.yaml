@@ -1,4 +1,14 @@
 ---
 
-- debug:
-    msg: "System {{ inventory_hostname }} has uuid {{ ansible_product_uuid }}"
+- name: Ensure that target folder exists
+  file:
+    path: /home/ubuntu/backend-dist
+    state: directory
+
+- name: Copy backend dist files to remote server
+  copy:
+    src: /home/circleci/project/backend/dist
+    dest: /home/ubuntu/backend-dist
+    owner: ubuntu
+    group: ubuntu
+    mode: '0644'

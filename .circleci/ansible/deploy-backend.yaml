@@ -3,7 +3,6 @@
 - name: Deploy content to Backend Server
   hosts: backend
   user: ubuntu
-  become: yes
   
   roles:
     - deploy
