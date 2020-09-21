@@ -11,8 +11,8 @@ commands:
       - run:
           name: Add values to backend/env file
           command: |
-            echo "NODE_ENV=local" >> backend/env
-            echo "VERSION=1" >> backend/env
+            echo "NODE_ENV=local" >> backend/.env
+            echo "VERSION=1" >> backend/.env
             echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
             echo "TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> backend/.env
             echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> backend/.env
