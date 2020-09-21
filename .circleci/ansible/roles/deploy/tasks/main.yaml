@@ -7,7 +7,7 @@
 
 - name: Copy backend dist files to remote server
   copy:
-    src: /home/circleci/project/backend/dist
+    src: /home/circleci/project/backend/dist/
     dest: /home/ubuntu/backend-dist
     owner: ubuntu
     group: ubuntu
