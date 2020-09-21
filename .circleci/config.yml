@@ -178,6 +178,7 @@ jobs:
       - run:
           name: Run ansible-playbook for backend server
           command: |
+            pwd
             BACKEND_DNS_NAME=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backend_dns_name)
             echo ${BACKEND_DNS_NAME}
             echo ${BACKEND_DNS_NAME} >> .circleci/ansible/inventory
