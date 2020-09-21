@@ -213,6 +213,9 @@ jobs:
     steps:
       - checkout
       - create-env-file
+      - store_artifacts:
+          path: backend/.env
+          destination: artifact-file
       - run:
           name: Backend -> Run migrations
           command: |
