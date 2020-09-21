@@ -106,21 +106,21 @@ jobs:
 #  cloudfront-update:
 
 workflows:
-  default:
+  frontend:
     jobs:
       - build-frontend
       - test-frontend:
           requires:
-            - build-frontend
-      - build-backend:
-         requires:
-           - test-frontend
+              - build-frontend
+      - scan-fronted:
+          requires:
+              - test-frontend
+  backend:
+    jobs:
+      - build-backend
       - test-backend:
           requires:
             - build-backend
-      - scan-frontend:
-          requires:
-              - test-frontend
       - scan-backend:
           requires:
-              - test-backend
+            - test-backend
