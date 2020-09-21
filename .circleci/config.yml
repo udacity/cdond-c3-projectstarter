@@ -5,8 +5,26 @@ orbs:
   python: circleci/python@1.0.0
 
 commands:
+  create-env-file:
+    description: Command used for creating backend environment file
+    steps:
+      - run:
+          name: Add values to backend/env file
+          command: |
+            echo "NODE_ENV=local" >> backend/env
+            echo "VERSION=1" >> backend/env
+            echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
+            echo "TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> backend/.env
+            echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> backend/.env
+            echo "TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> backend/.env
+            echo "TYPEORM_HOST=${TYPEORM_HOST}" >> backend/.env
+            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> backend/.env
+            echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> backend/.env
+            echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> backend/.env
+            echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
+
   destroy-environment:
-    description: Reusable command used for destroying the CloudFormation Stack
+    description: Command used for destroying the CloudFormation Stack
     parameters:
       stack-name:
         type: string
@@ -125,7 +143,7 @@ jobs:
             --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameters ParameterKey=ID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
       - run:
-          name: Store Backend URL
+          name: Add Backend EC2 Instance DNS Name to Ansible Inventory
           when: on_success
           command: |
             sleep 60
@@ -133,10 +151,15 @@ jobs:
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicDnsName' \
               --output text)
-            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
-               --request PUT \
-               --data ${BACKEND_DNS_NAME} \
-               https://api.memstash.io/values/backend_dns_name
+            if [ -z "$BACKEND_DNS_NAME" ]; then
+              echo "BACKEND_DNS_NAME is empty"
+              exit 1
+            fi
+            echo ${BACKEND_DNS_NAME} >> .circleci/ansible/inventory
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory
       - destroy-environment:
           stack-name: cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
@@ -161,11 +184,11 @@ jobs:
           fail_only: true
 
   configure-infrastructure:
-    #docker:
-    #  - image: python:3.7-alpine3.11
     executor: python/default
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - add_ssh_keys:
           fingerprints:
             - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
@@ -174,26 +197,16 @@ jobs:
           command: |
             pip install ansible==2.9.12
             ansible --version
-      # - run:
-      #     name: Install curl
-      #     command: apk add curl
       - run:
           name: Run ansible-playbook for backend server
-          command: |
-            BACKEND_DNS_NAME=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backend_dns_name)
+          command: | # Remove below line once you've got stuff working
             echo "ec2-34-212-122-198.us-west-2.compute.amazonaws.com" >> .circleci/ansible/inventory
             cd .circleci/ansible
-            pwd
-            cat inventory
-            ansible-inventory --list
             ansible -u ubuntu -m ping backend
+            ansible-playbook server-configuration.yaml
       - slack/status:
           fail_only: true
-      # - run:
-      #     name: Install NodeJs
-      #     command: |
-      #       curl -sL https://deb.nodesource.com/setup_12.x | -E bash -
-      #       apt install -y nodejs
+
 #  run-migrations:
 
 #  deploy-frontend:
