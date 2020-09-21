@@ -159,7 +159,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory
+            - .circleci/ansible/inventory
       - destroy-environment:
           stack-name: cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
@@ -213,28 +213,45 @@ jobs:
     steps:
       - checkout
       - create-env-file
-      - store_artifacts:
-          path: backend/.env
-          destination: artifact-file
       - run:
-          name: Backend -> Run migrations
+          name: Backend -> Run migrations and save status to 
           command: |
             cd backend
-            cat .env
             npm install
-            npm run migrations > migrations.txt
-            cat migrations.txt
+            npm run build
+            npm run migrations > migrations.log
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
+              --request PUT \
+              --data $( grep -c "No migrations are pending" migrations.log ) \
+              https://api.memstash.io/values/no_migrations_pending_<< pipeline.id >>
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - backend/dist
       - slack/status:
           fail_only: true
 
-# curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
-#   --request PUT \
-#   --data $( grep -c "No migrations are pending" migrations.txt ) \
-#   https://api.memstash.io/values/<< pipeline.id >>_migrations
-
 #  deploy-frontend:
 
-#  deploy-backend:  
+  deploy-backend:
+    executor: python/default
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - add_ssh_keys:
+          fingerprints:
+            - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
+      - run:
+          name: LS
+          command: |
+            sh "find backend/dist -print"
+      - run:
+          name: Check Ansible
+          command: | # pip install ansible==2.9.12
+            ansible --version
+      - slack/status:
+          fail_only: true
 
 #  smoke-test:
 
@@ -270,6 +287,9 @@ workflows:
   #         requires:
   #           - deploy-infrastructure
   
-  migrations:
+  deploy:
     jobs:
       - run-migrations
+      - deploy-backend:
+          requires:
+              - run-migrations
