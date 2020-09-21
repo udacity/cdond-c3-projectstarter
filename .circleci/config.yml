@@ -1,5 +1,7 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@3.4.2
 ### It's a good practice to keep your commands at the top of the config file. In this project, you'll need at least 2 commands:
 
 # commands:
@@ -23,6 +25,11 @@ jobs:
             cd frontend
             npm install 
             npm run build
+      - slack/notify:
+          color: "#42e2f4"
+          message: A custom message to notify the channel about the latest build
+      - slack/status:
+          fail_only: true
 
   build-backend:
     docker:
@@ -35,6 +42,8 @@ jobs:
             cd backend
             npm install 
             npm run build
+      - slack/status:
+          fail_only: true
 
   test-frontend:
     docker:
@@ -51,6 +60,12 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: /tmp/reports/junit/
       - store_test_results:
           path: /tmp/reports/junit/
+      - slack/notify:
+          color: "#42e2f4"
+          message: A custom message to notify the channel about the latest test
+      - slack/status:
+          fail_only: true
+
   test-backend:
     docker:
         - image: circleci/node:13.8.0
@@ -66,6 +81,8 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: /tmp/reports/junit/
       - store_test_results:
           path: /tmp/reports/junit/
+      - slack/status:
+          fail_only: true
 
   scan-frontend:
     docker:
@@ -78,6 +95,8 @@ jobs:
             cd frontend
             npm install
             npm audit --audit-level=critical
+      - slack/status:
+          fail_only: true
 
   scan-backend:
     docker:
@@ -90,6 +109,8 @@ jobs:
             cd backend
             npm install
             npm audit --audit-level=critical
+      - slack/status:
+          fail_only: true
 
 #  deploy-infrastructure:
 
