@@ -25,9 +25,6 @@ jobs:
             cd frontend
             npm install 
             npm run build
-      - slack/notify:
-          color: "#42e2f4"
-          message: A custom message to notify the channel about the latest build
       - slack/status:
           fail_only: true
 
@@ -60,9 +57,6 @@ jobs:
             JEST_JUNIT_OUTPUT_DIR: /tmp/reports/junit/
       - store_test_results:
           path: /tmp/reports/junit/
-      - slack/notify:
-          color: "#42e2f4"
-          message: A custom message to notify the channel about the latest test
       - slack/status:
           fail_only: true
 
