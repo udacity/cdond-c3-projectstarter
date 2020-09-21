@@ -67,9 +67,29 @@ jobs:
       - store_test_results:
           path: /tmp/reports/junit/
 
-#  scan-frontend:
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Frontend -> npm install && run analyze
+          command: |
+            cd frontend
+            npm install
+            npm audit --audit-level=critical
 
-#  scan-backend:
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Backend -> npm install && run analyze
+          command: |
+            cd backend
+            npm install
+            npm audit --audit-level=critical
 
 #  deploy-infrastructure:
 
@@ -98,3 +118,9 @@ workflows:
       - test-backend:
           requires:
             - build-backend
+      - scan-frontend:
+          requires:
+              - test-fronted
+      - scan-backend:
+          requires:
+              - test-backend
