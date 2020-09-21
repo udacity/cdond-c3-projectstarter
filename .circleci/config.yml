@@ -159,7 +159,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - .circleci/ansible/inventory
+            - project/.circleci/ansible/inventory
       - destroy-environment:
           stack-name: cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
@@ -227,7 +227,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - backend/dist
+            - project/backend/dist
       - slack/status:
           fail_only: true
 
