@@ -207,7 +207,21 @@ jobs:
       - slack/status:
           fail_only: true
 
-#  run-migrations:
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - create-env-file
+      - run: echo "This is pipeline ID << pipeline.id >>"
+      - run:
+          name: Backend -> Run migrations
+          command: |
+            cd backend
+            npm run migrations > migrations.txt
+            cat migrations.txt
+      - slack/status:
+          fail_only: true
 
 #  deploy-frontend:
 
@@ -236,11 +250,17 @@ workflows:
   #     - scan-backend:
   #         requires:
   #           - test-backend
-  infrastructure:
-    jobs:
-      - configure-infrastructure
-      #- deploy-infrastructure
-      # - configure-infrastructure:
-      #     requires:
-      #         - deploy-infrastructure
 
+  # infrastructure:
+  #   jobs:
+  #     - deploy-infrastructure:
+  #         requires:
+  #             - frontend
+  #             - backend
+  #     - configure-infrastructure:
+  #         requires:
+  #           - deploy-infrastructure
+  
+  migrations:
+    jobs:
+      - run-migrations
