@@ -123,9 +123,11 @@ jobs:
               --template-file files/cloudfront.yml \
               --parameters WorkflowID=${CIRCLE_WORKFLOW_ID} \
               --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID}
-      - destroy-environment:
-          stack-name: cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID}
-          when: on_fail
+      - when:
+          condition: on_fail
+          steps:
+            - destroy-environment:
+              stack-name: cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID}
 
 #  configure-infrastructure:
 
