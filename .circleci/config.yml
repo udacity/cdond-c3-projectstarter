@@ -217,6 +217,7 @@ jobs:
           name: Backend -> Run migrations
           command: |
             cd backend
+            cat .env
             npm install
             npm run migrations > migrations.txt
             cat migrations.txt
