@@ -246,8 +246,8 @@ jobs:
           name: LS
           command: |
             ls -al
-            find project/backend/dist --print
-            find backend/dist -print
+            ls -al ~/
+            ls -al backend/dist
       - run:
           name: Check Ansible
           command: | # pip install ansible==2.9.12
