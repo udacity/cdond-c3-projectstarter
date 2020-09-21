@@ -5,16 +5,16 @@ orbs:
 
 commands:
   destroy-environment:
+    description: Reusable command used for destroying the CloudFormation Stack
     parameters:
       stack-name:
         type: string
         default: StackName
     steps:
       - run:
-          name: Destroy Environment
+          when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name << parameters.stack-name >>
-
 #   revert-migration:
 #     description: Revert the last migration if successfully run in the current workflow.
 #     ...
@@ -116,21 +116,83 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: 
+          name: Create Backend Stack
+          command: |
+            aws cloudformation create-stack \
+            --template-body file://.circleci/files/backend.yml \
+            --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --parameters ParameterKey=ID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Store Backend URL
+          when: on_success
+          command: |
+            sleep 60
+            BACKEND_DNS_NAME=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --output text)
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
+               --request PUT \
+               --data ${BACKEND_DNS_NAME} \
+               https://api.memstash.io/values/backend_dns_name
+      - destroy-environment:
+          stack-name: cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Create Frontend Stack
+          command: |
+            aws cloudformation create-stack \
+            --template-body file://.circleci/files/frontend.yml \
+            --stack-name cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --parameters ParameterKey=ID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          stack-name: cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Create CloudFront Stack
           command: |
-            aws cloudformation deploy \
-              --template-file files/cloudfront.yml \
-              --parameters WorkflowID=${CIRCLE_WORKFLOW_ID} \
-              --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID}
-      - when:
-          condition: on_fail
-          steps:
-            - destroy-environment:
-              stack-name: cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation create-stack \
+              --template-body file://.circleci/files/cloudfront.yml \
+              --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          stack-name: cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
+      - slack/status:
+          fail_only: true
 
-#  configure-infrastructure:
-
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
+      - run:
+          name: Install Ansible
+          command: |
+            apk add --update ansible
+            ansible --version
+      - run:
+          name: Install curl
+          command: apk add curl
+      - run:
+          name: Run ansible-playbook for backend server
+          command: |
+            BACKEND_DNS_NAME=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backend_dns_name)
+            echo ${BACKEND_DNS_NAME}
+            echo ${BACKEND_DNS_NAME} >> .circleci/ansible/inventory
+            cd .circleci/ansible
+            pwd
+            cat inventory
+            ansible-inventory --list
+            ansible -u ubuntu -m ping backend
+      - slack/status:
+          fail_only: true
+      # - run:
+      #     name: Install NodeJs
+      #     command: |
+      #       curl -sL https://deb.nodesource.com/setup_12.x | -E bash -
+      #       apt install -y nodejs
 #  run-migrations:
 
 #  deploy-frontend:
@@ -162,4 +224,9 @@ workflows:
   #           - test-backend
   infrastructure:
     jobs:
-      - deploy-infrastructure
+      - configure-infrastructure
+      #- deploy-infrastructure
+      # - configure-infrastructure:
+      #     requires:
+      #         - deploy-infrastructure
+
