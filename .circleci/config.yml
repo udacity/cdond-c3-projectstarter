@@ -41,7 +41,6 @@ jobs:
             npm run build
       - slack/status:
           fail_only: true
-
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
