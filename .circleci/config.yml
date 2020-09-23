@@ -299,9 +299,8 @@ jobs:
       - run:
           name: Run smoke test on frontend
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
-            URL_TEMP="http://udapeople-83d8bbd.s3-website.eu-central-1.amazonaws.com/#/employees"
-            if curl -s ${URL_TEMP} | grep "Welcome"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/#/employees"
+            if curl -s ${URL} | grep "Welcome"
             then
               exit 0
             else
@@ -324,6 +323,8 @@ jobs:
             else
               exit 1
             fi
+      #- revert-migration
+      - destroy-environment
       - slack/status:
           fail_only: true
 
@@ -367,4 +368,4 @@ workflows:
   
   deploy:
     jobs:
-      - smoke-test
+      - deploy-infrastructure
