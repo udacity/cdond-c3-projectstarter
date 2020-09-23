@@ -251,7 +251,9 @@ jobs:
             ansible --version
       - run:
           name: Run ansible-playbook for backend server
-          command: |
+          command: | # Remove echo commands once whole pipeline is done
+            echo "[backend]" > .circleci/ansible/inventory
+            echo ec2-54-149-88-178.us-west-2.compute.amazonaws.com >> .circleci/ansible/inventory
             cd .circleci/ansible
             ansible -u ubuntu -m ping backend
             ansible-playbook deploy-backend.yaml
