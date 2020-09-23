@@ -301,11 +301,11 @@ jobs:
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
             URL_TEMP="http://udapeople-83d8bbd.s3-website.eu-central-1.amazonaws.com/#/employees"
-            if curl -s ${URL} | grep "Welcome"
+            if curl -s ${URL_TEMP} | grep "Welcome"
             then
-              return 1
+              exit 0
             else
-              return 0
+              exit 1
             fi
       - run:
           name: Run smoke test on backend
@@ -320,9 +320,9 @@ jobs:
             fi
             if curl -s "http://${BACKEND_DNS_NAME}:3030/api/status" | grep "ok"
             then
-              return 1
+              exit 0
             else
-              return 0
+              exit 1
             fi
       - slack/status:
           fail_only: true
