@@ -245,7 +245,9 @@ jobs:
           fingerprints:
             - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
       - run:
-          command: sudo apt install rsync
+          command: |
+            sudo apt update
+            sudo apt install rsync
       - run:
           name: Install Ansible
           command: |
