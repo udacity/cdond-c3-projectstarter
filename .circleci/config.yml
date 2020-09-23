@@ -5,6 +5,13 @@ orbs:
   python: circleci/python@1.0.0
 
 commands:
+  add-ssh-keys:
+    description: Add ssh key to job
+    steps:
+      - add_ssh_keys:
+          fingerprints:
+            - "9f:5e:ee:81:23:e1:a8:7d:e2:29:b2:60:e9:14:1f:6b"
+
   create-env-file:
     description: Command used for creating backend environment file
     steps:
@@ -26,14 +33,17 @@ commands:
   destroy-environment:
     description: Command used for destroying the CloudFormation Stack
     parameters:
-      stack-name:
+      workflow-id:
         type: string
-        default: StackName
+        default: "0"
     steps:
       - run:
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name << parameters.stack-name >>
+            aws cloudformation delete-stack --stack-name cloud-devops-cloudfront-<< parameters.workflow-id >>
+            aws cloudformation delete-stack --stack-name cloud-devops-frontend-<< parameters.workflow-id >>
+            aws cloudformation delete-stack --stack-name cloud-devops-backend-<< parameters.workflow-id >>
+            
 #   revert-migration:
 #     description: Revert the last migration if successfully run in the current workflow.
 #     ...
@@ -163,8 +173,6 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory
-      - destroy-environment:
-          stack-name: cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Create Frontend Stack
           command: |
@@ -172,8 +180,6 @@ jobs:
             --template-body file://.circleci/files/frontend.yml \
             --stack-name cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameters ParameterKey=ID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
-      - destroy-environment:
-          stack-name: cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Create CloudFront Stack
           command: |
@@ -182,7 +188,7 @@ jobs:
               --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment:
-          stack-name: cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
+          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/status:
           fail_only: true
 
@@ -192,9 +198,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
-      - add_ssh_keys:
-          fingerprints:
-            - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
+      - add-ssh-keys
       - run:
           name: Install Ansible
           command: |
@@ -207,6 +211,8 @@ jobs:
             ansible-galaxy install geerlingguy.nodejs
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook server-configuration.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
+      - destroy-environment:
+          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/status:
           fail_only: true
 
@@ -237,9 +243,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
-      - add_ssh_keys:
-          fingerprints:
-            - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
+      - add-ssh-keys
       - run:
           command: |
             sudo apt update
@@ -257,6 +261,8 @@ jobs:
             cat inventory
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook deploy-backend.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
+      - destroy-environment:
+          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/status:
           fail_only: true
 
