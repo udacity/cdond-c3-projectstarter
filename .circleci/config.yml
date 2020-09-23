@@ -244,7 +244,7 @@ jobs:
           name: Build the Front End
           command: |
             BACKEND_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-83d8bbd" \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             if [ -z "$BACKEND_IP" ]; then
@@ -259,7 +259,8 @@ jobs:
       - run: 
           name:  Copy compiled frontend files to the S3 bucket
           command: |
-            aws s3 cp ./frontend/dist s3://udapeople-83d8bbd/ --recursive
+            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
+      - destroy-environment
       - slack/status:
           fail_only: true
 
@@ -291,7 +292,40 @@ jobs:
       - slack/status:
           fail_only: true
 
-#  smoke-test:
+  smoke-test:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - run:
+          name: Run smoke test on frontend
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            URL_TEMP="http://udapeople-83d8bbd.s3-website.eu-central-1.amazonaws.com/#/employees"
+            if curl -s ${URL} | grep "Welcome"
+            then
+              return 1
+            else
+              return 0
+            fi
+      - run:
+          name: Run smoke test on backend
+          command: |
+            BACKEND_DNS_NAME=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --output text)
+            if [ -z "$BACKEND_DNS_NAME" ]; then
+              echo "BACKEND_DNS_NAME is empty"
+              exit 1
+            fi
+            if curl -s "http://${BACKEND_DNS_NAME}:3030/api/status" | grep "ok"
+            then
+              return 1
+            else
+              return 0
+            fi
+      - slack/status:
+          fail_only: true
 
 #  cloudfront-update:
 
@@ -333,4 +367,4 @@ workflows:
   
   deploy:
     jobs:
-      - deploy-frontend
+      - smoke-test
