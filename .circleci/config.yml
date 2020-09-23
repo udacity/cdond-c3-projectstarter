@@ -32,17 +32,13 @@ commands:
 
   destroy-environment:
     description: Command used for destroying the CloudFormation Stack
-    parameters:
-      workflow-id:
-        type: string
-        default: "0"
     steps:
       - run:
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name cloud-devops-cloudfront-<< parameters.workflow-id >>
-            aws cloudformation delete-stack --stack-name cloud-devops-frontend-<< parameters.workflow-id >>
-            aws cloudformation delete-stack --stack-name cloud-devops-backend-<< parameters.workflow-id >>
+            aws cloudformation delete-stack --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
             
 #   revert-migration:
 #     description: Revert the last migration if successfully run in the current workflow.
@@ -187,8 +183,7 @@ jobs:
               --template-body file://.circleci/files/cloudfront.yml \
               --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
-      - destroy-environment:
-          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
       - slack/status:
           fail_only: true
 
@@ -204,6 +199,7 @@ jobs:
           command: |
             pip install ansible==2.9.12
             ansible --version
+            pip install awscli
       - run:
           name: Run ansible-playbook for backend server
           command: |
@@ -211,8 +207,7 @@ jobs:
             ansible-galaxy install geerlingguy.nodejs
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook server-configuration.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
-      - destroy-environment:
-          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
       - slack/status:
           fail_only: true
 
@@ -253,6 +248,7 @@ jobs:
           command: |
             pip install ansible==2.9.12
             ansible --version
+            pip install awscli
       - create-env-file
       - run:
           name: Run ansible-playbook for backend server
@@ -261,8 +257,7 @@ jobs:
             cat inventory
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook deploy-backend.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
-      - destroy-environment:
-          workflow-id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment
       - slack/status:
           fail_only: true
 

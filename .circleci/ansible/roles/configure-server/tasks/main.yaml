@@ -1,0 +1,13 @@
+--- 
+
+- name: Update apt packages
+  apt:
+    update_cache: yes
+
+- name: Upgrade packages
+  apt:
+    upgrade: safe
+
+- name: Remove dependencies that are no longer required
+  apt:
+    autoremove: yes

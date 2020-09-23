@@ -10,4 +10,5 @@
       - pm2
 
   roles:
+    - configure-server
     - geerlingguy.nodejs
