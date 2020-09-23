@@ -5,5 +5,10 @@
   user: ubuntu
   become: yes
   
+  vars:
+    nodejs_npm_global_packages:
+      - pm2
+
   roles:
+    - geerlingguy.nodejs
     - configure-server

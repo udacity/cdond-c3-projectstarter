@@ -1,6 +1,6 @@
 nodejs_environment_vars:
   - key: NODE_ENV
-    value: prod
+    value: development
   - key: VERSION
     value: 1
   - key: TYPEORM_CONNECTION

@@ -11,7 +11,7 @@ commands:
       - run:
           name: Add values to backend/env file
           command: |
-            echo "NODE_ENV=local" >> backend/.env
+            echo "NODE_ENV=development" >> backend/.env
             echo "VERSION=1" >> backend/.env
             echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
             echo "TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> backend/.env
@@ -204,6 +204,7 @@ jobs:
           name: Run ansible-playbook for backend server
           command: |
             cd .circleci/ansible
+            ansible-galaxy install geerlingguy.nodejs
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook server-configuration.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
       - slack/status:
@@ -226,10 +227,6 @@ jobs:
               --request PUT \
               --data $( grep -c "No migrations are pending" migrations.log ) \
               https://api.memstash.io/values/no_migrations_pending_<< pipeline.id >>
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/backend/dist
       - slack/status:
           fail_only: true
 
@@ -239,8 +236,6 @@ jobs:
     executor: python/default
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - add_ssh_keys:
           fingerprints:
             - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
@@ -253,6 +248,7 @@ jobs:
           command: |
             pip install ansible==2.9.12
             ansible --version
+      - create-env-file
       - run:
           name: Run ansible-playbook for backend server
           command: | # Remove echo commands once whole pipeline is done
@@ -300,7 +296,4 @@ workflows:
   
   deploy:
     jobs:
-      - run-migrations
-      - deploy-backend:
-          requires:
-              - run-migrations
+      - deploy-backend

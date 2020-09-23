@@ -2,10 +2,26 @@
 
 - name: Ensure that target folder exists
   file:
-    path: /home/ubuntu/backend-dist
+    path: /home/ubuntu/backend
     state: directory
 
 - name: Copy backend dist files to remote server
   synchronize:
-    src: /home/circleci/project/backend/dist/
-    dest: /home/ubuntu/backend-dist
+    src: /home/circleci/project/backend/
+    dest: /home/ubuntu/backend
+
+
+- name: Install Node modules
+  shell: npm install
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: Build Node App
+  shell: npm run build
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: Start the App with PM2
+  shell: pm2 start main.js
+  args:
+    chdir: /home/ubuntu/backend/dist
