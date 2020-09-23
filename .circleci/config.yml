@@ -294,11 +294,7 @@ workflows:
   
   deploy:
     jobs:
-      - deploy-infrastructure
-      - configure-infrastructure:
+      - run-migrations
+      - deploy-backend:
           requires:
-            - deploy-infrastructure
-      # - run-migrations
-      # - deploy-backend:
-      #     requires:
-      #         - run-migrations
+              - run-migrations

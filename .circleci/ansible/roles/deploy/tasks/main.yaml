@@ -6,9 +6,6 @@
     state: directory
 
 - name: Copy backend dist files to remote server
-  copy:
+  synchronize:
     src: /home/circleci/project/backend/dist/
     dest: /home/ubuntu/backend-dist
-    owner: ubuntu
-    group: ubuntu
-    mode: '0644'
