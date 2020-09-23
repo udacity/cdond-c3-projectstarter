@@ -204,7 +204,6 @@ jobs:
           name: Run ansible-playbook for backend server
           command: |
             cd .circleci/ansible
-            ansible-galaxy install geerlingguy.nodejs
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook server-configuration.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
       - destroy-environment
@@ -254,7 +253,6 @@ jobs:
           name: Run ansible-playbook for backend server
           command: |
             cd .circleci/ansible
-            cat inventory
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook deploy-backend.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
       - destroy-environment

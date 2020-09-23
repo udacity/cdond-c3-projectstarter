@@ -7,6 +7,3 @@
   
   roles:
     - configure-server
-    - role: geerlingguy.nodejs
-      nodejs_npm_global_packages:
-      - pm2

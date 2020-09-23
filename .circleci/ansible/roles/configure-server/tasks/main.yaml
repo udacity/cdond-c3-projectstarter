@@ -11,3 +11,17 @@
 - name: Remove dependencies that are no longer required
   apt:
     autoremove: yes
+
+- name: Ensure Node.js and npm are installed
+  shell: |
+    curl -sL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+    sudo apt -y upgrade
+    sudo apt install -y nodejs
+
+- name: Ensure pm2 global package is installed
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
