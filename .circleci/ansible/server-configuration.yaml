@@ -11,4 +11,3 @@
 
   roles:
     - geerlingguy.nodejs
-    - configure-server

@@ -221,7 +221,6 @@ jobs:
           command: |
             cd backend
             npm install
-            npm run build
             npm run migrations > migrations.log
             curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" \
               --request PUT \
@@ -236,6 +235,8 @@ jobs:
     executor: python/default
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - add_ssh_keys:
           fingerprints:
             - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
@@ -251,10 +252,9 @@ jobs:
       - create-env-file
       - run:
           name: Run ansible-playbook for backend server
-          command: | # Remove echo commands once whole pipeline is done
-            echo "[backend]" > .circleci/ansible/inventory
-            echo ec2-54-149-88-178.us-west-2.compute.amazonaws.com >> .circleci/ansible/inventory
+          command: |
             cd .circleci/ansible
+            cat inventory
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook deploy-backend.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
       - slack/status:
@@ -296,4 +296,10 @@ workflows:
   
   deploy:
     jobs:
-      - deploy-backend
+      - deploy-infrastructure
+      - configure-infrastructure:
+          requires:
+            - deploy-infrastructure
+      - deploy-backend:
+          requires:
+            - configure-infrastructure
