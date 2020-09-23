@@ -244,10 +244,13 @@ jobs:
           name: Build the Front End
           command: |
             BACKEND_IP=$(aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:Name,Values=backend-83d8bbd" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
-            echo ${BACKEND_IP}
+            if [ -z "$BACKEND_IP" ]; then
+              echo "BACKEND_IP is empty"
+              exit 1
+            fi
             cd frontend
             export API_URL="http://${BACKEND_IP}:3030"
             echo API_URL=${API_URL}
@@ -256,7 +259,7 @@ jobs:
       - run: 
           name:  Copy compiled frontend files to the S3 bucket
           command: |
-            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+            aws s3 cp ./frontend/dist s3://udapeople-83d8bbd/ --recursive
       - slack/status:
           fail_only: true
 
