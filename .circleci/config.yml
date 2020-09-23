@@ -143,7 +143,7 @@ jobs:
             --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameters ParameterKey=ID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
       - run:
-          command: yum install tar
+          command: yum -y install tar
       - run:
           name: Add Backend EC2 Instance DNS Name to Ansible Inventory
           when: on_success
