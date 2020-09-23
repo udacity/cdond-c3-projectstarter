@@ -34,6 +34,14 @@ commands:
     description: Command used for destroying the CloudFormation Stack
     steps:
       - run:
+          name: Delete all files in the current S3 bucket
+          command: |
+            if aws s3api head-bucket --bucket udapeople-${CIRCLE_WORKFLOW_ID}
+            then
+              aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+            fi
+          when: on_fail
+      - run:
           when: on_fail
           command: |
             if aws cloudformation wait stack-exists --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
@@ -378,3 +386,9 @@ workflows:
   deploy:
     jobs:
       - deploy-infrastructure
+      - configure-infrastructure:
+          requires:
+            - deploy-infrastructure
+      - deploy-backend:
+          requires:
+          - configure-infrastructure
