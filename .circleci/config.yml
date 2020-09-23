@@ -149,6 +149,7 @@ jobs:
             --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameters ParameterKey=ID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
       - run:
+          name: Install dependencies
           command: yum -y install tar gzip
       - run:
           name: Add Backend EC2 Instance DNS Name to Ansible Inventory
@@ -229,7 +230,35 @@ jobs:
       - slack/status:
           fail_only: true
 
-#  deploy-frontend:
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+      - run:
+          name: Build the Front End
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            echo ${BACKEND_IP}
+            cd frontend
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo API_URL=${API_URL}
+            npm install
+            npm run build
+      - run: 
+          name:  Copy compiled frontend files to the S3 bucket
+          command: |
+            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+      - slack/status:
+          fail_only: true
 
   deploy-backend:
     executor: python/default
@@ -264,7 +293,7 @@ jobs:
 #  cloudfront-update:
 
 workflows:
-  # frontend:
+  # build-frontend:
   #   jobs:
   #     - build-frontend
   #     - test-frontend:
@@ -273,7 +302,7 @@ workflows:
   #     - scan-frontend:
   #         requires:
   #             - test-frontend
-  # backend:
+  # build-backend:
   #   jobs:
   #     - build-backend
   #     - test-backend:
@@ -283,7 +312,7 @@ workflows:
   #         requires:
   #           - test-backend
 
-  # infrastructure:
+  # create-infrastructure:
   #   jobs:
   #     - deploy-infrastructure:
   #         requires:
@@ -292,13 +321,13 @@ workflows:
   #     - configure-infrastructure:
   #         requires:
   #           - deploy-infrastructure
+  #     - deploy-backend
+  #         requires:
+  #           - configure-infrastructure
+  #     - deploy-frontend
+  #         requires:
+  #           - configure-infrastructure
   
   deploy:
     jobs:
-      - deploy-infrastructure
-      - configure-infrastructure:
-          requires:
-            - deploy-infrastructure
-      - deploy-backend:
-          requires:
-            - configure-infrastructure
+      - deploy-frontend
