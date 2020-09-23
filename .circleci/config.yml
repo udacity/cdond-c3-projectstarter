@@ -155,6 +155,7 @@ jobs:
               echo "BACKEND_DNS_NAME is empty"
               exit 1
             fi
+            echo "[backend]" > .circleci/ansible/inventory
             echo ${BACKEND_DNS_NAME} >> .circleci/ansible/inventory
       - persist_to_workspace:
           root: ~/
@@ -199,8 +200,7 @@ jobs:
             ansible --version
       - run:
           name: Run ansible-playbook for backend server
-          command: | # Remove below line once you've got stuff working
-            echo "ec2-34-212-122-198.us-west-2.compute.amazonaws.com" >> .circleci/ansible/inventory
+          command: |
             cd .circleci/ansible
             ansible -u ubuntu -m ping backend
             ansible-playbook server-configuration.yaml
@@ -249,8 +249,7 @@ jobs:
             ansible --version
       - run:
           name: Run ansible-playbook for backend server
-          command: | # Remove below line once you've got stuff working
-            echo "ec2-34-212-122-198.us-west-2.compute.amazonaws.com" >> .circleci/ansible/inventory
+          command: |
             cd .circleci/ansible
             ansible -u ubuntu -m ping backend
             ansible-playbook deploy-backend.yaml
@@ -293,7 +292,11 @@ workflows:
   
   deploy:
     jobs:
-      - run-migrations
-      - deploy-backend:
+      - deploy-infrastructure
+      - configure-infrastructure:
           requires:
-              - run-migrations
+            - deploy-infrastructure
+      # - run-migrations
+      # - deploy-backend:
+      #     requires:
+      #         - run-migrations
