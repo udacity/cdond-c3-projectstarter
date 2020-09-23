@@ -204,8 +204,8 @@ jobs:
           name: Run ansible-playbook for backend server
           command: |
             cd .circleci/ansible
-            ansible -u ubuntu -m ping backend
-            ansible-playbook server-configuration.yaml
+            ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
+            ansible-playbook server-configuration.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
       - slack/status:
           fail_only: true
 
@@ -245,6 +245,8 @@ jobs:
           fingerprints:
             - "51:3c:9b:f2:e2:b8:53:fe:5c:95:be:ea:ff:85:40:42"
       - run:
+          command: sudo apt install rsync
+      - run:
           name: Install Ansible
           command: |
             pip install ansible==2.9.12
@@ -255,8 +257,8 @@ jobs:
             echo "[backend]" > .circleci/ansible/inventory
             echo ec2-54-149-88-178.us-west-2.compute.amazonaws.com >> .circleci/ansible/inventory
             cd .circleci/ansible
-            ansible -u ubuntu -m ping backend
-            ansible-playbook deploy-backend.yaml
+            ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
+            ansible-playbook deploy-backend.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
       - slack/status:
           fail_only: true
 
