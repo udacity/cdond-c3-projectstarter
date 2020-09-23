@@ -201,7 +201,7 @@ jobs:
               --template-body file://.circleci/files/cloudfront.yml \
               --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
-      - destroy-environment
+      #- destroy-environment
       - slack/status:
           fail_only: true
 
