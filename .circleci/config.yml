@@ -36,9 +36,18 @@ commands:
       - run:
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack --stack-name cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7}
-            aws cloudformation delete-stack --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            if aws cloudformation wait stack-exists --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
+            then
+              aws cloudformation delete-stack --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
+            fi
+            if aws cloudformation wait stack-exists --stack-name cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            then
+              aws cloudformation delete-stack --stack-name cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            fi
+            if aws cloudformation wait stack-exists --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            then
+              aws cloudformation delete-stack --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            fi
             
 #   revert-migration:
 #     description: Revert the last migration if successfully run in the current workflow.
