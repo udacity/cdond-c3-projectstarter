@@ -37,9 +37,9 @@ commands:
           when: on_fail
           name: Delete all files in the current S3 bucket
           command: |
-            if aws s3api head-bucket --bucket udapeople-${CIRCLE_WORKFLOW_ID}
+            if aws s3api head-bucket --bucket udapeople-${CIRCLE_WORKFLOW_ID:0:7}
             then
-              aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+              aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
             fi
       - run:
           when: on_fail
@@ -67,6 +67,7 @@ commands:
           command: |
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
+      - checkout
       - create-env-file
       - run:
           when: on_fail
@@ -420,7 +421,7 @@ workflows:
       - deploy-frontend:
           requires:
             - configure-infrastructure
-      - smoke-test:
-          requires:
-           - deploy-backend
-           - deploy-frontend
+      # - smoke-test:
+      #     requires:
+      #      - deploy-backend
+      #      - deploy-frontend
