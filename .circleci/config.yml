@@ -31,18 +31,19 @@ commands:
             echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
 
   destroy-environment:
-    description: Command used for destroying the CloudFormation Stack
+    description: Command used for destroying the whole AWS infrastructure
     steps:
       - run:
+          when: on_fail
           name: Delete all files in the current S3 bucket
           command: |
             if aws s3api head-bucket --bucket udapeople-${CIRCLE_WORKFLOW_ID}
             then
               aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
             fi
-          when: on_fail
       - run:
           when: on_fail
+          name: Destroy the CloudFormation Stacks
           command: |
             if aws cloudformation wait stack-exists --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
             then
@@ -56,11 +57,30 @@ commands:
             then
               aws cloudformation delete-stack --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
             fi
-            
-#   revert-migration:
-#     description: Revert the last migration if successfully run in the current workflow.
-#     ...
-
+  
+  revert-migration:
+    description: Revert the last migration if smoke tests are failing in the current workflow
+    steps:
+      - run:
+          when: on_fail
+          name: Install dependencies
+          command: |
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+      - create-env-file:
+          wnen: on_fail
+      - run:
+          when: on_fail
+          name: Load migration status from https://memstash.io/ and revert migrations if necessary
+          command: |
+            MIGRATION_STATUS=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/no_migrations_pending_<< pipeline.id >>)
+            echo ${MIGRATION_STATUS}
+            if [[ ${MIGRATION_STATUS} == 1 ]]
+            then
+              cd backend
+              npm install
+              npm run migrations:revert
+            fi
 jobs:
   build-frontend:
     docker:
@@ -235,7 +255,7 @@ jobs:
       - checkout
       - create-env-file
       - run:
-          name: Backend -> Run migrations and save status to 
+          name: Backend -> Run migrations and save status to https://memstash.io/
           command: |
             cd backend
             npm install
@@ -277,6 +297,7 @@ jobs:
           name:  Copy compiled frontend files to the S3 bucket
           command: |
             aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}/ --recursive
+      - revert-migration
       - destroy-environment
       - slack/status:
           fail_only: true
@@ -305,6 +326,7 @@ jobs:
             cd .circleci/ansible
             ansible -u ubuntu -m ping backend -e 'ansible_python_interpreter=/usr/bin/python3'
             ansible-playbook deploy-backend.yaml -e 'ansible_python_interpreter=/usr/bin/python3'
+      - revert-migration
       - destroy-environment
       - slack/status:
           fail_only: true
@@ -340,7 +362,7 @@ jobs:
             else
               exit 1
             fi
-      #- revert-migration
+      - revert-migration
       - destroy-environment
       - slack/status:
           fail_only: true
@@ -396,3 +418,10 @@ workflows:
       - deploy-backend:
           requires:
             - run-migrations
+      - deploy-frontend:
+          requires:
+            - configure-infrastructure
+      - smoke-test:
+          requires:
+           - deploy-backend
+           - deploy-frontend

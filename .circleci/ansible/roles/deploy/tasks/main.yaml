@@ -22,9 +22,9 @@
     chdir: /home/ubuntu/backend
 
 - name: Start the App with PM2
-  shell: pm2 start main.js
+  shell: pm2 start npm -- run "start:dev"
   args:
-    chdir: /home/ubuntu/backend/dist
+    chdir: /home/ubuntu/backend
   environment:
     NODE_ENV: development
     VERSION: 1
