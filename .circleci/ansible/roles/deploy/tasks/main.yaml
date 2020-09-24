@@ -10,7 +10,6 @@
     src: /home/circleci/project/backend/
     dest: /home/ubuntu/backend
 
-
 - name: Install Node modules
   shell: npm install
   args:
@@ -25,15 +24,3 @@
   shell: pm2 start npm -- run "start:dev"
   args:
     chdir: /home/ubuntu/backend
-  environment:
-    NODE_ENV: development
-    VERSION: 1
-    TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
-    TYPEORM_MIGRATIONS_DIR: "{{ lookup('env','TYPEORM_MIGRATIONS_DIR') }}"
-    TYPEORM_ENTITIES: "{{ lookup('env','TYPEORM_MIGRATIONS_DIR') }}"
-    TYPEORM_MIGRATIONS: "{{ lookup('env','TYPEORM_MIGRATIONS') }}"
-    TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
-    TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
-    TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
-    TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
-    TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
