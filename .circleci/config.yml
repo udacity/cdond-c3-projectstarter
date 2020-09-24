@@ -67,8 +67,7 @@ commands:
           command: |
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
-      - create-env-file:
-          wnen: on_fail
+      - create-env-file
       - run:
           when: on_fail
           name: Load migration status from https://memstash.io/ and revert migrations if necessary
