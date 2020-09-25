@@ -358,7 +358,7 @@ jobs:
             fi
             if curl -s "http://${BACKEND_DNS_NAME}:3030/api/status" | grep "ok"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
