@@ -352,11 +352,11 @@ jobs:
             fi
             if curl -s "http://${BACKEND_DNS_NAME}:3030/api/status" | grep "ok"
             then
-              exit 1
+              exit 0
             else
               exit 1
             fi
-#      - revert-migration
+      - revert-migration
       - destroy-environment
       - slack/status:
           fail_only: true
