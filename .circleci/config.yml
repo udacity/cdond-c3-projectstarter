@@ -361,6 +361,7 @@ jobs:
       - checkout
       - run:
           name: Update CloudFront Distribution
+          no_output_timeout: 30m
           command: |
             export TERM=xterm-color
             export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
@@ -390,61 +391,70 @@ jobs:
           fail_only: true
 
 workflows:
-  # build-frontend:
-  #   jobs:
-  #     - build-frontend
-  #     - test-frontend:
-  #         requires:
-  #             - build-frontend
-  #     - scan-frontend:
-  #         requires:
-  #             - test-frontend
-  # build-backend:
-  #   jobs:
-  #     - build-backend
-  #     - test-backend:
-  #         requires:
-  #           - build-backend
-  #     - scan-backend:
-  #         requires:
-  #           - test-backend
+  frontend:
+    jobs:
+      - build-frontend
+      - test-frontend:
+          requires:
+            - build-frontend
+      - scan-frontend:
+          requires:
+            - test-frontend
 
-  # create-infrastructure:
-  #   jobs:
-  #     - deploy-infrastructure:
-  #         requires:
-  #             - frontend
-  #             - backend
-  #     - configure-infrastructure:
-  #         requires:
-  #           - deploy-infrastructure
-  #     - run-migrations
-  #     - deploy-backend
-  #         requires:
-  #           - configure-infrastructure
-  #     - deploy-frontend
-  #         requires:
-  #           - configure-infrastructure
+  backend:
+    jobs:
+      - build-backend
+      - test-backend:
+          requires:
+            - build-backend
+      - scan-backend:
+          requires:
+            - test-backend
+
   
   deploy:
     jobs:
-      - deploy-infrastructure
+      - deploy-infrastructure:
+          requires:
+              - backend
+              - frontend
+          filters:
+            branches:
+              only: master
       - configure-infrastructure:
           requires:
             - deploy-infrastructure
+          filters:
+            branches:
+              only: master
       - run-migrations:
           requires:
             - configure-infrastructure
+          filters:
+            branches:
+              only: master
       - deploy-backend:
           requires:
             - run-migrations
+          filters:
+            branches:
+              only: master
       - deploy-frontend:
           requires:
             - configure-infrastructure
+          filters:
+            branches:
+              only: master
       - smoke-test:
           requires:
            - deploy-backend
            - deploy-frontend
+          filters:
+            branches:
+              only: master
       - cloudfront-update:
           requires:
               - smoke-test
+          filters:
+            branches:
+              only: master
