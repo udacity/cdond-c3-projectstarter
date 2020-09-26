@@ -416,8 +416,8 @@ workflows:
     jobs:
       - deploy-infrastructure:
           requires:
-              - backend
-              - frontend
+              - test-frontend
+              - test-backend
           filters:
             branches:
               only: master
