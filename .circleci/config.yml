@@ -372,7 +372,7 @@ jobs:
               --template-file .circleci/files/cloudfront.yml \
               --stack-name cloud-devops-cloudfront \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=udapeople &
+              --tags project=udapeople
             
             echo "Delete old infrastructure"
             if [ -n "${OLD_WORKFLOW_ID}" ] && [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
