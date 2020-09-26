@@ -375,9 +375,9 @@ jobs:
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
             
-            echo "Delete old infrastructure"
             if [ -n "${OLD_WORKFLOW_ID}" ] && [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
             then
+              echo "Delete old infrastructure"
               if aws s3api head-bucket --bucket udapeople-${OLD_WORKFLOW_ID}
               then
                 aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID}/ --recursive
