@@ -46,9 +46,9 @@ commands:
           name: Destroy the CloudFormation Stacks
           command: |
             export TERM=xterm-color
-            aws cloudformation delete-stack --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name cloud-devops-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name cloud-devops-cloudfront
   
   revert-migration:
     description: Revert the last migration if smoke tests are failing in the current workflow
@@ -206,13 +206,6 @@ jobs:
             --template-body file://.circleci/files/frontend.yml \
             --stack-name cloud-devops-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
             --parameters ParameterKey=ID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
-      - run:
-          name: Create CloudFront Stack
-          command: |
-            aws cloudformation create-stack \
-              --template-body file://.circleci/files/cloudfront.yml \
-              --stack-name cloud-devops-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
-              --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
       - slack/status:
           fail_only: true
@@ -335,7 +328,7 @@ jobs:
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/#/employees"
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 1
+              exit 0
             else
               exit 1
             fi
@@ -361,7 +354,39 @@ jobs:
       - slack/status:
           fail_only: true
 
-#  cloudfront-update:
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Update CloudFront Distribution
+          command: |
+            export OLD_WORKFLOW_ID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
+            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+
+            echo Old Workflow Id: "${OLD_WORKFLOW_ID}"
+            echo Stacks: "${STACKS}"
+
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name cloud-devops-cloudfront \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople &
+            
+            echo "Delete old infrastructure"
+            if [ -n "${OLD_WORKFLOW_ID}" ] && [[ "${STACKS[@]}" =~ "${OLD_WORKFLOW_ID}" ]]
+            then
+              if aws s3api head-bucket --bucket udapeople-${OLD_WORKFLOW_ID}
+              then
+                aws s3 rm s3://udapeople-${OLD_WORKFLOW_ID}/ --recursive
+              fi
+              aws cloudformation delete-stack --stack-name cloud-devops-frontend-${OLD_WORKFLOW_ID}
+              aws cloudformation delete-stack --stack-name cloud-devops-backend-${OLD_WORKFLOW_ID}
+            fi
+      - destroy-environment
+      - slack/status:
+          fail_only: true
 
 workflows:
   # build-frontend:
@@ -419,3 +444,6 @@ workflows:
           requires:
            - deploy-backend
            - deploy-frontend
+      - cloudfront-update:
+          requires:
+              - smoke-test
