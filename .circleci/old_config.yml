@@ -207,7 +207,7 @@ jobs:
 
   smoke-test:
     docker:
-      # Docker image here with curl
+      # Lightweight Docker image 
     steps:
       # Checkout code from git
       - run:
