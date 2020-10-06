@@ -41,45 +41,83 @@ Setting up servers and infrastructure is complicated business. There are many, m
 
 ![Job properly failing because of an error when creating infrastructure.](screenshots/SCREENSHOT05.png)
 
-In this phase, you will use add CircleCI jobs that execute Cloud Formation templates that create infrastructure as well as jobs that execute Ansible Playbooks to configure that newly created infrastructure.
+In this phase, you will add CircleCI jobs that execute Cloud Formation templates that create infrastructure as well as jobs that execute Ansible Playbooks to configure that newly created infrastructure.
 
-- Add jobs to your config file to create your infrastructure using [CloudFormation templates](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). Again, provide a screenshot demonstrating an appropriate job failure (failing for the right reasons). **[SCREENSHOT05]**
-  - Use the pipeline/workflow id to name, tag or otherwise mark your CloudFormation stacks so that you can reference them later on (ex: rollback). If you'd like, you can use the parameterized CloudFormation templates we provided. 
-  - Programmatically create a new EC2 Instance for your back-end.
+##### Create/Deploy Infrastructure
+
+- Add a job named `deploy-infrastructure` to your config file to create your infrastructure using [CloudFormation templates](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). Again, provide a screenshot demonstrating an appropriate job failure (failing for the right reasons). **[SCREENSHOT05]**
+  - Use a Docker image that supports the AWS CLI
+  - Create backend infrastructure with a step named `Ensure back-end infrastructure exists`
+    - Use the workflow id to mark your CloudFormation stacks so that you can reference them later on (ex: rollback). If you'd like, you can use the parameterized CloudFormation templates we provided. 
+    - Programmatically create a new EC2 Instance for your back-end.
     - Make sure the EC2 instance has your back-end port opened up to public traffic (default port 3030).
-  - Programmatically save the new back-end url to memory or disk for later use (the front-end needs it). This could be done with [MemStash.io](https://memstash.io).
-  - Programmatically create a new S3 Bucket for your front-end.
-  - Programmatically save the old bucket arn to memory or disk in case you need it later (for rollback). This could be done with [MemStash.io](https://memstash.io).
-- Create an Ansible playbook to set up the backend server. Remember that you are running this Playbook against an EC2 instance that has been programmatically created (inside the CircleCI job). Your job will need to use the ssh key fingerprint as well as the username ("ubuntu") of the EC2 instance when executing the Playbook. Here are some steps to perform in your Playbook:
-  - Install Python, if needed.
-  - Update/upgrade packages.
-  - Install nodejs.
-  - Install pm2.
-  - Configure environment variables:
-    - `ENVIRONMENT`=`production`
-    - `TYPEORM_CONNECTION`=`postgres`
-    - `TYPEORM_ENTITIES`=`./src/modules/domain/**/*.entity.ts`
-    - `TYPEORM_HOST`={your postgres database hostname in RDS}
-    - `TYPEORM_PORT`=`5532` (or the port from RDS if it’s different)
-    - `TYPEORM_USERNAME`={your postgres database username in RDS}
-    - `TYPEORM_PASSWORD`={your postgres database password in RDS}
-    - `TYPEORM_DATABASE`={your postgres database name in RDS}
-  - [Configure PM2](https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps) to run back-end server .
-- In the back-end deploy job, execute Ansible playbook to configure the instance.
+    - Programmatically save the new back-end url to memory or disk for later use (the front-end needs it). This could be done with [MemStash.io](https://memstash.io).
+    - Tag the back-end infrastructure so that it can be referenced later.
+  - Create frontend  with a step named `Ensure front-end infrastructure exist`
+    - Use a CloudFormation template to create a new S3 Bucket for your front-end.
+    - Use the workflow id to mark the front-end infrastructure so that you can reference it easily later on.
+    - Tag the front-end infrastructure so that it can be referenced later.
+  - Generate an inventory file for use with Ansible by using AWS CLI to append the newly created backend IP to the [provided](https://github.com/udacity/cdond-c3-projectstarter/blob/master/.circleci/ansible/inventory.txt) inventory file.
+    - Persist the modified inventory file to the workspace so that we can use that file in future jobs.
+  
+##### Configure Infrastructure
+
+- Add a job named `configure-infrastructure` to to set up the EC2 intance to run as our back-end
+  - Select a Docker image that supports Ansible
+  - Add SSH key fingerprint to job so that Ansible will have access to the EC2 instance via SSH
+  - Attach the "workspace" to the job so that you have access to all the files you need (e.g. inventory file).
+  - Create an Ansible playbook named `configure-server.yml` to set up the backend server. Remember that you are running this Playbook against an EC2 instance that has been programmatically created (inside the CircleCI job). 
+    - Use username "ubuntu"  
+    - Install Python, if needed.
+    - Update/upgrade packages.
+    - Install nodejs.
+    - Install pm2.
+    - Configure environment variables:
+      - `ENVIRONMENT`=`production`
+      - `TYPEORM_CONNECTION`=`postgres`
+      - `TYPEORM_ENTITIES`=`./src/modules/domain/**/*.entity.ts`
+      - `TYPEORM_HOST`={your postgres database hostname in RDS}
+      - `TYPEORM_PORT`=`5532` (or the port from RDS if it’s different)
+      - `TYPEORM_USERNAME`={your postgres database username in RDS}
+      - `TYPEORM_PASSWORD`={your postgres database password in RDS}
+      - `TYPEORM_DATABASE`={your postgres database name in RDS}
+    - Install and [Configure PM2](https://www.digitalocean.com/community/tutorials/how-to-use-pm2-to-setup-a-node-js-production-environment-on-an-ubuntu-vps) to run back-end server.
+
 - Provide a URL to your public GitHub repository. **[URL01]**
 
 #### 2. Deploy Phase
 
 Now that the infrastructure is up and running, it’s time to configure for dependencies and move our application files over. UdaPeople used to have this ops guy in the other building to make the copy every Friday, but now they want to make a full deploy on every single commit. Luckily for UdaPeople, you’re about to add a job that handles this automatically using Ansible. The ops guy will finally have enough time to catch up on his Netflix playlist.
 
-- Add a job that runs database migrations so that new changes are applied. 
-  - Save some evidence that any new migrations ran. This is useful information if you need to rollback. To do this, you can use bash to save the migration output to a file or a variable. Then you can use grep to check for certain words that show that new migrations were run. It might help to use [MemStash.io](https://memstash.io) to store a true or false if any migrations were run (hint: use something like `<< pipeline.id >>_migrations` as a key).
-- Add a job to build and copy the compiled back-end files to your new EC2 instance. Use Ansible to copy the files (compiled back-end files can be found in a folder called `./dist`).
-- Add a job to prepare the front-end code for distribution and deploy it. 
-  - Before building, add the back-end url that you saved earlier to the job's `API_URL` environment variables before running re-compiling the code. This will ensure the front-end is pointing to the correct back-end. 
+##### Database migrations
+
+- Add a job named `run-migrations` that runs database migrations so that new changes are applied. 
+  - Use a Docker image that's compatible with NodeJS
+  - Save some evidence that any new migrations ran. This is useful information if you need to roll back. Hint: The migration output will include `"has been executed successfully."` if any new migrations were applied.
+    - Save the output to a file or variable.
+    - Use "grep" to check for text that shows that a new migration was applied.
+    - If true, send a "1" (or any value at all) to [MemStash.io](https://memstash.io) using a key that is bound to the workflow id like `migration_${CIRCLE_WORKFLOW_ID}`.
+
+##### Deploy Front-end
+
+- Add a job named `deploy-frontend` to prepare the front-end code for distribution and deploy it. 
+  - Choose a Docker image that can handle the AWS CLI
+  - Install any additional dependencies
+  - Add the url of the newly created back-end server to the `API_URL` environment variable. This is important to be done before building the front-end in the next step because the build process will take the `API_URL` from the environment and "bake it" (hard-code it) into the front-end code.
+    - In a previous job, you created the back-end infrastructure and saved the IP address of the new EC2 instance. This is the IP address you will want to pull out and use here.
+    - If the IP address is "1.2.3.4", then the `API_URL` should be `https://1.2.3.4:3000`.
   - Run `npm run build` one last time so that the back-end url gets "baked" into the front-end. 
   - Copy the files to your new S3 Bucket using AWS CLI (compiled front-end files can be found in a folder called `./dist`).
 - Provide the public URL for your S3 Bucket (aka, your front-end). **[URL02]**
+
+##### Deploy Back-end
+
+- Add a job named `deploy-backend` deployu the compiled backend files to the EC2 instance. 
+  - Choose a Docker image that is compatible with Ansible.
+  - Add the SSH key fingerprint to the job.
+  - Attach the "workspace" so that you have access to the previously generated `inventory.txt`.
+  - Install any necessary dependencies.
+  - Use Ansible to copy the files (compiled back-end files can be found in a folder called `./dist`).
 
 #### 3. Smoke Test Phase
 
@@ -87,18 +125,18 @@ All this automated deployment stuff is great, but what if there’s something we
 
 ![Job properly failing because of a failed smoke test.](screenshots/SCREENSHOT06.png)
 
-- Add a job to make a simple test on both front-end and back-end. Use the suggested tests below or come up with your own. 
-  - Check `$API_URL/api/status` to make sure it returns a healthy response.
+- Add a job named `smoke-test` to make a simple test on both front-end and back-end. Use the suggested tests below or come up with your own. 
+  - Use a lightweight Docker image like one of the Alpine images
+  - Install dependencies like `curl`.
+  - Test the back-end
+    - Retrieve the back-end IP address that you saved in an earlier job.
+    - Use `curl` to hit the back-end API's status endpoint (e.g. https://1.2.3.4:3000/api/status)
+    - No errors mean a successful test
+  - Test the front-end
+    - Form the front-end url using the workflow id and your AWS region like this: `URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"` 
+    - Check the front-end to make sure it includes a word or two that proves it is working properly.
+    - No errors mean a successful test
 ```bash
-BACKEND_IP=$(aws ec2 describe-instances \
-  --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-  --query 'Reservations[*].Instances[*].PublicIpAddress' \
-  --output text)
-curl "http://${BACKEND_IP}:3030/api/status"
-```
-  - Check the front-end to make sure it includes a word or two that proves it is working properly.
-```bash
-URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
 if curl -s ${URL} | grep "Welcome"
 then
   return 1
@@ -106,6 +144,7 @@ else
   return 0
 fi
 ```
+    
 - Provide a screenshot for appropriate failure for the smoke test job. **[SCREENSHOT06]**
 
 #### 4. Rollback Phase
@@ -114,14 +153,16 @@ Of course, we all hope every pipeline follows the “happy path.” But any expe
 
 ![Successful rollback job.](screenshots/SCREENSHOT07.png)
 
-- Add a “[command](https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands)” that rolls back the last change:
-  - Only trigger rollback jobs if the smoke tests or any following jobs fail. 
+- Add a “[command](https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands)” named `destroy-environment` to remove infrastructure if something goes wrong
+  - Trigger rollback jobs if the smoke tests or any following jobs fail. 
   - Delete files uploaded to S3.
   - Destroy the current CloudFormation stacks using the same stack names you used when creating the stack earlier (front-end and back-end).
+- Add a “[command](https://circleci.com/docs/2.0/reusing-config/#authoring-reusable-commands)” named `revert-migrations` to roll back any migrations that were successfully applied during this CI/CD workflow
+  - Trigger rollback jobs if the smoke tests or any following jobs fail. 
   - Revert the last migration (IF a new migration was applied) on the database to that it goes back to the way it was before. You can use that value you saved in [MemStash.io](https://memstash.io) to know if you should revert any migrations.
-- No more jobs should run after this.
+- No more jobs should run after these commands have executed.
 - Provide a screenshot for a successful rollback after a failed smoke test. **[SCREENSHOT07]**
-- Try adding this rollback command to other jobs that might fail and need a rollback.
+- Try adding these rollback commands to other jobs that might fail and need a rollback.
 
 #### 5. Promotion Phase
 
@@ -129,7 +170,9 @@ Assuming the smoke test came back clean, we should have a relatively high level 
 
 ![Successful promotion job.](screenshots/SCREENSHOT08.png)
 
-- Add a job that promotes our new front-end to production
+- Add a job named `cloudfront-update` that promotes our new front-end to production
+  - Select a docker image that is compatible with AWS CLI
+  - Install any needed dependencies
   - Use a [CloudFormation template](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files) to change the origin of your CloudFront distribution to the new S3 bucket.
 - Provide a screenshot of the successful job. **[SCREENSHOT08]**
 - Provide the public URL for your CloudFront distribution (aka, your production front-end). **[URL03]**
@@ -141,7 +184,12 @@ The UdaPeople finance department likes it when your AWS bills are more or less t
 
 ![Successful cleanup job.](screenshots/SCREENSHOT09.png)
 
-- Add a job that deletes the previous S3 bucket and EC2 instance. 
+- Add a job named `cleanup` that deletes the previous S3 bucket and EC2 instance. 
+  - Query CloudFormation to find out the old stack's workflow id
+  - Remove old stacks
+    - Back-end stack
+    - Front-end files in S3
+    - Front-end stack
 - Provide a screenshot of the successful job. **[SCREENSHOT09]**
 
 #### Other Considerations

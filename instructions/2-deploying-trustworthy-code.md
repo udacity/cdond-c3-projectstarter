@@ -27,6 +27,7 @@ The goal of a build phase is to compile or lint the source code to check for syn
 
 - Add job a job named `build-frontend` to the `.circleci/config.yml` file to build/compile the front-end.
 - Add another job named `build-backend` to the `.circleci/config.yml` file to build/compile the back-end.
+- For both jobs, select a Docker image that is compatible with NodeJS
 - You should have separate jobs for front-end and back-end so that failure alerts are more descriptive.
 - Job should fail if code cannot be compiled (fail for the right reasons). We have provided an easy-to-fix compile error in the code to prove the jobs fail. Provide a screenshot of jobs that failed because of compile errors. **[SCREENSHOT01]**
 - Fix the compile error so that the pipeline can continue (see code-comment that guides you to the fix).
@@ -40,6 +41,7 @@ Unit tests are one of the many very important building blocks of a system that e
 
 - Add jobs named `test-frontend` and `test-backend` to the config file to run all the unit tests in both layers. 
 - Again, this should be in separate jobs.
+- For both jobs, select a Docker image that is compatible with NodeJS
 - A unit test job should fail the job and prevent any future jobs from running.
 - We have provided one failing test in both front-end and back-end. Provide a screenshot of the failed unit tests in the "Test Failures" tab. **[SCREENSHOT02]**
 - Fix the unit tests and make the job succeed.
@@ -51,7 +53,8 @@ UdaPeople handles some private information like social security numbers, salary 
 ![Job properly failing because of security vulnerabilities.](screenshots/SCREENSHOT03.png)
 
 - Add jobs named `scan-frontend` and `scan-backend` to the config file to check for security vulnerabilities in the packages used in the application.
-  - Create a simple job to run nodejs commands. The product `npm` comes with an “audit” feature that will check for known package vulnerabilities. Just `cd` into the directory of front-end and back-end and run the following:
+  - For both jobs, select a Docker image that is compatible with NodeJS
+  - Use `npm` to “audit” the code to check for known package vulnerabilities. Just `cd` into the directory of front-end and back-end and run the following:
 ```bash
 npm audit --audit-level=critical
 ```
