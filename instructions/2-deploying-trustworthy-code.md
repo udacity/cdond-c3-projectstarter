@@ -25,7 +25,8 @@ The goal of a build phase is to compile or lint the source code to check for syn
 
 ![Job properly failing because of compile errors.](screenshots/SCREENSHOT01.png)
 
-- Add jobs to the `.circleci/config.yml` file to build/compile both front-end and back-end code (one job for each). 
+- Add job a job named `build-frontend` to the `.circleci/config.yml` file to build/compile the front-end.
+- Add another job named `build-backend` to the `.circleci/config.yml` file to build/compile the back-end.
 - You should have separate jobs for front-end and back-end so that failure alerts are more descriptive.
 - Job should fail if code cannot be compiled (fail for the right reasons). We have provided an easy-to-fix compile error in the code to prove the jobs fail. Provide a screenshot of jobs that failed because of compile errors. **[SCREENSHOT01]**
 - Fix the compile error so that the pipeline can continue (see code-comment that guides you to the fix).
@@ -37,11 +38,10 @@ Unit tests are one of the many very important building blocks of a system that e
 
 ![Job properly failing because of test failures.](screenshots/SCREENSHOT02.png)
 
-- Add jobs to the config file to run all the unit tests in both layers. The command you use to run the tests should generate some sort of test results file in a standard format. You may need to check the test runner docs for this.
+- Add jobs named `test-frontend` and `test-backend` to the config file to run all the unit tests in both layers. 
 - Again, this should be in separate jobs.
 - A unit test job should fail the job and prevent any future jobs from running.
-- Individual test failures should appear in the "Test Failures" tab. You can find instructions for how to make this happen in [Circle CI's documentation](https://circleci.com/docs/2.0/collect-test-data/). We have provided one failing test in both front-end and back-end. Provide a screenshot of the failed unit tests in the "Test Failures" tab. **[SCREENSHOT02]**
-- Make sure a failed test stops all future jobs.
+- We have provided one failing test in both front-end and back-end. Provide a screenshot of the failed unit tests in the "Test Failures" tab. **[SCREENSHOT02]**
 - Fix the unit tests and make the job succeed.
 
 #### 3. Analyze Phase
@@ -50,7 +50,7 @@ UdaPeople handles some private information like social security numbers, salary 
 
 ![Job properly failing because of security vulnerabilities.](screenshots/SCREENSHOT03.png)
 
-- Add jobs to the config file to check for security vulnerabilities in the packages used in the application.
+- Add jobs named `scan-frontend` and `scan-backend` to the config file to check for security vulnerabilities in the packages used in the application.
   - Create a simple job to run nodejs commands. The product `npm` comes with an “audit” feature that will check for known package vulnerabilities. Just `cd` into the directory of front-end and back-end and run the following:
 ```bash
 npm audit --audit-level=critical

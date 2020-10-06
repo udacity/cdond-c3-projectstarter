@@ -104,11 +104,15 @@ Most of the tasks needed to build, test and deploy the application are simplifie
 | Name | Purpose | Notes | 
 | :-- | :-- | :-- |
 | migrations | Run migration which checks for any migration scripts that have not yet been applied to the db and runs them. |Make sure you have a Postgres database running and your `.env` file is configured correctly. If you get connection errors from the backend when you start it, then chances are your DB is not running or the `.env` doesn't have the correct DB connection information. |
+| migrations:revert | Revert last successfully executed migration. | The same connection configuration is needed here as with the `migrations` script above. |
 | test | Run all unit tests. | |
 | build | Compiles the code. | Drops the compiled code in the `./dist` folder. |
 | start | Starts up the application locally. | Make sure you have a Postgres database running and your `.env` file is configured correctly. If you get connection errors from the backend when you start it, then chances are your DB is not running or the `.env` doesn't have the correct DB connection information.|
 
-Example:
+### Examples:
+
+This should compile the code and then list the result in the `./dist` folder:
+
 ```bash
 cd frontend
 npm run build
@@ -116,4 +120,10 @@ cd dist
 ls
 ```
 
-This should compile the code and then list the result in the `./dist` folder.
+... or revert the last migration that ran:
+
+```bash
+cd backend
+npm run migrations:revert
+```
+
