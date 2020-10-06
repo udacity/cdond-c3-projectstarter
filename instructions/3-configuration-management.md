@@ -11,6 +11,16 @@ In this section, you will practice creating and configuring infrastructure befor
 
 Please watch the [video walkthrough of preparing AWS here](https://www.youtube.com/watch?v=d1W1HUz8yRw).
 
+### CloudFront Distribution Primer
+
+At the very end of the pipeline, you will need to make a switch from the old infrastructure to the new as you learned about with the Blue Green Deployment strategy. We will use CloudFormation and CloudFront to accomplish this. However, for this to work, you must do a few things manually:
+
+1) Generate random string (e.g. `kk1j287dhjppmz437`) for use in next steps
+2) Create an S3 Bucket with a name that combines "udapeople" and the random string (e.g. "udapeople-kk1j287dhjppmz437").
+3) Run our provided [Cloud Formation](https://github.com/udacity/cdond-c3-projectstarter/blob/master/.circleci/files/cloudfront.yml) template locally (for the Workflow ID parameter, use your random string).
+
+Once that is done, subsequent executions of that template will modify the same CloudFront distribution to make the blue-to-green switch without fail.
+
 #### Circle CI
 
 Please watch the [video walkthrough of setting up your secrets here](https://www.youtube.com/watch?v=caFJQ1YwVdU).
