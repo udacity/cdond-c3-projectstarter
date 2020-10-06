@@ -76,13 +76,14 @@ In this phase, you will add CircleCI jobs that execute Cloud Formation templates
   - Select a Docker image that supports Ansible
   - Add SSH key fingerprint to job so that Ansible will have access to the EC2 instance via SSH
   - Attach the "workspace" to the job so that you have access to all the files you need (e.g. inventory file).
-  - Create an Ansible playbook named `configure-server.yml` to set up the backend server. Remember that you are running this Playbook against an EC2 instance that has been programmatically created (inside the CircleCI job). 
+  - Create an Ansible playbook named `configure-server.yml` in the `.circleci/ansible` folder to set up the backend server. Remember that you are running this Playbook against an EC2 instance that has been programmatically created (inside the CircleCI job). 
     - Use username "ubuntu"  
+    - Keep your playbook clean and maintainable by using roles. 
     - Install Python, if needed.
     - Update/upgrade packages.
     - Install nodejs.
     - Install pm2.
-    - Configure environment variables:
+    - Configure environment variables (use the `environment` module type in your role):
       - `ENVIRONMENT`=`production`
       - `TYPEORM_CONNECTION`=`postgres`
       - `TYPEORM_ENTITIES`=`./src/modules/domain/**/*.entity.ts`
@@ -103,7 +104,7 @@ Now that the infrastructure is up and running, it’s time to configure for depe
 
 - Add a job named `run-migrations` that runs database migrations so that new changes are applied. 
   - Use a Docker image that's compatible with NodeJS
-  - Save some evidence that any new migrations ran. This is useful information if you need to roll back. Hint: The migration output will include `"has been executed successfully."` if any new migrations were applied.
+  - Save some evidence that any new migrations ran. This is useful information if you need to roll back. Hint: The migration output will include `"has been executed successfully"` if any new migrations were applied.
     - Save the output to a file or variable.
     - Use "grep" to check for text that shows that a new migration was applied.
     - If true, send a "1" (or any value at all) to [MemStash.io](https://memstash.io) using a key that is bound to the workflow id like `migration_${CIRCLE_WORKFLOW_ID}`.
@@ -195,10 +196,17 @@ The UdaPeople finance department likes it when your AWS bills are more or less t
 ![Successful cleanup job.](screenshots/SCREENSHOT09.png)
 
 - Add a job named `cleanup` that deletes the previous S3 bucket and EC2 instance. 
-  - Query CloudFormation to find out the old stack's workflow id
-  - Remove old stacks
-    - Back-end stack
-    - Front-end files in S3
+  - Query CloudFormation to find out the old stack's workflow id like this:
+  ```
+  export OldWorkflowID=$(aws cloudformation \
+        list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+        --no-paginate --output text)
+    export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+        --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+  ```
+  - Remove old stacks/files
+    - Back-end stack (example: `aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"`)
+    - Front-end files in S3 (example: `aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive`)
     - Front-end stack
 - Provide a screenshot of the successful job. **[SCREENSHOT09]**
 
