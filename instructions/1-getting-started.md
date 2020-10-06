@@ -19,6 +19,10 @@ Please watch the [video walkthrough of the starter code here](https://www.youtub
 
 For your convenience, we have provided some CloudFormation templates that you can use throughout the deployment phase of your project. You can find those templates in [this folder](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). 
 
+### Intentionally Failing Jobs
+
+We left a scaffolded `config.yml` for you [here](https://github.com/udacity/cdond-c3-projectstarter/blob/master/.circleci/config.yml) to help you get started with CirlcCI's configuration. To call attention to unfinished jobs, we left some "non-zero error codes" (e.g. `exit 1`) for you to remove when you have finished implementing a job. 
+
 ### Compiling/Running Locally (Optional)
 
 **PLEASE NOTE:** It is NOT necessary that you compile and run the project locally. The goal of this project is for you to show mastery in management of CI/CD systems, not React/NodeJS web applications. If you are experienced with React/NodeJS or don't mind an extra challenge, then be our guest! But, you can perfectly complete this project without compiling or running the code locally.
