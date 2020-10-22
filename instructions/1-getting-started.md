@@ -34,13 +34,14 @@ This is a "mono-repository" which means multiple servers or layers exist in the 
 - `./frontend`
 - `./backend`
 
-#### 1. Install dependencies in both front-end and back-end folders.
+#### 1. Install dependencies in both `frontend` and `backend` folders.
 
+From your `cdond-cd-projectstarter` folder, use the commands:
 ```bash
 cd frontend
 npm i
 ```
-
+From your `cdond-cd-projectstarter` folder, use the commands:
 ```bash
 cd backend
 npm i
@@ -72,17 +73,15 @@ You can use your own Postgres server if you wish or you can use the Docker-Compo
 
 For convenience, we have provided a template that you can use to easily run a Postgres database for local testing. To run this template, you'll need to install Docker and Docker-Compose.
 
-To start the database:
-
+To start the database, you will use the following commands from your `cdond-cd-projectstarter` folder:
 ```bash
-cd utils
+cd util
 docker-compose up
 ```
 
 ## Compiling the Code
 
-You can compile the code from the command-line using the following:
-
+You can compile the code from your `cdond-cd-projectstarter` folder using the following:
 ```bash
 cd frontend
 npm run build
@@ -97,7 +96,7 @@ npm run build
 
 ## Testing, Migrating, Running
 
-As the warning says above, it won't be possible to run most of the code in the project until later on when instructed to fix some errors. So, you may not be able to try these things out right now. But we are providing them here as a reference.
+As the warning says above, it won't be possible to run most of the code in the project until later on when you are instructed to fix some errors. So, you may not be able to try the following commands right now. We are providing them here as a reference.
 
 Most of the tasks needed to build, test and deploy the application are simplified by "npm scripts" that are found in the `package.json` for either front-end or back-end. For any of these scripts, you will need to `cd` into the respective folder and then run the script using the command `npm run [script name]`. Here are the most relevant scripts:
 
