@@ -24,9 +24,9 @@ Throughout this project, you will be asked to take screenshots or provide URLs t
 The goal of a build phase is to compile or lint the source code to check for syntax errors or unintentional typos in code. It’s your first line of defense against bugs as you attempt to integrate the pieces of your project together. This is especially important to UdaPeople because we don’t want to waste credits or time running other steps if the code can’t even compile.
 
 - Find the job named `build-frontend` in the `.circleci/config.yml` file. 
- - Add code to build/compile the front-end.
+  - Add code to build/compile the front-end.
 - Find another job named `build-backend` in the `.circleci/config.yml` file. 
- - Add code to build/compile the back-end.
+  - Add code to build/compile the back-end.
 - Notice that both jobs have selected a Docker image that is compatible with NodeJS.
 ```
  - image: circleci/node:13.8.0
@@ -42,8 +42,8 @@ The goal of a build phase is to compile or lint the source code to check for syn
 Unit tests are one of the many very important building blocks of a system that enables Continuous Delivery (notice, we didn’t say “the only or most important thing”). UdaPeople believes that tests should come first just like they do in the scientific method. So, if a test fails, it's because the code is no longer trustworthy. Only trustworthy code should get a ticket to continue the ride!
 
 - Find the jobs named `test-frontend` and `test-backend` in the config file. 
- - For both jobs, select a Docker image that is compatible with NodeJS.
- - Write code to run all the unit tests in both layers. 
+  - For both jobs, select a Docker image that is compatible with NodeJS.
+  - Write code to run all the unit tests in both layers. 
 - Remember, we separate the frontend and backend into separate jobs!
 - A unit test job should fail the job and prevent any future jobs from running.
 - We have provided one failing test in both front-end and back-end. Provide a screenshot of the failed unit tests in the "Test Failures" tab. **[SCREENSHOT02]**
@@ -55,9 +55,9 @@ Unit tests are one of the many very important building blocks of a system that e
 UdaPeople handles some private information like social security numbers, salary amount, etc. It would be a shame if a package with a known vulnerability left a security hole in our application, giving hackers access to that information! That’s why we should include a job that checks for known vulnerabilities every time we check in new code.
 
 - Find the jobs named `scan-frontend` and `scan-backend` in the config file. 
- - For both jobs, select a Docker image that is compatible with NodeJS.
- - Write code to check for security vulnerabilities in the packages used in the application.
-  - Use `npm` to “audit” the code to check for known package vulnerabilities. Just `cd` into the directory of front-end and back-end and run the following:
+  - For both jobs, select a Docker image that is compatible with NodeJS.
+  - Write code to check for security vulnerabilities in the packages used in the application.
+    - Use `npm` to “audit” the code to check for known package vulnerabilities. Just `cd` into the directory of front-end and back-end and run the following:
 ```bash
 npm audit --audit-level=critical
 ```
