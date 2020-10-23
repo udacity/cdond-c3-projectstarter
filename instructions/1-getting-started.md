@@ -19,6 +19,10 @@ Please watch the [video walkthrough of the starter code here](https://www.youtub
 
 For your convenience, we have provided some CloudFormation templates that you can use throughout the deployment phase of your project. You can find those templates in [this folder](https://github.com/udacity/cdond-c3-projectstarter/tree/master/.circleci/files). 
 
+### Intentionally Failing Jobs
+
+We left a scaffolded `config.yml` for you [here](https://github.com/udacity/cdond-c3-projectstarter/blob/master/.circleci/config.yml) to help you get started with CirlcCI's configuration. To call attention to unfinished jobs, we left some "non-zero error codes" (e.g. `exit 1`) for you to remove when you have finished implementing a job. 
+
 ### Compiling/Running Locally (Optional)
 
 **PLEASE NOTE:** It is NOT necessary that you compile and run the project locally. The goal of this project is for you to show mastery in management of CI/CD systems, not React/NodeJS web applications. If you are experienced with React/NodeJS or don't mind an extra challenge, then be our guest! But, you can perfectly complete this project without compiling or running the code locally.
@@ -30,13 +34,14 @@ This is a "mono-repository" which means multiple servers or layers exist in the 
 - `./frontend`
 - `./backend`
 
-#### 1. Install dependencies in both front-end and back-end folders.
+#### 1. Install dependencies in both `frontend` and `backend` folders.
 
+From your `cdond-cd-projectstarter` folder, use the commands:
 ```bash
 cd frontend
 npm i
 ```
-
+From your `cdond-cd-projectstarter` folder, use the commands:
 ```bash
 cd backend
 npm i
@@ -68,17 +73,15 @@ You can use your own Postgres server if you wish or you can use the Docker-Compo
 
 For convenience, we have provided a template that you can use to easily run a Postgres database for local testing. To run this template, you'll need to install Docker and Docker-Compose.
 
-To start the database:
-
+To start the database, you will use the following commands from your `cdond-cd-projectstarter` folder:
 ```bash
-cd utils
+cd util
 docker-compose up
 ```
 
 ## Compiling the Code
 
-You can compile the code from the command-line using the following:
-
+You can compile the code from your `cdond-cd-projectstarter` folder using the following:
 ```bash
 cd frontend
 npm run build
@@ -93,18 +96,22 @@ npm run build
 
 ## Testing, Migrating, Running
 
-As the warning says above, it won't be possible to run most of the code in the project until later on when instructed to fix some errors. So, you may not be able to try these things out right now. But we are providing them here as a reference.
+As the warning says above, it won't be possible to run most of the code in the project until later on when you are instructed to fix some errors. So, you may not be able to try the following commands right now. We are providing them here as a reference.
 
 Most of the tasks needed to build, test and deploy the application are simplified by "npm scripts" that are found in the `package.json` for either front-end or back-end. For any of these scripts, you will need to `cd` into the respective folder and then run the script using the command `npm run [script name]`. Here are the most relevant scripts:
 
 | Name | Purpose | Notes | 
 | :-- | :-- | :-- |
 | migrations | Run migration which checks for any migration scripts that have not yet been applied to the db and runs them. |Make sure you have a Postgres database running and your `.env` file is configured correctly. If you get connection errors from the backend when you start it, then chances are your DB is not running or the `.env` doesn't have the correct DB connection information. |
+| migrations:revert | Revert last successfully executed migration. | The same connection configuration is needed here as with the `migrations` script above. |
 | test | Run all unit tests. | |
 | build | Compiles the code. | Drops the compiled code in the `./dist` folder. |
 | start | Starts up the application locally. | Make sure you have a Postgres database running and your `.env` file is configured correctly. If you get connection errors from the backend when you start it, then chances are your DB is not running or the `.env` doesn't have the correct DB connection information.|
 
-Example:
+### Examples:
+
+This should compile the code and then list the result in the `./dist` folder:
+
 ```bash
 cd frontend
 npm run build
@@ -112,4 +119,10 @@ cd dist
 ls
 ```
 
-This should compile the code and then list the result in the `./dist` folder.
+... or revert the last migration that ran:
+
+```bash
+cd backend
+npm run migrations:revert
+```
+
