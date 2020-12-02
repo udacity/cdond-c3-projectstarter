@@ -1,0 +1,35 @@
+---
+- user: ubuntu
+  hosts: all
+  become: true
+  gather_facts: true
+
+  vars:
+    #    - ansible_python_interpreter: /usr/bin/python3
+    - ansible_host_key_checking: false
+    - ansible_stdout_callback: yaml
+    - ansible_port: "22"
+    - ENVIRONMENT: "production"
+    - TYPEORM_MIGRATIONS: "./src/migrations/*.ts"
+    - TYPEORM_MIGRATIONS_DIR: "./src/migrations"
+    - TYPEORM_CONNECTION: "postgres"
+    - TYPEORM_ENTITIES: "./src/modules/domain/**/*.entity.ts"
+    - TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
+    - TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
+    - TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
+    - TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
+    - TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
+
+  pre_tasks:
+    - name: "wait for target connection to become reachable"
+      wait_for_connection:
+
+    - name: "install python for Ansible."
+      become: true
+      raw: test -e /usr/bin/python3 || (yum -y update && yum install -y python3)
+      changed_when: false
+
+    - setup:
+
+  roles:
+    - deploy
