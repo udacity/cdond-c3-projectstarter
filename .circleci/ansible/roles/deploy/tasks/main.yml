@@ -1,0 +1,54 @@
+---
+- name: "update apt packages."
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: yes
+    
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm", "tar"]
+    state: latest
+    update_cache: yes
+
+- name: "open the server"
+  become: yes
+  shell: |
+   curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+   
+- name: "open the server2"
+  become: yes
+  shell: |
+   sudo apt-get install -y nodejs
+- name: "copy backend folder"
+  become: true
+  copy:
+    src: /root/project/backend
+    dest: /home/ubuntu/
+
+# - name: Delete old PM2 process
+#   become: true
+#   ignore_errors: yes
+#   shell: |
+#     pm2 stop backend
+#     pm2 delete backend
+
+- name: Install Node Dependencies
+  shell: |
+    cd /home/ubuntu/backend
+    npm install
+    npm install --only=dev
+- name: Building backend service
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+    npm run prestart:prod
+- name: Running backend service
+  shell: |
+    cd /home/ubuntu/backend    
+    pm2 start npm --no-automation --name "backend" -- run start
