@@ -385,10 +385,10 @@ jobs:
            if aws cloudformation describe-stacks --region us-west-2 --stack-name udapeople-cloudfront ; then
               aws cloudformation describe-stacks --stack-name udapeople-cloudfront --query Stacks[0].Outputs[].OutputValue --output text > ~/id.txt
            fi   
-  #    - persist_to_workspace:
-  #        root: ~/
-  #        paths:
-  #          - id.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - id.txt
       - run:
           name: Update the cloudfront
           command: |
@@ -425,7 +425,7 @@ workflows:
           filters:
             branches:
               only:
-                - non-prod
+                - master
       - configure-infrastructure:
           requires: [deploy-infrastructure]
           context: udapeople
