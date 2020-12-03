@@ -34,7 +34,7 @@ commands:
 
 jobs:
   build-frontend:
-    working_directory: ~
+    working_directory: $CIRCLE_WORKING_DIRECTORY
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -44,7 +44,7 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            cd ../frontend
+            cd frontend
             npm i
             #exit 1
       - save_cache:
@@ -61,7 +61,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            cd ../backend
+            cd backend
             npm i
              exit 1
       - save_cache:
