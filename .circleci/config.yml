@@ -34,7 +34,6 @@ commands:
 
 jobs:
   build-frontend:
-    working_directory: $CIRCLE_WORKING_DIRECTORY
     docker:
       - image: circleci/node:13.8.0
     steps:
