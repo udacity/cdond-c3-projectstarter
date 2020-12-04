@@ -72,29 +72,28 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      # - restore_cache:
-      #     keys: [frontend-build]
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: print  path
           command: |
             pwd
             echo "dir ls"
             ls -lart
-      # - run:
-      #     name: update-npm
-      #     command: 'sudo npm install -g npm@5'
-      # - run:
-      #     name: install-npm-wee
-      #     command: |
-      #       npm install
-      #       npm start
-      #       echo "################ percorso ###########"
-      #       pwd
-      #       npm run build
-      #       npm run prettier
-      # - save_cache:
-      #     paths: [frontend/node_modules]
-      #     key: frontend-build
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@5'
+      - run:
+          name: install-npm-wee
+          command: |
+            cd frontend
+            npm install
+            npm start
+            npm run build
+            npm run prettier
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
 
   build-backend:
     docker:
