@@ -71,6 +71,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
+            echo pwd
             npm install
             #exit 1
       - save_cache:
