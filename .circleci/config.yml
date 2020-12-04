@@ -81,14 +81,12 @@ jobs:
           name: install-npm-wee
           command: |
             npm install
+            npm start
+            npm run build
+            npm run prettier
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - run:
-          name: code-coverage
-          command: |
-            pwd
-            ./node_modules/.bin/nyc report --reporter=text-lcov
 
   build-backend:
     docker:
