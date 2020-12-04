@@ -79,7 +79,7 @@ jobs:
           command: |
             pwd
             echo "dir ls"
-            ll
+            ls -lart
       # - run:
       #     name: update-npm
       #     command: 'sudo npm install -g npm@5'
