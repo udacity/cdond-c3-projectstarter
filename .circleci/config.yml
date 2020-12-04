@@ -85,9 +85,6 @@ jobs:
           paths: [frontend/node_modules]
           key: frontend-build
       - run:
-          name: test
-          command: npm test
-      - run:
           name: code-coverage
           command: './node_modules/.bin/nyc report --reporter=text-lcov'
 
