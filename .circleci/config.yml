@@ -67,7 +67,7 @@ workflows:
 
 jobs:
   build-frontend:
-    working_directory: #~#/project/frontend
+    #working_directory: #~#/project/frontend
     docker:
       - image: circleci/node:13.8.0
     steps:
