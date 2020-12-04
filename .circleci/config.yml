@@ -75,8 +75,8 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: print path
-          shell: |
+          name: print  path
+          command: |
             pwd
       # - run:
       #     name: update-npm
