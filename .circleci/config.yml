@@ -86,7 +86,9 @@ jobs:
           key: frontend-build
       - run:
           name: code-coverage
-          command: './node_modules/.bin/nyc report --reporter=text-lcov'
+          command: |
+            pwd
+            ./node_modules/.bin/nyc report --reporter=text-lcov
 
   build-backend:
     docker:
