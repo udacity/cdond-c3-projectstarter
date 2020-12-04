@@ -67,7 +67,7 @@ workflows:
 
 jobs:
   build-frontend:
-    working_directory: ~/frontend
+    working_directory: ~/project/frontend
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -104,8 +104,9 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            pwd
             npm install
+            npm start
+            npm run build
             #exit 1
       - save_cache:
           paths: [backend/node_modules]
