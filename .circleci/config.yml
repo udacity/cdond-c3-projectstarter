@@ -75,9 +75,9 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-        name: get path
-        shell: |
-          pwd
+          name: print path
+          shell: |
+            pwd
       # - run:
       #     name: update-npm
       #     command: 'sudo npm install -g npm@5'
