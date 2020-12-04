@@ -49,6 +49,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
+            pwd
             npm install
             #exit 1
       - save_cache:
@@ -71,7 +72,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            echo pwd
+            pwd
             npm install
             #exit 1
       - save_cache:
