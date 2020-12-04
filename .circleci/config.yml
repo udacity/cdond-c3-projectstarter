@@ -36,7 +36,7 @@ workflows:
   default:
     jobs:
       - build-frontend
-      - build-backend
+      #- build-backend
       # - test-frontend:
       #     requires: [build-frontend]
       # - test-backend:
@@ -67,7 +67,7 @@ workflows:
 
 jobs:
   build-frontend:
-    working_directory: ~#/project/frontend
+    working_directory: #~#/project/frontend
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -75,20 +75,24 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: update-npm
-          command: 'sudo npm install -g npm@5'
-      - run:
-          name: install-npm-wee
-          command: |
-            npm install
-            npm start
-            echo "################ percorso ###########"
-            pwd
-            npm run build
-            npm run prettier
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build
+        name: get path
+        shell: |
+          pwd
+      # - run:
+      #     name: update-npm
+      #     command: 'sudo npm install -g npm@5'
+      # - run:
+      #     name: install-npm-wee
+      #     command: |
+      #       npm install
+      #       npm start
+      #       echo "################ percorso ###########"
+      #       pwd
+      #       npm run build
+      #       npm run prettier
+      # - save_cache:
+      #     paths: [frontend/node_modules]
+      #     key: frontend-build
 
   build-backend:
     docker:
