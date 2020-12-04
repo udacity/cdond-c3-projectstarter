@@ -67,6 +67,7 @@ workflows:
 
 jobs:
   build-frontend:
+    #working_directory: ~/frontend
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -76,19 +77,19 @@ jobs:
       - run:
           name: update-npm
           command: 'sudo npm install -g npm@5'
-      - restore_cache:
-          key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
-          name: Build front-end
+          name: install-npm-wee
           command: |
-            cd frontend
-            pwd
-            ls
             npm install
-            #exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - run:
+          name: test
+          command: npm test
+      - run:
+          name: code-coverage
+          command: './node_modules/.bin/nyc report --reporter=text-lcov'
 
   build-backend:
     docker:
