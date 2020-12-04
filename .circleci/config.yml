@@ -41,6 +41,11 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@5'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
+      - run:
           name: Build front-end
           command: |
             cd frontend
@@ -57,6 +62,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - run:
+          name: update-npm
+          command: 'sudo npm install -g npm@5'
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package-lock.json" }}
       - run:
           name: Back-end build
           command: |
