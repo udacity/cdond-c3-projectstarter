@@ -67,7 +67,7 @@ workflows:
 
 jobs:
   build-frontend:
-    working_directory: ~/project/frontend
+    working_directory: ~#/project/frontend
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -82,6 +82,8 @@ jobs:
           command: |
             npm install
             npm start
+            echo "################ percorso ###########"
+            pwd
             npm run build
             npm run prettier
       - save_cache:
