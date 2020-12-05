@@ -15,6 +15,7 @@
     "build": "set NODE_ENV=production; webpack --mode production --progress --colors --hot --inline",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
   },
+  "proxy": "http://localhost:3030",
   "license": "MIT",
   "devDependencies": {
     "@types/classnames": "2.2.9",
