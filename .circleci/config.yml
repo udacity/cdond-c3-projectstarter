@@ -125,20 +125,21 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [fontend-test]
+          keys: dependency-cache-{{ checksum “package.json” }}
       # Your job code here
       - run:
           name: install-npm-wee
           command: npm install
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: dependency-cache-{{ checksum “package.json” }}
       - run:
           name: frontend test
           command: |
             cd frontend
             ls -lart
             npm run test
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-test
+
 
   # test-backend:
   #   docker:
