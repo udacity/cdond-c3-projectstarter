@@ -87,8 +87,7 @@ jobs:
           name: install-npm and building
           command: |
             cd frontend
-            npm install
-            npm start
+            npm i
             npm run build
             npm run prettier
       - save_cache:
@@ -109,8 +108,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm install
-            npm start
+            npm i
             npm run build
             #exit 1
       - save_cache:
