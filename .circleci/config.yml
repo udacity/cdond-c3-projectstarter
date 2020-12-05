@@ -37,8 +37,8 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
+      - test-frontend:
+          requires: [build-frontend]
       # - test-backend:
       #     requires: [build-backend]
       # - scan-backend:
@@ -89,6 +89,8 @@ jobs:
             cd frontend
             npm i
             npm run build
+            cd dist
+            ls
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -109,26 +111,41 @@ jobs:
             cd backend
             npm i
             npm run build
-            #exit 1
+            cd dist
+            ls
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
 
-#   test-frontend:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       # Restore from cache
-#       # Your job code here
+  test-frontend:
+    docker:
+      image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      # Restore from cache
+      - restore_cache:
+          keys: [fontend-test]
+      # Your job code here
+      - run:
+          name: install-npm-wee
+          command: npm install
+      - run:
+          name: frontend test
+          command: |
+            cd frontend
+            npm test
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-test
 
-#   test-backend:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       # Restore from cache
-#       # Your job code here
+  # test-backend:
+  #   docker:
+  #     image: circleci/node:13.8.0
+  #   steps:
+      # Checkout code from git
+      # Restore from cache
+      # Your job code here
 
 #   scan-frontend:
 #     docker:
