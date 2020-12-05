@@ -89,7 +89,6 @@ jobs:
             cd frontend
             npm i
             npm run build
-            npm run prettier
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
