@@ -134,6 +134,7 @@ jobs:
           name: frontend test
           command: |
             cd frontend
+            ls -lart
             npm test
       - save_cache:
           paths: [frontend/node_modules]
