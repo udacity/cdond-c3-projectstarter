@@ -84,6 +84,7 @@ jobs:
       - run:
           name: installing npm
           command: |
+            cd frontend
             sudo npm install -g npm@5
             sudo npm i oauth-sign
             npm -v
