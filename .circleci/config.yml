@@ -254,6 +254,7 @@ jobs:
             echo "***********FRONTEND-ENV*****************"
             echo "----------------------------------------"
             npm install
+            npm install --save cors
             npm run build
             
             npm audit fix --audit-level=critical --force
