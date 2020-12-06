@@ -74,7 +74,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - frontend-build-{{ checksum "package-lock.json" }}
+            - frontend-build-{{ checksum "frontend/package.json" }}
       - run:
           name: printing working directory and content
           command: |
@@ -97,7 +97,7 @@ jobs:
             ls
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build-{{ checksum "package-lock.json" }}
+          key: frontend-build-{{ checksum "frontend/package.json" }}
 
 
   build-backend:
@@ -130,7 +130,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: frontend-build-{{ checksum "package-lock.json" }}
+          keys: [frontend-build-{{ checksum "frontend/package.json" }}]
       # Your job code here
       - run:
           name: frontend test
