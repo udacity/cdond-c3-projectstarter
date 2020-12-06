@@ -39,8 +39,8 @@ workflows:
       - build-backend
       - test-frontend:
           requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
+      - test-backend:
+          requires: [build-backend]
       # - scan-backend:
       #     requires: [build-backend]
       # - scan-frontend:
@@ -138,22 +138,43 @@ jobs:
           name: code-coverage
           command: './frontend/node_modules/.bin/nyc report --reporter=text-lcov'
       - store_artifacts:
-          path: test-results.xml
+          path: frontend/test-results.xml
           prefix: tests
       - store_artifacts:
-          path: coverage
+          path: frontend/coverage
           prefix: coverage
       - store_test_results:
-          path: test-results.xml
+          path: frontend/test-results.xml
 
 
-  # test-backend:
-  #   docker:
-  #     image: circleci/node:13.8.0
-  #   steps:
+  test-backend:
+    docker:
+      image: circleci/node:13.8.0
+    steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "frontend/package.json" }}
+            - backend-build-
       # Your job code here
+      - run:
+          name: Backend tests
+          command: |
+            cd backend
+            npm run test
+      - run:
+          name: code-coverage
+          command: './backend/node_modules/.bin/nyc report --reporter=text-lcov'
+      - store_artifacts:
+          path: backend/test-results.xml
+          prefix: tests
+      - store_artifacts:
+          path: backend/coverage
+          prefix: coverage
+      - store_test_results:
+          path: backend/test-results.xml
 
 #   scan-frontend:
 #     docker:
