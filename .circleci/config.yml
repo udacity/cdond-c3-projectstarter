@@ -138,13 +138,13 @@ jobs:
       #     name: code-coverage
       #     command: './frontend/node_modules/.bin/nyc report --reporter=text-lcov'
       - store_artifacts:
-          path: test-results.xml
+          path: frontend/test-results.xml
           prefix: tests
       - store_artifacts:
-          path: coverage
+          path: frontend/coverage
           prefix: coverage
       - store_test_results:
-          path: test-results.xml
+          path: frontend/test-results.xml
 
 
   test-backend:
@@ -156,7 +156,7 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys:
-            - backend-build-{{ checksum "frontend/package.json" }}
+            - backend-build-{{ checksum "backend/package.json" }}
             - backend-build-
       # Your job code here
       - run:
@@ -168,29 +168,50 @@ jobs:
       #     name: code-coverage
       #     command: './backend/node_modules/.bin/nyc report --reporter=text-lcov'
       - store_artifacts:
-          path: test-results.xml
+          path: backend/test-results.xml
           prefix: tests
       - store_artifacts:
-          path: coverage
+          path: backend/coverage
           prefix: coverage
       - store_test_results:
-          path: test-results.xml
+          path: backend/test-results.xml
 
-#   scan-frontend:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       # Restore from cache
-#       # Your job code here
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      # restore from cache
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package.json" }}
+            - frontend-build-
+      # Your job code here
+      - run:
+          name: frontend scan
+          command: |
+            cd frontend
+            npm audit --audit-level=critical
+      # Your job code here
 
-#   scan-backend:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       # Restore from cache
-#       # Your job code here
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      # Restore from cache
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package.json" }}
+            - backend-build-
+      # Your job code here
+      - run:
+          name: Backend tests
+          command: |
+            cd backend
+            npm audit --audit-level=critical
 
 #   deploy-infrastructure:
 #     docker:
