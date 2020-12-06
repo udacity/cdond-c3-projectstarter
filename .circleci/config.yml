@@ -128,7 +128,7 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [frontend-build]
+          keys: frontend-build-{{ checksum "package-lock.json" }}
       # Your job code here
       - run:
           name: frontend test
