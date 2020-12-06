@@ -134,9 +134,9 @@ jobs:
             cd frontend
             ls -lart
             npm run test
-      - run:
-          name: code-coverage
-          command: './frontend/node_modules/.bin/nyc report --reporter=text-lcov'
+      # - run:
+      #     name: code-coverage
+      #     command: './frontend/node_modules/.bin/nyc report --reporter=text-lcov'
       - store_artifacts:
           path: frontend/test-results.xml
           prefix: tests
@@ -164,9 +164,9 @@ jobs:
           command: |
             cd backend
             npm run test
-      - run:
-          name: code-coverage
-          command: './backend/node_modules/.bin/nyc report --reporter=text-lcov'
+      # - run:
+      #     name: code-coverage
+      #     command: './backend/node_modules/.bin/nyc report --reporter=text-lcov'
       - store_artifacts:
           path: backend/test-results.xml
           prefix: tests
