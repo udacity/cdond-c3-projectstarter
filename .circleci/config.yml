@@ -247,7 +247,6 @@ jobs:
           name: Deploy frontend objects
           command: |
             npm install webpack-dev-server -g
-            npm install --save cors
             cd frontend
             echo "----------------------------------------"
             echo "***********FRONTEND-ENV*****************"
