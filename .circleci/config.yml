@@ -73,28 +73,30 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys:
+            - frontend-build-{{ checksum "package-lock.json" }}
       - run:
-          name: print  path
+          name: printing working directory and content
           command: |
             pwd
             echo "dir ls"
             ls -lart
       - run:
-          name: update-npm
-          command: 'sudo npm install -g npm@5'
+          name: installing npm
+          command: |
+            sudo npm install -g npm@5
+            sudo npm i oauth-sign
+            npm -v
       - run:
-          name: install-npm and building
+          name: build project
           command: |
             cd frontend
-            npm i
             npm run build
-            npm install oauth-sign
             cd dist
             ls
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-build-{{ checksum "package-lock.json" }}
 
   build-backend:
     docker:
