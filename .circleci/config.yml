@@ -67,7 +67,6 @@ workflows:
 
 jobs:
   build-frontend:
-    #working_directory: #~#/project/frontend
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -76,13 +75,13 @@ jobs:
           keys:
             - frontend-build-{{ checksum "frontend/package.json" }}
      - run:
-          name: installing npm
-          command: |
-            cd frontend
-            sudo npm install -g npm@5
-            sudo npm i
-            sudo npm i oauth-sign
-            npm -v
+        name: installing npm
+        command: |
+          cd frontend
+          sudo npm install -g npm@5
+          sudo npm i
+          sudo npm i oauth-sign
+          npm -v
       - run:
           name: build project
           command: |
