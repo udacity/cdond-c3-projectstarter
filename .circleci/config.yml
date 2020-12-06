@@ -74,24 +74,24 @@ jobs:
       - restore_cache:
           keys:
             - frontend-build-{{ checksum "frontend/package.json" }}
-       - run:
-           name: installing npm and dependencies
-           command: |
-             cd frontend
-             sudo npm install -g npm@5
-             sudo npm i
-             sudo npm i oauth-sign
-             npm -v
-        - run:
-            name: build project
-            command: |
-              cd frontend
-              npm run build
-              cd dist
-              ls
-        - save_cache:
-            paths: [frontend/node_modules]
-            key: frontend-build-{{ checksum "frontend/package.json" }}
+      - run:
+          name: installing npm and dependencies
+          command: |
+            cd frontend
+            sudo npm install -g npm@5
+            sudo npm i
+            sudo npm i oauth-sign
+            npm -v
+      - run:
+          name: build project
+          command: |
+            cd frontend
+            npm run build
+            cd dist
+            ls
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build-{{ checksum "frontend/package.json" }}
 
   build-backend:
     docker:
