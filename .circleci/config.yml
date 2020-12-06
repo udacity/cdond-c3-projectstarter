@@ -126,6 +126,7 @@ jobs:
       - restore_cache:
           keys:
             - frontend-build-{{ checksum "frontend/package.json" }}
+            - frontend-build-
       # Your job code here
       - run:
           name: frontend test
