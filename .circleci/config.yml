@@ -82,8 +82,7 @@ jobs:
             ls -lart
       - run:
           name: update-npm
-          command: |
-          sudo npm install -g npm@5
+          command: 'sudo npm install -g npm@5'
       - run:
           name: install-npm and building
           command: |
