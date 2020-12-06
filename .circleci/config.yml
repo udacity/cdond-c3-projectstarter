@@ -72,8 +72,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-        keys:
-          - frontend-build-{{ checksum "frontend/package.json" }}
+          keys:
+            - frontend-build-{{ checksum "frontend/package.json" }}
        - run:
            name: installing npm and dependencies
            command: |
