@@ -87,6 +87,9 @@ jobs:
             sudo npm install -g npm@5
             sudo npm i oauth-sign
             npm -v
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build-{{ checksum "package-lock.json" }}
       - run:
           name: build project
           command: |
@@ -94,9 +97,7 @@ jobs:
             npm run build
             cd dist
             ls
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build-{{ checksum "package-lock.json" }}
+
 
   build-backend:
     docker:
