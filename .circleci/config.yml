@@ -75,22 +75,14 @@ jobs:
       - restore_cache:
           keys:
             - frontend-build-{{ checksum "frontend/package.json" }}
-      - run:
-          name: printing working directory and content
-          command: |
-            pwd
-            echo "dir ls"
-            ls -lart
-      - run:
+     - run:
           name: installing npm
           command: |
             cd frontend
             sudo npm install -g npm@5
+            sudo npm i
             sudo npm i oauth-sign
             npm -v
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build-{{ checksum "frontend/package.json" }}
       - run:
           name: build project
           command: |
@@ -101,7 +93,6 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build-{{ checksum "frontend/package.json" }}
-
 
   build-backend:
     docker:
@@ -143,6 +134,17 @@ jobs:
             cd frontend
             ls -lart
             npm run test
+      - run:
+          name: code-coverage
+          command: './frontend/node_modules/.bin/nyc report --reporter=text-lcov'
+      - store_artifacts:
+          path: test-results.xml
+          prefix: tests
+      - store_artifacts:
+          path: coverage
+          prefix: coverage
+      - store_test_results:
+          path: test-results.xml
 
 
   # test-backend:
