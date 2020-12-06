@@ -130,7 +130,8 @@ jobs:
       - checkout
       # Restore from cache
       - restore_cache:
-          keys: [frontend-build-{{ checksum "frontend/package.json" }}]
+          keys:
+            - frontend-build-{{ checksum "frontend/package.json" }}
       # Your job code here
       - run:
           name: frontend test
