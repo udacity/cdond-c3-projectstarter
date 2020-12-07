@@ -100,21 +100,23 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - backend-build-{{ checksum "frontend/package.json" }}
+            - backend-build-{{ checksum "backend/package.json" }}
       - run:
           name: update-npm
-          command: 'sudo npm install -g npm@5'
+          command: |
+            cd backend
+            sudo npm install -g npm@5
+            sudo npm i
+            sudo npm i oauth-sign
       - run:
           name: Back-end build
           command: |
             cd backend
             npm i
             npm run build
-            cd dist
-            ls
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build-{{ checksum "frontend/package.json" }}
+          key: backend-build-{{ checksum "backend/package.json" }}
 
   test-frontend:
     docker:
