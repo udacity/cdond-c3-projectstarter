@@ -112,8 +112,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm i
-            npm run build
+            sudo npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build-{{ checksum "backend/package.json" }}
@@ -210,7 +209,7 @@ jobs:
             - backend-build-
       # Your job code here
       - run:
-          name: Backend tests
+          name: Backend SCAN
           command: |
             cd backend
             npm audit --audit-level=critical
