@@ -244,7 +244,7 @@ jobs:
           name: Backend SCAN
           command: |
             cd backend
-            #npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
       - slack/notify:
           event: fail
