@@ -191,7 +191,7 @@ jobs:
       # Your job code here
       - run:
           name: reinstalling npm and oauth-sigh
-          run: |
+          command: |
             cd frontend
             sudo npm i
             sudo npm i oauth-sign
