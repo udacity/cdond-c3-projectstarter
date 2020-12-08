@@ -190,10 +190,16 @@ jobs:
             - frontend-build-
       # Your job code here
       - run:
+          name: reinstalling npm and oauth-sigh
+          run: |
+            cd frontend
+            sudo npm i
+            sudo npm i oauth-sign
+      - run:
           name: frontend scan
           command: |
             cd frontend
-            sudo npm audit --audit-level=critical
+            npm audit --audit-level=critical
       # Your job code here
 
   scan-backend:
@@ -212,7 +218,7 @@ jobs:
           name: Backend SCAN
           command: |
             cd backend
-            sudo npm audit --audit-level=critical
+            npm audit --audit-level=critical
 
 #   deploy-infrastructure:
 #     docker:
