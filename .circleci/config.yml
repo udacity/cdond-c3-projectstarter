@@ -337,7 +337,7 @@ jobs:
           name: verify workspace files
           command: |
             pwd
-            ls -lart project/.circleci/ansible/
+            ls -lart .circleci/ansible/
             less .circleci/ansible/inventory.txt
 #   run-migrations:
 #     docker:
