@@ -303,7 +303,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./.circleci/ansible/inventory.txt
+            - ./.circleci/ansible/
       - run:
           name: view persisted
           command: |
