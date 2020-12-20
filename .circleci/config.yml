@@ -336,7 +336,7 @@ jobs:
       - run:
           name: verify workspace files
           command: |
-            less inventory.txt
+            less .circleci/ansible/inventory.txt
 #   run-migrations:
 #     docker:
 #       # Docker image here that supports NodeJS
