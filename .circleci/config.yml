@@ -339,7 +339,9 @@ jobs:
             pwd
             ls -lart .circleci/ansible/
             ls -lart ./
-            ls ~/project/.circleci/ansible/
+            less inventory.txt
+            ls .circleci/
+            ls .circleci/ansible
             less .circleci/ansible/inventory.txt
 #   run-migrations:
 #     docker:
