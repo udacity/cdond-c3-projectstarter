@@ -336,7 +336,7 @@ jobs:
       - run:
           name: verify workspace files
           command: |
-            echo inventory.txt
+            less inventory.txt
 #   run-migrations:
 #     docker:
 #       # Docker image here that supports NodeJS
