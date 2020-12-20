@@ -1,0 +1,35 @@
+---
+- name: Install git
+  become: true
+  shell: |
+      apt-get install git
+
+- name: Install nodejs and configure it correctly
+  become: true
+  shell: |
+    useradd -s /bin/bash -m -d /home/nodejsuser -c "nodejs user" nodejsuser
+
+- name: Install nodejs and configure it correctly
+  become: true
+  shell: |
+    sudo apt-get install build-essential
+    sudo apt-get install curl openssl libssl-dev
+    git clone https://github.com/joyent/node.git
+    cd node
+    git checkout v0.10.24
+    ./configure
+    make
+    sudo make install
+    node -v
+
+- name: Enabling users on port 80
+  shell: |
+    sudo apt-get install libcap2-bin
+    sudo setcap cap_net_bind_service=+ep /usr/local/bin/node
+
+- name: Installing PM2
+  shell: |
+    sudo npm install pm2 -g
+
+
+
