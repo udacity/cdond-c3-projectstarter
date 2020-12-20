@@ -29,6 +29,7 @@ workflows:
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - print_workspace
+          requires: [deploy-infrastructure]
 ########################################
       # - run-migrations:
       #     requires: [configure-infrastructure]
