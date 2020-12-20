@@ -330,6 +330,7 @@ jobs:
   print_workspace:
     docker:
       - image: python:3.7-alpine3.11
+    steps:
       - attach_workspace:
           at: ~/project/.circleci/ansible/
       - run:
