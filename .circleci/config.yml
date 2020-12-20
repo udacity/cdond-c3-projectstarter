@@ -28,7 +28,7 @@ workflows:
               only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      - print_workspace
+      - print_workspace:
           requires: [deploy-infrastructure]
 ########################################
       # - run-migrations:
