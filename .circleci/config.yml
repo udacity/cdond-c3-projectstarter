@@ -343,6 +343,7 @@ jobs:
             #less inventory.txt
             ls .circleci/
             ls .circleci/ansible
+            ls -lart .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
 #   run-migrations:
 #     docker:
