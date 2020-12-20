@@ -339,7 +339,7 @@ jobs:
             pwd
             ls -lart .circleci/ansible/
             ls -lart ./
-            less inventory.txt
+            #less inventory.txt
             ls .circleci/
             ls .circleci/ansible
             less .circleci/ansible/inventory.txt
