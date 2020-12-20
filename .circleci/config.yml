@@ -332,12 +332,13 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - attach_workspace:
-          at: ~/project/.circleci/ansible/
+          at: ~/project/.circleci/ansible/inventory.txt
       - run:
           name: verify workspace files
           command: |
             pwd
             ls -lart .circleci/ansible/
+            ls -lart ./
             ls ~/project/.circleci/ansible/
             less .circleci/ansible/inventory.txt
 #   run-migrations:
