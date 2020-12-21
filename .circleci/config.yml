@@ -303,11 +303,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ./.circleci/ansible/
-      - run:
-          name: view persisted
-          command: |
-            cat ./.circleci/ansible/inventory.txt
+            - .circleci/ansible/
       # Here's where you will add some code to rollback on failure
       - destroy-environment-onfail
 
@@ -322,7 +318,7 @@ jobs:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
       # attach workspace
       - attach_workspace:
-          at: ~/project/.circleci/ansible/
+          at: .
       - run:
           name: Install dependencies
           command: |
@@ -330,7 +326,7 @@ jobs:
       - run:
           name: configure the server user
           command: |
-            ansible-playbook .circleci/ansible/configure-server.yml -i inventory.txt
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
 
   print_workspace:
