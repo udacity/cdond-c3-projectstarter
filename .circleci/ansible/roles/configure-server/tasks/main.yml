@@ -6,16 +6,19 @@
 #   #Give the safe user permission to use root level commands:
 #     usermod -aG sudo nodejsuser
 
-- name: Install git
+- name: setting python link and Install git
   become: true
   shell: |
-      apt-get install git
+      sudo ln -s /usr/bin/python3.8 /usr/bin/python
+      apt-get install -y make
+      apt-get install -y gcc
+      apt-get -y install git
 
 - name: Install nodejs and configure it correctly
   become: true
   shell: |
-    sudo apt-get install build-essential
-    sudo apt-get install curl openssl libssl-dev
+    sudo apt-get -y install build-essential
+    sudo apt-get -y install curl openssl libssl-dev
     git clone https://github.com/joyent/node.git
     cd node
     git checkout v0.10.24
@@ -54,4 +57,12 @@
       export TYPEORM_PASSWORD='{{ dbpwd }}'
       export TYPEORM_DATABASE='{{ database }}'
 
+- name: copying test app.js
+  copy:
+    src: app.js
+    dest: /tmp/app.js
+
+- name: starting app.js
+  shell: |
+    pm2 start app.js
 
