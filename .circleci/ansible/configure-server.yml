@@ -13,10 +13,16 @@
       wait_for_connection:
         delay: 10
         timeout: 600
+    - name: getting information from remote host
+      debug:
+        msg: "{{ ansible_env }}"
 
     - name: install pip3
       become: true
-      apt: name=python3-pip state=present
+      apt:
+        update_cache: yes
+        name: python3-pip
+        state: present
 
   roles:
     - configure-server
