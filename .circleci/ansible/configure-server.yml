@@ -2,7 +2,7 @@
 - name: "configuration play."
   hosts: web
   user: ubuntu
-  gather_facts: false
+  gather_facts: true
   vars:
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
@@ -15,17 +15,8 @@
         timeout: 600
 
     - name: install pip3
+      become: true
       apt: name=python3-pip state=present
-
-  environment:
-    - ENVIRONMENT='production'
-    - TYPEORM_CONNECTION='${TYPEORM_CONNECTION}'
-    - TYPEORM_ENTITIES='${TYPEORM_ENTITIES}'
-    - TYPEORM_HOST='${TYPEORM_HOST}'
-    - TYPEORM_PORT='${TYPEORM_PORT}'
-    - TYPEORM_USERNAME='${TYPEORM_USERNAME}'
-    - TYPEORM_PASSWORD='{TYPEORM_PASSWORD}'
-    - TYPEORM_DATABASE='${TYPEORM_DATABASE}'
 
   roles:
     - configure-server
