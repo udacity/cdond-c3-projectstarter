@@ -1,13 +1,15 @@
 ---
+# - name: Creating user nodejsuser with permission of sudo
+#   become: true
+#   shell: |
+#     useradd -s /bin/bash -m -d /home/nodejsuser -c "nodejs user" nodejsuser
+#   #Give the safe user permission to use root level commands:
+#     usermod -aG sudo nodejsuser
+
 - name: Install git
   become: true
   shell: |
       apt-get install git
-
-- name: Install nodejs and configure it correctly
-  become: true
-  shell: |
-    useradd -s /bin/bash -m -d /home/nodejsuser -c "nodejs user" nodejsuser
 
 - name: Install nodejs and configure it correctly
   become: true
@@ -23,6 +25,7 @@
     node -v
 
 - name: Enabling users on port 80
+  become: true
   shell: |
     sudo apt-get install libcap2-bin
     sudo setcap cap_net_bind_service=+ep /usr/local/bin/node
@@ -31,5 +34,24 @@
   shell: |
     sudo npm install pm2 -g
 
+- name: copy environment variable script
+  become: true
+  copy:
+    src: context.sh
+    dest: /etc/profile.d/dbcontext.sh
+
+- name: modify environment variable
+  become: true
+  blockinfile:
+    path: /etc/profile.d/dbcontext.sh
+    block: |
+      export ENVIRONMENT='production'
+      export TYPEORM_CONNECTION="{{ conn }}"
+      export TYPEORM_ENTITIES="{{ entities }}"
+      export TYPEORM_HOST='{{ dbhost }}'
+      export TYPEORM_PORT='{{ dbport }}'
+      export TYPEORM_USERNAME='{{ dbuser }}'
+      export TYPEORM_PASSWORD='{{ dbpwd }}'
+      export TYPEORM_DATABASE='{{ database }}'
 
 

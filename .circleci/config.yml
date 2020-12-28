@@ -326,7 +326,7 @@ jobs:
       - run:
           name: configure the server user
           command: |
-            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
 
   print_workspace:
@@ -341,12 +341,7 @@ jobs:
           command: |
             pwd
             ls -lart .circleci/ansible/
-            ls -lart ./
-            #less inventory.txt
-            ls .circleci/
-            ls .circleci/ansible
             ls -lart .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
 #   run-migrations:
 #     docker:
 #       # Docker image here that supports NodeJS
