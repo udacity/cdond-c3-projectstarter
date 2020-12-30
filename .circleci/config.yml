@@ -83,8 +83,8 @@ jobs:
             npm run test
                 
   test-backend:
-    docker:
-      - image: circleci/node:13.8.0
+    executor:
+      name: node/default
     steps:
       - checkout
       - restore_cache:
@@ -95,6 +95,9 @@ jobs:
             cd backend
             npm i
             npm run test
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
             
   scan-frontend:
     docker:
@@ -351,4 +354,4 @@ workflows:
       #     requires: [cloudfront-update]
       - notify:
           context: slack-secrets
-          requires: test-backend
+          requires: [test-backend]
