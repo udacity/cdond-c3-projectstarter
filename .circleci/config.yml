@@ -312,40 +312,7 @@ jobs:
 #             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
 #             then
 #               # your code here
-#             fi
-
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "❌ *Failure* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
-                }
-              },
-              {
-                "type": "actions",
-                "elements": [
-                  {
-                    "type": "button",
-                    "text": {
-                      "type": "plain_text",
-                      "text": "View Job"
-                    },
-                    "url": "${CIRCLE_BUILD_URL}"
-                  }
-                ]
-              }
-              ]
-            }
-          event: fail
-          channel: C01HACR5VQF           
+#             fi        
 
 workflows:
   default:
@@ -354,9 +321,9 @@ workflows:
       - build-backend
       - test-frontend:
           requires: [build-frontend]
-          context: slack-secrets
       - test-backend:
            requires: [build-backend]
+           context: slack-secrets
       # - scan-backend:
       #     requires: [build-backend]
       # - scan-frontend:
