@@ -2,18 +2,25 @@ version: 2.1
 orbs:
   node: circleci/node@4.1.0
   slack: circleci/slack@4.1
-#commands:
-  # destroy-environment:
-  #   description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-  #   parameters:
-  #     # Add parameter here   
-  #   steps:
-  #     - run:
-  #         name: Destroy environments
-  #         when: on_fail
-  #         command: |
-  #           # Your code here
-  #           exit 1
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+        backendStack:
+            type: string
+            default: "cicd-backend-stack"
+
+        frontendStack:
+            type: string
+            default: "cicd-frontend-stack"  
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws s3 rm "s3://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            aws cloudformation delete-stack --stack-name << parameters.backendStack >>
+            aws cloudformation delete-stack --stack-name << parameters.frontendStack >>
 
   # revert-migrations:
   #   description: Revert the last migration if successfully run in the current workflow.
@@ -185,25 +192,29 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - destroy-environment
 
-  # configure-infrastructure:
-  #   docker:
-  #     # Docker image here that supports Ansible
-  #   steps:
-  #     # Checkout code from git
-  #     # Add ssh keys with fingerprint
-  #     # attach workspace
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: 'python:3.7-alpine3.11'
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - '00:d6:44:d2:9a:0f:f1:24:d4:8e:6c:89:51:79:f4:d3'
+      - attach_workspace:
+          at: ~/      
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm
+            pip install awscli
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment     
 
   # run-migrations:
   #   docker:
@@ -336,8 +347,8 @@ workflows:
           filters:
             branches:
               only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
