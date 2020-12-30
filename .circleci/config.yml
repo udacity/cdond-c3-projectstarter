@@ -248,7 +248,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum -y install nodejs tar gzip curl npm
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+            um -y install npm
+            yum -y install tar gzip
       - attach_workspace:
           at: ~/
       - run:
@@ -301,7 +304,6 @@ jobs:
             echo -e "TYPEORM_PASSWORD=$TYPEORM_PASSWORD" >> .env
             echo -e "TYPEORM_DATABASE=$TYPEORM_DATABASE" >> .env
             echo -e VERSION=1 >> .env
-            cd ..
             npm i
             npm run build
 
