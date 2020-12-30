@@ -250,7 +250,7 @@ jobs:
           command: |
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
-            um -y install npm
+            yum -y install npm
             yum -y install tar gzip
       - attach_workspace:
           at: ~/
