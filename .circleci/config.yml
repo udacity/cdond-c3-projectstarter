@@ -18,7 +18,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws s3 rm "s3://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            aws s3 rm s3://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7} --recursive
             aws cloudformation delete-stack --stack-name << parameters.backendStack >>
             aws cloudformation delete-stack --stack-name << parameters.frontendStack >>
 
@@ -227,9 +227,6 @@ jobs:
             cd backend
             npm i
             npm run migrations | tee migrations_result.txt
-      - run:
-          name: get and send migrations result to memstash
-          command: |
             if cat migrations_result.txt | grep "has been executed successfully" ; then
               curl -H "Content-Type: text/plain" -H "token: abf60a14-7218-45d6-a980-3dc41980c676" \
                           --request PUT --data "1" \
@@ -248,13 +245,12 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
-            yum -y install nodejs
-            yum -y install tar gzip
+            yum -y install nodejs tar gzip curl
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
@@ -285,7 +281,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible
+            apk add --update tar gzip ansible curl nodejs npm
             pip install awscli
             
       - run:
