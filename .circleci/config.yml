@@ -97,9 +97,33 @@ jobs:
             npm i
             npm run test
       - slack/notify:
+          custom: |
+            {
+              "blocks": [
+              {
+                "type": "section",
+                "text": {
+                  "type": "mrkdwn",
+                  "text": "❌ *Failure* #${CIRCLE_BUILD_NUM} `${CIRCLE_PROJECT_REPONAME}` on `${CIRCLE_BRANCH}`"
+                }
+              },
+              {
+                "type": "actions",
+                "elements": [
+                  {
+                    "type": "button",
+                    "text": {
+                      "type": "plain_text",
+                      "text": "View Job"
+                    },
+                    "url": "${CIRCLE_BUILD_URL}"
+                  }
+                ]
+              }
+              ]
+            }
           event: fail
-          channel: C01HACR5VQF
-          template: basic_fail_1
+          channel: C01HACR5VQF 
             
   scan-frontend:
     docker:
@@ -333,10 +357,10 @@ workflows:
           context: slack-secrets
       - test-backend:
            requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
@@ -356,6 +380,3 @@ workflows:
       #     requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
-      - notify:
-          context: slack-secrets
-          requires: [test-backend]
