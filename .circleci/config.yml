@@ -240,7 +240,8 @@ jobs:
                           https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0-7}
             fi
       - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment  
 
   deploy-frontend:
     docker:
