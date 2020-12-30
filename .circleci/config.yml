@@ -351,3 +351,4 @@ workflows:
       #     requires: [cloudfront-update]
       - notify:
           context: slack-secrets
+          requires: [build-frontend, build-backend, test-frontend, test-backend]
