@@ -104,7 +104,7 @@ jobs:
                 "type": "section",
                 "text": {
                   "type": "mrkdwn",
-                  "text": "❌ *Failure* in build #`${CIRCLE_BUILD_NUM}` of `${CIRCLE_PROJECT_REPONAME}` (`${CIRCLE_BRANCH}`)"
+                  "text": "❌ *Failure* in build #`${CIRCLE_BUILD_NUM}` of `${CIRCLE_PROJECT_REPONAME}` (`${CIRCLE_BRANCH}`)<br />${CIRCLE_PROJECT_USERNAME}: (`${CIRCLE_SHA1}`)"
                 }
               },
               {
@@ -161,8 +161,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=cicd-backend \
               --stack-name cicd-backend-stack
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  \ 
-              exit 1
+              --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -170,13 +169,12 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --tags project=cicd-frontend \
               --stack-name cicd-frontend-stack
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  \   
-              exit 1
+              --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             aws ec2 describe-instances \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+              --filters "Name=tag:project,Values=cicd-backend" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
