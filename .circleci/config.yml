@@ -98,6 +98,7 @@ jobs:
             npm run test
       - slack/notify:
           event: fail
+          channel: C01HACR5VQF
           template: basic_fail_1
             
   scan-frontend:
@@ -319,7 +320,8 @@ jobs:
               }
               ]
             }
-          event: fail            
+          event: fail
+          channel: C01HACR5VQF           
 
 workflows:
   default:
