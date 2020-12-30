@@ -66,4 +66,5 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 node_modules
 
+.env
 dist
