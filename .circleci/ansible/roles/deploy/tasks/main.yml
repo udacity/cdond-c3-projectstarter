@@ -1,32 +1,36 @@
 ---
+- name: "update apt packages."
+  become: yes
+  apt:
+    update_cache: yes
 
-    
-- name: Create APP Directory
-  become_user: ubuntu
-  become: yes
-  file:
-    path: ~/app
-    state: directory
+- name: "upgrade packages."
+  become: true
+  apt:
+    upgrade: "yes"
 
-- name: "Copy node app files"
-  become_user: ubuntu
-  become: yes
-  ignore_errors: True
-  unarchive:
-    src: ~/project/artifacts.tar
-    dest: ~/app
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm", "tar"]
+    state: latest
+    update_cache: yes
 
-- name: "Copy env files"
-  become_user: ubuntu
-  become: yes
-  ignore_errors: True
-  unarchive:
-    src: ~/project/backend/env.tar
-    dest: ~/app/backend
-    
-- name: Start PM2
-  become_user: ubuntu
-  become: yes
+- name: "copy backend folder"
+  become: true
+  copy:
+    src: ~/project/backend
+    dest: /home/ubuntu
+
+- name: Install Node Dependencies
   shell: |
-    cd ~/app/backend
-    pm2 start npm --name backend -- start 
+    cd /home/ubuntu/backend
+    npm install
+- name: Building backend service
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+- name: Running backend service
+  shell: |
+    cd /home/ubuntu/backend    
+    pm2 start npm --no-automation --name "backend" -- run start

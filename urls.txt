@@ -1,3 +1,4 @@
 URL to public GitHub repository [URL01]
 https://github.com/ggangwar/cdond-c3-projectstarter
 
+URL of S3 Bucket (aka, front-end). [URL02]
