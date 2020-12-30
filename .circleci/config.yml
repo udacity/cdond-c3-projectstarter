@@ -154,13 +154,17 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: 
+          name: install the tar package for the workspace step 
+          command: |
+            yum -y install tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=cicd-backend \
-              --stack-name cicd-backend-stack
+              --stack-name cicd-backend-stack \
               --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Ensure front-end infrastructure exist
@@ -168,7 +172,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=cicd-frontend \
-              --stack-name cicd-frontend-stack
+              --stack-name cicd-frontend-stack \
               --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Add back-end ip to ansible inventory
