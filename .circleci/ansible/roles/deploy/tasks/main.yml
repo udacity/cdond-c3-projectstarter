@@ -1,0 +1,32 @@
+---
+
+    
+- name: Create APP Directory
+  become_user: ubuntu
+  become: yes
+  file:
+    path: ~/app
+    state: directory
+
+- name: "Copy node app files"
+  become_user: ubuntu
+  become: yes
+  ignore_errors: True
+  unarchive:
+    src: ~/project/artifacts.tar
+    dest: ~/app
+
+- name: "Copy env files"
+  become_user: ubuntu
+  become: yes
+  ignore_errors: True
+  unarchive:
+    src: ~/project/backend/env.tar
+    dest: ~/app/backend
+    
+- name: Start PM2
+  become_user: ubuntu
+  become: yes
+  shell: |
+    cd ~/app/backend
+    pm2 start npm --name backend -- start 
