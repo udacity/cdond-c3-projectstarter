@@ -1,9 +1,9 @@
 ---
 
-- name: Copy files from circleci to backend server
-  copy:
-    src: /root/project/backend
-    dest: /home/ubuntu/
+- name: "Copy backend tar.gz file and unzipping it"
+  unarchive:
+    src: ~/project/backend.tar.gz
+    dest: /home/ubuntu
 
 - name: Stop PM2
   ignore_errors: yes

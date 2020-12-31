@@ -314,14 +314,16 @@ jobs:
             pip install awscli
       - write-envvars-file
       - run:
-          name: cleanup backend folder
+          name: cleanup backend folder and create tar
           command: |
             cd backend
             rm -rf node_modules 
             rm -rf dist
             rm -rf test
-            rm README.md 
+            rm README.md
             cd ..  
+            tar cvzf backend.tar.gz backend
+            ls
       - run:
           name: Preparing and Deploy backend
           no_output_timeout: 30m
@@ -357,17 +359,17 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            URL=http://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7}.s3.ap-south-1.amazonaws.com/index.html#/employees
             if curl -s ${URL} | grep "Welcome"
             then
               return 0
             else
               return 1
             fi
-      # - destroy-environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - revert-migrations:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
 
   cloudfront-update:
     docker:
@@ -443,7 +445,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
