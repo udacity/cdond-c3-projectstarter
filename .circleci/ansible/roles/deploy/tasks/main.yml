@@ -27,4 +27,6 @@
 
 - name: "start pm2"
   become: yes
-  shell: cd /home/ubuntu/backend && pm2 start --name "backend" npm -- start
+  shell: |
+    cd /home/ubuntu/backend && pm2 start --name "backend" npm -- start
+    sleep 120s
