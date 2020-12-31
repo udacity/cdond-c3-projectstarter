@@ -209,6 +209,7 @@ jobs:
             pip install awscli
       - run:
           name: Configure server
+          no_output_timeout: 30m
           command: |
             cd .circleci/ansible
             cat ~/project/.circleci/ansible/inventory.txt
@@ -291,6 +292,7 @@ jobs:
             
       - run:
           name: Preparing and Deploy backend
+          no_output_timeout: 30m
           command: |
             echo -e "ENVIRONMENT=production" >> "backend/.env"
             echo -e "TYPEORM_CONNECTION=$TYPEORM_CONNECTION" >> "backend/.env"
@@ -420,9 +422,9 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
