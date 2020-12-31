@@ -9,7 +9,7 @@
   become: yes
   shell: |
     cd /home/ubuntu/backend
-    ls
+    echo $(ls)
     sudo npm cache clean -f
     sudo npm install -g n
     sudo n stable
@@ -28,5 +28,6 @@
 - name: "start pm2"
   become: yes
   shell: |
-    cd /home/ubuntu/backend && pm2 start --name "backend" npm -- start
+    cd /home/ubuntu/backend
+    pm2 start npm --name backend -- start
     sleep 120s
