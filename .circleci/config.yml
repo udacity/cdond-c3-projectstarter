@@ -13,11 +13,8 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws s3 rm s3://udapeople-cicd-<< parameters.workflow_id >> --recursive
-            aws s3 rb s3://udapeople-cicd-<< parameters.workflow_id >> --force
             aws cloudformation delete-stack --stack-name cicd-backend-<< parameters.workflow_id >>
-            aws cloudformation delete-stack --stack-name cicd-frontend-<< parameters.workflow_id >>
-
+           
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow. 
     parameters:
@@ -169,14 +166,14 @@ jobs:
               --tags project=cicd-backend \
               --stack-name cicd-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=cicd-frontend \
-              --stack-name cicd-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
-              --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
+      # - run:
+      #     name: Ensure front-end infrastructure exist
+      #     command: |
+      #       aws cloudformation deploy \
+      #         --template-file .circleci/files/frontend.yml \
+      #         --tags project=cicd-frontend \
+      #         --stack-name cicd-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+      #         --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -224,6 +221,7 @@ jobs:
       - checkout
       - run:
           name: Run migrations
+          no_output_timeout: 30m
           command: |
             cd backend
             npm i
@@ -331,20 +329,21 @@ jobs:
           at: ~/
       - run:
           name: Backend smoke test.
+          no_output_timeout: 10m
           command: |
             BACKEND_IP=`sed -n 2p ~/project/.circleci/ansible/inventory.txt`
             echo "${BACKEND_IP}"
             curl "http://${BACKEND_IP}:3030/api/status"
-      - run:
-          name: Frontend smoke test.
-          command: |
-            URL="http://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
-            if curl -s ${URL} | grep "Welcome"
-            then
-              return 0
-            else
-              return 1
-            fi
+      # - run:
+      #     name: Frontend smoke test.
+      #     command: |
+      #       URL="http://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+      #       if curl -s ${URL} | grep "Welcome"
+      #       then
+      #         return 0
+      #       else
+      #         return 1
+      #       fi
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
@@ -397,7 +396,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
+      # - build-frontend
       - build-backend
       # - test-frontend:
       #     requires: [build-frontend]
@@ -410,7 +409,7 @@ workflows:
       # - scan-frontend:
       #     requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [build-frontend, build-backend]
+          requires: [build-backend]
           filters:
             branches:
               only: [master]
@@ -423,8 +422,8 @@ workflows:
       - deploy-backend:
           requires: [run-migrations]
       - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+          requires: [deploy-backend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      # - cleanup:
+      #     requires: [cloudfront-update]
