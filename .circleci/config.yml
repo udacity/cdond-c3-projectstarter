@@ -6,21 +6,16 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-        backendStack:
-            type: string
-            default: "cicd-backend-stack"
-
-        frontendStack:
-            type: string
-            default: "cicd-frontend-stack"  
+      workflow_id:
+        type: string 
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws s3 rm s3://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-            aws cloudformation delete-stack --stack-name << parameters.backendStack >>
-            aws cloudformation delete-stack --stack-name << parameters.frontendStack >>
+            aws s3 rm s3://udapeople-cicd-<< parameters.workflow_id >> --recursive
+            aws cloudformation delete-stack --stack-name cicd-backend-<< parameters.workflow_id >>
+            aws cloudformation delete-stack --stack-name cicd-frontend-<< parameters.workflow_id >>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow. 
@@ -171,7 +166,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=cicd-backend \
-              --stack-name cicd-backend-stack \
+              --stack-name cicd-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Ensure front-end infrastructure exist
@@ -179,7 +174,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=cicd-frontend \
-              --stack-name cicd-frontend-stack \
+              --stack-name cicd-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID="cicd-${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Add back-end ip to ansible inventory
@@ -193,7 +188,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   configure-infrastructure:
     docker:
@@ -216,7 +212,8 @@ jobs:
             cd .circleci/ansible
             cat ~/project/.circleci/ansible/inventory.txt
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt configure-server.yml
-      - destroy-environment     
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
 
   run-migrations:
     executor:
@@ -240,7 +237,8 @@ jobs:
             fi
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - destroy-environment  
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-frontend:
     docker:
@@ -269,7 +267,8 @@ jobs:
           command: |
             cd frontend
             aws s3 sync dist s3://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7} --delete
-      - destroy-environment
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}     
                     
@@ -290,7 +289,7 @@ jobs:
             pip install awscli
             
       - run:
-          name: Preparing backend
+          name: Preparing and Deploy backend
           command: |
             cd backend
             touch .env
@@ -306,21 +305,14 @@ jobs:
             echo -e "TYPEORM_PASSWORD=$TYPEORM_PASSWORD" >> .env
             echo -e "TYPEORM_DATABASE=$TYPEORM_DATABASE" >> .env
             echo -e VERSION=1 >> .env
-            npm i
-            npm run build
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
 
-            rm -rf node_modules 
-            rm -rf dist
-            rm -rf test
-            rm README.md
-            
-      - run:
-          name: Deploy backend
-          command: |
             cd .circleci/ansible
             cat ~/project/.circleci/ansible/inventory.txt
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt deploy-backend.yml
-      - destroy-environment
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}     
 
@@ -352,7 +344,8 @@ jobs:
             else
               return 1
             fi
-      - destroy-environment
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
 
@@ -374,28 +367,30 @@ jobs:
               --stack-name cicd-cloudfront \
               --parameter-overrides WorkflowID="cicd-${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=cicd-cloudfront
-      - destroy-environment
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
 
-# cleanup:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Get old stack workflow id
-#           command: |
-#             # your code here
-#             export OldWorkflowID="the id here"
-#             export STACKS=[] #put the list of stacks here
-#       - run:
-#           name: Remove old stacks and files
-#           command: |
-#             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#             then
-#               # your code here
-#             fi        
+cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+                aws s3 rm s3://udapeople-cicd-${OldWorkflowID} --recursive
+                aws cloudformation delete-stack --stack-name cicd-backend-${OldWorkflowID}
+                aws cloudformation delete-stack --stack-name cicd-frontend-${OldWorkflowID}
+            fi        
 
 workflows:
   default:
@@ -429,5 +424,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]

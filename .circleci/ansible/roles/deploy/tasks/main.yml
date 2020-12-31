@@ -1,36 +1,41 @@
 ---
-- name: "update apt packages."
+- name: "Copy backend tar.gz file and unzipping it"
   become: yes
-  apt:
-    update_cache: yes
-
-- name: "upgrade packages."
-  become: true
-  apt:
-    upgrade: "yes"
-
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm", "tar"]
-    state: latest
-    update_cache: yes
-
-- name: "copy backend folder"
-  become: true
-  copy:
-    src: ~/project/backend
+  unarchive:
+    src: ~/project/backend.tar.gz
     dest: /home/ubuntu
 
-- name: Install Node Dependencies
-  shell: |
-    cd /home/ubuntu/backend
-    npm install
-- name: Building backend service
-  shell: |
-    cd /home/ubuntu/backend
-    npm run build
-- name: Running backend service
-  shell: |
-    cd /home/ubuntu/backend    
-    pm2 start npm --no-automation --name "backend" -- run start
+- name: "installing dependencies"
+  become: yes
+  npm:
+    path: /home/ubuntu/backend
+
+- name: "fixing dependencies"
+  become: yes
+  shell: npm audit fix --audit-level=critical --force
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: "building packages"
+  become: yes
+  shell: npm run build
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: "run migration"
+  become: yes
+  shell: npm run migrations
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: "initialize pm2"
+  become: yes
+  shell: pm2 ls
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: "start pm2"
+  become: yes
+  shell: pm2 start --name "backend" npm -- start
+  args:
+    chdir: /home/ubuntu/backend
