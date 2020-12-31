@@ -312,7 +312,16 @@ jobs:
             apk add --no-cache openssh-client
             apk add --no-cache --upgrade bash
             pip install awscli
-      - write-envvars-file     
+      - write-envvars-file
+      - run:
+          name: cleanup backend folder
+          command: |
+            cd backend
+            rm -rf node_modules 
+            rm -rf dist
+            rm -rf test
+            rm README.md 
+            cd ..  
       - run:
           name: Preparing and Deploy backend
           no_output_timeout: 30m
