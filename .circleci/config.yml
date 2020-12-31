@@ -258,7 +258,7 @@ jobs:
       - run:
           name: Get backend url and build frontend to have updated API_URL
           command: |
-            BACKEND_IP=`cat ~/project/.circleci/ansible/inventory.txt`
+            BACKEND_IP=`sed -n 2p ~/project/.circleci/ansible/inventory.txt`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             cd frontend
@@ -290,7 +290,7 @@ jobs:
             pip install awscli
             
       - run:
-          name: Run migrations
+          name: Preparing backend
           command: |
             cd backend
             touch .env
@@ -319,7 +319,7 @@ jobs:
           command: |
             cd .circleci/ansible
             cat ~/project/.circleci/ansible/inventory.txt
-            ansible-playbook -i i~/project/.circleci/ansible/inventory.txt deploy-backend.yml
+            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}     
@@ -339,7 +339,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            BACKEND_IP=`cat ~/project/.circleci/ansible/inventory.txt`
+            BACKEND_IP=`sed -n 2p ~/project/.circleci/ansible/inventory.txt`
             echo "${BACKEND_IP}"
             curl "http://${BACKEND_IP}:3030/api/status"
       - run:
@@ -356,20 +356,27 @@ jobs:
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
 
-  # cloudfront-update:
-  #   docker:
-  #     # Docker image here that supports AWS CLI
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Update cloudfront distribution
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  cloudfront-update:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl ansible nodejs npm
+            pip install awscli
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name cicd-cloudfront \
+              --parameter-overrides WorkflowID="cicd-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=cicd-cloudfront
+      - destroy-environment
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
 
 # cleanup:
 #     docker:
@@ -420,7 +427,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
