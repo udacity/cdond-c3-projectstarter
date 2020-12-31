@@ -14,6 +14,7 @@ commands:
           when: on_fail
           command: |
             aws s3 rm s3://udapeople-cicd-<< parameters.workflow_id >> --recursive
+            aws s3 rb s3://udapeople-cicd-<< parameters.workflow_id >> --force
             aws cloudformation delete-stack --stack-name cicd-backend-<< parameters.workflow_id >>
             aws cloudformation delete-stack --stack-name cicd-frontend-<< parameters.workflow_id >>
 
@@ -386,6 +387,7 @@ jobs:
               if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
               then
                 aws s3 rm s3://udapeople-cicd-${OldWorkflowID} --recursive
+                aws s3 rb s3://udapeople-cicd-${OldWorkflowID} --force
                 aws cloudformation delete-stack --stack-name cicd-backend-${OldWorkflowID}
                 aws cloudformation delete-stack --stack-name cicd-frontend-${OldWorkflowID}
               fi        

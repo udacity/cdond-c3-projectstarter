@@ -7,35 +7,24 @@
 
 - name: "installing dependencies"
   become: yes
-  npm:
-    path: /home/ubuntu/backend
-
-- name: "fixing dependencies"
-  become: yes
-  shell: npm audit fix --audit-level=critical --force
-  args:
-    chdir: /home/ubuntu/backend
-
-- name: "building packages"
-  become: yes
-  shell: npm run build
-  args:
-    chdir: /home/ubuntu/backend
+  shell: |
+    cd /home/ubuntu/backend
+    ls
+    sudo npm cache clean -f
+    sudo npm install -g n
+    sudo n stable
+    PATH="$PATH"
+    npm i
+    npm run build
 
 - name: "run migration"
   become: yes
-  shell: npm run migrations
-  args:
-    chdir: /home/ubuntu/backend
+  shell: cd /home/ubuntu/backend && npm run migrations
 
 - name: "initialize pm2"
   become: yes
-  shell: pm2 ls
-  args:
-    chdir: /home/ubuntu/backend
+  shell: cd /home/ubuntu/backend && pm2 ls
 
 - name: "start pm2"
   become: yes
-  shell: pm2 start --name "backend" npm -- start
-  args:
-    chdir: /home/ubuntu/backend
+  shell: cd /home/ubuntu/backend && pm2 start --name "backend" npm -- start
