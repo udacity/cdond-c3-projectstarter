@@ -214,8 +214,8 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt configure-server.yml
+            cat ~/project/.circleci/ansible/inventory.txt
+            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt configure-server.yml
       - destroy-environment     
 
   run-migrations:
@@ -258,7 +258,7 @@ jobs:
       - run:
           name: Get backend url and build frontend to have updated API_URL
           command: |
-            BACKEND_IP=`cat .circleci/ansible/inventory.txt`
+            BACKEND_IP=`cat ~/project/.circleci/ansible/inventory.txt`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             cd frontend
@@ -318,8 +318,8 @@ jobs:
           name: Deploy backend
           command: |
             cd .circleci/ansible
-            inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            cat ~/project/.circleci/ansible/inventory.txt
+            ansible-playbook -i i~/project/.circleci/ansible/inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}     
@@ -339,7 +339,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            BACKEND_IP=`cat .circleci/ansible/inventory.txt`
+            BACKEND_IP=`cat ~/project/.circleci/ansible/inventory.txt`
             echo "${BACKEND_IP}"
             curl "http://${BACKEND_IP}:3030/api/status"
       - run:
