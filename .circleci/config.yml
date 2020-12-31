@@ -187,12 +187,12 @@ jobs:
             aws ec2 describe-instances \
               --filters "Name=tag:project,Values=cicd-backend" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text >> ~/inventory.txt
-              cat ~/inventory.txt
+              --output text >> .circleci/ansible/inventory.txt
+              cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory.txt
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment
 
   configure-infrastructure:
@@ -214,8 +214,8 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
-            cat ~/inventory.txt
-            ansible-playbook -i ~/inventory.txt configure-server.yml
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment     
 
   run-migrations:
@@ -256,17 +256,18 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Get backend url
+          name: Get backend url and build frontend to have updated API_URL
           command: |
-            BACKEND_IP=`cat ~/inventory.txt`
+            BACKEND_IP=`cat .circleci/ansible/inventory.txt`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
+            cd frontend
+            npm install
+            npm run build
       - run:
           name: Deploy frontend objects
           command: |
             cd frontend
-            npm install
-            npm run build
             aws s3 sync dist s3://udapeople-cicd-${CIRCLE_WORKFLOW_ID:0:7} --delete
       - destroy-environment
       - revert-migrations:
@@ -317,8 +318,8 @@ jobs:
           name: Deploy backend
           command: |
             cd .circleci/ansible
-            ~/inventory.txt
-            ansible-playbook -i ~/inventory.txt deploy-backend.yml
+            inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}     
@@ -338,7 +339,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            BACKEND_IP=`cat ~/inventory.txt`
+            BACKEND_IP=`cat .circleci/ansible/inventory.txt`
             echo "${BACKEND_IP}"
             curl "http://${BACKEND_IP}:3030/api/status"
       - run:
