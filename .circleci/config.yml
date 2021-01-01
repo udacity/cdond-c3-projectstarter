@@ -405,7 +405,7 @@ jobs:
               export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --region ap-south-1 --no-paginate --output text)
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
               echo ${OldWorkflowID}
-              if [  "${OldWorkflowID}" != "cicd-${CIRCLE_WORKFLOW_ID:0:7}" ];
+              if [ -n "${OldWorkflowID}" ] && [ "${OldWorkflowID}" != "cicd-${CIRCLE_WORKFLOW_ID:0:7}" ];
               then
                 aws s3 rm s3://udapeople-cicd-${OldWorkflowID} --recursive
                 aws cloudformation delete-stack --stack-name cicd-backend-${OldWorkflowID}
@@ -417,18 +417,17 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #      requires: [build-backend]
-      #      context: slack-secrets
-      # TODO: revert back changes as per the initial file
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+           requires: [build-backend]
+           context: slack-secrets
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [build-frontend, build-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [master]
