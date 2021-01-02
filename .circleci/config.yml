@@ -49,6 +49,7 @@ commands:
     parameters:
       # Add parameter here
     steps:
+      - aws-cli/install
       - run:
           name: Destroy environments
           when: on_fail
@@ -325,6 +326,7 @@ jobs:
             apk add --update ansible
       - run:
           name: configure the server user
+          no_output_timeout: 30m
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
