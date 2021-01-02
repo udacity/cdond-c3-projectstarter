@@ -21,11 +21,11 @@
     state: latest
     update_cache: yes
 
-- name: Enabling users on port 80
-  become: true
-  shell: |
-    apt-get install libcap2-bin
-    setcap cap_net_bind_service=+ep /usr/local/bin/node
+# - name: Enabling users on port 80
+#   become: true
+#   shell: |
+#     apt-get install libcap2-bin
+#     setcap cap_net_bind_service=+ep /usr/local/bin/node
 
 - name: Installing PM2
   shell: |
