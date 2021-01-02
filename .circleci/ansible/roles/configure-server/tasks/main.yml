@@ -1,41 +1,35 @@
 ---
-# - name: Creating user nodejsuser with permission of sudo
-#   become: true
-#   shell: |
-#     useradd -s /bin/bash -m -d /home/nodejsuser -c "nodejs user" nodejsuser
-#   #Give the safe user permission to use root level commands:
-#     usermod -aG sudo nodejsuser
+- name: "update apt packages."
+  become: yes
+  apt:
+    update_cache: yes
 
-- name: setting python link and Install git
-  become: true
-  shell: |
-      sudo ln -s /usr/bin/python3.8 /usr/bin/python
-      apt-get install -y make
-      apt-get install -y gcc
-      apt-get -y install git
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: yes
 
-- name: Install nodejs and configure it correctly
-  become: true
-  shell: |
-    sudo apt-get -y install build-essential
-    sudo apt-get -y install curl openssl libssl-dev
-    git clone https://github.com/joyent/node.git
-    cd node
-    git checkout v0.10.24
-    ./configure
-    make
-    sudo make install
-    node -v
+- name: remove dependencies that are no longer required
+  become: yes
+  apt:
+    autoremove: yes
+
+- name: "install dependencies."
+  become: yes
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
 
 - name: Enabling users on port 80
   become: true
   shell: |
-    sudo apt-get install libcap2-bin
-    sudo setcap cap_net_bind_service=+ep /usr/local/bin/node
+    apt-get install libcap2-bin
+    setcap cap_net_bind_service=+ep /usr/local/bin/node
 
 - name: Installing PM2
   shell: |
-    sudo npm install pm2 -g
+    npm install pm2 -g
 
 - name: copy environment variable script
   become: true
@@ -57,12 +51,17 @@
       export TYPEORM_PASSWORD='{{ dbpwd }}'
       export TYPEORM_DATABASE='{{ database }}'
 
-- name: copying test app.js
-  copy:
-    src: app.js
-    dest: /tmp/app.js
+- name: Creates directory
+  file:
+    path: ~/web
+    state: directory
 
-- name: starting app.js
+- name: Copy app test page
+  template:
+    src: "files/app.js"
+    dest: "~/web/app.js"
+
+- name: Executing node
   shell: |
-    pm2 start app.js
+    pm2 start ~/web/app.js -f
 
