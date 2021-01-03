@@ -25,11 +25,11 @@ workflows:
               only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      - print_workspace:
-          requires: [deploy-infrastructure]
+      # - print_workspace:
+      #     requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
 ########################################
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
@@ -234,7 +234,6 @@ jobs:
             cd frontend
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
-      # Your job code here
 
   scan-backend:
     docker:
@@ -310,7 +309,6 @@ jobs:
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
-      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
@@ -358,7 +356,6 @@ jobs:
           name: Run migrations
           become: true
           command: |
-            # Your code here
             cd backend
             npm install
             npm run migrations
