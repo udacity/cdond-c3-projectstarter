@@ -350,15 +350,19 @@ jobs:
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
-      - image: cimg/node:15.5.0
+      - image: circleci/node:9.11
     steps:
       # Checkout code from git
       - checkout
       - run:
           name: Run migrations
+          become: true
           command: |
             # Your code here
-            exit 1
+            cd backend
+            npm install
+            npm run migrations
+            #exit 1
       - run:
           name: Send migration results to memstash
           command: |
