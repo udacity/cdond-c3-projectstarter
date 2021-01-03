@@ -28,6 +28,7 @@
 #     setcap cap_net_bind_service=+ep /usr/local/bin/node
 
 - name: Installing PM2
+  become: true
   shell: |
     npm install pm2 -g
 

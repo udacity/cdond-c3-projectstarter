@@ -1,9 +1,5 @@
 version: 2.1
 
-orbs:
-  slack: circleci/slack@4.1.3
-  aws-cli: circleci/aws-cli@1.3.1
-
 parameters:
   projectname:
     type: string
@@ -44,18 +40,20 @@ workflows:
       #     requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
+
+orbs:
+  slack: circleci/slack@4.1.3
+
 commands:
   destroy-environment-onfail:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       # Add parameter here
     steps:
-      - aws-cli/install
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            # Your code here
             aws cloudformation delete-stack --stack-name "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
             aws cloudformation delete-stack --stack-name "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
             #exit 1
@@ -312,9 +310,11 @@ jobs:
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
+
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
