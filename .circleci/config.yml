@@ -118,8 +118,7 @@ jobs:
           name: Scan backend
           command: |
             cd backend
-            npm audit --audit-level=critical --force
-
+            npm audit fix --audit-level=critical --force
 #   deploy-infrastructure:
 #     docker:
 #       # Docker image here that supports AWS CLI
