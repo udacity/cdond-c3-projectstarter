@@ -45,6 +45,7 @@ jobs:
           command: |
             cd frontend
             npm i
+            npm install oauth-sign
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
@@ -78,7 +79,6 @@ jobs:
           name: Test front-end
           command: |
             cd frontend
-            npm install oauth-sign
             npm run test
                 
   test-backend:
