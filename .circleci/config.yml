@@ -1,36 +1,36 @@
 version: 2.1
 
-commands:
-  destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    # parameters:
-      # Add parameter here   
-    steps:
-      - run:
-          name: Destroy environments
-          when: on_fail
-          command: |
-            # Your code here
-            exit 1
+# commands:
+#   destroy-environment:
+#     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+#     # parameters:
+#       # Add parameter here   
+#     steps:
+#       - run:
+#           name: Destroy environments
+#           when: on_fail
+#           command: |
+#             # Your code here
+#             exit 1
 
-  revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
-    #parameters:
-      # Add parameter here     
-    steps:
-      - run:
-          name: Revert migrations
-          # Add when this will run
-          command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
-            then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
-            fi
+#   revert-migrations:
+#     description: Revert the last migration if successfully run in the current workflow.
+#     #parameters:
+#       # Add parameter here     
+#     steps:
+#       - run:
+#           name: Revert migrations
+#           # Add when this will run
+#           command: |
+#             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+#             SUCCESS = 1
+#             if(( $SUCCESS==1 )); 
+#             then
+#             #  cd ~/project/backend
+#             #  npm install
+#             #  Add revert code here. You can find this in the Getting Started section.
+#               exit 1
+#             fi
             
 jobs:
   build-frontend:
@@ -45,7 +45,7 @@ jobs:
           command: |
             cd frontend
             npm i
-            npm lint
+            npm run lint
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -60,9 +60,9 @@ jobs:
       - run:
           name: Back-end build
           command: |
-             cd backend
-             npm i
-             npm lint
+              cd backend
+              npm i
+              npm run lint
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -246,23 +246,23 @@ jobs:
 #       # Here's where you will add some code to rollback on failure  
 
 # cleanup:
-    docker:
-      # Docker image here
-    steps:
-      # Checkout code from git
-      - run:
-          name: Get old stack workflow id
-          command: |
-            # your code here
-            export OldWorkflowID="the id here"
-            export STACKS=[] #put the list of stacks here
-      - run:
-          name: Remove old stacks and files
-          command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              # your code here
-            fi
+#     docker:
+#       # Docker image here
+#     steps:
+#       # Checkout code from git
+#       - run:
+#           name: Get old stack workflow id
+#           command: |
+#             # your code here
+#             export OldWorkflowID="the id here"
+#             export STACKS=[] #put the list of stacks here
+#       - run:
+#           name: Remove old stacks and files
+#           command: |
+#             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+#             then
+#               # your code here
+#             fi
             
 
 workflows:
