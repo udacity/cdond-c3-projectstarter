@@ -101,24 +101,43 @@ jobs:
           name: Back-End Test
           command: |
              cd backend && npm run test
-      - restore_cache:
-          keys: [test-backend]
+      - save_cache:
+          paths: [backend/node_modules]
+          key: test-backend
             
-  # scan-frontend:
-  #   docker:
-  #     # Docker image here
-  #   steps:
-  #     # Checkout code from git
-  #     # Restore from cache
-  #     # Your job code here
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [scan-frontend]
+      - run:
+          name: Install dependencies with npm
+          command: cd frontend && npm i
+      - run:
+          name: Front-End Package Audit
+          command: cd frontend && npm audit --audit-level=critical
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: test-frontend
 
-  # scan-backend:
-  #   docker:
-  #     # Docker image here
-  #   steps:
-  #     # Checkout code from git
-  #     # Restore from cache
-  #     # Your job code here
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [scan-backend]
+      - run:
+          name: Install dependencies with npm
+          command: cd backend && npm i
+      - run:
+          name: Back-End Package Audit
+          command: cd backend && npm audit --audit-level=critical
+      - save_cache:
+          paths: [backend/node_modules]
+          key: test-backend
 
   # deploy-infrastructure:
   #   docker:
@@ -295,10 +314,10 @@ workflows:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
