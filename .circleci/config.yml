@@ -303,16 +303,22 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
+      - build-frontend:
+          context: slack-secrets
+      - build-backend:
+          context: slack-secrets
       - test-frontend:
           requires: [build-frontend]
+          context: slack-secrets
       - test-backend:
           requires: [build-backend]
+          context: slack-secrets
       - scan-backend:
           requires: [build-backend]
+          context: slack-secrets
       - scan-frontend:
           requires: [build-frontend]
+          context: slack-secrets
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
