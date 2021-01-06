@@ -1,0 +1,15 @@
+- name: Creates directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+
+- name: Transfer backend files to cloud server
+  copy:
+    src: /root/project/backend/dist
+    dest: /home/ubuntu/
+    
+- name: Executing node
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm --name backend -- start
