@@ -20,6 +20,7 @@
 
   pre_tasks:
     - name: "wait 600 seconds for target connection to become reachable/usable."
-      pause: 600
+      pause: 
+        seconds: 600
   roles:
     - configure-server
