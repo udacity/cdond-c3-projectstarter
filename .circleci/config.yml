@@ -29,7 +29,8 @@ commands:
           when: on_fail
           command: |
             SUCCESS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/MIGRATION_SUCCESS)
-            if(( $SUCCESS==1 )); 
+            echo $SUCCESS
+            if(( $SUCCESS=="true" )); 
             then
               cd ~/project/backend
               npm install
@@ -208,10 +209,10 @@ jobs:
             if grep -q "has been executed successfully." migrations_dump.txt
             then 
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT \
-              --data "1" https://api.memstash.io/values/MIGRATION_SUCCESS
+              --data "true" https://api.memstash.io/values/MIGRATION_SUCCESS
             else
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT \
-              --data "0" https://api.memstash.io/values/MIGRATION_SUCCESS
+              --data "false" https://api.memstash.io/values/MIGRATION_SUCCESS
             fi
       #- destroy-environment 
       - revert-migrations     
