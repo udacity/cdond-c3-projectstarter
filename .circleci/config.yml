@@ -165,7 +165,7 @@ jobs:
             echo $BACKEND_IP >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: ~/project/
+          root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment
@@ -178,7 +178,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["b7:24:f3:78:7e:a0:b8:98:b2:50:fc:5b:59:c5:9c:57"]
       - attach_workspace:
-          at: ~/project/  
+          at: ~/  
       - run:
           name: Install dependencies
           command: |
@@ -253,7 +253,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["b7:24:f3:78:7e:a0:b8:98:b2:50:fc:5b:59:c5:9c:57"]
       - attach_workspace:
-          at: ~/project/  
+          at: ~/  
       - run:
           name: Install dependencies
           command: |
@@ -353,7 +353,7 @@ workflows:
       #     requires: [build-frontend]
       #     context: slack-secrets
       - deploy-infrastructure:
-          requires: [build-frontend, build-backend]
+          requires: [build-frontend, build]
       #    requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
