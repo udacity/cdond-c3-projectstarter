@@ -140,6 +140,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum -y install tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -166,7 +167,7 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             BACKEND_IP = curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/BACKEND_IP
-            $BACKEND_IP >> .circleci/ansible/inventory.txt
+            echo $BACKEND_IP >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -179,7 +180,6 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - run: yum -y install tar gzip
       - add_ssh_keys:
           fingerprints: ["b7:24:f3:78:7e:a0:b8:98:b2:50:fc:5b:59:c5:9c:57"]
       - attach_workspace:
