@@ -188,7 +188,7 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook configure-server.yml -i inventory.txt 
-      - destroy-environment     
+      #- destroy-environment     
 
   run-migrations:
     docker:
@@ -212,7 +212,7 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT \
               --data "0" https://api.memstash.io/values/MIGRATION_SUCCESS
             fi
-      - destroy-environment 
+      #- destroy-environment 
       - revert-migrations     
 
   deploy-frontend:
@@ -263,7 +263,7 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook deploy-backend.yml -i inventory.txt 
-      - destroy-environment  
+      #- destroy-environment  
       - revert-migrations  
 
   smoke-test:
@@ -295,7 +295,7 @@ jobs:
             else
               return 0
             fi
-      - destroy-environment  
+      #- destroy-environment  
       - revert-migrations  
 
 #   cloudfront-update:
