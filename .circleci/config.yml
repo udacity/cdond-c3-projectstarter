@@ -70,6 +70,7 @@ jobs:
               cd backend
               npm i
               npm run build
+              ls backend/dist
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -249,7 +250,7 @@ jobs:
             cd frontend
             aws s3 sync dist s3://"udapeople-${CIRCLE_WORKFLOW_ID}" --delete #upload files from web and delete any extra in bucket
       # destroy-environment  
-      - revert-migrations      
+      # revert-migrations      
                     
   deploy-backend:
     docker:
@@ -271,11 +272,12 @@ jobs:
           name: Deploy backend
           command: |
             pwd
-            ll backend/dist
+            ls backend/dist
+            ls backend
             cd .circleci/ansible
             ansible-playbook deploy-backend.yml -i inventory.txt 
-      - destroy-environment  
-      - revert-migrations  
+      # destroy-environment  
+      # revert-migrations  
 
   smoke-test:
     docker:
