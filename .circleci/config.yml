@@ -145,8 +145,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: yum install -y tar gzip
+      - run:
           name: Ensure back-end infrastructure exists
-          working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
@@ -163,7 +165,6 @@ jobs:
             curl -H "Content-Type: text/plain" -H "token: f19d5bbc-6c16-400b-ab9b-54948c72d406" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/udapeople_backend
       - run: 
           name: Ensure front-end infrastructure exist
-          working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
