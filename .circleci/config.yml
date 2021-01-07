@@ -280,7 +280,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            tar -C backend/dist -czvf dist.tar.gz .
+            tar -C backend -czvf backend.tar.gz .
             cd .circleci/ansible
             ansible-playbook deploy-backend.yml -i inventory.txt 
       - destroy-environment  
@@ -300,21 +300,27 @@ jobs:
           command: |
             BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/BACKEND_IP)
             URL="https://${BACKEND_IP}:3000/api/status"
-            if curl -s https://54.200.182.229:3000/api/status
+            echo $URL
+            if curl -s $URL
             then
-              return 1
-            else
+              echo "It worked"
               return 0
+            else
+              echo "It failed"
+              return 1
             fi
       - run:
           name: Frontend smoke test.
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
-            if curl -s ${URL} | grep "Welcome"
+            echo $URL
+            if curl -s $URL | grep "Welcome"
             then
-              return 1
-            else
+              echo "It worked"
               return 0
+            else
+              echo "It failed"
+              return 1
             fi
       - destroy-environment  
       - revert-migrations  

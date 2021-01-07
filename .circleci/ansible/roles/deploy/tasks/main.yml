@@ -1,13 +1,9 @@
-- name: Creates directory
-  file:
-    path: /home/ubuntu/backend
-    state: directory
 
 - name: Unarchive backend dist
   become: true
   unarchive:
-    src: /root/project/dist.tar.gz
-    dest: /home/ubuntu/backend
+    src: /root/project/backend.tar.gz
+    dest: /home/ubuntu
     
 - name: Executing node
   become: true
