@@ -4,8 +4,6 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      when:
-        type: string
       id:
         type: string
     steps:
@@ -197,27 +195,26 @@ jobs:
             - .circleci/ansible/inventory
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
   
-
-  # configure-infrastructure:
-  #   docker:
-  #     # Docker image here that supports Ansible
-  #   steps:
-  #     # Checkout code from git
-  #     # Add ssh keys with fingerprint
-  #     # attach workspace
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["35:bf:63:11:35:19:33:28:2c:51:26:9a:50:7f:08:c1"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            cat inventory
+            ansible-playbook -i inventory configure-server.yaml
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}     
 
   # run-migrations:
   #   docker:
@@ -350,8 +347,8 @@ workflows:
           filters:
             branches:
               only: [test-feature-branch]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
