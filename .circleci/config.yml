@@ -269,6 +269,7 @@ jobs:
           command: |
             apk add --update tar gzip ansible nodejs npm curl
             pip install awscli
+            apk add openssh-client
       - attach_workspace:
           at: ~/  
       - run:
