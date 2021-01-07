@@ -30,7 +30,7 @@ commands:
           command: |
             SUCCESS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/MIGRATION_SUCCESS)
             echo $SUCCESS
-            if($SUCCESS=="true") 
+            if [ "$SUCCESS" == true ]
             then
               cd ~/project/backend
               npm install
@@ -280,7 +280,6 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            ls backend/dist
             tar -C backend/dist -czvf dist.tar.gz .
             cd .circleci/ansible
             ansible-playbook deploy-backend.yml -i inventory.txt 
