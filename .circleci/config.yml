@@ -208,6 +208,7 @@ jobs:
       - run:
           name: Send migration results to memstash
           command: |
+            cd backend
             if grep -q "has been executed successfully." migrations_dump.txt
             then 
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT \
@@ -226,10 +227,10 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build-modules]
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       # your code here
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y install nodejs
       - run:
           name: Get backend url
           command: |
@@ -251,18 +252,17 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - run: yum -y install tar gzip
       - restore_cache:
           keys: [backend-build]
       - add_ssh_keys:
           fingerprints: ["b7:24:f3:78:7e:a0:b8:98:b2:50:fc:5b:59:c5:9c:57"]
-      - attach_workspace:
-          at: ~/  
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            apk add --update tar gzip ansible nodejs npm
             pip install awscli
+      - attach_workspace:
+          at: ~/  
       - run:
           name: Deploy backend
           command: |
