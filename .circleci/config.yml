@@ -207,6 +207,8 @@ jobs:
       - run:
           name: awscli install for rollback
           command: |
+            sudo apt-get -y -qq update
+            sudo apt-get -y -qq install python3
             sudo apt-get -qq install awscli
       - run:
           name: Run migrations
