@@ -145,9 +145,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: yum install -y tar gzip
-      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
@@ -184,7 +181,10 @@ jobs:
           root: ~/
           paths:
             - .circleci/ansible/inventory
-      # Here's where you will add some code to rollback on failure      
+      # - destroy_environment:
+      #     id: ${CIRCLE_WORKFLOW_ID:0:7}
+      #     when: on_fail
+  
 
   # configure-infrastructure:
   #   docker:
@@ -317,6 +317,7 @@ cleanup:
               # your code here
             fi
             
+
 workflows:
   default:
     jobs:
@@ -331,6 +332,7 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend]
           filters:
             branches:
               only: [test-feature-branch]
