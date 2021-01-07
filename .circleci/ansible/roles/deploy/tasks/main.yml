@@ -6,7 +6,7 @@
 - name: Transfer backend files to cloud server
   copy:
     src: /root/project/backend/dist
-    dest: /home/ubuntu/
+    dest: /home/ubuntu/backend
     
 - name: Executing node
   become: true
