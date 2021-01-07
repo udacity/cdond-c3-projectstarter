@@ -16,10 +16,6 @@
   #   - name: "install python for Ansible."
   #     # Your code here
 
-  roles:
-    - configure-server
-    - configure-prometheus-node-exporter
-
   environment:
     ENVIRONMENT: production
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
@@ -29,3 +25,7 @@
     TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
     TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
     TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+
+  roles:
+    - configure-server
+    - configure-prometheus-node-exporter
