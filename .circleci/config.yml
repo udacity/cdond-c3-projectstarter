@@ -205,6 +205,10 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
+          name: awscli install for rollback
+          command: |
+            sudo apt-get -qq install awscli
+      - run:
           name: Run migrations
           command: |
             cd backend
@@ -222,7 +226,7 @@ jobs:
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT \
               --data "false" https://api.memstash.io/values/MIGRATION_SUCCESS
             fi
-      #- destroy-environment 
+      - destroy-environment 
       - revert-migrations     
 
   deploy-frontend:
@@ -252,8 +256,8 @@ jobs:
           command: |
             cd frontend
             aws s3 sync dist s3://"udapeople-${CIRCLE_WORKFLOW_ID}" --delete #upload files from web and delete any extra in bucket
-      # destroy-environment  
-      # revert-migrations      
+      - destroy-environment  
+      - revert-migrations      
                     
   deploy-backend:
     docker:
@@ -276,10 +280,11 @@ jobs:
           name: Deploy backend
           command: |
             ls backend/dist
+            tar -C backend/dist -czvf dist.tar.gz .
             cd .circleci/ansible
             ansible-playbook deploy-backend.yml -i inventory.txt 
-      # destroy-environment  
-      # revert-migrations  
+      - destroy-environment  
+      - revert-migrations  
 
   smoke-test:
     docker:

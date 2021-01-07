@@ -3,9 +3,15 @@
     path: /home/ubuntu/backend
     state: directory
 
-- name: Transfer backend files to cloud server
+- name: Transfer backend zip to cloud server
   copy:
-    src: /root/project/backend/dist
+    src: /root/project/backend/dist.tar.gz
+    dest: /home/ubuntu/backend
+
+- name: Unarchive backend dist
+  become: true
+  unarchive:
+    src: /root/project/backend/dist.tar.gz
     dest: /home/ubuntu/backend
     
 - name: Executing node
