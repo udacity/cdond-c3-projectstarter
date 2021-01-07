@@ -300,7 +300,7 @@ jobs:
           command: |
             BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/BACKEND_IP)
             URL="https://${BACKEND_IP}:3000/api/status"
-            if curl -s ${URL}
+            if curl -s https://54.200.182.229:3000/api/status
             then
               return 1
             else
@@ -357,10 +357,10 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend:
-      #     context: slack-secrets
-      # - build-backend:
-      #     context: slack-secrets
+      - build-frontend:
+          context: slack-secrets
+      - build-backend:
+          context: slack-secrets
       # - test-frontend:
       #     requires: [build-frontend]
       #     context: slack-secrets
@@ -373,19 +373,19 @@ workflows:
       # - scan-frontend:
       #     requires: [build-frontend]
       #     context: slack-secrets
-      # - deploy-infrastructure:
-      #     requires: [build-frontend, build-backend]
-      #    requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      - smoke-test
-          #requires: [deploy-backend, deploy-frontend]
+      - deploy-infrastructure:
+          requires: [build-frontend, build-backend]
+         #requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
