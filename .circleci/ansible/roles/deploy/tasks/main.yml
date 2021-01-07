@@ -1,13 +1,16 @@
+- name: Creates directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
 
 - name: Unarchive backend dist
   become: true
   unarchive:
     src: /root/project/backend.tar.gz
-    dest: /home/ubuntu
+    dest: /home/ubuntu/backend
     
 - name: Executing node
   become: true
   shell: |
     cd /home/ubuntu/backend
-    ls
     pm2 start npm --name backend -- start
