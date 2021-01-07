@@ -232,7 +232,7 @@ jobs:
           name: Install dependencies
           command: |
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
-            yum -y install nodejs
+            yum -y install nodejs npm
             yum -y install tar gzip
       - run:
           name: Get backend url
@@ -247,7 +247,7 @@ jobs:
           command: |
             cd frontend
             aws s3 sync dist s3://"udapeople-${CIRCLE_WORKFLOW_ID}" --delete #upload files from web and delete any extra in bucket
-      - destroy-environment  
+      # destroy-environment  
       - revert-migrations      
                     
   deploy-backend:
@@ -262,7 +262,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm
+            apk add --update tar gzip ansible nodejs npm curl
             pip install awscli
       - attach_workspace:
           at: ~/  
