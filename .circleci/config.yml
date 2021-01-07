@@ -192,7 +192,7 @@ jobs:
           root: ~/
           paths:
             - .circlecie/ansible/inventory
-      - destroy_environment:
+      - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
   
