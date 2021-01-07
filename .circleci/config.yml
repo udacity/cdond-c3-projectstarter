@@ -190,7 +190,7 @@ jobs:
               --output text >> inventory
             cat inventory
       - persist_to_workspace:
-          root: ~/
+          root: .
           paths:
             - .circleci/ansible/inventory
       - destroy-environment:
