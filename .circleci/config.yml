@@ -288,15 +288,13 @@ jobs:
 
   smoke-test:
     docker:
-      - image: alpine:latest
+      - image: python:3.7-alpine3.11
     steps:
       - run:
           name: Install dependencies
           command: |
             apk add --update curl nodejs npm
-            sudo apt-get -y -qq update
-            sudo apt-get -y -qq install python3
-            sudo apt-get -qq install awscli
+            pip install awscli
       - run:
           name: Backend smoke test.
           command: |
