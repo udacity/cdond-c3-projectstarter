@@ -70,11 +70,13 @@ jobs:
               cd backend
               npm i
               npm run build
-              ls 
-              ls dist
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend/dist
       - slack_notify_on_fail
 
   test-frontend:
@@ -272,9 +274,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            pwd
             ls backend/dist
-            ls backend
             cd .circleci/ansible
             ansible-playbook deploy-backend.yml -i inventory.txt 
       # destroy-environment  
