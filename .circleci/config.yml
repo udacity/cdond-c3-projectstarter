@@ -191,7 +191,8 @@ jobs:
           at: .
       - run:
           name: Install dependencies
-          command: apk add --update ansible
+          command: |
+            apk add --update ansible
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
@@ -207,12 +208,17 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
+            echo $TYPEORM_HOST
             cd backend
             npm i
+            ls
             npm run build
+            ls
             npm run migrations > migration_status
       - run:
           name: Send migration results to memstash
