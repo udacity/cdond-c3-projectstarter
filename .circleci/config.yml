@@ -241,7 +241,8 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: amazon/aws-cli
+      - image: circleci/node:latest
     steps:
       - checkout
       - attach_workspace:
@@ -249,9 +250,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update
-            apt-get install tar gzip ansible nodejs npm
-            pip install awscli
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+            yum -y install tar gzip
       - run:
           name: Get backend url
           command: |
@@ -358,8 +359,8 @@ workflows:
           requires: [build-backend]
       # - scan-backend:
       #     requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend]
           filters:
