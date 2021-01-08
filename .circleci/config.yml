@@ -193,14 +193,6 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
-      -   run:
-            name: Creating environment file for backend
-            command: |
-                echo -e "NODE_ENV=production\nVERSION=1\nTYPEORM_CONNECTION=${TYPEORM_CONNECTION}\nTYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR} \nTYPEORM_ENTITIES=${TYPEORM_ENTITIES}\nTYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}\nTYPEORM_HOST=${TYPEORM_HOST}\nTYPEORM_PORT=${TYPEORM_PORT}\nTYPEORM_USERNAME=${TYPEORM_USERNAME}\nTYPEORM_PASSWORD=${TYPEORM_PASSWORD}\nTYPEORM_DATABASE=${TYPEORM_DATABASE}\nENVIRONMENT=production" > ./backend/.env
-                cat ./backend/.env
-                ls
-                cat ./.circleci/ansible/inventory
-                pwd
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
@@ -213,16 +205,21 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:latest
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
       - run:
+          name: awscli install
+          command: |
+            sudo apt-get -y -qq update
+            sudo apt-get -y -qq install python3
+            sudo apt-get -qq install awscli
+      - run:
           name: Run migrations
           command: |
             cd backend
-            cat .env
             npm i
             ls
             npm run build
