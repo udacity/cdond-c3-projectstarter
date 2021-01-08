@@ -241,14 +241,13 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:latest
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
-            yum -y install nodejs
+            sudo apt-get -qq install awscli
             yum -y install tar gzip
       - run:
           name: Get backend url
