@@ -212,6 +212,7 @@ jobs:
           command: |
             cd backend
             npm i
+            npm run build
             npm run migrations > migration_status
       - run:
           name: Send migration results to memstash
@@ -344,8 +345,8 @@ workflows:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
