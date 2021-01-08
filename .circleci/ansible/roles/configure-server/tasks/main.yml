@@ -1,6 +1,6 @@
 ---
 - name: Print env variable
-  shell: echo $PATH
+  shell: printenv
   register: print_result
 
 - name: print message
