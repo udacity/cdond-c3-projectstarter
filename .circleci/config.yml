@@ -212,7 +212,6 @@ jobs:
           name: Configure server
           working_directory: ./.circleci/ansible
           command: |
-            
             ls
             cat inventory
             ansible-playbook -i inventory configure-server.yml
