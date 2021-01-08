@@ -1,13 +1,13 @@
-*~
-*.sw[mnpcod]
-*.log
-*.tmp
-*.tmp.*
-log.txt
-*.sublime-project
-*.sublime-workspace
-.vscode/
-npm-debug.log*
+# *~
+# *.sw[mnpcod]
+# *.log
+# *.tmp
+# *.tmp.*
+# log.txt
+# *.sublime-project
+# *.sublime-workspace
+# .vscode/
+# npm-debug.log*
 
 .idea/
 .ionic/
@@ -66,5 +66,5 @@ Thumbs.db
 UserInterfaceState.xcuserstate
 node_modules
 
-.env
+# .env
 dist
