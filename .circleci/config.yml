@@ -115,34 +115,22 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [scan-frontend]
-      - run:
-          name: Install dependencies with npm
-          command: cd frontend && npm i
+      - attach_workspace:
+          at: .
       - run:
           name: Front-End Package Audit
           command: cd frontend && npm audit --audit-level=critical
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: test-frontend
 
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [scan-backend]
-      - run:
-          name: Install dependencies with npm
-          command: cd backend && npm i
+      - attach_workspace:
+          at: .
       - run:
           name: Back-End Package Audit
           command: cd backend && npm audit --audit-level=critical
-      - save_cache:
-          paths: [backend/node_modules]
-          key: scan-backend
 
   deploy-infrastructure:
     docker:
@@ -223,6 +211,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            npm i
             npm run migrations > migration_status
       - run:
           name: Send migration results to memstash
