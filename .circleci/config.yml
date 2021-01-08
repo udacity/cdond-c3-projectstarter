@@ -11,15 +11,11 @@ commands:
           name: Destroy udapeaple backend cfn stack
           command: |
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
-          environment:
-            TERM: xterm-256color
           when: on_fail
       - run:
           name: Destroy udapeaple backend cfn stack
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
-          environment:
-            TERM: xterm-256color
           when: on_fail
 
   revert-migrations:
@@ -171,7 +167,7 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
-            curl -H "Content-Type: text/plain" -H "token: f19d5bbc-6c16-400b-ab9b-54948c72d406" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/udapeople_backend
+            curl -H "Content-Type: text/plain" -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/udapeople_backend
       - run: 
           name: Ensure front-end infrastructure exist
           command: |
@@ -218,43 +214,62 @@ jobs:
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}     
 
-  # run-migrations:
-  #   docker:
-  #     # Docker image here that supports NodeJS
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Run migrations
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Send migration results to memstash
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #    # Here's where you will add some code to rollback on failure      
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm run migrations > migration_status
+      - run:
+          name: Send migration results to memstash
+          command: |
+            if grep -q "has been executed successfully" migration_status
+            then
+              echo "migration successfull"
+              curl -H "Content-Type: text/plain" -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request PUT --data "success" https://api.memstash.io/values/udapeople_migration
+            else
+              echo "migration failed"
+              curl -H "Content-Type: text/plain" -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request PUT --data "failure" https://api.memstash.io/values/udapeople_migration
+            fi
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}    
 
-  # deploy-frontend:
-  #   docker:
-  #     # Docker image here that supports AWS CLI
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           # your code here
-  #           export API_URL="http://${BACKEND_IP}:3030"
-  #           echo "${API_URL}"
-  #     - run:
-  #         name: Deploy frontend objects
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure      
+  deploy-frontend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install tar gzip ansible nodejs npm
+            pip install awscli
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID}".tar.gz dist
+            aws s3 sync . s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --delete
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
                     
   # deploy-backend:
   #   docker:
