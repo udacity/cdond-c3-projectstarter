@@ -249,8 +249,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt-get update
-            sudo apt-get install tar gzip ansible nodejs npm
+            apt-get update
+            apt-get install tar gzip ansible nodejs npm
             pip install awscli
       - run:
           name: Get backend url
