@@ -241,12 +241,9 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
       - image: circleci/node:latest
     steps:
       - checkout
-      - attach_workspace:
-          at: .
       - run:
           name: Install dependencies
           command: |
@@ -268,8 +265,8 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID}".tar.gz dist
-            aws s3 sync . s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --delete
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
                     
