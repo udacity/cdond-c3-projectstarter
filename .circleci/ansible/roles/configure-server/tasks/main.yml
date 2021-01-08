@@ -3,10 +3,14 @@
   shell: printenv
   register: print_result
 
-- name: print message
-  debug:
-    msg: "{{ print_result.stdout_lines }}"
-    
+- name: Execute DB migrations and save the result to Memstash.io
+  become: true
+  shell: |
+      cd /home/ubuntu/backend
+      ls
+      npm run migrations > migrations.txt
+      cat migrations.txt
+
 - name: "update apt packages."
   become: yes
   apt:
