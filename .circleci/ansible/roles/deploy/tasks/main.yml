@@ -5,25 +5,31 @@
 
 - name: Transfer backend files cloud server
   copy:
-    src: ../../backend/dist
-    dest: /home/ubuntu/udabackend
+    src: /root/project/backend/
+    dest: /home/ubuntu/
 
 - name: "Update npm"
   become: true
   shell: |
-    cd /home/ubuntu/udabackend
+    cd /home/ubuntu/backend
     npm install -g npm@latest
-    
+
 - name: "install package dependencies"
   become: true
   shell: |
     cd /home/ubuntu/backend   
     ls -la
     npm install
+
+- name: "Run build"
+  become: true
+  shell: |
+    cd /home/ubuntu/backend   
+    npm run build
     
 - name: Executing node
   become: true
   shell: |
-    cd /home/ubuntu/udabackend
+    cd /home/ubuntu/backend/dist
     pm2 start -f ./main.js
     pm2 ls
