@@ -107,9 +107,9 @@ jobs:
           command: |
             # your code here
       # Here's where you will add some code to rollback on failure
-      - destroy-environment-onfail
+      - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment-onfail
+      - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
   deploy-infrastructure:
@@ -158,9 +158,9 @@ jobs:
           paths:
             - .circleci/ansible/
       # Here's where you will add some code to rollback on failure
-      - destroy-environment-onfail
+      - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment-onfail
+      - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
   notify:
@@ -370,9 +370,9 @@ jobs:
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
       - aws-cli/install
-      - destroy-environment-onfail
+      - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment-onfail
+      - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
   print_workspace:
@@ -414,9 +414,9 @@ jobs:
             exit 1
             fi
      # Here's where you will add some code to rollback on failure
-      - destroy-environment-onfail
+      - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment-onfail
+      - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 #curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
 #exit 1
