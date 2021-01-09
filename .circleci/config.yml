@@ -25,13 +25,12 @@ workflows:
               only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      # - print_workspace:
-      #     requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
+      - deploy-frontend:
+         requires: [run-migrations]
 ########################################
-      # - deploy-frontend:
-      #     requires: [run-migrations]
+
       # - deploy-backend:
       #     requires: [run-migrations]
       # - smoke-test:
@@ -49,13 +48,17 @@ commands:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       # Add parameter here
+      cfname:
+        default: "none"
+        type: string
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-            aws cloudformation delete-stack --stack-name "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws cloudformation delete-stack --stack-name "<<parameters.cfname>>"
+# aws cloudformation delete-stack --stack-name "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+# aws cloudformation delete-stack --stack-name "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
             #exit 1
 
   revert-migrations:
@@ -78,6 +81,88 @@ commands:
             fi
 
 jobs:
+  deploy-frontend:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: add tar and gzip tool
+          command: yum install -y tar gzip
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt-get -y update
+            sudo apt-get -y install software-properties-common
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment-onfail
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment-onfail
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+
+  deploy-infrastructure:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: add tar tool
+          command: yum install -y tar
+      - run:
+          name: add gzip tool
+          command: yum install -y gzip
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=<<pipeline.parameters.projectname>> \
+              --stack-name "be-stack-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              #exit 1
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=<<pipeline.parameters.projectname>> \
+              --stack-name "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              #exit 1
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            echo "[web]" > .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+             --query 'Reservations[*].Instances[*].PublicIpAddress' \
+             --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+            # exit 1
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .circleci/ansible/
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment-onfail
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment-onfail
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+
   notify:
     docker:
       - image: 'cimg/base:stable'
@@ -258,61 +343,20 @@ jobs:
           mentions: '@DevOps-team'
           template: basic_fail_1
 
-  deploy-infrastructure:
-    docker:
-      # Docker image here that supports AWS CLI
-      - image: amazon/aws-cli
-    steps:
-      # Checkout code from git
-      - checkout
-      - run:
-          name: add tar tool
-          command: yum install -y tar
-      - run:
-          name: add gzip tool
-          command: yum install -y gzip
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --tags project=<<pipeline.parameters.projectname>> \
-              --stack-name "be-stack-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-              #exit 1
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=<<pipeline.parameters.projectname>> \
-              --stack-name "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-              #exit 1
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            echo "[web]" > .circleci/ansible/inventory.txt
-            aws ec2 describe-instances \
-             --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-             --output text >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
-            # exit 1
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .circleci/ansible/
-      # Here's where you will add some code to rollback on failure
-      - destroy-environment-onfail
-
+#python:3.7-alpine3.11
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: cimg/base:2021.01
     steps:
       # Checkout code from git
       - checkout
-
+      - run:
+          name: Install dependencies
+          become: true
+          command: |
+            sudo apt-get -y update
+            sudo apt-get -y install software-properties-common
+            sudo apt-get -y install ansible
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
@@ -320,16 +364,16 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible
-      - run:
           name: configure the server user
           no_output_timeout: 30m
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
+      - aws-cli/install
       - destroy-environment-onfail
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment-onfail
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
   print_workspace:
     docker:
@@ -358,35 +402,26 @@ jobs:
           command: |
             cd backend
             npm install
-            npm run migrations
-            #exit 1
+            npm run migrations > backend/src/migrations/migrationResults.txt
       - run:
           name: Send migration results to memstash
           command: |
-            # Your code here
+            if [ $(cat backend/src/migrations/migrationResults.txt | grep "has been executed successfully" | wc -l) = 3 ]
+            then
+            curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "successful" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+            else
+            curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "error" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             exit 1
+            fi
      # Here's where you will add some code to rollback on failure
+      - destroy-environment-onfail
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment-onfail
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+#curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+#exit 1
 
-#   deploy-frontend:
-#     docker:
-#       # Docker image here that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#             export API_URL="http://${BACKEND_IP}:3030"
-#             echo "${API_URL}"
-#       - run:
-#           name: Deploy frontend objects
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure
+
 
 #   deploy-backend:
 #     docker:
