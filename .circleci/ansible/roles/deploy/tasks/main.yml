@@ -1,34 +1,35 @@
----
-- name: Print env variable
-  shell: printenv
-  register: print_result
+- name: Creates directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
 
-- name: "update apt packages."
-  become: yes
-  apt:
-    update_cache: yes
+- name: Transfer backend files cloud server
+  copy:
+    src: ../../backend
+    dest: /home/ubuntu/
 
-- name: "upgrade packages"
-  become: yes
-  apt:
-    upgrade: yes
-
-- name: "remove dependencies that are no longer required"
-  become: yes
-  apt:
-    autoremove: yes
-
-- name: "install nodejs and npm"
-  become: yes
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-
-- name: "install pm2"
-  become: yes
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
+- name: "Update npm"
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    npm install -g npm@latest
+    
+- name: "install package dependencies"
+  become: true
+  shell: |
+    cd /home/ubuntu/backend   
+    ls -la
+    npm install
+    
+- name: "build package"
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+    
+- name: Executing node
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm --name backend -- start
+    pm2 ls
