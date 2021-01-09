@@ -6,10 +6,9 @@
 - name: Execute DB migrations and save the result to Memstash.io
   become: true
   shell: |
-      cd /home/ubuntu/backend
       ls
-      npm run migrations > migrations.txt
-      cat migrations.txt
+      cd ../../../backend
+      ls
 
 - name: "update apt packages."
   become: yes

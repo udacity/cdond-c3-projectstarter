@@ -5,7 +5,7 @@
 
 - name: Transfer backend files cloud server
   copy:
-    src: ../../backend
+    src: ../../../backend
     dest: /home/ubuntu/
 
 - name: "Update npm"
