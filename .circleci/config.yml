@@ -263,40 +263,7 @@ jobs:
           mentions: '@DevOps-team'
           template: basic_fail_1
 
-#with rollback - cimg/base:2021.01
-  configure-infrastructure:
-    docker:
-      - image: cimg/base:2021.01
-    steps:
-      # Checkout code from git
-      - checkout
-      - run:
-          name: Install dependencies
-          become: true
-          command: |
-            sudo apt-get -y update
-            sudo apt-get -y install software-properties-common
-            sudo apt-get -y install ansible
-            sudo apt-get -y install python3-venv python-is-python3
-      # Add ssh keys with fingerprint
-      - add_ssh_keys:
-          fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
-      # attach workspace
-      - attach_workspace:
-          at: .
-      - run:
-          name: configure the server user
-          no_output_timeout: 30m
-          command: |
-            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
-      # Here's where you will add some code to rollback on failure
-      - aws-cli/install
-      - destroy-environment-onfail:
-          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-      - destroy-environment-onfail:
-          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-
-# with rollback - amazon/aws-cli
+# with rollback - amazon/aws-cli with persistance
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
@@ -347,6 +314,39 @@ jobs:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+#with rollback - cimg/base:2021.01
+  configure-infrastructure:
+    docker:
+      - image: cimg/base:2021.01
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Install dependencies
+          become: true
+          command: |
+            sudo apt-get -y update
+            sudo apt-get -y install software-properties-common
+            sudo apt-get -y install ansible
+            sudo apt-get -y install python3-venv python-is-python3
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
+      # attach workspace
+      - attach_workspace:
+          at: .
+      - run:
+          name: configure the server user
+          no_output_timeout: 30m
+          command: |
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
+      # Here's where you will add some code to rollback on failure
+      - aws-cli/install
+      - destroy-environment-onfail:
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment-onfail:
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+
 # With rollback - circleci/node:9.11
   run-migrations:
     docker:
@@ -355,18 +355,19 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - add_ssh_keys:
-          fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
+      - aws-cli/install
       - run:
           name: Run migrations
           become: true
           command: |
             cd backend
             npm install
-            npm run migrations > backend/src/migrations/migrationResults.txt
+            npm run migrations > src/migrations/migrationResults.txt
       - run:
           name: Send migration results to memstash
           command: |
+            pwd
+            ls -lart
             if [ $(cat backend/src/migrations/migrationResults.txt | grep "has been executed successfully" | wc -l) = 3 ]
             then
             curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "successful" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
@@ -375,7 +376,6 @@ jobs:
             exit 1
             fi
      # Here's where you will add some code to rollback on failure
-      - aws-cli/install
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
