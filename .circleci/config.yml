@@ -82,37 +82,221 @@ commands:
             fi
 
 jobs:
-  deploy-frontend:
+  notify:
     docker:
-      # Docker image here that supports AWS CLI
-      - image: amazon/aws-cli
+      - image: 'cimg/base:stable'
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*This is a text notification*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always
+
+#norollback
+  build-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package.json" }}
+      - run:
+          name: installing npm and dependencies
+          command: |
+            cd frontend
+            sudo npm install -g npm@5
+            sudo npm i
+            sudo npm i oauth-sign
+            npm -v
+      - run:
+          name: build project
+          command: |
+            cd frontend
+            npm run build
+            cd dist
+            ls
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build-{{ checksum "frontend/package.json" }}
+#norollback
+  build-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package.json" }}
+      - run:
+          name: update-npm
+          command: |
+            cd backend
+            sudo npm install -g npm@5
+            sudo npm i
+            sudo npm i oauth-sign
+      - run:
+          name: Back-end build
+          command: |
+            cd backend
+            sudo npm run build
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build-{{ checksum "backend/package.json" }}
+#norollback
+  test-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      # Restore from cache
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package.json" }}
+            - frontend-build-
+      # Your job code here
+      - run:
+          name: frontend test
+          command: |
+            cd frontend
+            ls -lart
+            npm run test
+      # - run:
+      #     name: code-coverage
+      #     command: './frontend/node_modules/.bin/nyc report --reporter=text-lcov'
+      - store_artifacts:
+          path: frontend/test-results.xml
+          prefix: tests
+      - store_artifacts:
+          path: frontend/coverage
+          prefix: coverage
+      - store_test_results:
+          path: frontend/test-results.xml
+#norollback
+  test-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      # Restore from cache
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package.json" }}
+            - backend-build-
+      # Your job code here
+      - run:
+          name: Backend tests
+          command: |
+            cd backend
+            npm run test
+      # - run:
+      #     name: code-coverage
+      #     command: './backend/node_modules/.bin/nyc report --reporter=text-lcov'
+      - store_artifacts:
+          path: backend/test-results.xml
+          prefix: tests
+      - store_artifacts:
+          path: backend/coverage
+          prefix: coverage
+      - store_test_results:
+          path: backend/test-results.xml
+#norollback
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      # restore from cache
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package.json" }}
+            - frontend-build-
+      # Your job code here
+      - run:
+          name: reinstalling npm and oauth-sigh
+          command: |
+            cd frontend
+            sudo npm i
+            sudo npm i oauth-sign
+      - run:
+          name: frontend scan
+          command: |
+            cd frontend
+            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
+#norollback
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      # Restore from cache
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package.json" }}
+            - backend-build-
+      # Your job code here
+      - run:
+          name: Backend SCAN
+          command: |
+            cd backend
+            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
+      - slack/notify:
+          event: fail
+          mentions: '@DevOps-team'
+          template: basic_fail_1
+
+#with rollback - cimg/base:2021.01
+  configure-infrastructure:
+    docker:
+      - image: cimg/base:2021.01
     steps:
       # Checkout code from git
       - checkout
       - run:
-          name: add tar and gzip tool
-          command: yum install -y tar gzip
-      - run:
           name: Install dependencies
+          become: true
           command: |
             sudo apt-get -y update
             sudo apt-get -y install software-properties-common
+            sudo apt-get -y install ansible
+            sudo apt-get -y install python3-venv python-is-python3
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
+      # attach workspace
+      - attach_workspace:
+          at: .
       - run:
-          name: Get backend url
+          name: configure the server user
+          no_output_timeout: 30m
           command: |
-            # your code here
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-      - run:
-          name: Deploy frontend objects
-          command: |
-            # your code here
+            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
+      - aws-cli/install
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
+# with rollback - amazon/aws-cli
   deploy-infrastructure:
     docker:
       # Docker image here that supports AWS CLI
@@ -163,234 +347,39 @@ jobs:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-
-  notify:
+# with rollback - amazon/aws-cli
+  deploy-frontend:
     docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always
-
-  build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package.json" }}
-      - run:
-          name: installing npm and dependencies
-          command: |
-            cd frontend
-            sudo npm install -g npm@5
-            sudo npm i
-            sudo npm i oauth-sign
-            npm -v
-      - run:
-          name: build project
-          command: |
-            cd frontend
-            npm run build
-            cd dist
-            ls
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build-{{ checksum "frontend/package.json" }}
-
-  build-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - backend-build-{{ checksum "backend/package.json" }}
-      - run:
-          name: update-npm
-          command: |
-            cd backend
-            sudo npm install -g npm@5
-            sudo npm i
-            sudo npm i oauth-sign
-      - run:
-          name: Back-end build
-          command: |
-            cd backend
-            sudo npm run build
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build-{{ checksum "backend/package.json" }}
-
-  test-frontend:
-    docker:
-      - image: circleci/node:13.8.0
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
-      # Restore from cache
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package.json" }}
-            - frontend-build-
-      # Your job code here
       - run:
-          name: frontend test
-          command: |
-            cd frontend
-            ls -lart
-            npm run test
-      # - run:
-      #     name: code-coverage
-      #     command: './frontend/node_modules/.bin/nyc report --reporter=text-lcov'
-      - store_artifacts:
-          path: frontend/test-results.xml
-          prefix: tests
-      - store_artifacts:
-          path: frontend/coverage
-          prefix: coverage
-      - store_test_results:
-          path: frontend/test-results.xml
-
-  test-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      # Checkout code from git
-      - checkout
-      # Restore from cache
-      - restore_cache:
-          keys:
-            - backend-build-{{ checksum "backend/package.json" }}
-            - backend-build-
-      # Your job code here
-      - run:
-          name: Backend tests
-          command: |
-            cd backend
-            npm run test
-      # - run:
-      #     name: code-coverage
-      #     command: './backend/node_modules/.bin/nyc report --reporter=text-lcov'
-      - store_artifacts:
-          path: backend/test-results.xml
-          prefix: tests
-      - store_artifacts:
-          path: backend/coverage
-          prefix: coverage
-      - store_test_results:
-          path: backend/test-results.xml
-
-  scan-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      # Checkout code from git
-      - checkout
-      # restore from cache
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package.json" }}
-            - frontend-build-
-      # Your job code here
-      - run:
-          name: reinstalling npm and oauth-sigh
-          command: |
-            cd frontend
-            sudo npm i
-            sudo npm i oauth-sign
-      - run:
-          name: frontend scan
-          command: |
-            cd frontend
-            npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical
-
-  scan-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      # Checkout code from git
-      - checkout
-      # Restore from cache
-      - restore_cache:
-          keys:
-            - backend-build-{{ checksum "backend/package.json" }}
-            - backend-build-
-      # Your job code here
-      - run:
-          name: Backend SCAN
-          command: |
-            cd backend
-            npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical
-      - slack/notify:
-          event: fail
-          mentions: '@DevOps-team'
-          template: basic_fail_1
-
-#python:3.7-alpine3.11
-  configure-infrastructure:
-    docker:
-      - image: cimg/base:2021.01
-    steps:
-      # Checkout code from git
-      - checkout
+          name: add tar and gzip tool
+          command: yum install -y tar gzip
       - run:
           name: Install dependencies
-          become: true
           command: |
             sudo apt-get -y update
             sudo apt-get -y install software-properties-common
-            sudo apt-get -y install ansible
-            sudo apt-get -y install python3-venv python-is-python3
-      # Add ssh keys with fingerprint
-      - add_ssh_keys:
-          fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
-      # attach workspace
-      - attach_workspace:
-          at: .
       - run:
-          name: configure the server user
-          no_output_timeout: 30m
+          name: Get backend url
           command: |
-            ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
+            # your code here
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
       # Here's where you will add some code to rollback on failure
-      - aws-cli/install
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
-  print_workspace:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - attach_workspace:
-          at: ~/project/.circleci/ansible/inventory.txt
-      - run:
-          name: verify workspace files
-          become: true
-          command: |
-            pwd
-            ls -lart .circleci/ansible/
-            ls -lart .circleci/ansible/inventory.txt
-
+# With rollback - circleci/node:9.11
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
@@ -416,13 +405,26 @@ jobs:
             exit 1
             fi
      # Here's where you will add some code to rollback on failure
+      - aws-cli/install
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 #curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
 #exit 1
-
+  print_workspace:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - attach_workspace:
+          at: ~/project/.circleci/ansible/inventory.txt
+      - run:
+          name: verify workspace files
+          become: true
+          command: |
+            pwd
+            ls -lart .circleci/ansible/
+            ls -lart .circleci/ansible/inventory.txt
 
 
 #   deploy-backend:
