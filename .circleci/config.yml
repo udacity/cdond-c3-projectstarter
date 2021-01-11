@@ -320,7 +320,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-1.amazonaws.com"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
             echo $URL
             if curl -s $URL | grep "Welcome"
             then
@@ -383,21 +383,23 @@ workflows:
           context: slack-secrets
       - build-backend:
           context: slack-secrets
-      # - test-frontend:
-      #     requires: [build-frontend]
-      #     context: slack-secrets
-      # - test-backend:
-      #     requires: [build-backend]
-      #     context: slack-secrets
-      # - scan-backend:
-      #     requires: [build-backend]
-      #     context: slack-secrets
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      #     context: slack-secrets
+      - test-frontend:
+          requires: [build-frontend]
+          context: slack-secrets
+      - test-backend:
+          requires: [build-backend]
+          context: slack-secrets
+      - scan-backend:
+          requires: [build-backend]
+          context: slack-secrets
+      - scan-frontend:
+          requires: [build-frontend]
+          context: slack-secrets
       - deploy-infrastructure:
-          requires: [build-frontend, build-backend]
-         #requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
