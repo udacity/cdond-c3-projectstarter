@@ -249,8 +249,10 @@ jobs:
           command: |
             cd frontend
             BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/BACKEND_IP)
-            export API_URL="https://${BACKEND_IP}:3000"
-            echo "${API_URL}"
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo $API_URL
+            echo $API_URL >> .env
+            cat .env
             npm install
             npm run build
       - run:
@@ -307,7 +309,7 @@ jobs:
           name: Backend smoke test.
           command: |
             BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/BACKEND_IP)
-            URL="https://${BACKEND_IP}:3000/api/status"
+            URL="http://${BACKEND_IP}:3030/api/status"
             echo $URL
             if curl -s $URL
             then
