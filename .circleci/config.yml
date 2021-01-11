@@ -251,8 +251,6 @@ jobs:
             BACKEND_IP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/BACKEND_IP)
             export API_URL="http://${BACKEND_IP}:3030"
             echo $API_URL
-            echo $API_URL >> .env
-            cat .env
             npm install
             npm run build
       - run:
@@ -322,7 +320,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
             echo $URL
             if curl -s $URL | grep "Welcome"
             then
@@ -332,8 +330,8 @@ jobs:
               echo "It failed"
               return 1
             fi
-      #- destroy-environment  
-      #- revert-migrations  
+      - destroy-environment  
+      - revert-migrations  
 
 #   cloudfront-update:
 #     docker:
