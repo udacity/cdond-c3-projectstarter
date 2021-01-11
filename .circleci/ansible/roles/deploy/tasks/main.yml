@@ -4,7 +4,6 @@
     state: directory
 
 - name: Unarchive backend dist
-  become: true
   unarchive:
     src: /root/project/backend.tar.gz
     dest: /home/ubuntu/backend
