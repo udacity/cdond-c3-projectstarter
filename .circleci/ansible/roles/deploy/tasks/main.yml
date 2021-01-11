@@ -9,10 +9,8 @@
     dest: /home/ubuntu/backend
     
 - name: Install Node modules
-  become: true
   shell: |
     cd /home/ubuntu/backend
-    npm install -g npm@latest
     npm install
 
 - name: Executing node
