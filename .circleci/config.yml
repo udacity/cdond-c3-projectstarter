@@ -368,6 +368,7 @@ jobs:
           command: |
             pwd
             ls -lart
+            cat backend/src/migrations/migrationResults.txt
             if [ $(cat backend/src/migrations/migrationResults.txt | grep "has been executed successfully" | wc -l) = 3 ]
             then
             curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "successful" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
