@@ -286,10 +286,14 @@ jobs:
             pip install awscli
       - run:
           name: Deploy backend
-          working_directory: ./.circleci/ansible
+          no_output_timeout: 30m
           command: |
+            tar -C backend -czvf artifact.tar.gz .
+            ls
+            cd ./.circleci/ansible
             ls
             cat inventory
+            ls
             ansible-playbook -i inventory deploy-backend.yml
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}

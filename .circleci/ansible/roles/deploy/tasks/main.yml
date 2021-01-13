@@ -1,22 +1,22 @@
-- name: Creates directory
-  file:
-    path: /home/ubuntu/backend
-    state: directory
-
 - name: Transfer backend files cloud server
   copy:
-    src: /root/project/backend/dist
-    dest: /home/ubuntu/backend
+    src: /root/project/backend/
+    dest: /home/ubuntu
 
-- name: "Update npm"
-  become: true
+- name: Install Node modules
   shell: |
     cd /home/ubuntu/backend
-    npm install -g npm@latest
-    
+    ls -la
+    npm install
+
+- name: building backend
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+
 - name: Executing node
   become: true
   shell: |
-    cd /home/ubuntu/backend/
-    pm2 start -f ./main.js
+    cd /home/ubuntu/backend 
+    pm2 start npm --name backend -- start
     pm2 ls
