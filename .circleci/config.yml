@@ -25,6 +25,10 @@ commands:
         type: string
     steps:
       - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl
+      - run:
           name: Revert migrations
           command: |
             curl -H "Content-Type: text/plain" -H "token: 39699d09-1e0c-450c-9d99-23305383daef"
