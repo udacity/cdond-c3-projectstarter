@@ -31,15 +31,16 @@ commands:
       - run:
           name: Revert migrations
           command: |
-            curl -H "Content-Type: text/plain" -H "token: 39699d09-1e0c-450c-9d99-23305383daef"
             SUCCESS=$(curl -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request GET https://api.memstash.io/values/udapeople_migration)
             echo $SUCCESS
             if [[ "$SUCCESS" == "success" ]]
             then
               pwd
+              cd backend
               ls -la
               npm run migrations:revert
             fi
+          when: on_fail
 jobs:
   build-frontend:
     docker:
