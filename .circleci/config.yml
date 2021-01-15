@@ -313,6 +313,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl nodejs npm
+            pip install awscli
       - run:
           name: Frontend smoke test.
           command: |
