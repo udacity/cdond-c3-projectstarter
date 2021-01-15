@@ -326,7 +326,6 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
-            # BACKEND_IP=$(curl -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request GET https://api.memstash.io/udapeople_backend/)
             curl "http://${BACKEND_IP}:3030/api/status"
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
