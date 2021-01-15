@@ -1,43 +1,20 @@
----
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-
-- name: "install pm2"
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-
-- name: Creates directory
-  file:
-    path: /home/ubuntu/backend
-    state: directory
-
-- name: Copy backend dist files web server
+- name: Transfer backend files cloud server
   copy:
-    src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/backend/artifact.tar.gz
+    src: /root/project/backend/
+    dest: /home/ubuntu
 
-- name: Uncompress Backend
+- name: Install Node modules
   shell: |
     cd /home/ubuntu/backend
-    tar xvzf artifact.tar.gz -C .
     ls -la
-    
-- name: Build
-  become: true
+    npm install
+- name: building backend
   shell: |
     cd /home/ubuntu/backend
-    npm install
     npm run build
-
-- name: Start PM2
+- name: Executing node
+  become: true
   shell: |
     cd /home/ubuntu/backend 
     pm2 start npm --name backend -- start
+    pm2 ls
