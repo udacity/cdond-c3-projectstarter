@@ -13,7 +13,7 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
           when: on_fail
       - run:
-          name: Destroy udapeaple backend cfn stack
+          name: Destroy udapeaple frontend cfn stack
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
           when: on_fail
@@ -417,7 +417,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
