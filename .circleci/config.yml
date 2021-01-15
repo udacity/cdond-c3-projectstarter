@@ -322,11 +322,22 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            BACKEND_IP=$(aws ec2 describe-instances \
+            export BACKEND_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text)
-            curl "http://${BACKEND_IP}:3030/api/status"
+            export BACKEND_DNS=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicDnsName' \
+              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+            echo "BACKENDIP: ${BACKENDIP}"
+            echo "BACKENDNS: ${BACKENDDNS}"
+            
+            pwd
+            ls -la
+            cat ~/project/backend/.env
+            echo "http://${BACKEND_IP}:3030"
+            curl "http://${BACKEND_DNS}:3030/api/status"
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
