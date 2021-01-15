@@ -322,22 +322,11 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
-            export BACKEND_DNS=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicDnsName' \
-              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
-            echo "BACKENDIP: ${BACKENDIP}"
-            echo "BACKENDNS: ${BACKENDDNS}"
-            
-            pwd
-            ls -la
-            cat ~/project/backend/.env
-            echo "http://${BACKEND_IP}:3030"
-            curl "http://${BACKEND_DNS}:3030/api/status"
+            BACKEND_IP=$(curl -H "token: 39699d09-1e0c-450c-9d99-23305383daef" \
+                        --request GET https://api.memstash.io/values/IP)
+            URL="http://$BACKEND_IP:3030/api/status"
+            echo $URL
+            curl $URL
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
