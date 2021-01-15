@@ -314,11 +314,6 @@ jobs:
           command: |
             apk add --update curl nodejs npm
       - run:
-          name: Backend smoke test.
-          command: |
-            export BACKEND_IP=$(curl -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request GET https://api.memstash.io/udapeople_backend/)
-            curl "$BACKEND_IP/api/status"
-      - run:
           name: Frontend smoke test.
           command: |
             URL = "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com"
@@ -326,8 +321,13 @@ jobs:
             then
               return 1
             else
-              return 1
+              return 0
             fi
+      - run:
+          name: Backend smoke test.
+          command: |
+            BACKEND_IP=$(curl -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request GET https://api.memstash.io/udapeople_backend/)
+            curl "http://${BACKEND_IP}/api/status"
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
