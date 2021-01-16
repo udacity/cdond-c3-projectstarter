@@ -5,16 +5,29 @@
 
 - name: Install Node modules
   shell: |
-    cd /home/ubuntu/backend
+    cd /home/ubuntu
     ls -la
     npm install
+
 - name: building backend
   shell: |
-    cd /home/ubuntu/backend
+    cd /home/ubuntu/
     npm run build
+
 - name: Executing node
   become: true
   shell: |
-    cd /home/ubuntu/backend 
-    pm2 start npm --name backend -- start
+    cd /home/ubuntu/dist
+    pm2 start -f ./main.js
     pm2 ls
+  environment:
+     ENVIRONMENT: production
+     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+     TYPEORM_MIGRATIONS_DIR: "./migrations"
+     TYPEORM_MIGRATIONS: "./migrations/*.js"
+     TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
+     TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+     TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+     TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+     TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+     TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
