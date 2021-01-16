@@ -135,6 +135,9 @@ jobs:
       - run:
           name: Back-End Package Audit
           command: cd backend && npm audit --audit-level=critical
+      - save_cache:
+          paths: [backend/node_modules]
+          key: scan-backend
 
   deploy-infrastructure:
     docker:
@@ -408,6 +411,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update
+      - cloudfront-update:
+          requires: [deploy-backend, deploy-frontend]
       # - cleanup:
       #     requires: [cloudfront-update]
