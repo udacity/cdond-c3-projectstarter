@@ -24,10 +24,10 @@ commands:
       id:
         type: string
     steps:
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update curl
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       apk add --update curl
       - run:
           name: Revert migrations
           command: |
