@@ -360,7 +360,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name udapeaple-cloudfront \
-              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
 
             curl -H "Content-Type: text/plain" -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request PUT --data "$WorkflowID" https://api.memstash.io/values/WorkflowID
