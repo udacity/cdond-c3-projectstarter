@@ -151,7 +151,6 @@ jobs:
               --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>" \
               --tags project=udapeople
-              exit 1
       - run:
           name: Ensure front-end infrastructure exist
           command: |
