@@ -1,9 +1,6 @@
 # Use the latest 2.1 version of CircleCI pipeline process engine. See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-orbs:
-  slack: circleci/slack@4.2.0
-
 jobs:  
   build-frontend:
     docker:
@@ -22,13 +19,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build  # -<< pipeline.id >>
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1        
-          
+
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -48,13 +39,7 @@ jobs:
       - save_cache:
           paths: [backend/dist]
           key: backend-dist  # -<< pipeline.id >>
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-          
+
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -67,13 +52,7 @@ jobs:
           command: |
             cd frontend
             npm run test
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-          
+                
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -86,13 +65,6 @@ jobs:
           command: |
             cd backend
             npm run test
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-          
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -104,14 +76,7 @@ jobs:
           name: Font-end security scan
           command: |
             cd frontend
-            npm audit --audit-level=critical --force
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-          
+            npm audit --audit-level=critical
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -123,20 +88,48 @@ jobs:
           name: Back-end security scan
           command: |
             cd backend
-            npm audit --audit-level=critical --force
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
-          
+            npm audit --audit-level=critical
+    
+  deploy-infrastructure:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - aws-cli/setup
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
+              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>" \
+              --tags project=udapeople
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --stack-name "udapeople-frontend-<< pipeline.parameters.workflow-id >>" \
+              --parameter-overrides ID="<< pipeline.parameters.workflow-id >>" \
+              --tags project=udapeople
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople" \
+              --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      - destroy-environment
+      
 workflows:
   default:
     jobs:
       - build-frontend
-      - test-frontend
       - build-backend
-      - test-backend:
-          requires: [build-backend]
-
+      - deploy-infrastructure:
+          requires: [build-frontend, build-backend]
