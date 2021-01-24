@@ -118,7 +118,7 @@ jobs:
           event: pass
           template: success_tagged_deploy_1
           
-scan-backend:
+  scan-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -137,7 +137,7 @@ scan-backend:
           event: pass
           template: success_tagged_deploy_1        
           
-deploy-infrastructure:
+  deploy-infrastructure:
     docker:
       - image: cimg/base:2020.01
     steps:
