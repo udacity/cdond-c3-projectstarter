@@ -234,8 +234,11 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             # ---
             cd backend
+            sudo npm install -g npm@latest
+            sudo npm install -g webpack-dev-server
             sudo npm install
-            npm audit fix --audit-level=critical --force
+            sudo npm run build
+            # npm audit fix --audit-level=critical --force
             # sudo npm run build
             sudo npm run migrations > migration.log
             cat migration.log
