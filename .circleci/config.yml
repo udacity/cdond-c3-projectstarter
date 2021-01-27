@@ -208,7 +208,56 @@ jobs:
           when: on_fail
           command: |
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-   
+
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - aws-cli/setup
+      - run:
+          name: Run migrations
+          command: |
+            echo ENVIRONMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            # ---
+            cd backend
+            sudo npm install
+            # npm audit fix --audit-level=critical --force
+            # sudo npm run build
+            sudo npm run migrations > migration.log
+            cat migration.log
+            migration_status=$(cat migration.log | grep -c "has been executed successfully")
+            if [ $migration_status > 0 ]; then exit 0; else exit 1; fi;
+      - run:
+          name: Send migration results to memstash
+          command: |
+            curl -H "Content-Type: text/plain" \
+              -H "token: << pipeline.parameters.memstash-token >>" \
+              --request PUT --data "1" \
+              https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            export SUCCESS=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
+            if(( $SUCCESS==1 )); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
+            fi
+            
 workflows:
   default:
     jobs:
@@ -218,3 +267,5 @@ workflows:
           requires: [build-frontend, build-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]  
