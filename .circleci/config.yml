@@ -237,7 +237,7 @@ jobs:
             sudo npm i -g npm-check-updates
             sudo npm-check-updates -u
             sudo npm install
-            # sudo npm audit fix --audit-level=critical --force
+            sudo npm audit fix --audit-level=critical --force
             # sudo npm run build
             sudo npm run migrations > migration.log
             cat migration.log
