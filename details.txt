@@ -1,0 +1,16 @@
+A text file named urls.txt including:
+- Public Url to GitHub repository (not private) [URL01]
+- Public URL for your S3 Bucket [URL02]
+- Public URL for your CloudFront distribution (aka, your blue production front-end) [URL03]
+- Public URLs to deployed application back-end in EC2 [URL04]
+- Public URL to your Prometheus Server [URL05]
+
+SCREENSHOTS
+- Appropriate job failure for infrastructure creation. [SCREENSHOT05]
+- Appropriate job failure for the smoke test job. [SCREENSHOT06]
+- Successful rollback after a failed smoke test. [SCREENSHOT07]
+- Successful promotion job. [SCREENSHOT08]
+- Successful cleanup job. [SCREENSHOT09]
+- Only deploy on pushed to master branch. [SCREENSHOT10]
+- Provide a screenshot of a graph of your EC2 instance including available memory, available disk space, and CPU usage. [SCREENSHOT11]
+- Provide a screenshot of an alert that was sent by Prometheus. [SCREENSHOT12]
