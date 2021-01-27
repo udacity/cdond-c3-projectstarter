@@ -237,9 +237,8 @@ jobs:
             sudo npm install -g npm@latest
             sudo npm install -g webpack-dev-server
             sudo npm install
+            npm audit fix --force
             sudo npm run build
-            # npm audit fix --audit-level=critical --force
-            # sudo npm run build
             sudo npm run migrations > migration.log
             cat migration.log
             migration_status=$(cat migration.log | grep -c "has been executed successfully")
