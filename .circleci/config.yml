@@ -385,8 +385,10 @@ jobs:
               
               echo Old workflow Id: "${OldWorkflowID}"
               echo STACKS: "$STACKS"
-
-              if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+              
+              CurrentWorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
+              
+              if [[ "$CurrentWorkflowID" != "$OldWorkflowID" ]]
                 then
                   aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
                   aws s3 rb s3://udapeople-${OldWorkflowID} --force
