@@ -44,13 +44,16 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: frontend-build
+          keys: frontend-build
       - run:
           name: Run front end tests
           command: |
             echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~ # below shows the node_modules but no dist
+            
             ls frontend/
             cd frontend
+            npm install
+            npm run build
             npm run test
               
   test-backend:
@@ -59,7 +62,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          key: backend-build
+          keys: backend-build
       - run:
           name: Run back end tests
           command: |
