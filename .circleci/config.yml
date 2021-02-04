@@ -1,17 +1,26 @@
 version: 2.1
 
 jobs:
+  build-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name:
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            npm run start
+
   build-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      #- add_ssh_keys: 
-      #    fingerprints: ["08:ef:be:f8:68:84:01:c7:e0:ec:b9:54:79:1c:a9:6c"]
-      #- restore_cache:
-      #    keys: [frontend-build]
       - run:
-          name: Build front-end
+          name: Build backend
           command: |
             # Your code here
             #
@@ -26,4 +35,5 @@ jobs:
 workflows:
   default:
     jobs:
+      - build-frontend
       - build-backend
