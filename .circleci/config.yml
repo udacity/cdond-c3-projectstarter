@@ -91,7 +91,7 @@ jobs:
         - run:
             name: Run back end audit
             command: |
-              cd frontened
+              cd backend
               npm audit --audit-level=critical
 
 
