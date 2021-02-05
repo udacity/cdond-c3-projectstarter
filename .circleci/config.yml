@@ -1,5 +1,7 @@
 version: 2.1
-
+orbs:
+  
+  slack: circleci/slack@4.1
 jobs:
   build-frontend:
     docker:
@@ -91,8 +93,12 @@ jobs:
             name: Run back end audit
             command: |
               cd backend
-              npm audit fix --audit-level=critical --force
-
+              #npm audit fix --audit-level=critical --force
+              npm audit --audit-level=critical
+        - slack/notify:
+            channel: ABCXYZ
+            event: fail
+            template: basic_fail_1
 
 
 workflows:
@@ -106,5 +112,6 @@ workflows:
           requires: [build-backend]
       - scan-backend:
           requires: [build-backend]
+          context: slack-secrets
       - scan-frontend:
           requires: [build-frontend]
