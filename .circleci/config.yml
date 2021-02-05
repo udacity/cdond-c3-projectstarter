@@ -81,7 +81,6 @@ jobs:
           command: |
             cd frontend
             npm audit fix --audit-level=critical --force
-
   scan-backend:
       docker:
         - image: circleci/node:13.8.0
@@ -112,6 +111,5 @@ workflows:
           requires: [build-backend]
       - scan-backend:
           requires: [build-backend]
-          context: slack-secrets
       - scan-frontend:
           requires: [build-frontend]
