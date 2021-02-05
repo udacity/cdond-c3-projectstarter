@@ -47,7 +47,6 @@ jobs:
       - run:
           name: Run front end tests
           command: |
-            echo ~~~~~~~~~~~~~~~~~~~~~~~~~~~ # below shows the node_modules but no dist
             
             ls frontend/
             cd frontend
@@ -92,7 +91,7 @@ jobs:
             name: Run back end audit
             command: |
               cd backend
-              npm audit --audit-level=critical
+              npm audit --audit-level=critical --force
 
 
 
