@@ -81,6 +81,10 @@ jobs:
           command: |
             cd frontend
             npm audit fix --audit-level=critical --force
+      - slack/notify:
+          channel: testing-circleci
+          event: pass
+          template: basic_fail_1
   scan-backend:
       docker:
         - image: circleci/node:13.8.0
