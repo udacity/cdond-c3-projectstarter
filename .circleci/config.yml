@@ -84,7 +84,6 @@ jobs:
       - slack/notify:
           channel: testing-circleci
           event: pass
-          message: "Vulnerability front end test ran sucessfully"
           template: success_tagged_deploy_1
   scan-backend:
       docker:
