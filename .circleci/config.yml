@@ -84,6 +84,18 @@ jobs:
       - slack/notify:
           channel: testing-circleci
           event: pass
+          custom: | 
+            {
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "Successful: $CIRCLE_USERNAME's build of \n<$CIRCLE_BUILD_URL|$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME>\n(<https://app.circleci.com/pipelines/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME?branch=$CIRCLE_BRANCH|$CIRCLE_BRANCH>) \n- <$CIRCLE_BUILD_URL|$CIRCLE_JOB> Deployed Succesfully" 
+                        }
+                    }
+                ]
+            }
           template: success_tagged_deploy_1
   scan-backend:
       docker:
