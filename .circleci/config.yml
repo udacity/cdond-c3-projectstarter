@@ -400,16 +400,40 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
+      - build-frontend:
+          filters:
+            branches:
+              only:
+                - master
+      - build-backend:
+          filters:
+            branches:
+              only:
+                - master
       - test-frontend:
           requires: [build-frontend]
+          filters:
+            branches:
+              only:
+                - master
       - test-backend:
           requires: [build-backend]
+          filters:
+            branches:
+              only:
+                - master
       - scan-backend:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - build-backend
       - scan-frontend:
+          filters:
+            branches:
+              only:
+                - master
           requires:
             - build-frontend
       - deploy-infrastructure:
