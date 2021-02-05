@@ -84,7 +84,7 @@ jobs:
       - slack/notify:
           channel: testing-circleci
           event: pass
-          template: basic_fail_1
+          template: success_tagged_deploy_1
   scan-backend:
       docker:
         - image: circleci/node:13.8.0
