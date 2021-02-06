@@ -1,24 +1,33 @@
 version: 2.1
-
+orbs:
+  
+  slack: circleci/slack@4.1
 jobs:
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name:
           command: |
             cd frontend
             npm install
             npm run build
-            npm run start
+
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
 
   build-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Build backend
           command: |
@@ -27,13 +36,142 @@ jobs:
             cd backend
             npm install
             npm run build
-            npm run start
-      #- save_cache:
-      #    paths: [frontend/node_modules]
-      #    key: frontend-build
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
+  test-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: frontend-build
+      - run:
+          name: Run front end tests
+          command: |
+            
+            ls frontend/
+            cd frontend
+            npm install
+            npm run build
+            npm run test
+              
+  test-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: backend-build
+      - run:
+          name: Run back end tests
+          command: |
+            cd backend
+            npm run test
 
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: frontend-build
+      - run:
+          name: Run front end audit
+          command: |
+            cd frontend
+            npm audit fix --audit-level=critical --force
+      - slack/notify:
+          channel: testing-circleci
+          event: pass
+          custom: | 
+            {
+                "blocks": [
+                    {
+                        "type": "section",
+                        "text": {
+                            "type": "mrkdwn",
+                            "text": "Successful: $CIRCLE_USERNAME's build of \n<$CIRCLE_BUILD_URL|$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME>\n(<https://app.circleci.com/pipelines/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME?branch=$CIRCLE_BRANCH|$CIRCLE_BRANCH>) \n- <$CIRCLE_BUILD_URL|$CIRCLE_JOB> Deployed Succesfully" 
+                        }
+                    }
+                ]
+            }
+          template: success_tagged_deploy_1
+  scan-backend:
+      docker:
+        - image: circleci/node:13.8.0
+      steps:
+        - checkout
+        - restore_cache:
+            keys: backend-build
+        - run:
+            name: Run back end audit
+            command: |
+              cd backend
+              npm audit fix --audit-level=critical --force
+              #npm audit --audit-level=critical
+        - slack/notify:
+            channel: testing-circleci
+            event: fail
+            #template: basic_fail_1
+            custom: | 
+              {
+                  "blocks": [
+                      {
+                          "type": "section",
+                          "text": {
+                              "type": "mrkdwn",
+                              "text": "Failed: $CIRCLE_USERNAME's build of \n<$CIRCLE_BUILD_URL|$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME>\n(<https://app.circleci.com/pipelines/github/$CIRCLE_PROJECT_USERNAME/$CIRCLE_PROJECT_REPONAME?branch=$CIRCLE_BRANCH|$CIRCLE_BRANCH>) \n- <$CIRCLE_BUILD_URL|$CIRCLE_JOB> failed" 
+                          }
+                      }
+                  ]
+              }
+
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy --template-file .circleci/files/backend.yml --tags project=udacity --stack-name backend-${CIRCLE_WORKFLOW_ID} --parameter-overrides ID=backend-${CIRCLE_WORKFLOW_ID} 
+              # --tags project=mod3-sect2-back-end 
+              #--tags project=your-tag \
+              # --stack-name "your back-end stack name with workflow id" \
+              #--parameter-overrides ID="your workflow id"  
+              exit 1
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy --template-file .circleci/files/frontend.yml --tags project=udacity --stack-name frontend-${CIRCLE_WORKFLOW_ID} --parameter-overrides ID=frontend-${CIRCLE_WORKFLOW_ID}
+              # --tags project=mod3-sect2-front-end
+              exit 1
+      #- run:
+      #    name: Add back-end ip to ansible inventory
+      #    command: |
+      #      # Your code here
+      #      exit 1
+      #- persist_to_workspace:
+      #    root: ~/
+      #    paths:
+      #      - project/.circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure
 workflows:
   default:
     jobs:
       - build-backend
       - build-frontend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          #filters:
+          #  branches:
+          #    only: [cdond-c3-projectstarter]
