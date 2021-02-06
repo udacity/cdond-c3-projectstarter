@@ -373,6 +373,8 @@ jobs:
             then
             curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "successful" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             else
+            echo "########### MIGRATION RESULTS ################"
+            cat backend/src/migrations/migrationResults.txt
             curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "error" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             exit 1
             fi
