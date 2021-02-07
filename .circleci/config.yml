@@ -395,11 +395,6 @@ jobs:
       - run:
           name: add tar and gzip tool
           command: yum install -y tar gzip
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get -y update
-            sudo apt-get -y install software-properties-common
       - attach_workspace:
           at: .
       - run:
