@@ -369,7 +369,7 @@ jobs:
             pwd
             ls -lart
             cat backend/src/migrations/migrationResults.txt
-            if [ $(cat backend/src/migrations/migrationResults.txt | grep "has been executed successfully" | wc -l) = 3 ]
+            if [ $(cat backend/src/migrations/migrationResults.txt | grep "has been executed successfully" | wc -l) = 3 ] || [ $(cat backend/src/migrations/migrationResults.txt | grep "No migrations are pending" | wc -l) > 0 ]
             then
             curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "successful" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             else
@@ -400,16 +400,22 @@ jobs:
           command: |
             sudo apt-get -y update
             sudo apt-get -y install software-properties-common
+      - attach_workspace:
+          at: .
       - run:
           name: Get backend url
           command: |
-            # your code here
+            export BACKEND_IP=$(tail -1 .circleci/ansible/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "### API URL FOUND: ${API_URL}"
+            cd frontend
+            npm run build
       - run:
           name: Deploy frontend objects
           command: |
             # your code here
+            aws s3 sync frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+
       # Here's where you will add some code to rollback on failure
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
