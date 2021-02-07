@@ -397,6 +397,14 @@ jobs:
           command: yum install -y tar gzip
       - attach_workspace:
           at: .
+
+      - name: "install dependencies."
+        become: yes
+        apt:
+          name: ["nodejs", "npm"]
+          state: latest
+          update_cache: yes
+
       - run:
           name: Get backend url
           command: |
@@ -405,6 +413,7 @@ jobs:
             echo "### API URL FOUND: ${API_URL}"
             cd frontend
             npm run build
+
       - run:
           name: Deploy frontend objects
           command: |
