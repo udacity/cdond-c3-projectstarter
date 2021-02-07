@@ -394,16 +394,14 @@ jobs:
       - checkout
       - run:
           name: add tar and gzip tool
-          command: yum install -y tar gzip
+          become: true
+          command: |
+            yum install -y tar gzip
+            curl –sL https://rpm.nodesource.com/setup_10.x | sudo bash -
+            yum install –y nodejs
+
       - attach_workspace:
           at: .
-
-      - name: "install dependencies."
-        become: yes
-        apt:
-          name: ["nodejs", "npm"]
-          state: latest
-          update_cache: yes
 
       - run:
           name: Get backend url
