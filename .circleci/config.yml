@@ -166,6 +166,26 @@ jobs:
           paths:
             - inventory.txt
 
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["08:ef:be:f8:68:84:01:c7:e0:ec:b9:54:79:1c:a9:6c"]
+      - attach_workspace:
+          at: .circleci/ansible/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+                python3 \
+                py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install \
+                awscli \
+            && rm -rf /var/cache/apk/*
+            apk add --update ansible
 
 workflows:
   default:
@@ -185,3 +205,5 @@ workflows:
           #filters:
           #  branches:
           #    only: [cdond-c3-projectstarter]
+      - configure-infrastucture:
+          requires: [deploy-infrastructure]
