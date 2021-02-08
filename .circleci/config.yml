@@ -186,7 +186,10 @@ jobs:
                 awscli \
             && rm -rf /var/cache/apk/*
             apk add --update ansible
-
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i inventory.txt playbook.yml
 workflows:
   default:
     jobs:
