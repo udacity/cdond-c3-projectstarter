@@ -130,7 +130,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum -y install tar gzip
+      
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -146,6 +146,8 @@ jobs:
           command: |
             aws cloudformation deploy --template-file .circleci/files/frontend.yml --tags project=udacity --stack-name frontend-${CIRCLE_WORKFLOW_ID} --parameter-overrides ID=frontend-${CIRCLE_WORKFLOW_ID}
               #exit 1
+      - run: yum -y install tar gzip
+             sleep 60
       - run:
           name: Add back-end ip to ansible inventory
           command: |
