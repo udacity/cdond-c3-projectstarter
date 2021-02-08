@@ -189,7 +189,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i inventory.txt playbook.yml
+            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
 workflows:
   default:
     jobs:
