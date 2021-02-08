@@ -159,7 +159,7 @@ jobs:
               --filters "Name=tag:project,Values=udacity" \
               --output text >> .circleci/ansible/inventory.txt
             ls -la .circleci/ansible/inventory.txt
-            cat ~/.circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
             ls ~/
       - persist_to_workspace:
           root: .circleci/ansible
