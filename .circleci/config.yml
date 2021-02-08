@@ -161,7 +161,7 @@ jobs:
             ls -la .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: cdond-c3-projectstarter
+          root: ~/
           paths:
             - .circleci/ansible/inventory.txt
 
