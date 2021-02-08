@@ -151,7 +151,6 @@ jobs:
       - run: 
           command: |  
             yum -y install tar gzip
-            sleep 60
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -159,7 +158,14 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udacity" \
               --output text >> .circleci/ansible/inventory.txt
+            ls -la .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ansible
+          paths:
+            - .circleci/ansible/inventory.txt
+
+
 workflows:
   default:
     jobs:
