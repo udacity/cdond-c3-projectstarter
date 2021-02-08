@@ -162,9 +162,9 @@ jobs:
             cat ~/.circleci/ansible/inventory.txt
             ls ~/
       - persist_to_workspace:
-          root: ~/
+          root: .circleci/ansible
           paths:
-            - ~/inventory.txt
+            - inventory.txt
 
 
 workflows:
