@@ -168,7 +168,7 @@ jobs:
           paths:
             - inventory.txt
 
-  configure-infrastucture:
+  configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
     steps:
@@ -196,7 +196,7 @@ jobs:
 
   run-migrations:
     docker:
-      -image: circleci/node:13.8.0
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
@@ -227,7 +227,7 @@ jobs:
             fi
             exit 1
      # Here's where you will add some code to rollback on failure
-      - revert-migrations
+        
 workflows:
   default:
     jobs:
@@ -246,7 +246,7 @@ workflows:
           #filters:
           #  branches:
           #    only: [cdond-c3-projectstarter]
-      - configure-infrastucture:
+      - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
