@@ -211,6 +211,8 @@ jobs:
             TYPEORM_USERNAME=$TYPEORM_USERNAME
             TYPEORM_PASSWORD=$TYPEORM_PASSWORD
             TYPEORM_DATABASE=$TYPEORM_DATABASE
+            echo TYPEORM_HOST
+            echo TYPEORM_HOST
             npm install
             touch migrations_log.txt
             npm run migrations >> migrations_log.txt
