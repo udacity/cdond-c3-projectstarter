@@ -155,6 +155,7 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             rm .circleci/ansible/inventory.txt # clears the inventory file to have only the existing instances
+            echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udacity" \
@@ -175,7 +176,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["08:ef:be:f8:68:84:01:c7:e0:ec:b9:54:79:1c:a9:6c"]
       - attach_workspace:
-          at: /tmp/ansible
+          at: /tmp/.circleci/ansible
       - run:
           name: Install dependencies
           command: |
@@ -190,8 +191,8 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cat /tmp/ansible/inventory.txt
-            ansible-playbook -i /tmp/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            cat /tmp/.circleci/ansible/inventory.txt
+            ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
 workflows:
   default:
     jobs:
