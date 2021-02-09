@@ -16,7 +16,7 @@
 
     - name: "update server"
       become: true
-      raw: apt install -y nodejs
+      raw: apt install -y npm
 
     - name: "install python for Ansible."
       become: true
