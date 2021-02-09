@@ -217,7 +217,6 @@ jobs:
             touch migrations_log.txt
             npm run migrations >> migrations_log.txt
             cat migrations_log.txt
-            exit 1
       - run:
           name: Send migration results to memstash
           command: |
@@ -225,7 +224,6 @@ jobs:
             if grep "has been executed successfully" backend/migrations_log.txt;
             then curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}; \
             fi
-            exit 1
      # Here's where you will add some code to rollback on failure
         
 workflows:
