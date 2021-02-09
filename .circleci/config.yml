@@ -155,6 +155,7 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             rm .circleci/ansible/inventory.txt # clears the inventory file to have only the existing instances
+            echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udacity" \
