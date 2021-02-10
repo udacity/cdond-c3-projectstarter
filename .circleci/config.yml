@@ -260,12 +260,14 @@ jobs:
       - run:
           name: Get backend url
           command: |
+            ccd frontend
             export BACKEND_IP=$(aws ec2 describe-instances \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
+            echo "API=$API_URL" >> .env
       - run:
           name: Deploy frontend objects
           command: |
@@ -450,5 +452,3 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [deploy-backend, deploy-frontend]
-      - cleanup:
-          requires: [cloudfront-update]
