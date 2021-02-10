@@ -203,24 +203,24 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            ENVIRONMENT=production
-            TYPEORM_CONNECTION=$TYPEORM_CONNECTION
-            TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR
-            TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS
-            TYPEORM_HOST=$TYPEORM_HOST 
-            TYPEORM_PORT=$TYPEORM_PORT
-            TYPEORM_USERNAME=$TYPEORM_USERNAME
-            TYPEORM_PASSWORD=$TYPEORM_PASSWORD
-            TYPEORM_DATABASE=$TYPEORM_DATABASE
-            TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+            echo ENVIROMENT=$ENVIROMENT > ".env"
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ".env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ".env"
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ".env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ".env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
             echo TYPEORM_HOST
             echo TYPEORM_HOST
-            npm config rm proxy
-            npm config rm https-proxy
-            npm config delete http-proxy
-            npm config delete https-proxy
-            set HTTP_PROXY=null
-            set HTTPS_PROXY=null
+            #npm config rm proxy
+            #npm config rm https-proxy
+            #npm config delete http-proxy
+            #npm config delete https-proxy
+            #set HTTP_PROXY=null
+            #set HTTPS_PROXY=null
             npm install
             touch migrations_log.txt
             npm run migrations >> migrations_log.txt
