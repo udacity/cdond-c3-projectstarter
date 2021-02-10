@@ -393,12 +393,12 @@ jobs:
       # Checkout code from git
       - checkout
       - run:
-          name: add tar and gzip tool
+          name: add tar and gzip sudo and node tool
           become: true
           command: |
-            yum install -y tar gzip
-            curl –sL https://rpm.nodesource.com/setup_10.x | sudo bash -
-            yum install –y nodejs
+            yum install -y tar gzip sudo
+            curl –sL https://rpm.nodesource.com/setup_10.x | sudo -E bash -
+            sudo yum -y install nodejs
 
       - attach_workspace:
           at: .
