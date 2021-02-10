@@ -410,6 +410,9 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "### API URL FOUND: ${API_URL}"
             cd frontend
+            sudo npm install -g npm@5
+            sudo npm i
+            sudo npm i oauth-sign
             npm run build
 
       - run:
