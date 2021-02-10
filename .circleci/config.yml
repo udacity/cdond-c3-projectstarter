@@ -203,6 +203,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            ENVIRONMENT=production
             TYPEORM_CONNECTION=$TYPEORM_CONNECTION
             TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR
             TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS
@@ -211,6 +212,7 @@ jobs:
             TYPEORM_USERNAME=$TYPEORM_USERNAME
             TYPEORM_PASSWORD=$TYPEORM_PASSWORD
             TYPEORM_DATABASE=$TYPEORM_DATABASE
+            TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
             echo TYPEORM_HOST
             echo TYPEORM_HOST
             npm config rm proxy
