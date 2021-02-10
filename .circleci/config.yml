@@ -327,8 +327,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
-            BACKEND_IP=$(curl -H "token: 39699d09-1e0c-450c-9d99-23305383daef" \
-                        --request GET https://api.memstash.io/values/udapeople_backend_url)
+            BACKEND_IP=$(curl -H "token: 39699d09-1e0c-450c-9d99-23305383daef" --request GET https://api.memstash.io/values/udapeople_backend_url)
             URL="$BACKEND_IP/api/status"
             echo $URL
             curl $URL
