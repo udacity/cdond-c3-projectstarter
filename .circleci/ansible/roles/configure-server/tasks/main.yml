@@ -18,9 +18,3 @@
     global: yes
     production: yes
     state: present
-
-- name: "run-migrations"
-  become: true
-  shell:
-    cd backend
-    npm run migrations
