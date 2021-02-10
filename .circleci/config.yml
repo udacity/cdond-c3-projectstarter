@@ -213,6 +213,12 @@ jobs:
             TYPEORM_DATABASE=$TYPEORM_DATABASE
             echo TYPEORM_HOST
             echo TYPEORM_HOST
+            npm config rm proxy
+            npm config rm https-proxy
+            npm config delete http-proxy
+            npm config delete https-proxy
+            set HTTP_PROXY=null
+            set HTTPS_PROXY=null
             npm install
             touch migrations_log.txt
             npm run migrations >> migrations_log.txt
