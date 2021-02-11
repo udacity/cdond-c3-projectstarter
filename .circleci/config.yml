@@ -73,7 +73,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
-             cd backend && npm run build
+             cd backend && npm audit fix
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -437,6 +437,9 @@ workflows:
             - build-frontend
       - deploy-infrastructure:
           requires: [test-frontend, test-backend]
+          filters:
+            branches:
+              only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
