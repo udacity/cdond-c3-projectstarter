@@ -130,14 +130,14 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      - restore_cache:
+          keys: [build-backend]
       - run:
           name: Back-End Package Audit
-          command: cd backend && npm audit fix
-      - save_cache:
-          paths: [backend/node_modules]
-          key: scan-backend
+          command: |
+            cd backend
+            npm update
+            npm audit --audit-level=critical
 
   deploy-infrastructure:
     docker:
