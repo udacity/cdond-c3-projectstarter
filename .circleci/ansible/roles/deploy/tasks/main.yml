@@ -15,12 +15,6 @@
     cd /home/ubuntu/backend   
     ls -la 
     npm install
-    
-- name: "build package"
-  become: true
-  shell: |
-    cd /home/ubuntu/backend
-    npm run build
 
 - name: "run server"
   become: true
