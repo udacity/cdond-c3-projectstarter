@@ -210,8 +210,8 @@ jobs:
             TYPEORM_HOST=$TYPEORM_HOST
             TYPEORM_PORT=5432
             TYPEORM_USERNAME=postgres
-            TYPEORM_PASSWORD=udapeople123
-            TYPEORM_DATABASE=udapeople-prod
+            TYPEORM_PASSWORD=udacity123
+            TYPEORM_DATABASE=udapeopleprd
             npm config rm proxy
             npm config rm https-proxy
             npm config delete http-proxy
