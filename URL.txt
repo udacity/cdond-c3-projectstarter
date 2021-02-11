@@ -1,5 +1,5 @@
 GITHUB URL - https://github.com/kelanik8/cdond-c3-projectstarter
-FRONTEND URL - http://udapeople-ede981d.s3-website-us-west-2.amazonaws.com/
+FRONTEND URL - http://udapeople-8525f50.s3-website-us-west-2.amazonaws.com/#/employees
 BACKEND URL - http://3.129.23.246:3030/
-CLOUDFRONT URL - udapeople-b125024.s3.amazonaws.com
+CLOUDFRONT URL - d1oubgxl6v72ds.cloudfront.net
 PROMETHEUS URL - http://ec2-13-59-95-170.us-east-2.compute.amazonaws.com:9090/classic/graph
