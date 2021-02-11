@@ -211,7 +211,7 @@ jobs:
             echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
             TYPEORM_PORT=5432
             TYPEORM_USERNAME=postgres
-            TYPEORM_PASSWORD=udapeople-123
+            TYPEORM_PASSWORD=udapeople123
             TYPEORM_DATABASE=udapeople-prod
             npm config rm proxy
             npm config rm https-proxy
