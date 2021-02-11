@@ -17,8 +17,8 @@
 - name: Executing node
   become: true
   shell: |
-    cd /home/ubuntu/dist
-    pm2 start -f ./main.js
+    cd /home/ubuntu
+    pm2 start npm run start
     pm2 ls
   environment:
      ENVIRONMENT: production
