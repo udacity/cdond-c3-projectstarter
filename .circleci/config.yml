@@ -212,7 +212,7 @@ jobs:
             TYPEORM_PORT=5432
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
+            echo TYPEORM_DATABASE=udapeople-prod
             echo TYPEORM_HOST
             echo TYPEORM_HOST
             npm config rm proxy
