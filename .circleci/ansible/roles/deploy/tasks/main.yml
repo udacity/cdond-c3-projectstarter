@@ -1,24 +1,32 @@
-- name: Transfer backend files cloud server
+---
+- name: "Creates directory"
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+    
+- name: "Move backend files to remote server."
+  become: true
   copy:
-    src: /root/project/backend/
+    src: /root/project/backend
     dest: /home/ubuntu
 
-- name: Install Node modules
+- name: "Install dependencies"
   shell: |
-    cd /home/ubuntu
-    ls -la
+    cd /home/ubuntu/backend   
+    ls -la 
     npm install
-
-- name: building backend
-  shell: |
-    cd /home/ubuntu/
-    npm run build
-
-- name: Executing node
+    
+- name: "build package"
   become: true
   shell: |
-    cd /home/ubuntu
-    pm2 start npm run start
+    cd /home/ubuntu/backend
+    npm run build
+
+- name: "run server"
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm -- run "start:dev"
     pm2 ls
   environment:
      ENVIRONMENT: production
