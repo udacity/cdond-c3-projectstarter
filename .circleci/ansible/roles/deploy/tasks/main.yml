@@ -20,7 +20,7 @@
   become: true
   shell: |
     cd /home/ubuntu/backend
-    pm2 start npm -- run "start:dev"
+    pm2 start npm run start
     pm2 ls
   environment:
      ENVIRONMENT: production
