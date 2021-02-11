@@ -210,11 +210,9 @@ jobs:
             echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ".env"
             echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
             TYPEORM_PORT=5432
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            TYPEORM_USERNAME=postgres
+            TYPEORM_PASSWORD=udapeople-123
             TYPEORM_DATABASE=udapeople-prod
-            echo TYPEORM_HOST
-            echo TYPEORM_HOST
             npm config rm proxy
             npm config rm https-proxy
             npm config delete http-proxy
