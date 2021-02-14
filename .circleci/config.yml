@@ -246,7 +246,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            BACKEND_IP=grep -v "[web]" /tmp/.circleci/ansible/inventory.txt
+            BACKEND_IP=$(grep -v "[web]" /tmp/.circleci/ansible/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
       #- run:
