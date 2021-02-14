@@ -173,7 +173,7 @@ jobs:
           name: configure the server user
           no_output_timeout: 30m
           command: |
-            ansible-playbook .circleci/ansible/deploy.yml -i .circleci/ansible/inventory.txt
+            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
       # - aws-cli/install
       # - destroy-environment-onfail:
