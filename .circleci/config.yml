@@ -241,7 +241,7 @@ jobs:
           name: Install dependencies
           command: |
             yum -y install tar gzip
-            yum -y install npm
+            yum -y install nodejs npm --enablerepo=epel
       - attach_workspace:
           at: /tmp/.circleci/ansible
       - run:
