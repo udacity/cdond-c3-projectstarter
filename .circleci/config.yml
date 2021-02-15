@@ -234,13 +234,15 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
             yum -y install tar gzip
+            yum -y install nodejs
+            yum -y install npm
       - attach_workspace:
           at: /tmp/.circleci/ansible
       - run:
