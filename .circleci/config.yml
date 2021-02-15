@@ -328,6 +328,9 @@ jobs:
       # Checkout code from git
       - checkout
       # Add ssh keys with fingerprint
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package.json" }}
       - run:
           name: Install dependencies
           become: true
@@ -347,7 +350,7 @@ jobs:
           command: |
             ls -lart backend
             ls -lart /home/circleci/project/backend
-            ls -lart /home/circleci/project/backend/src
+            ls -lart /home/circleci/project/backend/src/modules
             ls -lart backend/node_modules
             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
