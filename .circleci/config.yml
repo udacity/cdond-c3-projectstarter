@@ -252,9 +252,6 @@ jobs:
             export API_URL="https://${BACKEND_IP}:3030"
             echo "${API_URL}"
             echo "${API_URL}" >> "frontend/.env"
-            cd frontend
-            npm install
-            npm run build
       - run:
           name: Deploy frontend objects
           command: |
@@ -264,7 +261,7 @@ jobs:
       - run:
           name: Copy to S3
           command: |
-            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+            aws s3 cp ./frontend/dist s3://udapeople-7ygvcft6/ --recursive
             
         
 workflows:
