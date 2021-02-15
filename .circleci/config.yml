@@ -252,6 +252,7 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
+            cd backend
             npm run build
         
 workflows:
