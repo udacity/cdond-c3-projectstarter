@@ -283,10 +283,10 @@ jobs:
                 awscli \
             && rm -rf /var/cache/apk/*
             apk add --update ansible
-  #    - run:
-  #        name: Deploy backend
-  ##        command: |
-  #          # your code here
+      - run:
+          name: Deploy backend
+          command: |
+            ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
   #    # Here's where you will add some code to rollback on failure  
 workflows:
   default:
