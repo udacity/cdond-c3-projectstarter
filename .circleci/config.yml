@@ -241,7 +241,8 @@ jobs:
           name: Install dependencies
           command: |
             yum -y install tar gzip
-            yum -y install nodejs npm --enablerepo=epel
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
       - attach_workspace:
           at: /tmp/.circleci/ansible
       - run:
@@ -250,6 +251,10 @@ jobs:
             BACKEND_IP=$(grep -v "[web]" /tmp/.circleci/ansible/inventory.txt)
             export API_URL="https://${BACKEND_IP}:3030"
             echo "${API_URL}"
+            echo "${API_URL}" >> "frontend/.env"
+            cd frontend
+            npm install
+            npm run build
       - run:
           name: Deploy frontend objects
           command: |
