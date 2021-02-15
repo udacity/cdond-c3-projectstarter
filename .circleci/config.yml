@@ -347,6 +347,7 @@ jobs:
           command: |
             ls -lart backend
             ls -lart /home/circleci/project/backend
+            ls -lart /home/circleci/project/backend/src
             ls -lart backend/node_modules
             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
