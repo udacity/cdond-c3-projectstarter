@@ -263,7 +263,31 @@ jobs:
           command: |
             aws s3 cp ./frontend/dist s3://udapeople-7ygvcft6/ --recursive
             
-        
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["08:ef:be:f8:68:84:01:c7:e0:ec:b9:54:79:1c:a9:6c"]
+      - attach_workspace:
+          at: /tmp/.circleci/ansible
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --no-cache \
+                python3 \
+                py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install \
+                awscli \
+            && rm -rf /var/cache/apk/*
+            apk add --update ansible
+  #    - run:
+  #        name: Deploy backend
+  ##        command: |
+  #          # your code here
+  #    # Here's where you will add some code to rollback on failure  
 workflows:
   default:
     jobs:
@@ -287,4 +311,6 @@ workflows:
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
           requires: [run-migrations]
