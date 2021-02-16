@@ -31,8 +31,7 @@ jobs:
       - run:
           name: Build backend
           command: |
-            # Your code here
-            #
+
             cd backend
             npm install
             npm run build
@@ -292,14 +291,13 @@ jobs:
   #    # Here's where you will add some code to rollback on failure  
   smoke-test:
       docker:
-        - image: python:3.7-alpine3.11
+        - image: amazon/aws-cli
       steps:
         - checkout
         - run:
             name: Install dependencies
             command: |
-              apt update && apt upgrade
-              apt install curl
+              yum -y install curl
 #      - run:
 #          name: Get backend url
 #          command: |
