@@ -298,6 +298,14 @@ jobs:
             name: Install dependencies
             command: |
               yum -y install curl
+        - attach_workspace:
+            at: /tmp/.circleci/ansible
+        - run:
+            name: Get backend url
+            command: |
+              BACKEND_IP=$(grep -v "[web]" /tmp/.circleci/ansible/inventory.txt)
+              echo "${BACKEND_IP}"
+              curl -Is https://${BACKEND_IP}:3030/api/status | head -n 1
 #      - run:
 #          name: Get backend url
 #          command: |
