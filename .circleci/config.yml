@@ -32,6 +32,7 @@ workflows:
       # - deploy-backend:
       #    requires: [run-migrations]
       - deploy-backend
+          requires: [build-backend]
 ########################################
 
       # - deploy-backend:
