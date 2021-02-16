@@ -157,6 +157,7 @@ jobs:
             cd backend
             sudo npm run build
             ls -lart
+            ls -lart dist
       - save_cache:
           paths:
             - backend/node_modules
