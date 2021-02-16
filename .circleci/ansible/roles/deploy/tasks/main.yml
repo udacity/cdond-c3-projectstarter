@@ -2,7 +2,7 @@
 - name: Copy backend builded files
   become: true
   copy:
-    src: "backend/dist"
+    src: "~/backend/dist"
     dest: "~/web"
 
 - name: Starting the backend
