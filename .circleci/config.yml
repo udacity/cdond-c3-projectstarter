@@ -31,7 +31,7 @@ workflows:
       #    requires: [run-migrations]
       # - deploy-backend:
       #    requires: [run-migrations]
-     # - deploy-backend
+      - deploy-backend
 ########################################
 
       # - deploy-backend:
@@ -352,10 +352,11 @@ jobs:
           name: configure the server user
           no_output_timeout: 30m
           command: |
+            pwd
             ls -lart backend
             ls -lart /home/circleci/project/backend
-            ls -lart /home/circleci/project/backend/node_modules
-            ls -lart backend/node_modules
+            #ls -lart /home/circleci/project/backend/node_modules
+            #ls -lart backend/node_modules
             ls -lart backend/dist
             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure
