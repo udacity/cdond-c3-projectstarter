@@ -19,12 +19,6 @@
     production: yes
     state: present
 
-- name: "list files"
-  become: true
-  shell: |
-    pwd 
-    ls ./dist
-
 - name: "copy files "
   become: true
   copy:
