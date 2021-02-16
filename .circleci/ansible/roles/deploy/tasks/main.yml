@@ -1,6 +1,6 @@
 ---
-- name: Copy app test page
+- name: Copy backend builded files
   copy:
-    src: "backend/dist/"
+    src: "backend/dist"
     dest: "~/web"
 
