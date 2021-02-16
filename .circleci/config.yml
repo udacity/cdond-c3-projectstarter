@@ -285,6 +285,7 @@ jobs:
             apk add --update ansible
       - run:
           name: Deploy backend
+          no_output_timeout: 30m
           command: |
             cat /tmp/.circleci/ansible/inventory.txt
             ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
