@@ -143,7 +143,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - backend-build-{{ checksum "backend/package.json" }}
+            - backend-build-
       - run:
           name: update-npm
           command: |
@@ -162,7 +162,7 @@ jobs:
           paths:
             - backend/node_modules
             - backend/dist
-          key: backend-build-{{ checksum "backend/package.json" }}
+          key: backend-build-${CIRCLE_WORKFLOW_ID:0:7}
 
 
 #norollback
@@ -335,7 +335,7 @@ jobs:
       # Add ssh keys with fingerprint
       - restore_cache:
           keys:
-            - backend-build-{{ checksum "backend/package.json" }}
+            #- backend-build-{{ checksum "backend/package.json" }}
             - backend-build
       - run:
           name: Install dependencies
