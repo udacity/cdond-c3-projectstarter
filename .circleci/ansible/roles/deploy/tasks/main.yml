@@ -1,6 +1,14 @@
 ---
 - name: Copy backend builded files
+  become: true
   copy:
     src: "backend/dist"
     dest: "~/web"
 
+- name: Starting the backend
+  become: true
+  shell: |
+    pwd
+    ls -lart
+    cd ~/web/dist
+    npm run start:prod

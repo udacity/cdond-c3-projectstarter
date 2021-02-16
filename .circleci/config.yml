@@ -8,29 +8,30 @@ parameters:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-         requires: [run-migrations]
-      - deploy-backend:
-         requires: [run-migrations]
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [test-feature-branch]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #    requires: [run-migrations]
+      # - deploy-backend:
+      #    requires: [run-migrations]
+       - deploy-backend
 ########################################
 
       # - deploy-backend:
@@ -114,7 +115,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - frontend-build-{{ checksum "frontend/package.json" }}
+            - frontend-build-
       - run:
           name: installing npm and dependencies
           command: |
@@ -132,7 +133,7 @@ jobs:
             ls
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build-{{ checksum "frontend/package.json" }}
+          key: frontend-build-${CIRCLE_WORKFLOW_ID:0:7}
 #norollback
   build-backend:
     docker:
@@ -173,7 +174,6 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys:
-            - frontend-build-{{ checksum "frontend/package.json" }}
             - frontend-build-
       # Your job code here
       - run:
@@ -203,7 +203,6 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys:
-            - backend-build-{{ checksum "backend/package.json" }}
             - backend-build-
       # Your job code here
       - run:
@@ -232,7 +231,6 @@ jobs:
       # restore from cache
       - restore_cache:
           keys:
-            - frontend-build-{{ checksum "frontend/package.json" }}
             - frontend-build-
       # Your job code here
       - run:
@@ -257,7 +255,6 @@ jobs:
       # Restore from cache
       - restore_cache:
           keys:
-            - backend-build-{{ checksum "backend/package.json" }}
             - backend-build-
       # Your job code here
       - run:
@@ -324,6 +321,7 @@ jobs:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+
   deploy-backend:
     docker:
       - image: cimg/base:2021.01
@@ -354,7 +352,7 @@ jobs:
           command: |
             pwd
             ls -lart backend/dist
-            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
+            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose
       # Here's where you will add some code to rollback on failure
       # - aws-cli/install
       # - destroy-environment-onfail:
