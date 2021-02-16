@@ -290,6 +290,29 @@ jobs:
             cat /tmp/.circleci/ansible/inventory.txt
             ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
   #    # Here's where you will add some code to rollback on failure  
+  smoke-test:
+      docker:
+        - image: python:3.7-alpine3.11
+      steps:
+        - checkout
+        - run:
+            name: Install dependencies
+            command: |
+              yum -y install curl
+#      - run:
+#          name: Get backend url
+#          command: |
+#            # your code here
+#      - run:
+#          name: Backend smoke test.
+#          command: |
+#            # your code here
+#      - run:
+#          name: Frontend smoke test.
+#          command: |
+#            # your code here
+#      # Here's where you will add some code to rollback on failure  
+
 workflows:
   default:
     jobs:
@@ -316,3 +339,5 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
