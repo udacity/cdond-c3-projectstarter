@@ -25,17 +25,20 @@
     src:  app.tar.gz
     dest: /home/ubuntu
 
+- name: Install Node modules
+  shell: |
+    cd /home/ubuntu/backend
+    npm install
+    npm install --only=dev
+
 - name: "show files"
   become: true
   shell: | 
-    tar xzvf /home/ubuntu/app.tar.gz
-    rm /home/ubuntu/app.tar.gz
     ls -la /home/ubuntu
-    
+    ls -la /home/ubuntu/backend
 
-- name: "running backend app"
-  become: true
+- name: Building backend service
   shell: |
-    cd /home/ubuntu/dist
-    ls 
-    pm2 start main.js
+    cd /home/ubuntu/backend
+    npm run build
+    npm run prestart:prod
