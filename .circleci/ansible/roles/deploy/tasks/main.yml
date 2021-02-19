@@ -22,7 +22,7 @@
 - name: "copy files "
   become: true
   copy:
-    src:  app.tar.gz
+    src: /root/project/backend
     dest: /home/ubuntu
 
 - name: Install Node modules
