@@ -22,14 +22,16 @@
 - name: "copy files "
   become: true
   copy:
-    src: /root/project/backend
+    src:  app.tar.gz
     dest: /home/ubuntu
 
 - name: "show files"
   become: true
   shell: | 
+    tar xzvf /home/ubuntu/app.tar.gz
+    rm /home/ubuntu/app.tar.gz
     ls -la /home/ubuntu
-    ls -la /home/ubuntu/dist
+    
 
 - name: "running backend app"
   become: true
