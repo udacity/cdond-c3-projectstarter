@@ -39,6 +39,7 @@
     ls -la /home/ubuntu/backend
 
 - name: Building backend service
+  became: true
   shell: |
     cd /home/ubuntu/backend
     npm run build
