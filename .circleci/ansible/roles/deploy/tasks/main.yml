@@ -25,8 +25,10 @@
     src: /root/project/backend
     dest: /home/ubuntu
 
+
 - name: "running backend app"
   become: true
   shell: |
     cd /home/ubuntu/dist
+    ls 
     pm2 start main.js
