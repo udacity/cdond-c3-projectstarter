@@ -25,6 +25,11 @@
     src: /root/project/backend
     dest: /home/ubuntu
 
+- name: "show files"
+  become: true
+  shell: | 
+    ls -la /home/ubuntu
+    ls -la /home/ubuntu/dist
 
 - name: "running backend app"
   become: true
