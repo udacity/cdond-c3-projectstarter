@@ -26,6 +26,7 @@
     dest: /home/ubuntu
 
 - name: Install Node modules
+  become: true
   shell: |
     cd /home/ubuntu/backend
     npm install
