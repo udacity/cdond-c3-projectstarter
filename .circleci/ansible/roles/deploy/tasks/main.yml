@@ -38,7 +38,7 @@
     ls -la /home/ubuntu
     ls -la /home/ubuntu/backend
 
-- name: Building backend service
+- name: "Building backend service"
   became: true
   shell: |
     cd /home/ubuntu/backend
