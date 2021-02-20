@@ -317,7 +317,7 @@ jobs:
             command: |
               BACKEND_IP=$(grep -v "[web]" /tmp/.circleci/ansible/inventory.txt)
               echo "${BACKEND_IP}"
-              curl -Is https://${BACKEND_IP}:3030/api/status | head -n 1
+              curl -Is http://${BACKEND_IP}:3030/api/status | head -n 1
 #      - run:
 #          name: Get backend url
 #          command: |
