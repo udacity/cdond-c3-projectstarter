@@ -318,23 +318,15 @@ jobs:
               BACKEND_IP=$(grep -v "[web]" /tmp/.circleci/ansible/inventory.txt)
               echo "${BACKEND_IP}"
               curl -Is http://${BACKEND_IP}:3030/api/status | head -n 1
-#      - run:
-#          name: Get backend url
-#          command: |
-#            # your code here
-#      - run:
-#          name: Backend smoke test.
-#          command: |
-#            # your code here
         - run:
             name: Frontend smoke test.
             command: |
               URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
               if curl -s ${URL} | grep "Welcome"
               then
-                return 1
-              else
                 return 0
+              else
+                return 1
               fi
 
 workflows:
