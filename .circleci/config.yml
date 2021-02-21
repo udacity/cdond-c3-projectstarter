@@ -159,8 +159,7 @@ jobs:
             ls -lart dist
       - save_cache:
           paths:
-            - backend/node_modules
-            - backend/dist
+            - backend
           key: backend-build-${CIRCLE_WORKFLOW_ID:0:7}
 
 
@@ -319,7 +318,7 @@ jobs:
       - save_cache:
           paths:
             - .circleci/ansible/inventory.txt
-          key: infra_info-${CIRCLE_WORKFLOW_ID:0:7}
+          key: "infra_info-${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
@@ -356,7 +355,6 @@ jobs:
           no_output_timeout: 30m
           command: |
             pwd
-            ls -lart backend/dist
             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose
       # Here's where you will add some code to rollback on failure
       # - aws-cli/install
