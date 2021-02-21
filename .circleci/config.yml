@@ -133,7 +133,7 @@ jobs:
             ls
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build-${CIRCLE_WORKFLOW_ID:0:7}
+          key: frontend-build-{{ .Environment.CIRCLE_WORKFLOW_ID }}
 #norollback
   build-backend:
     docker:
@@ -160,7 +160,7 @@ jobs:
       - save_cache:
           paths:
             - backend
-          key: backend-build-${CIRCLE_WORKFLOW_ID:0:7}
+          key: backend-build-{{ .Environment.CIRCLE_WORKFLOW_ID }}
 
 
 #norollback
@@ -318,7 +318,7 @@ jobs:
       - save_cache:
           paths:
             - .circleci/ansible/inventory.txt
-          key: "infra_info-${CIRCLE_WORKFLOW_ID:0:7}"
+          key: infra_info-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       # Here's where you will add some code to rollback on failure
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
