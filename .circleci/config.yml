@@ -260,7 +260,7 @@ jobs:
       - run:
           name: Copy to S3
           command: |
-            aws s3 cp ./frontend/dist s3://udapeople-7ygvcft6/ --recursive
+            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
             
   deploy-backend:
     docker:
