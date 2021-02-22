@@ -325,9 +325,9 @@ jobs:
               echo $URL
               if curl -s ${URL} | grep "Welcome"
                 then
-                  return 0
+                  exit
                 else
-                  return 1
+                  exit
                 fi
 
 workflows:
