@@ -2,7 +2,7 @@
 - name: Copy backend builded files
   become: true
   copy:
-    src: /home/circleci/project/backend
+    src: /home/circleci/project/backend/dist
     dest: "/home/ubuntu"
 
 - name: Starting the backend
@@ -10,5 +10,5 @@
   shell: |
     pwd
     ls -lart
-    cd /home/ubuntu/backend
-    npm run start:prod
+    cd /home/ubuntu/dist
+    pm2 start npm -- run start
