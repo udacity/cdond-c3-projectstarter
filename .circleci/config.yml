@@ -61,6 +61,14 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name "<<parameters.cfname>>"
+  empty-bucket-onfail:
+    description: remove objects from the bucket if exist
+    steps:
+      - run:
+          name: emptying bucket
+          when: on_fail
+          command: |
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 # aws cloudformation delete-stack --stack-name "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 # aws cloudformation delete-stack --stack-name "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
             #exit 1
@@ -357,11 +365,12 @@ jobs:
             pwd
             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose
       # Here's where you will add some code to rollback on failure
-      # - aws-cli/install
-      # - destroy-environment-onfail:
-      #     cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-      # - destroy-environment-onfail:
-      #     cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - aws-cli/install
+      - destroy-environment-onfail:
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - empty-bucket-onfail
+      - destroy-environment-onfail:
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
 #with rollback - cimg/base:2021.01
   configure-infrastructure:
@@ -473,6 +482,7 @@ jobs:
       # Here's where you will add some code to rollback on failure
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - empty-bucket-onfail
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -493,28 +503,28 @@ jobs:
             ls -lart .circleci/ansible/
             ls -lart .circleci/ansible/inventory.txt
 
-#   smoke-test:
-#     docker:
-#       # Lightweight Docker image
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#       - run:
-#           name: Backend smoke test.
-#           command: |
-#             # your code here
-#       - run:
-#           name: Frontend smoke test.
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure
+  smoke-test:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      # Checkout code from git
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+      - run:
+          name: Backend smoke test.
+          command: |
+            # your code here
+      - run:
+          name: Frontend smoke test.
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure
 
 #   cloudfront-update:
 #     docker:
