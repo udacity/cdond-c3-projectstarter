@@ -7,6 +7,8 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
+      workflow_id:
+        type: string
     steps:
       - run:
           name: Destroy environments
@@ -19,24 +21,25 @@ commands:
             echo udapeople-frontend-${CIRCLE_WORKFLOW_ID}
             aws s3api delete-bucket --bucket udapeople-frontend-${CIRCLE_WORKFLOW_ID}
             exit 1
-#  revert-migrations:
-#    description: Revert the last migration if successfully run in the current workflow.
-##    parameters:
-#      # Add parameter here     
-#    steps:
-#      - run:
-#          name: Revert migrations
-#          # Add when this will run
-#          command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-#            SUCCESS = 1
-#            if(( $SUCCESS==1 )); 
-#            then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-#              exit 1
-#            fi
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      workflow_id:
+        type: string    
+    steps:
+      - run:
+          name: Revert migrations
+          # Add when this will run
+          command: |
+            SUCCESS=$(curl -H "token: dee226c6-0908-4b16-8db8-ae78275c2360" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
+            SUCCESS = 1
+            if(( $SUCCESS==1 )); 
+            then
+              cd /backend
+              npm install
+              npm run migrations:revert
+              exit 1
+            fi
             
 
 jobs:
@@ -203,6 +206,8 @@ jobs:
           root: .circleci/ansible
           paths:
             - inventory.txt
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
 
   configure-infrastructure:
     docker:
@@ -229,6 +234,8 @@ jobs:
           command: |
             cat /tmp/.circleci/ansible/inventory.txt
             ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
 
   run-migrations:
     docker:
@@ -266,7 +273,10 @@ jobs:
             if grep "has been executed successfully" backend/migrations_log.txt;
             then curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}; \
             fi
-     # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
 
   deploy-frontend:
     docker:
@@ -298,7 +308,11 @@ jobs:
           name: Copy to S3
           command: |
             aws s3 cp ./frontend/dist s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID} --recursive
-            
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}          
+
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -336,7 +350,11 @@ jobs:
             cat backend/.env
             cat /tmp/.circleci/ansible/inventory.txt
             ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
-  #    # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+
   smoke-test:
       docker:
         - image: amazon/aws-cli
@@ -358,7 +376,7 @@ jobs:
         - run:
             name: Frontend smoke test.
             command: |
-              URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
+              URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-DESTROY-TEST-website-us-west-2.amazonaws.com"
               echo $URL
               if curl -s ${URL} | grep "Welcome"
                 then
@@ -367,7 +385,10 @@ jobs:
                   destroy-environment
                   exit
                 fi
-
+        - destroy-environment:
+            workflow_id: ${CIRCLE_WORKFLOW_ID}
+        - revert-migrations:
+            workflow_id: ${CIRCLE_WORKFLOW_ID}                
 workflows:
   default:
     jobs:
