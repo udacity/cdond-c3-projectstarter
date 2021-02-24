@@ -68,10 +68,21 @@ commands:
           name: emptying bucket
           when: on_fail
           command: |
-            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 rm s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
 # aws cloudformation delete-stack --stack-name "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 # aws cloudformation delete-stack --stack-name "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
             #exit 1
+  install-dependencies-onBase:
+      description: Install dependencies on base docker image
+      steps:
+        - run:
+          name: executing updates also for ansible and python3
+          become: true
+          command: |
+            sudo apt-get -y update
+            sudo apt-get -y install software-properties-common
+            sudo apt-get -y install ansible curl
+            sudo apt-get -y install python3-venv python-is-python3
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -345,14 +356,7 @@ jobs:
             #- backend-build-{{ checksum "backend/package.json" }}
             - backend-build
             - infra_info-
-      - run:
-          name: Install dependencies
-          become: true
-          command: |
-            sudo apt-get -y update
-            sudo apt-get -y install software-properties-common
-            sudo apt-get -y install ansible
-            sudo apt-get -y install python3-venv python-is-python3
+      - install-dependencies-onBase
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
       # attach workspace
@@ -380,14 +384,7 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - run:
-          name: Install dependencies
-          become: true
-          command: |
-            sudo apt-get -y update
-            sudo apt-get -y install software-properties-common
-            sudo apt-get -y install ansible
-            sudo apt-get -y install python3-venv python-is-python3
+      - install-dependencies-onBase
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
@@ -478,7 +475,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             # your code here
-            aws s3 sync frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+            aws s3 sync frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}"
 
       # Here's where you will add some code to rollback on failure
       - destroy-environment-onfail:
@@ -508,11 +505,8 @@ jobs:
     docker:
       - image: cimg/base:2020.01
     steps:
-      # Checkout code from git
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
+      - checkout
+      - install-dependencies-onBase
       - run:
           name: Get backend url
           command: |
