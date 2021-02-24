@@ -386,7 +386,6 @@ jobs:
                 then
                   exit
                 else
-                  destroy-environment
                   exit
                 fi
         - destroy-environment:
