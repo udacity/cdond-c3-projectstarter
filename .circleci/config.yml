@@ -371,12 +371,14 @@ jobs:
             at: /tmp/.circleci/ansible
         - run:
             name: Get backend url
+            no_output_timeout: 30m
             command: |
               BACKEND_IP=$(grep -v "[web]" /tmp/.circleci/ansible/inventory.txt)
               echo "${BACKEND_IP}"
               curl -Is http://${BACKEND_IP}:3030/api/status | head -n 1
         - run:
             name: Frontend smoke test.
+            no_output_timeout: 30m
             command: |
               URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-DESTROY-TEST-website-us-west-2.amazonaws.com"
               echo $URL
