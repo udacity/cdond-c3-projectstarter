@@ -69,10 +69,8 @@ commands:
           when: on_fail
           command: |
             aws s3 rm s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-# aws cloudformation delete-stack --stack-name "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-# aws cloudformation delete-stack --stack-name "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-            #exit 1
-  install-dependencies-onBase:
+
+  install_dependencies_onBase:
     description: Install dependencies on base docker image
     steps:
       - run:
@@ -356,7 +354,7 @@ jobs:
             #- backend-build-{{ checksum "backend/package.json" }}
             - backend-build
             - infra_info-
-      - install-dependencies-onBase
+      - install_dependencies_onBase
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
       # attach workspace
@@ -384,7 +382,7 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - install-dependencies-onBase
+      - install_dependencies_onBase
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
@@ -506,7 +504,7 @@ jobs:
       - image: cimg/base:2020.01
     steps:
       - checkout
-      - install-dependencies-onBase
+      - install_dependencies_onBase
       - run:
           name: Get backend url
           command: |
