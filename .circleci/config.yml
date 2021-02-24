@@ -61,6 +61,7 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name "<<parameters.cfname>>"
+
   empty-bucket-onfail:
     description: remove objects from the bucket if exist
     steps:
@@ -75,7 +76,7 @@ commands:
     steps:
       - run:
           name: executing updates also for ansible and python3
-          become: true
+          #become: true
           command: |
             sudo apt-get -y update
             sudo apt-get -y install software-properties-common
