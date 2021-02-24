@@ -32,7 +32,7 @@ commands:
           # Add when this will run
           command: |
             SUCCESS=$(curl -H "token: dee226c6-0908-4b16-8db8-ae78275c2360" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
-            SUCCESS = 1
+            echo $SUCCESS
             if(( $SUCCESS==1 )); 
             then
               cd /backend
