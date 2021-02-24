@@ -2,16 +2,24 @@
 # Compress backend
 # copy backend
 # uncompress backend....
-- name: Copy backend builded files
+- name: "Installing Rsync"
   become: true
-  copy:
-    src: /home/circleci/project/backend/dist
-    dest: "/home/ubuntu"
+  connection: local
+  package:
+    name: ["rsync"]
+    state: latest
+
+- name: Synchronize and delete files in dest on the remote host that are not found in src of localhost.
+  ansible.posix.synchronize:
+    src: /home/circleci/project/backend
+    dest: /home/ubuntu
+    delete: yes
+    recursive: yes
 
 - name: Starting the backend
   become: true
   shell: |
     pwd
     ls -lart
-    cd /home/ubuntu/dist
+    cd /home/ubuntu/backend/dist
     pm2 start npm -- run start

@@ -363,6 +363,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             pwd
+            ansible-galaxy collection install ansible.posix
             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose
       # Here's where you will add some code to rollback on failure
       - aws-cli/install
