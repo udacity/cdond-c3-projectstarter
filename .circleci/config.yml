@@ -19,7 +19,7 @@ commands:
             echo frontend-${CIRCLE_WORKFLOW_ID}
             aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
             echo udapeople-frontend-${CIRCLE_WORKFLOW_ID}
-            aws s3 rm udapeople-frontend-${CIRCLE_WORKFLOW_ID} --recursive
+            aws s3 rm s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID} --recursive
             aws s3api delete-bucket --bucket udapeople-frontend-${CIRCLE_WORKFLOW_ID}
             exit 1
   revert-migrations:
