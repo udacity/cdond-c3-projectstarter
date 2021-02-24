@@ -71,11 +71,12 @@ commands:
           command: |
             aws s3 rm s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
 
-  install_dependencies_onBase:
+  install-dependencies-onbase:
     description: Install dependencies on base docker image
     steps:
       - run:
           name: executing updates also for ansible and python3
+          become: true
           command: |
             sudo apt-get -y update
             sudo apt-get -y install software-properties-common
@@ -354,7 +355,7 @@ jobs:
             #- backend-build-{{ checksum "backend/package.json" }}
             - backend-build
             - infra_info-
-      - install_dependencies_onBase
+      - install-dependencies-onbase
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
       # attach workspace
@@ -382,7 +383,7 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - install_dependencies_onBase
+      - install-dependencies-onbase
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
@@ -504,7 +505,7 @@ jobs:
       - image: cimg/base:2020.01
     steps:
       - checkout
-      - install_dependencies_onBase
+      - install-dependencies-onbase
       - run:
           name: Get backend url
           command: |
