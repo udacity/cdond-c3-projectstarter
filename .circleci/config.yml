@@ -76,7 +76,6 @@ commands:
     steps:
       - run:
           name: executing updates also for ansible and python3
-          #become: true
           command: |
             sudo apt-get -y update
             sudo apt-get -y install software-properties-common
