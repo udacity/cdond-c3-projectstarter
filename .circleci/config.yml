@@ -40,7 +40,7 @@ commands:
               cd /backend
               npm install
               npm run migrations:revert
-              #exit 1
+              exit 1
             fi
             
 jobs:
