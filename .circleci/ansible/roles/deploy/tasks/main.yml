@@ -17,9 +17,8 @@
     recursive: yes
 
 - name: Starting the backend
-  become: true
   shell: |
     pwd
     ls -lart
-    cd /home/ubuntu/backend/dist
+    cd /home/ubuntu/backend
     pm2 start npm --name backend -- start
