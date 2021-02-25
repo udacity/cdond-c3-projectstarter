@@ -15,13 +15,13 @@ commands:
           no_output_timeout: 30m
           when: on_fail
           command: |
+            aws s3 rm s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID} --recursive
+            aws s3 delete-bucket --bucket udapeople-frontend-${CIRCLE_WORKFLOW_ID} --force
             echo backend-${CIRCLE_WORKFLOW_ID}
             aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
             echo frontend-${CIRCLE_WORKFLOW_ID}
             aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID}
             echo udapeople-frontend-${CIRCLE_WORKFLOW_ID}
-            aws s3 rm s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID} --recursive
-            aws s3api delete-bucket --bucket udapeople-frontend-${CIRCLE_WORKFLOW_ID}
             exit 1
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
