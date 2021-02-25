@@ -52,17 +52,17 @@
       export TYPEORM_PASSWORD='{{ dbpwd }}'
       export TYPEORM_DATABASE='{{ database }}'
 
-- name: Creates directory
-  file:
-    path: ~/web
-    state: directory
+# - name: Creates directory
+#   file:
+#     path: ~/web
+#     state: directory
 
-- name: Copy app test page
-  template:
-    src: "files/app.js"
-    dest: "~/web/app.js"
+# - name: Copy app test page
+#   template:
+#     src: "files/app.js"
+#     dest: "~/web/app.js"
 
-- name: Executing node
-  shell: |
-    pm2 start ~/web/app.js -f
+# - name: Executing node
+#   shell: |
+#     pm2 start ~/web/app.js -f
 
