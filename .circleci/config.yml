@@ -16,7 +16,7 @@ commands:
           when: on_fail
           command: |
             aws s3 rm s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID} --recursive
-            aws s3 delete-bucket --bucket udapeople-frontend-${CIRCLE_WORKFLOW_ID} --force
+            aws s3 rb s3://udapeople-frontend-${CIRCLE_WORKFLOW_ID} --force
             echo backend-${CIRCLE_WORKFLOW_ID}
             aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
             echo frontend-${CIRCLE_WORKFLOW_ID}
