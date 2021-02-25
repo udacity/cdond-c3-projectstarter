@@ -378,8 +378,8 @@ jobs:
               curl -Is http://${BACKEND_IP}:3030/api/status | head -n 1
         - run:
             name: Frontend smoke test.
-            command: |
-              URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-DESTROY-TEST-website-us-west-2.amazonaws.com"
+            command: |     
+              URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
               echo $URL
               if curl -s ${URL} | grep "Welcome"
                 then
@@ -390,7 +390,8 @@ jobs:
         - destroy-environment:
             workflow_id: ${CIRCLE_WORKFLOW_ID}
         - revert-migrations:
-            workflow_id: ${CIRCLE_WORKFLOW_ID}                
+            workflow_id: ${CIRCLE_WORKFLOW_ID}          
+            # URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-DESTROY-TEST-website-us-west-2.amazonaws.com"      
 workflows:
   default:
     jobs:
