@@ -22,7 +22,7 @@ commands:
             echo frontend-${CIRCLE_WORKFLOW_ID}
             aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID}
             echo udapeople-frontend-${CIRCLE_WORKFLOW_ID}
-            exit 1
+            #exit 1
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -40,10 +40,9 @@ commands:
               cd /backend
               npm install
               npm run migrations:revert
-              exit 1
+              #exit 1
             fi
             
-
 jobs:
   build-frontend:
     docker:
