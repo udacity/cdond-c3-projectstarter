@@ -20,5 +20,5 @@
   shell: |
     pwd
     ls -lart
-    cd /home/ubuntu/backend
+    cd /home/ubuntu/backend/dist
     pm2 start npm --name backend -- start
