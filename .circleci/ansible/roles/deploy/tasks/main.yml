@@ -17,6 +17,7 @@
     recursive: yes
 
 - name: Starting the backend
+  become: true
   shell: |
     pwd
     ls -lart
