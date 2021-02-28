@@ -37,7 +37,6 @@
       export TYPEORM_DATABASE='{{ database }}'
 
 - name: Starting the backend
-  become: true
   shell: |
     pwd
     ls -lart

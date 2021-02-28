@@ -31,13 +31,15 @@ workflows:
          requires: [run-migrations]
       - deploy-backend:
          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+
       #- deploy-backend
 ########################################
 
       # - deploy-backend:
       #     requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
@@ -384,6 +386,7 @@ jobs:
       # Checkout code from git
       - checkout
       - install-dependencies-onbase
+      - aws-cli/install
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
@@ -396,7 +399,6 @@ jobs:
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
-      - aws-cli/install
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
@@ -506,15 +508,7 @@ jobs:
     steps:
       - checkout
       - install-dependencies-onbase
-      # - run:
-      #     name: Get backend url
-      #     command: |
-      #       if [ $(curl -s API_URL | grep '"status":"ok"'') ]
-      #       then
-      #         return 1
-      #       else
-      #         return 0
-      #       fi
+      - aws-cli/install
       - run:
           name: Backend smoke test.
           command: |
@@ -528,6 +522,12 @@ jobs:
           name: Frontend smoke test.
           command: |
             # your code here
+
+      - destroy-environment-onfail:
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - empty-bucket-onfail
+      - destroy-environment-onfail:
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
 
 #   cloudfront-update:
