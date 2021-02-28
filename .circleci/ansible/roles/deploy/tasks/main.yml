@@ -16,6 +16,26 @@
     delete: yes
     recursive: yes
 
+- name: copy environment variable script
+  become: true
+  copy:
+    src: dbcontext.sh
+    dest: /etc/profile.d/dbcontext.sh
+
+- name: modify environment variable
+  become: true
+  blockinfile:
+    path: /etc/profile.d/dbcontext.sh
+    block: |
+      export ENVIRONMENT='production'
+      export TYPEORM_CONNECTION="{{ conn }}"
+      export TYPEORM_ENTITIES='{{ entities }}'
+      export TYPEORM_HOST='{{ dbhost }}'
+      export TYPEORM_PORT='{{ dbport }}'
+      export TYPEORM_USERNAME='{{ dbuser }}'
+      export TYPEORM_PASSWORD='{{ dbpwd }}'
+      export TYPEORM_DATABASE='{{ database }}'
+
 - name: Starting the backend
   become: true
   shell: |
