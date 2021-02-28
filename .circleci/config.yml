@@ -356,6 +356,7 @@ jobs:
             - backend-build
             - infra_info-
       - install-dependencies-onbase
+      - aws-cli/install
       - add_ssh_keys:
           fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
       # attach workspace
@@ -367,9 +368,8 @@ jobs:
           command: |
             pwd
             ansible-galaxy collection install ansible.posix
-            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose
+            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
-      - aws-cli/install
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - empty-bucket-onfail
@@ -506,14 +506,24 @@ jobs:
     steps:
       - checkout
       - install-dependencies-onbase
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
+      # - run:
+      #     name: Get backend url
+      #     command: |
+      #       if [ $(curl -s API_URL | grep '"status":"ok"'') ]
+      #       then
+      #         return 1
+      #       else
+      #         return 0
+      #       fi
       - run:
           name: Backend smoke test.
           command: |
-            # your code here
+            if [ $(curl -s API_URL | grep '"status":"ok"'') ]
+            then
+              return 1
+            else
+              return 0
+            fi
       - run:
           name: Frontend smoke test.
           command: |
