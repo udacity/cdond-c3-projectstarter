@@ -39,7 +39,7 @@ commands:
             then
               pwd
               ls
-              cd /backend
+              cd backend
               npm install
               npm run migrations:revert
               exit 1
