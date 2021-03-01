@@ -37,6 +37,8 @@ commands:
             echo $SUCCESS
             if(( SUCCESS==1 )); 
             then
+              pwd
+              ls
               cd /backend
               npm install
               npm run migrations:revert
