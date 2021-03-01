@@ -385,7 +385,7 @@ jobs:
         - run:
             name: Frontend smoke test.
             command: |     
-              URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-DESTROY-TEST-website-us-west-2.amazonaws.com"
+              URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
               echo $URL
               if curl -s ${URL} | grep "Welcome"
                 then
@@ -399,6 +399,22 @@ jobs:
             workflow_id: ${CIRCLE_WORKFLOW_ID}          
             # URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-DESTROY-TEST-website-us-west-2.amazonaws.com"
             #URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
+  cloudfront-update:
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        #- run:
+        #    name: Install dependencies
+        #    command: |
+        #      # your code here
+        - run:
+            name: Update cloudfront distribution
+            command: |
+              aws cloudformation deploy --template-file cloudformation.yml --stack-name cloudfront --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
+        # Here's where you will add some code to rollback on failure  
+
+
 workflows:
   default:
     jobs:
