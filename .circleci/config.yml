@@ -402,9 +402,6 @@ jobs:
   cloudfront-update:
       docker:
         - image: amazon/aws-cli
-      parameters:
-        workflow_id: ${CIRCLE_WORKFLOW_ID}
-        type: string
       steps:
         - checkout
         - run:
