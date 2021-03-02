@@ -411,8 +411,11 @@ jobs:
         - run:
             name: Update cloudfront distribution
             command: |
-              aws cloudformation deploy --template-file cloudformation.yml --stack-name cloudfront --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
-        # Here's where you will add some code to rollback on failure  
+              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
+        - destroy-environment:
+            workflow_id: ${CIRCLE_WORKFLOW_ID}
+        - revert-migrations:
+            workflow_id: ${CIRCLE_WORKFLOW_ID}    
 
 
 workflows:
