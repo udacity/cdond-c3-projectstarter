@@ -394,7 +394,7 @@ jobs:
                   exit
                 fi
         - destroy-environment:
-            workflow_id: ${CIRCLE_WORKFLOW_ID}
+            workflow_id: 
         - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID}          
             # URL="http://udapeople-frontend-${CIRCLE_WORKFLOW_ID}.s3-DESTROY-TEST-website-us-west-2.amazonaws.com"
@@ -402,17 +402,19 @@ jobs:
   cloudfront-update:
       docker:
         - image: amazon/aws-cli
+      parameters:
+        workflow_id: ${CIRCLE_WORKFLOW_ID}
+        type: string
       steps:
         - checkout
         - run:
             name: Update cloudfront distribution
             command: |
-              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront PipelineID="${CIRCLE_WORKFLOW_ID}"
+              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID}"
         - destroy-environment:
             workflow_id: ${CIRCLE_WORKFLOW_ID}
         - revert-migrations:
             workflow_id: ${CIRCLE_WORKFLOW_ID}    
-
 
 workflows:
   default:
