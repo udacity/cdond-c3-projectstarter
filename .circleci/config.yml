@@ -404,14 +404,10 @@ jobs:
         - image: amazon/aws-cli
       steps:
         - checkout
-        #- run:
-        #    name: Install dependencies
-        #    command: |
-        #      # your code here
         - run:
             name: Update cloudfront distribution
             command: |
-              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides PipelineID="${CIRCLE_WORKFLOW_ID}"
+              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront PipelineID="${CIRCLE_WORKFLOW_ID}"
         - destroy-environment:
             workflow_id: ${CIRCLE_WORKFLOW_ID}
         - revert-migrations:
