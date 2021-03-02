@@ -407,7 +407,7 @@ jobs:
         - run:
             name: Update cloudfront distribution
             command: |
-              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID}"
+              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront-${CIRCLE_WORKFLOW_ID} --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID}"
         - destroy-environment:
             workflow_id: ${CIRCLE_WORKFLOW_ID}
         - revert-migrations:
