@@ -506,7 +506,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: cimg/base:2020.01
+      - image: cimg/base:2021.01
     steps:
       - checkout
       - install-dependencies-onbase
