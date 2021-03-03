@@ -340,38 +340,7 @@ jobs:
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
-  deploy-backend:
-    docker:
-      - image: cimg/base:2021.01
-    steps:
-      # Checkout code from git
-      - checkout
-      # Add ssh keys with fingerprint
-      - restore_cache:
-          keys:
-            #- backend-build-{{ checksum "backend/package.json" }}
-            - backend-build
-            - infra_info-
-      - install-dependencies-onbase
-      - aws-cli/install
-      - add_ssh_keys:
-          fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
-      # attach workspace
-      - attach_workspace:
-          at: .
-      - run:
-          name: configure the server user
-          no_output_timeout: 30m
-          command: |
-            pwd
-            ansible-galaxy collection install ansible.posix
-            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
-      # Here's where you will add some code to rollback on failure
-      - destroy-environment-onfail:
-          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
-      - empty-bucket-onfail
-      - destroy-environment-onfail:
-          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+
 
 #with rollback - cimg/base:2021.01
   configure-infrastructure:
@@ -436,6 +405,45 @@ jobs:
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 
+  deploy-backend:
+    docker:
+      - image: cimg/base:2021.01
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - restore_cache:
+          keys:
+            #- backend-build-{{ checksum "backend/package.json" }}
+            - backend-build
+            - infra_info-
+      - install-dependencies-onbase
+      - aws-cli/install
+      - add_ssh_keys:
+          fingerprint: ["f0:c2:1b:03:ba:ff:3e:9d:91:82:eb:c5:c1:c7:17:9b"]
+      # attach workspace
+      - attach_workspace:
+          at: .
+      - run:
+          name: configure the server user
+          no_output_timeout: 30m
+          command: |
+            echo ENVIRONMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION="${TYPEORM_CONNECTION}" >> "backend/.env"
+            echo TYPEORM_ENTITIES="${TYPEORM_ENTITIES}" >> "backend/.env"
+            echo TYPEORM_HOST="${TYPEORM_HOST}" >> "backend/.env"
+            echo TYPEORM_PORT="${TYPEORM_PORT}" >> "backend/.env"
+            echo TYPEORM_USERNAME="${TYPEORM_USERNAME}" >> "backend/.env"
+            echo TYPEORM_PASSWORD="${TYPEORM_PASSWORD}" >> "backend/.env"
+            echo TYPEORM_DATABASE="${TYPEORM_DATABASE}" >> "backend/.env"
+            ansible-galaxy collection install ansible.posix
+            ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment-onfail:
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - empty-bucket-onfail
+      - destroy-environment-onfail:
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
 # with rollback - amazon/aws-cli
   deploy-frontend:
     docker:
