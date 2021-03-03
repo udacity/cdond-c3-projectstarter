@@ -41,4 +41,4 @@
     pwd
     ls -lart
     cd /home/ubuntu/backend/dist
-    pm2 start npm --name backend -- start
+    pm2 start npm -- run start
