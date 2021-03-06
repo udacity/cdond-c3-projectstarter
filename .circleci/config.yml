@@ -33,9 +33,8 @@ workflows:
          requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-
-      # - cloudfront-update:
-      #     requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
 
@@ -521,18 +520,18 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo $API_URL
             curl -s $API_URL
-            if [ $(curl -s $API_URL | grep '"status":"ok"' | wc -l) > 0 ]
+            if [[ $(curl -s $API_URL | grep '"status":"ok"' | wc -l) > 0 ]]
             then
-              exit 0
+              exit 1
             else
-              exit 0
+              exit 1
             fi
       - run:
           name: Frontend smoke test.
           command: |
-            echo "http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-eu-west-1.amazonaws.com"
-            export URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-eu-west-1.amazonaws.com"
-            if [ $(curl -s $URL | grep "Welcome" | wc -l) > 0 ]
+            echo "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-eu-west-1.amazonaws.com"
+            export URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-eu-west-1.amazonaws.com"
+            if [[ $(curl -s $URL | grep "Welcome" | wc -l) > 0 ]]
             then
               exit 0
             else
@@ -546,24 +545,34 @@ jobs:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
 
-#   cloudfront-update:
-#     docker:
-#       # Docker image here that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Update cloudfront distribution
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure
+  cloudfront-update:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - install-dependencies-onbase
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text
+              )
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --output text))
+            echo "Old WorkflowID: ${OldWorkflowID}"
+
+            aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople &
+
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name "be-stack-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "fe-stack-${OldWorkflowID}"
+            fi
+      # Here's where you will add some code to rollback on failure
 
 # cleanup:
 #     docker:
-#       # Docker image here
 #     steps:
 #       # Checkout code from git
 #       - run:
