@@ -31,8 +31,8 @@ workflows:
          requires: [run-migrations]
       - deploy-backend:
          requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 
       # - cloudfront-update:
       #     requires: [smoke-test]
@@ -511,9 +511,13 @@ jobs:
       - checkout
       - install-dependencies-onbase
       - aws-cli/install
+      - attach_workspace:
+          at: .
       - run:
           name: Backend smoke test.
           command: |
+            export BACKEND_IP=$(tail -1 .circleci/ansible/inventory.txt)
+            export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo $API_URL
             if [ $(curl -s $API_URL | grep '"status":"ok"') ]
             then
