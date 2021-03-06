@@ -85,22 +85,17 @@ commands:
       # Add parameter here
     steps:
       - run:
-          name: Install dependencies
-          command: |
-            curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
-      - run:
           name: Revert migrations
-          # Add when this will run
+          when:
+            on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
-            SUCCESS = 1
+            SUCCESS = $(curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}" | grep "successful")
             if(( $SUCCESS==1 ));
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+            cd ~/project/backend
+            npm install
+            npm run migrations:revert
             fi
 
 jobs:
@@ -345,6 +340,7 @@ jobs:
             - .circleci/ansible/inventory.txt
           key: infra_info-{{ .Environment.CIRCLE_WORKFLOW_ID }}
       # Here's where you will add some code to rollback on failure
+      - revert-migrations
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
@@ -370,6 +366,7 @@ jobs:
           command: |
             ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
+      - revert-migrations
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
@@ -396,18 +393,19 @@ jobs:
             pwd
             ls -lart
             cat backend/src/migrations/migrationResults.txt
-            echo "migration_${CIRCLE_WORKFLOW_ID:0:7}"
-
+            echo "token: 790263bd-4df2-4649-b0b4-96321cdce047 Key: migration_${CIRCLE_WORKFLOW_ID:0:7}"
             if [ $(cat backend/src/migrations/migrationResults.txt | grep "has been executed successfully" | wc -l) = 3 ] || [ $(cat backend/src/migrations/migrationResults.txt | grep "No migrations are pending" | wc -l) > 0 ]
             then
+            echo "########### MIGRATION SUCCESS RESULTS ################"
             curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "successful" "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}"
             else
-            echo "########### MIGRATION RESULTS ################"
+            echo "########### MIGRATION ERROR RESULTS ################"
             cat backend/src/migrations/migrationResults.txt
             curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "error" "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}"
             exit 1
             fi
      # Here's where you will add some code to rollback on failure
+      - revert-migrations
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
@@ -439,6 +437,7 @@ jobs:
             ansible-galaxy collection install ansible.posix
             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt --verbose --extra-vars "env=production conn=${TYPEORM_CONNECTION} entities=${TYPEORM_ENTITIES} dbhost=${TYPEORM_HOST} dbport=${TYPEORM_PORT} dbuser=${TYPEORM_USERNAME} dbpwd=${TYPEORM_PASSWORD} database=${TYPEORM_DATABASE}"
       # Here's where you will add some code to rollback on failure
+      - revert-migrations
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - empty-bucket-onfail
@@ -482,6 +481,7 @@ jobs:
             aws s3 sync frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}"
 
       # Here's where you will add some code to rollback on failure
+      - revert-migrations
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - empty-bucket-onfail
@@ -530,14 +530,15 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            export URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            echo "http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-eu-west-1.amazonaws.com"
+            export URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-eu-west-1.amazonaws.com"
             if [ $(curl -s $URL | grep "Welcome" | wc -l) > 0 ]
             then
               exit 0
             else
-              exit 0
+              exit 1
             fi
-
+      - revert-migrations
       - destroy-environment-onfail:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - empty-bucket-onfail
