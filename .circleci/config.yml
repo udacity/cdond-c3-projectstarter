@@ -89,12 +89,12 @@ commands:
             on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = $(curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}" | grep "successful")
+            SUCCESS=$(curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}" | grep "successful" | wc -l)
             if(( $SUCCESS==1 ));
             then
-            cd ~/project/backend
-            npm install
-            npm run migrations:revert
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
             fi
 
 jobs:
@@ -522,7 +522,7 @@ jobs:
             curl -s $API_URL
             if [[ $(curl -s $API_URL | grep '"status":"ok"' | wc -l) > 0 ]]
             then
-              exit 1
+              exit 0
             else
               exit 1
             fi
@@ -569,6 +569,13 @@ jobs:
               aws cloudformation delete-stack --stack-name "be-stack-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "fe-stack-${OldWorkflowID}"
             fi
+      # Here's where you will add some code to rollback on failure
+      - revert-migrations
+      - destroy-environment-onfail:
+          cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+      - empty-bucket-onfail
+      - destroy-environment-onfail:
+          cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
 
 # cleanup:
