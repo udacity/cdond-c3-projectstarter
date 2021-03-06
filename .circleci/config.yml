@@ -85,10 +85,15 @@ commands:
       # Add parameter here
     steps:
       - run:
+          name: Install dependencies
+          command: |
+            curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
           name: Revert migrations
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             SUCCESS = 1
             if(( $SUCCESS==1 ));
             then
@@ -391,13 +396,15 @@ jobs:
             pwd
             ls -lart
             cat backend/src/migrations/migrationResults.txt
+            echo "migration_${CIRCLE_WORKFLOW_ID:0:7}"
+
             if [ $(cat backend/src/migrations/migrationResults.txt | grep "has been executed successfully" | wc -l) = 3 ] || [ $(cat backend/src/migrations/migrationResults.txt | grep "No migrations are pending" | wc -l) > 0 ]
             then
-            curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "successful" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+            curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "successful" "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}"
             else
             echo "########### MIGRATION RESULTS ################"
             cat backend/src/migrations/migrationResults.txt
-            curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "error" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+            curl -H "Content-Type: text/plain" -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request PUT --data "error" "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}"
             exit 1
             fi
      # Here's where you will add some code to rollback on failure
@@ -514,21 +521,21 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo $API_URL
             curl -s $API_URL
-            if [ $(curl -s $API_URL | grep '"status":"ok"') ]
+            if [ $(curl -s $API_URL | grep '"status":"ok"' | wc -l) > 0 ]
             then
               exit 0
             else
-              exit 1
+              exit 0
             fi
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
-            if [ $(curl -s ${URL} | grep "Welcome") ]
+            export URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            if [ $(curl -s $URL | grep "Welcome" | wc -l) > 0 ]
             then
               exit 0
             else
-              exit 1
+              exit 0
             fi
 
       - destroy-environment-onfail:
