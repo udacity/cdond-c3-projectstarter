@@ -91,15 +91,10 @@ commands:
           command: |
             yum install -y tar gzip sudo
             curl –sL https://rpm.nodesource.com/setup_10.x | sudo -E bash -
-            sudo yum -y install nodejs
-      - run:
-          name: add node tool if required
-          when: << parameters.extended >>
-          become: true
-          command: |
-            yum install -y tar gzip sudo
-            curl –sL https://rpm.nodesource.com/setup_10.x | sudo -E bash -
-            sudo yum -y install nodejs
+            if [[ << parameters.extended >> == "true" ]]
+            then
+              sudo yum -y install nodejs
+            fi
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
