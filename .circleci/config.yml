@@ -540,7 +540,7 @@ jobs:
             curl -s $API_URL
             if [[ $(curl -s $API_URL | grep '"status":"ok"' | wc -l) > 0 ]]
             then
-              exit 1
+              exit 0
             else
               exit 1
             fi
@@ -597,8 +597,6 @@ cleanup:
           name: Get old stack workflow id
           command: |
             # your code here
-            export OldWorkflowID="the id here"
-            export STACKS=[] #put the list of stacks here
             export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
 
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --output text))
@@ -609,8 +607,8 @@ cleanup:
           command: |
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "be-stack-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "fe-stack-${OldWorkflowID}"
+              echo "#### DELETING "
             fi
-
+# aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+# aws cloudformation delete-stack --stack-name "be-stack-${OldWorkflowID}"
+# aws cloudformation delete-stack --stack-name "fe-stack-${OldWorkflowID}"
