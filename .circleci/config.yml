@@ -518,7 +518,9 @@ jobs:
       - image: cimg/base:2021.01
     steps:
       - checkout
-      - install-dependencies-onbase
+      - install-dependencies-awscli:
+          extended: true
+
       - aws-cli/install
       - attach_workspace:
           at: .
