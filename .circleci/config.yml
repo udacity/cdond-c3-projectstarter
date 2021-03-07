@@ -68,22 +68,29 @@ commands:
 
   install-dependencies-onbase:
     description: Install dependencies on base docker image
+    parameters:
+      withnode:
+        default: "no"
+        type: string
     steps:
       - run:
           name: executing updates also for ansible and python3
-          become: true
           command: |
             sudo apt-get -y update
             sudo apt-get -y install software-properties-common
             sudo apt-get -y install ansible curl
             sudo apt-get -y install python3-venv python-is-python3
+            if [[ << parameters.withnode >> == "yes" ]]
+            then
+              npm install -g npm@5
+            fi
 
   install-dependencies-awscli:
     description: Install dependencies on aws-cli docker image
     parameters:
       extended:
-        default: false
-        type: boolean
+        default: "no"
+        type: string
     steps:
       - run:
           name: add tar and gzip sudo and node tool
@@ -91,7 +98,7 @@ commands:
           command: |
             yum install -y tar gzip sudo
             curl –sL https://rpm.nodesource.com/setup_10.x | sudo -E bash -
-            if [[ << parameters.extended >> == "true" ]]
+            if [[ << parameters.extended >> == "yes" ]]
             then
               sudo yum -y install nodejs
             fi
@@ -201,7 +208,7 @@ jobs:
             - backend
           key: backend-build-{{ .Environment.CIRCLE_WORKFLOW_ID }}
 
-#norollback
+#norollback - circleci/node:13.8.0
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -230,7 +237,7 @@ jobs:
           prefix: coverage
       - store_test_results:
           path: frontend/test-results.xml
-#norollback
+#norollback - circleci/node:13.8.0
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -358,6 +365,7 @@ jobs:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+
 #with rollback - cimg/base:2021.01
   configure-infrastructure:
     docker:
@@ -477,9 +485,9 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "### API URL FOUND: ${API_URL}"
             cd frontend
-            sudo npm install -g npm@5
-            sudo npm i
-            sudo npm i oauth-sign
+            npm install -g npm@5
+            npm i
+            npm i oauth-sign
             npm run build
 
       - run:
@@ -518,8 +526,8 @@ jobs:
       - image: cimg/base:2021.01
     steps:
       - checkout
-      - install-dependencies-awscli:
-          extended: true
+      - install-dependencies-onbase:
+          withnode: "yes"
 
       - aws-cli/install
       - attach_workspace:
@@ -564,7 +572,7 @@ jobs:
       # Checkout code from git
       - checkout
       - install-dependencies-awscli:
-          extended: true
+          extended: "yes"
 
       - run:
           name: Update cloudfront distribution
