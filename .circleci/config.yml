@@ -473,7 +473,7 @@ jobs:
       # Checkout code from git
       - checkout
       - install-dependencies-awscli:
-          extended: true
+          extended: "yes"
 
       - attach_workspace:
           at: .
