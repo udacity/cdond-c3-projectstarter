@@ -117,7 +117,7 @@ commands:
             SUCCESS=$(curl -H "token: 790263bd-4df2-4649-b0b4-96321cdce047" --request GET "https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}" | grep "successful" | wc -l)
             if(( $SUCCESS==1 ));
             then
-              cd ~/project/backend
+              cd backend
               npm install
               npm run migrations:revert
             fi
@@ -392,6 +392,7 @@ jobs:
           cfname: "be-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       - destroy-environment-onfail:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
+
 # With rollback - circleci/node:9.11
   run-migrations:
     docker:
@@ -523,12 +524,10 @@ jobs:
 # with rollback - cimg/base:2021.01
   smoke-test:
     docker:
-      - image: cimg/base:2021.01
+      - image: circleci/node:9.11
     steps:
       - checkout
       - aws-cli/install
-      - install-dependencies-onbase:
-          withnode: "yes"
 
       - attach_workspace:
           at: .
@@ -577,19 +576,8 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text
-              )
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --output text))
-            echo "Old WorkflowID: ${OldWorkflowID}"
-
             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" --tags project=udapeople &
 
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "be-stack-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "fe-stack-${OldWorkflowID}"
-            fi
       # Here's where you will add some code to rollback on failure
       - revert-migrations
       - destroy-environment-onfail:
@@ -599,21 +587,30 @@ jobs:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
 
-# cleanup:
-#     docker:
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Get old stack workflow id
-#           command: |
-#             # your code here
-#             export OldWorkflowID="the id here"
-#             export STACKS=[] #put the list of stacks here
-#       - run:
-#           name: Remove old stacks and files
-#           command: |
-#             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#             then
-#               # your code here
-#             fi
+cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            # your code here
+            export OldWorkflowID="the id here"
+            export STACKS=[] #put the list of stacks here
+            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)
+
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --output text))
+            echo "Old WorkflowID: ${OldWorkflowID}"
+
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name "be-stack-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "fe-stack-${OldWorkflowID}"
+            fi
 
