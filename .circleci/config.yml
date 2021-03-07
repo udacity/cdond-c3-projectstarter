@@ -82,7 +82,7 @@ commands:
             sudo apt-get -y install python3-venv python-is-python3
             if [[ << parameters.withnode >> == "yes" ]]
             then
-              npm install -g npm@5
+              sudo apt-get -y install nodejs npm
             fi
 
   install-dependencies-awscli:
@@ -526,10 +526,10 @@ jobs:
       - image: cimg/base:2021.01
     steps:
       - checkout
+      - aws-cli/install
       - install-dependencies-onbase:
           withnode: "yes"
 
-      - aws-cli/install
       - attach_workspace:
           at: .
       - run:
