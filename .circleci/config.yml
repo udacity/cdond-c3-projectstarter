@@ -592,7 +592,7 @@ jobs:
           cfname: "fe-stack-${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure
 
-cleanup:
+  cleanup:
     docker:
       - image: amazon/aws-cli
     steps:
