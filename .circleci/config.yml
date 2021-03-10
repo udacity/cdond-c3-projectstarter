@@ -426,7 +426,7 @@ jobs:
           name: Remove old stacks and files
           command: |
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            echo ${OldWorkflowID}
+            echo $OldWorkflowID
             then
               aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}
               aws cloudformation delete-stack --stack-name frontend-${OldWorkflowID}
