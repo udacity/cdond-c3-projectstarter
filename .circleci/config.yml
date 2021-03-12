@@ -425,8 +425,9 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             echo $OldWorkflowID
+            echo $STACKS
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rb s3://udapeople-frontend-${OldWorkflowID} --force
               aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}
