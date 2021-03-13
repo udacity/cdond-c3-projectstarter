@@ -47,7 +47,6 @@ jobs:
             cd frontend
             npm i
             npm run build
-#      - run: cat frontend/package-lock.json
       - save_cache:
           paths:
             - frontend/node_modules
