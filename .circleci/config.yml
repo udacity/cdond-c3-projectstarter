@@ -47,11 +47,11 @@ jobs:
             cd frontend
             npm i
             npm run build
-      - run: cat frontend/package-lock.json
-#      - save_cache:
-#          paths:
-#            - frontend/node_modules
-#          key: frontend-build-{{ checksum "frontend/package-lock.json" }}
+#      - run: cat frontend/package-lock.json
+      - save_cache:
+          paths:
+            - frontend/node_modules
+          key: frontend-build-{{ checksum "frontend/package-lock.json" }}
 
   build-backend:
     docker:
