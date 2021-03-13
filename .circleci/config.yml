@@ -94,27 +94,42 @@ jobs:
       - restore_cache:
           keys:
            - backend-build-{{ checksum "backend/package-lock.json" }}
+           - backend-build-
       - run:
           name: Run Back-end tests
           command: |
             cd backend
             npm run test
             
-#  scan-frontend:
-#    docker:
-      # Docker image here
-#    steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-
+      - run:
+          name: Run front-end scan
+          command: |
+            cd frontend
+            npm audit --audit-level=critical
 
-#  scan-backend:
-#    docker:
-      # Docker image here
-#    steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
+            - backend-build-
+      - run:
+          name: Run Back-end scan
+          command: |
+            cd backend
+            npm audit --audit-level=critical
 
 #  deploy-infrastructure:
 #    docker:
@@ -291,10 +306,10 @@ workflows:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-#      - scan-backend:
-#          requires: [build-backend]
-#      - scan-frontend:
-#          requires: [build-frontend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
 #      - deploy-infrastructure:
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
