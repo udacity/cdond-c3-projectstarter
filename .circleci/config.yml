@@ -4,6 +4,18 @@ orbs:
   slack: circleci/slack@4.3.1
 
 commands:
+  slack-notify-fail:
+    steps:
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
+  slack-notify-pass:
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -49,17 +61,12 @@ jobs:
           command: |
             cd frontend
             npm i
-            npm run buil
+            npm run build
       - save_cache:
           paths:
             - frontend/node_modules
           key: frontend-build-{{ checksum "frontend/package-lock.json" }}
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      - slack-notify-fail
 
   build-backend:
     docker:
@@ -79,6 +86,7 @@ jobs:
           paths:
             - backend/node_modules
           key: backend-build-{{ checksum "backend/package-lock.json" }}
+      - slack-notify-fail
 
   test-frontend:
     docker:
@@ -94,6 +102,7 @@ jobs:
           command: |
             cd frontend
             npm run test
+      - slack-notify-fail
                 
   test-backend:
     docker:
@@ -109,6 +118,7 @@ jobs:
           command: |
             cd backend
             npm run test
+      - slack-notify-fail
             
   scan-frontend:
     docker:
@@ -124,6 +134,8 @@ jobs:
           command: |
             cd frontend
             npm audit fix --audit-level=critical --force
+      - slack-notify-fail
+      - slack-notify-pass
 
   scan-backend:
     docker:
@@ -139,6 +151,8 @@ jobs:
           command: |
             cd backend
             npm audit fix --audit-level=critical --force
+      - slack-notify-fail
+      - slack-notify-pass
 
 #  deploy-infrastructure:
 #    docker:
@@ -311,14 +325,19 @@ workflows:
     jobs:
       - build-frontend:
           context: slack-secrets
-      - build-backend
+      - build-backend:
+          context: slack-secrets
       - test-frontend:
+          context: slack-secrets
           requires: [build-frontend]
       - test-backend:
+          context: slack-secrets
           requires: [build-backend]
       - scan-frontend:
+          context: slack-secrets
           requires: [build-frontend]
       - scan-backend:
+          context: slack-secrets
           requires: [build-backend]
 #      - deploy-infrastructure:
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
