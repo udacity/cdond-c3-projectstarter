@@ -40,7 +40,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-{{ checksum "frontend/package.json" }}
       - run:
           name: Build front-end
           command: |
@@ -51,7 +51,7 @@ jobs:
       - save_cache:
           paths:
             - frontend/node_modules
-          key: frontend-build-{{ checksum "frontend/package-lock.json" }}
+          key: frontend-build-{{ checksum "frontend/package.json" }}
 
   build-backend:
     docker:
@@ -79,7 +79,7 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-{{ checksum "frontend/package.json" }}
       - run:
           name: Run front-end tests
           command: |
