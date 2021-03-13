@@ -80,6 +80,7 @@ jobs:
       - restore_cache:
           keys:
             - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-
       - run:
           name: Run front-end tests
           command: |
