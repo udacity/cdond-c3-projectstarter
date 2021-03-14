@@ -158,31 +158,30 @@ jobs:
     steps:
       - checkout
       - run: yum -y install jq
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --tags project=udapeople \
-              --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
-      - slack-notify-fail
-      - slack-notify-pass
-
+#      - run:
+#          name: Ensure back-end infrastructure exists
+#          command: |
+#            aws cloudformation deploy \
+#              --template-file .circleci/files/backend.yml \
+#              --tags project=udapeople \
+#              --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
+#              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
 #      - run:
 #          name: Ensure front-end infrastructure exist
 #          command: |
 #            aws cloudformation deploy \
 #              --template-file .circleci/files/frontend.yml \
-              #--tags project=your-tag \
-              # --stack-name "your front-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"
-#              exit 1
+#              --tags project=udapeople \
+#              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
+#              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+      - run: pwd
 #      - run:
 #          name: Add back-end ip to ansible inventory
 #          command: |
-#             Your code here
-#            exit 1
+#            aws ec2 describe-instances \
+#              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+#              --filters "Name=tag:Project,Values=udacity" \
+#              --output text >> inventory
 #      - persist_to_workspace:
 #          root: ~/
 #          paths:
@@ -324,27 +323,27 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context: slack-secrets
-      - build-backend:
-          context: slack-secrets
-      - test-frontend:
-          context: slack-secrets
-          requires: [build-frontend]
-      - test-backend:
-          context: slack-secrets
-          requires: [build-backend]
-      - scan-frontend:
-          context: slack-secrets
-          requires: [build-frontend]
-      - scan-backend:
-          context: slack-secrets
-          requires: [build-backend]
+#      - build-frontend:
+#          context: slack-secrets
+#      - build-backend:
+#          context: slack-secrets
+#      - test-frontend:
+#          context: slack-secrets
+#          requires: [build-frontend]
+#      - test-backend:
+#          context: slack-secrets
+#          requires: [build-backend]
+#      - scan-frontend:
+#          context: slack-secrets
+#          requires: [build-frontend]
+#      - scan-backend:
+#          context: slack-secrets
+#          requires: [build-backend]
       - deploy-infrastructure:
           context:
             - aws-secrets
             - slack-secrets
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
