@@ -157,7 +157,7 @@ jobs:
        - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum -y install jq
+      - run: yum -y install jq tar
 #      - run:
 #          name: Ensure back-end infrastructure exists
 #          command: |
