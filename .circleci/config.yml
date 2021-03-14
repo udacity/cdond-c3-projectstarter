@@ -174,18 +174,20 @@ jobs:
 #              --tags project=udapeople \
 #              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
 #              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
-      - run: pwd
-#      - run:
-#          name: Add back-end ip to ansible inventory
-#          command: |
-#            aws ec2 describe-instances \
-#              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-#              --filters "Name=tag:Project,Values=udacity" \
-#              --output text >> inventory
-#      - persist_to_workspace:
-#          root: ~/
-#          paths:
-#            - project/.circleci/ansible/inventory.txt
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople" \
+              --output text >> .circleci/ansible/inventory.txt
+      - run: cat .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      - slack-notify-fail
+      - slack-notify-pass
 ##       Here's where you will add some code to rollback on failure
 #
 #  configure-infrastructure:
