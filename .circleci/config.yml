@@ -152,35 +152,36 @@ jobs:
             cd backend
             npm audit fix --audit-level=critical --force
       - slack-notify-fail
+
+  deploy-infrastructure:
+    docker:
+       - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Ensure back-end infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --tags project=udapeople \
+              --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+      - slack-notify-fail
       - slack-notify-pass
 
-#  deploy-infrastructure:
-#    docker:
-#       image: amazon/aws-cli
-#    steps:
-#      - checkout
-#      - run:
-#          name: Ensure back-end infrastructure exists
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/backend.yml \
-#              #--tags project=your-tag \
-#              # --stack-name "your back-end stack name with workflow id" \
-#              # --parameter-overrides ID="your workflow id"
-#              exit 1
 #      - run:
 #          name: Ensure front-end infrastructure exist
 #          command: |
 #            aws cloudformation deploy \
 #              --template-file .circleci/files/frontend.yml \
-#              #--tags project=your-tag \
-#              # --stack-name "your front-end stack name with workflow id" \
-#              # --parameter-overrides ID="your workflow id"
+              #--tags project=your-tag \
+              # --stack-name "your front-end stack name with workflow id" \
+              # --parameter-overrides ID="your workflow id"
 #              exit 1
 #      - run:
 #          name: Add back-end ip to ansible inventory
 #          command: |
-#            # Your code here
+#             Your code here
 #            exit 1
 #      - persist_to_workspace:
 #          root: ~/
@@ -339,8 +340,11 @@ workflows:
       - scan-backend:
           context: slack-secrets
           requires: [build-backend]
-#      - deploy-infrastructure:
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - deploy-infrastructure:
+          context:
+            - aws-secrets
+            - slack-secrets
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
