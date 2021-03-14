@@ -135,7 +135,6 @@ jobs:
             cd frontend
             npm audit fix --audit-level=critical --force
       - slack-notify-fail
-      - slack-notify-pass
 
   scan-backend:
     docker:
@@ -158,6 +157,7 @@ jobs:
        - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum -y install jq
       - run:
           name: Ensure back-end infrastructure exists
           command: |
