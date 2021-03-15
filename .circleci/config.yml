@@ -79,6 +79,7 @@ jobs:
       - run:
           name: Run frontend unit tests
           command: |
+             cd frontend
              npm run test
                 
   test-backend:
@@ -91,6 +92,7 @@ jobs:
       - run:
           name: Run backend unit tests
           command: |
+             cd backend
              npm run test
             
 ##  scan-frontend:
