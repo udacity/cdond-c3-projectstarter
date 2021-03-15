@@ -103,22 +103,36 @@ jobs:
              cd backend
              npm run test
             
-##  scan-frontend:
-##    docker:
-##      # Docker image here
-##    steps:
-##      # Checkout code from git
-##      # Restore from cache
-##      # Your job code here
-##
-##  scan-backend:
-##    docker:
-##      # Docker image here
-##    steps:
-##      # Checkout code from git
-##      # Restore from cache
-##      # Your job code here
-##
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "package-lock.json" }}
+            - frontend-build-
+      - run:
+          name: Run backend unit tests
+          command: |
+             cd backend
+             npm audit --audit-level=critical
+
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "package-lock.json" }}
+            - backend-build-
+      - run:
+          name: Run backend unit tests
+          command: |
+             cd backend
+             npm audit --audit-level=critical
+
 ##  deploy-infrastructure:
 ##    docker:
 ##      # Docker image here that supports AWS CLI
