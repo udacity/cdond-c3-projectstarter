@@ -39,7 +39,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: frontend-build.{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Build front-end
           command: |
@@ -57,7 +57,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: backend-build.{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Back-end build
           command: |
