@@ -5,7 +5,7 @@
   "description": "A frontend boilerplate with React, Redux and Typescript",
   "main": "index.js",
   "scripts": {
-    "test": "jest",
+    "test": "jest . --maxWorkers=4",
     "test:watch": "jest --watch",
     "pretest:cov": "npm run lint",
     "test:cov": "jest --coverage",
@@ -131,7 +131,7 @@
       "raf/polyfill"
     ],
     "testRegex": ".*(spec|test)\\.(ts|tsx|js)$",
-    "setupTestFrameworkScriptFile": "<rootDir>/setupTests.ts",
+    "setupFilesAfterEnv": ["<rootDir>/setupTests.ts"],
     "snapshotSerializers": [
       "enzyme-to-json"
     ],
