@@ -49,7 +49,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build.{{ checksum "package.json" }}
+          key: frontend-build.{{ .Environment.CIRCLE_JOB }}
 
   build-backend:
     docker:
@@ -67,7 +67,7 @@ jobs:
              npm run build
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build.{{ checksum "package.json" }}
+          key: backend-build.{{ .Environment.CIRCLE_JOB }}
 
   test-frontend:
     docker:
@@ -75,7 +75,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: frontend-build.{{ checksum "package.json" }}
+          keys: frontend-build.{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Run frontend unit tests
           command: |
@@ -88,7 +88,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: backend-build.{{ checksum "package.json" }}
+          keys: backend-build.{{ .Environment.CIRCLE_JOB }}
       - run:
           name: Run backend unit tests
           command: |
