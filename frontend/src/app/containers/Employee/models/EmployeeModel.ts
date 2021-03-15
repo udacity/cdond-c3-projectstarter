@@ -39,7 +39,7 @@ export interface EmployeeRowModel {
   secondLastName: string;
   displayName: string;
   email: string;
-  birthdate: string;
+  birthdate: Date;
   startDate: string;
   tags: string;
 }

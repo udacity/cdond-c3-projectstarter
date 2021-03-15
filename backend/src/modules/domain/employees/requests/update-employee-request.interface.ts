@@ -7,7 +7,7 @@ export interface UpdateEmployeeRequest {
   displayName: string;
   companyEmail: string;
   personalEmail: string;
-  birthdate: string;
+  birthdate: Date;
   address: string;
   phoneNumber: string;
   bankName: string;
