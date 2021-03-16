@@ -169,7 +169,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
               --stack-name "uda-back-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  | xargs
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" VPCID="vpc-0d1d5d73a2f3be67e"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -177,7 +177,7 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
               --stack-name "uda-front-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  | xargs
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -195,7 +195,7 @@ jobs:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name "uda-front-${CIRCLE_WORKFLOW_ID:0:7}"
-            aws cloudformation delete-stack --stack-name "uda-back-${CIRCLE_WORKFLOW_ID:0:7}" | xargs
+            aws cloudformation delete-stack --stack-name "uda-back-${CIRCLE_WORKFLOW_ID:0:7}"
 ##
 ##  configure-infrastructure:
 ##    docker:
