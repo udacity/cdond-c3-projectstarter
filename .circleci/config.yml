@@ -168,27 +168,24 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name "uda-back-$CIRCLE_WORKFLOW_ID" \
-              --parameter-overrides ID="$CIRCLE_WORKFLOW_ID"  
-              exit 1
+              --stack-name "uda-back-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  | xargs
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name "uda-front-$CIRCLE_WORKFLOW_ID" \
-              --parameter-overrides ID="$CIRCLE_WORKFLOW_ID"  
-              exit 1
+              --stack-name "uda-front-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  | xargs
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             aws ec2 describe-instances
               --filters \
-              "Name=tag:Name,Values=$CIRCLE_WORKFLOW_ID" \
+              "Name=tag:Name,Values=${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[*].Instances[*].[PrivateIpAddress]' \
-              --output text >> ./.circleci/ansible/inventory.txt
-            exit 1
+              --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -197,8 +194,8 @@ jobs:
           name: Delete front and back stacks if CF fails
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name "uda-front-$CIRCLE_WORKFLOW_ID"
-            aws cloudformation delete-stack --stack-name "uda-back-$CIRCLE_WORKFLOW_ID" 
+            aws cloudformation delete-stack --stack-name "uda-front-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws cloudformation delete-stack --stack-name "uda-back-${CIRCLE_WORKFLOW_ID:0:7}" | xargs
 ##
 ##  configure-infrastructure:
 ##    docker:
