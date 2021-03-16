@@ -14,15 +14,16 @@ commands:
               "blocks": [
                 {
                   "type": "section",
-                  "text": {
+                  "fields": [
+                    {
                       "type": "mrkdwn",
                       "text": "❌ Failed in build <$CIRCLE_BUILD_URL|CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <$CIRCLE_REPOSITORY_URL|CIRCLE_PR_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_PULL_REQUEST ($CIRCLE_SHA1)",
                       "emoji": true
-                  }
+                    }
+                  ]
                 }
               ]
             }
-
   notify-success:
     description: Slack notification on pass
     steps:
@@ -33,11 +34,13 @@ commands:
               "blocks": [
                 {
                   "type": "section",
-                  "text": {
+                  "fields": [
+                    {
                       "type": "mrkdwn",
                       "text": "✅ Build Succeded <$CIRCLE_BUILD_URL|CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <$CIRCLE_REPOSITORY_URL|CIRCLE_PR_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_PULL_REQUEST ($CIRCLE_SHA1)",
                       "emoji": true
-                  }
+                    }
+                  ]
                 }
               ]
             }
