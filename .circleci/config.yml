@@ -431,10 +431,10 @@ jobs:
             echo $STACKS
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-              aws s3 rb s3://udapeople-frontend-${OldWorkflowID} --force
+              aws s3 rm s3://udapeople-frontend-${OldWorkflowID} --recursive
               aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}
               aws cloudformation delete-stack --stack-name frontend-${OldWorkflowID}
-              aws cloudfront delete-stack --stack-name udacity-cloudfront-${OldWorkflowID}
+              #aws cloudfront delete-stack --stack-name udacity-cloudfront-${OldWorkflowID}
             fi
 workflows:
   default:
