@@ -1,6 +1,47 @@
 version: 2.1
 
-#commands:
+orbs:
+  slack: circleci/slack@4.3.0
+
+commands:
+  notify-failure:
+    description: Slack notification on failure
+    steps:
+      - slack/notify:
+          event: fail
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": "❌ Failed in build <$CIRCLE_BUILD_URL|CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <$CIRCLE_REPOSITORY_URL|CIRCLE_PR_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_PULL_REQUEST ($CIRCLE_SHA1)",
+                      "emoji": true
+                  }
+                }
+              ]
+            }
+
+  notify-success:
+    description: Slack notification on pass
+    steps:
+      - slack/notify:
+          event: pass
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                      "type": "mrkdwn",
+                      "text": "✅ Build Succeded <$CIRCLE_BUILD_URL|CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <$CIRCLE_REPOSITORY_URL|CIRCLE_PR_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_PULL_REQUEST ($CIRCLE_SHA1)",
+                      "emoji": true
+                  }
+                }
+              ]
+            }
+
 #  destroy-environment:
 #    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
 #    parameters:
@@ -49,6 +90,7 @@ jobs:
             echo 'API_URL=http://localhost:3030' > .env
             npm install
             npm run build
+      - notify-failure
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build-{{ checksum "package-lock.json" }}
@@ -69,6 +111,7 @@ jobs:
              cp .env.sample .env
              npm install 
              npm run build
+      - notify-failure
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build-{{ checksum "package-lock.json" }}
@@ -87,6 +130,7 @@ jobs:
           command: |
              cd frontend
              npm run test
+      - notify-failure
                 
   test-backend:
     docker:
@@ -102,6 +146,7 @@ jobs:
           command: |
              cd backend
              npm run test
+      - notify-failure
             
   scan-frontend:
     docker:
@@ -117,6 +162,8 @@ jobs:
           command: |
              cd backend
              npm audit --audit-level=critical
+             exit 1
+      - notify-failure
 
   scan-backend:
     docker:
@@ -132,6 +179,7 @@ jobs:
           command: |
              cd backend
              npm audit --audit-level=critical
+      - notify-failure
 
 ##  deploy-infrastructure:
 ##    docker:
