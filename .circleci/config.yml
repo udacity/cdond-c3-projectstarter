@@ -17,8 +17,7 @@ commands:
       - slack/notify:
           event: pass
           custom: |
-            { "blocks": [
-                { "type": "section", "fields": [ {"type": "mrkdwn", "text": "✅ Build Succeded <$CIRCLE_BUILD_URL|$CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <$CIRCLE_REPOSITORY_URL|$CIRCLE_PR_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_PULL_REQUEST ($CIRCLE_SHA1)", "emoji": true }]}]}
+            {"blocks": [{"type": "section", "text": { "type": "mrkdwn", "text": "✅ Build Succeded <$CIRCLE_BUILD_URL|$CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <$CIRCLE_REPOSITORY_URL|$CIRCLE_PR_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_PULL_REQUEST ($CIRCLE_SHA1)"}}]}
 
 #  destroy-environment:
 #    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
