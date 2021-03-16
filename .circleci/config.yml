@@ -67,7 +67,6 @@ jobs:
             echo 'API_URL=http://localhost:3030' > .env
             npm install
             npm run build
-            exit 1
       - notify-failure
       - save_cache:
           paths: [frontend/node_modules]
