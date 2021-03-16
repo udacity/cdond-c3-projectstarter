@@ -10,14 +10,14 @@ commands:
       - slack/notify:
           event: fail
           custom: |
-            {"blocks": [{"type": "section", "text": { "type": "mrkdwn", "text": "❌ Failed in build <#$CIRCLE_BUILD_URL|$CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <https://$CIRCLE_REPOSITORY_URL|$CIRCLE_PROJECT_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_TAG ($CIRCLE_SHA1)"}}]}
+            {"blocks": [{"type": "section", "text": { "type": "mrkdwn", "text": "❌ Failed in build #<$CIRCLE_BUILD_URL|$CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <https://$CIRCLE_REPOSITORY_URL|$CIRCLE_PROJECT_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_TAG ($CIRCLE_SHA1)"}}]}
   notify-success:
     description: Slack notification on pass
     steps:
       - slack/notify:
           event: pass
           custom: |
-            {"blocks": [{"type": "section", "text": { "type": "mrkdwn", "text": "✅ Build Succeded <#$CIRCLE_BUILD_URL|$CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <https://$CIRCLE_REPOSITORY_URL|$CIRCLE_PROJECT_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_TAG ($CIRCLE_SHA1)"}}]}
+            {"blocks": [{"type": "section", "text": { "type": "mrkdwn", "text": "✅ Build Succeded #<$CIRCLE_BUILD_URL|$CIRCLE_BUILD_NUM> ($CIRCLE_BRANCH) of <https://$CIRCLE_REPOSITORY_URL|$CIRCLE_PROJECT_REPONAME>\n - $CIRCLE_USERNAME: $CIRCLE_TAG ($CIRCLE_SHA1)"}}]}
 
 #  destroy-environment:
 #    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -67,7 +67,7 @@ jobs:
             echo 'API_URL=http://localhost:3030' > .env
             npm install
             npm run build
-      - notify-failure
+      - notify-success
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build-{{ checksum "package-lock.json" }}
