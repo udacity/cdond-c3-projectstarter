@@ -233,7 +233,7 @@ jobs:
       - run:
           command: |
             apk add --update ansible jq curl
-            cat ~/inventory.txt
+            cat ~/project/.circleci/ansible/inventory.txt
       - run:
           name: Configure server
           command: |
