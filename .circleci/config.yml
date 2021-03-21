@@ -243,31 +243,31 @@ jobs:
       - slack-notify-pass
 #      # Here's where you will add some code to rollback on failure
 
-#  run-migrations:
-#    docker:
-#      - image: circleci/node:13.8.0
-#    steps:
-#      - checkout
-#      - restore_cache:
-#          keys:
-#            - backend-build-{{ checksum "backend/package-lock.json" }}
-#            - backend-build-
-#      - run:
-#          name: Run DB migrations
-#          command: |
-#            cd backend
-#            npm run migrations > ~/migration-result-${CIRCLE_WORKFLOW_ID}
-#            if $(grep "has been executed successfully" ~/migration-result-${CIRCLE_WORKFLOW_ID})
-#            then
-#              curl -H "Content-Type: text/plain" \
-#                   -H "token: ${MEMSTASH_TOKEN}" \
-#                   --request PUT \
-#                   --data "1" \
-#                   "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
-#            fi
-#      - slack-notify-fail
-#      - slack-notify-pass
-#
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
+            - backend-build-
+      - run:
+          name: Run DB migrations
+          command: |
+            cd backend
+            npm run migrations > ~/migration-result-${CIRCLE_WORKFLOW_ID}
+            if $(grep "has been executed successfully" ~/migration-result-${CIRCLE_WORKFLOW_ID})
+            then
+              curl -H "Content-Type: text/plain" \
+                   -H "token: ${MEMSTASH_TOKEN}" \
+                   --request PUT \
+                   --data "1" \
+                   "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
+            fi
+      - slack-notify-fail
+      - slack-notify-pass
+
 #     # Here's where you will add some code to rollback on failure
 #
 #  deploy-frontend:
@@ -394,15 +394,15 @@ workflows:
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-          context:
-            - slack-secrets
-#      - run-migrations:
-#          requires: [configure-infrastructure]
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
 #          context:
 #            - slack-secrets
-#            - memstash-secrets
+      - run-migrations:
+#          requires: [configure-infrastructure]
+          context:
+            - slack-secrets
+            - memstash-secrets
 #      - deploy-frontend:
 #          requires: [run-migrations]
 #      - deploy-backend:
