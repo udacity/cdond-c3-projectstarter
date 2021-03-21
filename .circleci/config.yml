@@ -232,7 +232,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            apk add --update ansible jq
+            apk add --update ansible jq curl
       - run:
           name: Configure server
           command: |
