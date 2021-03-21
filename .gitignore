@@ -68,3 +68,4 @@ node_modules
 
 .env
 dist
+parameters*.json

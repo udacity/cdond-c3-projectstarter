@@ -16,58 +16,64 @@ commands:
           event: pass
           template: basic_success_1
 
-  destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+  memstash-put:
     parameters:
-      # Add parameter here   
+      data:
+        type: string
+      key:
+        type: string
     steps:
       - run:
-          name: Destroy environments
-          when: on_fail
+          name: PUT Memstash
           command: |
-            # Your code here
-            exit 1
+            curl -H "Content-Type: text/plain" \
+                 -H "${MEMSTASH_TOKEN}" \
+                 --request PUT \
+                 --data << parameters.data>> https://api.memstash.io/values/<< parameters.key >>>
 
-  revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
+  memstash-get:
     parameters:
+      key:
+        type: string
+    steps:
+      - run:
+          name: GET Memstash
+          command: |
+            curl -H "token: ${MEMSTASH_TOKEN}" \
+                 --request GET https://api.memstash.io/values/<< parameters.key >>
+
+#  destroy-environment:
+#    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+#    parameters:
+#       Add parameter here
+#    steps:
+#      - run:
+#          name: Destroy environments
+#          when: on_fail
+#          command: |
+#             Your code here
+#            exit 1
+#
+#  revert-migrations:
+#    description: Revert the last migration if successfully run in the current workflow.
+#    parameters:
       # Add parameter here     
-    steps:
-      - run:
-          name: Revert migrations
+#    steps:
+#      - run:
+#          name: Revert migrations
           # Add when this will run
-          command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
-            then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
-            fi
-            
-jobs:
-  build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package-lock.json" }}
-      - run:
-          name: Build front-end
-          command: |
-            cd frontend
-            npm i
-            npm run build
-      - save_cache:
-          paths:
-            - frontend/node_modules
-          key: frontend-build-{{ checksum "frontend/package-lock.json" }}
-      - slack-notify-fail
+#          command: |
+#             Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+#            SUCCESS = 1
+#            if(( $SUCCESS==1 ));
+#            then
+        #  cd ~/project/backend
+        #  npm install
+        #  Add revert code here. You can find this in the Getting Started section.
+#        exit 1
+#        fi
 
+jobs:
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -88,22 +94,6 @@ jobs:
           key: backend-build-{{ checksum "backend/package-lock.json" }}
       - slack-notify-fail
 
-  test-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package-lock.json" }}
-            - frontend-build-
-      - run:
-          name: Run front-end tests
-          command: |
-            cd frontend
-            npm run test
-      - slack-notify-fail
-                
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -111,29 +101,13 @@ jobs:
       - checkout
       - restore_cache:
           keys:
-           - backend-build-{{ checksum "backend/package-lock.json" }}
-           - backend-build-
+            - backend-build-{{ checksum "backend/package-lock.json" }}
+            - backend-build-
       - run:
           name: Run Back-end tests
           command: |
             cd backend
             npm run test
-      - slack-notify-fail
-            
-  scan-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package-lock.json" }}
-            - frontend-build-
-      - run:
-          name: Run front-end scan
-          command: |
-            cd frontend
-            npm audit fix --audit-level=critical --force
       - slack-notify-fail
 
   scan-backend:
@@ -152,12 +126,64 @@ jobs:
             npm audit fix --audit-level=critical --force
       - slack-notify-fail
 
+  build-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+      - run:
+          name: Build front-end
+          command: |
+            cd frontend
+            npm i
+            npm run build
+      - save_cache:
+          paths:
+            - frontend/node_modules
+          key: frontend-build-{{ checksum "frontend/package-lock.json" }}
+      - slack-notify-fail
+
+  test-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-
+      - run:
+          name: Run front-end tests
+          command: |
+            cd frontend
+            npm run test
+      - slack-notify-fail
+
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-
+      - run:
+          name: Run front-end scan
+          command: |
+            cd frontend
+            npm audit fix --audit-level=critical --force
+      - slack-notify-fail
+
   deploy-infrastructure:
     docker:
        - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum -y install jq tar gzip
+      - run: yum -y install jq tar gzip curl
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -166,6 +192,9 @@ jobs:
               --tags project=udapeople \
               --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+      - memstash-put:
+          data: "$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
+          key: "backend-url-${CIRCLE_WORKFLOW_ID}"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -189,40 +218,46 @@ jobs:
       - slack-notify-pass
 ##       Here's where you will add some code to rollback on failure
 #
-#  configure-infrastructure:
-#    docker:
-#      # Docker image here that supports Ansible
-#    steps:
-#      # Checkout code from git
-#      # Add ssh keys with fingerprint
-#      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # Your code here
-#            exit 1
-#      - run:
-#          name: Configure server
-#          command: |
-#            # Your code here
-#            exit 1
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "50:d5:1c:e8:b9:43:d9:30:82:32:2a:b1:99:12:19:dd"
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install ansible dependency
+          command: |
+            apk add --update ansible
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i ~/inventory.txt ./.circleci/ansible/configure-server.yml
 #      # Here's where you will add some code to rollback on failure
-#
-#  run-migrations:
-#    docker:
-#      # Docker image here that supports NodeJS
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Run migrations
-#          command: |
-#            # Your code here
-#            exit 1
-#      - run:
-#          name: Send migration results to memstash
-#          command: |
-#            # Your code here
-#            exit 1
+
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm run migrations > ~/migration-result-${CIRCLE_WORKFLOW_ID}
+            cat ~/migration-result-${CIRCLE_WORKFLOW_ID} | grep "has been executed successfully"
+      - run:
+          name: Send migration results to memstash
+          command: |
+            curl -H "Content-Type: text/plain" \
+                 -H "token: ${MEMSTASH_TOKEN}" \
+                 --request PUT \
+                 --data "value" \
+                 https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+
 #     # Here's where you will add some code to rollback on failure
 #
 #  deploy-frontend:
@@ -344,6 +379,7 @@ workflows:
           context:
             - aws-secrets
             - slack-secrets
+            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
