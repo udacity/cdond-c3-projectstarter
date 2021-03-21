@@ -233,11 +233,11 @@ jobs:
       - run:
           command: |
             apk add --update ansible jq curl
-            cat ~/project/.circleci/ansible/inventory.txt
       - run:
           name: Configure server
+          working_directory: .circleci/ansible
           command: |
-            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i inventory.txt configure-server.yml
       - slack-notify-fail
       - slack-notify-pass
 #      # Here's where you will add some code to rollback on failure
@@ -384,10 +384,10 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-      - deploy-infrastructure:
-          context:
-            - aws-secrets
-            - slack-secrets
+#      - deploy-infrastructure:
+#          context:
+#            - aws-secrets
+#            - slack-secrets
 #            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
