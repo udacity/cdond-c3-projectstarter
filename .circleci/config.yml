@@ -185,7 +185,7 @@ jobs:
        - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum -y install jq tar gzip
+#      - run: yum -y install jq tar gzip
 #      - run:
 #          name: Ensure back-end infrastructure exists
 #          command: |
@@ -194,30 +194,30 @@ jobs:
 #              --tags project=udapeople \
 #              --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
 #              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
-      - memstash-put:
-          data: "$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
-          key: "backend-url-${CIRCLE_WORKFLOW_ID}"
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople \
-              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
-              --output text >> .circleci/ansible/inventory.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/.circleci/ansible/inventory.txt
+#      - memstash-put:
+#          data: "$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
+#          key: "backend-url-${CIRCLE_WORKFLOW_ID}"
+#      - run:
+#          name: Ensure front-end infrastructure exist
+#          command: |
+#            aws cloudformation deploy \
+#              --template-file .circleci/files/frontend.yml \
+#              --tags project=udapeople \
+#              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
+#              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+#      - run:
+#          name: Add back-end ip to ansible inventory
+#          command: |
+#            aws ec2 describe-instances \
+#              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+#              --filters "Name=tag:project,Values=udapeople" \
+#              --output text >> .circleci/ansible/inventory.txt
+#      - persist_to_workspace:
+#          root: ~/
+#          paths:
+#            - project/.circleci/ansible/inventory.txt
       - slack-notify-fail
-      - slack-notify-pass
+#      - slack-notify-pass
 ##       Here's where you will add some code to rollback on failure
 #
   configure-infrastructure:
@@ -237,7 +237,9 @@ jobs:
       - run:
           name: Configure server
           command: |
-            ansible-playbook -i ~/inventory.txt ./.circleci/ansible/configure-server.yml
+            ansible-playbook -i ~/inventory.txt .circleci/ansible/configure-server.yml
+      - slack-notify-fail
+      - slack-notify-pass
 #      # Here's where you will add some code to rollback on failure
 
   run-migrations:
@@ -246,19 +248,20 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run migrations
+          name: Run DB migrations
           command: |
             cd backend
             npm run migrations > ~/migration-result-${CIRCLE_WORKFLOW_ID}
-            cat ~/migration-result-${CIRCLE_WORKFLOW_ID} | grep "has been executed successfully"
-      - run:
-          name: Send migration results to memstash
-          command: |
-            curl -H "Content-Type: text/plain" \
-                 -H "token: ${MEMSTASH_TOKEN}" \
-                 --request PUT \
-                 --data "value" \
-                 https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            if $(cat ~/migration-result-${CIRCLE_WORKFLOW_ID} | grep "has been executed successfully")
+            then
+              curl -H "Content-Type: text/plain" \
+                   -H "token: ${MEMSTASH_TOKEN}" \
+                   --request PUT \
+                   --data "1" \
+                   "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
+            fi
+      - slack-notify-fail
+      - slack-notify-pass
 
 #     # Here's where you will add some code to rollback on failure
 #
@@ -377,19 +380,21 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-      - deploy-infrastructure:
-          context:
-            - aws-secrets
-            - slack-secrets
-            - memstash-secrets
+#      - deploy-infrastructure:
+#          context:
+#            - aws-secrets
+#            - slack-secrets
+#            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
-#      - configure-infrastructure:
+      - configure-infrastructure
 #          requires: [deploy-infrastructure]
-#      - run-migrations:
-#          requires: [configure-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+          context:
+            - memstash-secrets
 #      - deploy-frontend:
 #          requires: [run-migrations]
 #      - deploy-backend:
