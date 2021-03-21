@@ -1,0 +1,19 @@
+---
+- name: "copy backend distribution files"
+  copy:
+    src: backend
+    dest: ~/app
+
+- name: "Install dependencies"
+  community.general.npm:
+    path: ~/app
+
+- name: "Build"
+  shell: |
+    cd ~/app
+    npm run build
+
+- name: "start pm2"
+  shell: |
+    pm2 start ~/app/dist/main.js
+    pm2 ls
