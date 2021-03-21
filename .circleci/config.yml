@@ -27,9 +27,9 @@ commands:
           name: PUT Memstash
           command: |
             curl -H "Content-Type: text/plain" \
-                 -H "${MEMSTASH_TOKEN}" \
+                 -H "token: ${MEMSTASH_TOKEN}" \
                  --request PUT \
-                 --data "<< parameters.data>>" \
+                 --data "<< parameters.data >>" \
                  "https://api.memstash.io/values/<< parameters.key >>"
 
   memstash-get:
@@ -41,7 +41,8 @@ commands:
           name: GET Memstash
           command: |
             curl -H "token: ${MEMSTASH_TOKEN}" \
-                 --request GET https://api.memstash.io/values/<< parameters.key >>
+                 --request GET \
+                 "https://api.memstash.io/values/<< parameters.key >>"
 
 #  destroy-environment:
 #    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
