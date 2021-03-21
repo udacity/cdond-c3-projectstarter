@@ -258,7 +258,7 @@ jobs:
             cd backend
             npm run migrations > migration-result-${CIRCLE_WORKFLOW_ID}
             cat migration-result-${CIRCLE_WORKFLOW_ID}
-            if grep "has been executed successfully" ~/migration-result-${CIRCLE_WORKFLOW_ID}
+            if grep "has been executed successfully" migration-result-${CIRCLE_WORKFLOW_ID}
             then
               curl -H "Content-Type: text/plain" \
                    -H "token: ${MEMSTASH_TOKEN}" \
