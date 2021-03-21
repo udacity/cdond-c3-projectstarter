@@ -2,7 +2,6 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.3.1
-  aws-cli: circleci/aws-cli@1.4.0
 
 commands:
   slack-notify-fail:
@@ -272,15 +271,14 @@ jobs:
 #     # Here's where you will add some code to rollback on failure
 #
   deploy-frontend:
-    executor: aws-cli/default
+    docker:
+      - image: amazon/aws-cli
     steps:
-      - aws-cli/setup
       - checkout
       - run:
           command: |
-            uname
-            echo ${PATH}
-            apt -y install jq tar gzip nodejs npm
+            curl --silent --Location https://rpm.nodesource.com/setup_14.x | bash -
+            yum -y install jq tar gzip nodejs
       - run:
           name: Get backend url
           command: |
