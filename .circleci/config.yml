@@ -256,8 +256,9 @@ jobs:
           name: Run DB migrations
           command: |
             cd backend
-            npm run migrations > ~/migration-result-${CIRCLE_WORKFLOW_ID}
-            if $(grep "has been executed successfully" ~/migration-result-${CIRCLE_WORKFLOW_ID})
+            npm run migrations > migration-result-${CIRCLE_WORKFLOW_ID}
+            cat migration-result-${CIRCLE_WORKFLOW_ID}
+            if grep "has been executed successfully" ~/migration-result-${CIRCLE_WORKFLOW_ID}
             then
               curl -H "Content-Type: text/plain" \
                    -H "token: ${MEMSTASH_TOKEN}" \
@@ -385,10 +386,10 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-      - deploy-infrastructure:
-          context:
-            - aws-secrets
-            - slack-secrets
+#      - deploy-infrastructure:
+#          context:
+#            - aws-secrets
+#            - slack-secrets
 #            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
