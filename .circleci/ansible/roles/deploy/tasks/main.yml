@@ -6,7 +6,8 @@
 
 - name: "Install dependencies"
   shell: |
-    - npm install
+    cd ~/app
+    npm install
 
 - name: "Build"
   shell: |
