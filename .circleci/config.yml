@@ -267,29 +267,35 @@ jobs:
                    "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
             fi
       - slack-notify-fail
-      - slack-notify-pass
 
 #     # Here's where you will add some code to rollback on failure
 #
-#  deploy-frontend:
-#    docker:
-#      # Docker image here that supports AWS CLI
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Get backend url
-#          command: |
-#            # your code here
-#            export API_URL="http://${BACKEND_IP}:3030"
-#            echo "${API_URL}"
-#      - run:
-#          name: Deploy frontend objects
-#          command: |
-#            # your code here
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum -y install jq tar gzip nodejs npm
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP="$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-
+      - run:
+          name: Deploy frontend objects
+          working_directory: frontend
+          command: |
+            npm run build
+            aws s3 sync dist s3://udapeople-fb20a029-08e2-4b4d-8288-0e4ee0a79dfc
+      - slack-notify-fail
+      - slack-notify-pass
+
+
 #      # Here's where you will add some code to rollback on failure
 #
 #  deploy-backend:
@@ -399,12 +405,15 @@ workflows:
 #          requires: [deploy-infrastructure]
 #          context:
 #            - slack-secrets
-      - run-migrations:
+#      - run-migrations:
 #          requires: [configure-infrastructure]
+#          context:
+#            - slack-secrets
+#            - memstash-secrets
+      - deploy-frontend:
           context:
+            - aws-secrets
             - slack-secrets
-            - memstash-secrets
-#      - deploy-frontend:
 #          requires: [run-migrations]
 #      - deploy-backend:
 #          requires: [run-migrations]
