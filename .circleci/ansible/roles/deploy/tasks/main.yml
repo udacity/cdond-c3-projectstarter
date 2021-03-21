@@ -5,8 +5,8 @@
     dest: ~/app
 
 - name: "Install dependencies"
-  community.general.npm:
-    path: ~/app
+  shell: |
+    - npm install
 
 - name: "Build"
   shell: |
