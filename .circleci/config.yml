@@ -29,7 +29,8 @@ commands:
             curl -H "Content-Type: text/plain" \
                  -H "${MEMSTASH_TOKEN}" \
                  --request PUT \
-                 --data << parameters.data>> https://api.memstash.io/values/<< parameters.key >>>
+                 --data "<< parameters.data>>" \
+                 "https://api.memstash.io/values/<< parameters.key >>"
 
   memstash-get:
     parameters:
@@ -183,37 +184,37 @@ jobs:
        - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum -y install jq tar gzip curl
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --tags project=udapeople \
-              --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+      - run: yum -y install jq tar gzip
+#      - run:
+#          name: Ensure back-end infrastructure exists
+#          command: |
+#            aws cloudformation deploy \
+#              --template-file .circleci/files/backend.yml \
+#              --tags project=udapeople \
+#              --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
+#              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
       - memstash-put:
           data: "$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
           key: "backend-url-${CIRCLE_WORKFLOW_ID}"
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople \
-              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
-              --output text >> .circleci/ansible/inventory.txt
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/.circleci/ansible/inventory.txt
+#      - run:
+#          name: Ensure front-end infrastructure exist
+#          command: |
+#            aws cloudformation deploy \
+#              --template-file .circleci/files/frontend.yml \
+#              --tags project=udapeople \
+#              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
+#              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+#      - run:
+#          name: Add back-end ip to ansible inventory
+#          command: |
+#            aws ec2 describe-instances \
+#              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+#              --filters "Name=tag:project,Values=udapeople" \
+#              --output text >> .circleci/ansible/inventory.txt
+#      - persist_to_workspace:
+#          root: ~/
+#          paths:
+#            - project/.circleci/ansible/inventory.txt
       - slack-notify-fail
       - slack-notify-pass
 ##       Here's where you will add some code to rollback on failure
