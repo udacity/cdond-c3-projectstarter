@@ -285,14 +285,15 @@ jobs:
             export BACKEND_IP="$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package-lock.json" }}
-            - frontend-build-
+#      - restore_cache:
+#          keys:
+#            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+#            - frontend-build-
       - run:
           name: Deploy frontend objects
           working_directory: frontend
           command: |
+            npm install
             npm run build
             aws s3 sync dist s3://udapeople-fb20a029-08e2-4b4d-8288-0e4ee0a79dfc
       - slack-notify-fail
