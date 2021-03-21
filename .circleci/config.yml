@@ -277,7 +277,7 @@ jobs:
       - checkout
       - run:
           command: |
-            curl --silent --Location https://rpm.nodesource.com/setup_14.x | bash -
+            curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
             yum -y install jq tar gzip nodejs
 #      - restore_cache:
 #          keys:
@@ -294,26 +294,29 @@ jobs:
             npm run build
             aws s3 sync dist s3://udapeople-fb20a029-08e2-4b4d-8288-0e4ee0a79dfc
       - slack-notify-fail
-      - slack-notify-pass
-
 
 #      # Here's where you will add some code to rollback on failure
 #
-#  deploy-backend:
-#    docker:
-#      # Docker image here that supports Ansible
-#    steps:
-#      # Checkout code from git
-#      # Add ssh keys with fingerprint
-#      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Deploy backend
-#          command: |
-#            # your code here
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "50:d5:1c:e8:b9:43:d9:30:82:32:2a:b1:99:12:19:dd"
+      - attach_workspace:
+          at: ~/
+      - run:
+          command: |
+            apk add --update ansible jq curl
+            cat ~/project/.circleci/ansible/inventory.txt
+      - run:
+          name: Deploy backend
+          command: |
+            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+      - slack-notify-fail
+      - slack-notify-pass
 #      # Here's where you will add some code to rollback on failure
 #
 #  smoke-test:
@@ -393,10 +396,10 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-#      - deploy-infrastructure:
-#          context:
-#            - aws-secrets
-#            - slack-secrets
+      - deploy-infrastructure:
+          context:
+            - aws-secrets
+            - slack-secrets
 #            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
@@ -411,13 +414,15 @@ workflows:
 #          context:
 #            - slack-secrets
 #            - memstash-secrets
-      - deploy-frontend:
+#      - deploy-frontend:
+#          context:
+#            - aws-secrets
+#            - slack-secrets
+#          requires: [run-migrations]
+      - deploy-backend:
           context:
-            - aws-secrets
             - slack-secrets
-#          requires: [run-migrations]
-#      - deploy-backend:
-#          requires: [run-migrations]
+          requires: [deploy-infrastructure]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
