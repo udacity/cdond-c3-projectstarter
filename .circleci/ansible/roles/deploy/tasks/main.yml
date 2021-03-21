@@ -6,12 +6,11 @@
 
 - name: "Install and Build"
   shell: |
-    ls ~/app
     cd ~/app
+    env
     npm i
     npm run build
 
 - name: "start pm2"
   shell: |
     pm2 start ~/app/dist/main.js
-    pm2 ls
