@@ -225,23 +225,23 @@ jobs:
       - checkout
       - run: yum -y install jq tar gzip
 
-      - deploy-aws-cloudformation:
-          template_file: ".circleci/files/backend.yml"
-          stack_name: "backend-${CIRCLE_WORKFLOW_ID}"
-          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople"
-          description: Ensure back-end infrastructure exists
-
-      - memstash-put:
-          data: "$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
-          key: "backend-dns-name-${CIRCLE_WORKFLOW_ID}"
-
-      - deploy-aws-cloudformation:
-          template_file: ".circleci/files/frontend.yml"
-          stack_name: "frontend-${CIRCLE_WORKFLOW_ID}"
-          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople"
-          description: Ensure front-end infrastructure exists
+#      - deploy-aws-cloudformation:
+#          template_file: ".circleci/files/backend.yml"
+#          stack_name: "backend-${CIRCLE_WORKFLOW_ID}"
+#          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
+#          tags: "project=udapeople"
+#          description: Ensure back-end infrastructure exists
+#
+#      - memstash-put:
+#          data: "$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
+#          key: "backend-dns-name-${CIRCLE_WORKFLOW_ID}"
+#
+#      - deploy-aws-cloudformation:
+#          template_file: ".circleci/files/frontend.yml"
+#          stack_name: "frontend-${CIRCLE_WORKFLOW_ID}"
+#          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
+#          tags: "project=udapeople"
+#          description: Ensure front-end infrastructure exists
 
       - run:
           name: Add back-end ip to ansible inventory
@@ -278,7 +278,6 @@ jobs:
           command: |
             ansible-playbook -i inventory.txt configure-server.yml
       - slack-notify-fail
-      - slack-notify-pass
 #      # Here's where you will add some code to rollback on failure
 
   run-migrations:
@@ -443,10 +442,10 @@ workflows:
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
-#          context:
-#            - slack-secrets
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+          context:
+            - slack-secrets
 #      - run-migrations:
 #          requires: [configure-infrastructure]
 #          context:
