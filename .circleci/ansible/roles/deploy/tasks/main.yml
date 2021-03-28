@@ -13,7 +13,7 @@
 - name: "start pm2"
   shell: |
     cd ~/app
-    pm2 start npm run start
+    npm run start:prod
   environment:
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
     TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
