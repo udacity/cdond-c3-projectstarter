@@ -358,7 +358,7 @@ jobs:
           at: ~/
       - run:
           command: |
-            apk add --update ansible jq curl
+            apk add --update ansible jq curl nodejs
             cat ~/project/.circleci/ansible/inventory.txt
       - restore_cache:
           keys:
