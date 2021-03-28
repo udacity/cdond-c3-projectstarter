@@ -13,4 +13,4 @@
 
 - name: "start pm2"
   shell: |
-    pm2 start ~/app/dist/main.js
+    pm2 start ~/app/main.js
