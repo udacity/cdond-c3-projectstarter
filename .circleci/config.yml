@@ -324,7 +324,7 @@ jobs:
       - checkout
       - run:
           command: |
-            yum -y install jq tar gzip aws-cli
+            apt -y install jq tar gzip aws-cli
       - restore_cache:
           keys:
             - frontend-build-{{ checksum "frontend/package-lock.json" }}
