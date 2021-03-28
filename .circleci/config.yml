@@ -324,7 +324,7 @@ jobs:
       - checkout
       - run:
           command: |
-            sudo apt-get install -y aws-cli
+            sudo apt-get install -y awscli
       - restore_cache:
           keys:
             - frontend-build-{{ checksum "frontend/package-lock.json" }}
