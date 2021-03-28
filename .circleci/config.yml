@@ -358,18 +358,17 @@ jobs:
           at: ~/
       - run:
           command: |
-            apk add --update ansible jq curl
+            apk add --update ansible jq curl tar
             cat ~/project/.circleci/ansible/inventory.txt
 #      - restore_cache:
 #          keys:
 #            - backend-build-{{ checksum "backend/package-lock.json" }}
 #            - backend-build-
-#      - run:
-#          name: build backend
-#          working_directory: backend
-#          command: |
-#            npm install
-#            npm run build
+      - run:
+          name: tar backend directory
+          command: |
+            tar czf backend.tar.gz backend
+
       - run:
           name: Deploy backend
           working_directory: .circleci/ansible
@@ -464,10 +463,10 @@ workflows:
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-          context:
-            - slack-secrets
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
+#          context:
+#            - slack-secrets
 #      - run-migrations:
 #          requires: [configure-infrastructure]
 #          context:

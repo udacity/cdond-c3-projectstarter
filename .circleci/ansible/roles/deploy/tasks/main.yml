@@ -1,8 +1,13 @@
 ---
-- name: "copy backend distribution files"
+- name: "copy backend tar.gz "
   copy:
-    src: ~/project/backend/
+    src: ~/project/backend.tar.gz
     dest: ~/app
+
+- name: "un tar backend tar.gz"
+  shell: |
+    cd ~/app
+    tar -xf backend.tar.gz
 
 - name: "Install and Build"
   shell: |
