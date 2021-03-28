@@ -472,15 +472,15 @@ workflows:
 #          context:
 #            - slack-secrets
 #            - memstash-secrets
-#      - deploy-frontend:
+      - deploy-frontend:
+          context:
+            - aws-secrets
+            - slack-secrets
+#          requires: [deploy-infrastructure]
+#      - deploy-backend:
 #          context:
-#            - aws-secrets
 #            - slack-secrets
 #          requires: [deploy-infrastructure]
-      - deploy-backend:
-          context:
-            - slack-secrets
-          requires: [deploy-infrastructure]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
