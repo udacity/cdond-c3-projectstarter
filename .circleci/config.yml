@@ -4,6 +4,19 @@ orbs:
   slack: circleci/slack@4.3.1
 
 commands:
+
+  npm-install-build:
+    parameters:
+      project_directory:
+        type: string
+    steps:
+      - run:
+          name: Install and Build in project directory "<< parameters.project_directory >>"
+          working_directory: "<< parameters.project_directory >>"
+          command: |
+            npm i
+            npm run build
+
   slack-notify-fail:
     steps:
       - slack/notify:
@@ -76,6 +89,22 @@ commands:
 #        fi
 
 jobs:
+  build-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+      - npm-install-build:
+          project_directory: frontend
+      - save_cache:
+          paths:
+            - frontend/node_modules
+          key: frontend-build-{{ checksum "frontend/package-lock.json" }}
+      - slack-notify-fail
+
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -84,12 +113,8 @@ jobs:
       - restore_cache:
           keys:
             - backend-build-{{ checksum "backend/package-lock.json" }}
-      - run:
-          name: Back-end build
-          command: |
-            cd backend
-            npm i
-            npm run build
+      - npm-install-build:
+          project_directory: backend
       - save_cache:
           paths:
             - backend/node_modules
@@ -126,26 +151,6 @@ jobs:
           command: |
             cd backend
             npm audit fix --audit-level=critical --force
-      - slack-notify-fail
-
-  build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package-lock.json" }}
-      - run:
-          name: Build front-end
-          command: |
-            cd frontend
-            npm i
-            npm run build
-      - save_cache:
-          paths:
-            - frontend/node_modules
-          key: frontend-build-{{ checksum "frontend/package-lock.json" }}
       - slack-notify-fail
 
   test-frontend:
@@ -380,10 +385,10 @@ jobs:
 workflows:
   default:
     jobs:
-#      - build-frontend:
-#          context: slack-secrets
-#      - build-backend:
-#          context: slack-secrets
+      - build-frontend:
+          context: slack-secrets
+      - build-backend:
+          context: slack-secrets
 #      - test-frontend:
 #          context: slack-secrets
 #          requires: [build-frontend]
@@ -396,10 +401,10 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-      - deploy-infrastructure:
-          context:
-            - aws-secrets
-            - slack-secrets
+#      - deploy-infrastructure:
+#          context:
+#            - aws-secrets
+#            - slack-secrets
 #            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
@@ -419,10 +424,10 @@ workflows:
 #            - aws-secrets
 #            - slack-secrets
 #          requires: [run-migrations]
-      - deploy-backend:
-          context:
-            - slack-secrets
-          requires: [deploy-infrastructure]
+#      - deploy-backend:
+#          context:
+#            - slack-secrets
+#          requires: [deploy-infrastructure]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
