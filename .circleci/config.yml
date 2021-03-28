@@ -51,6 +51,28 @@ commands:
           command: |
             npm audit fix --audit-level=critical --force
 
+  deploy-aws-cloudformation:
+    parameters:
+      template_file:
+        type: string
+      stack_name:
+        type: string
+      parameter_overrides:
+        type: string
+      tags:
+        type: string
+      description:
+        type: string
+    steps:
+      - run:
+          name: "<< parameters.description >>"
+          command: |
+            aws cloudformation deploy \
+                --template-file "<< parameters.template_file >>" \
+                --stack-name "<< parameters.stack_name >>" \
+                --parameter-overrides "<< parameters.parameter_overrides >>" \
+                --tags "<< parameters.tags >>"
+
   memstash-put:
     parameters:
       data:
@@ -202,25 +224,25 @@ jobs:
     steps:
       - checkout
       - run: yum -y install jq tar gzip
-#      - run:
-#          name: Ensure back-end infrastructure exists
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/backend.yml \
-#              --tags project=udapeople \
-#              --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
-#              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
-#      - memstash-put:
-#          data: "$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
-#          key: "backend-url-${CIRCLE_WORKFLOW_ID}"
-#      - run:
-#          name: Ensure front-end infrastructure exist
-#          command: |
-#            aws cloudformation deploy \
-#              --template-file .circleci/files/frontend.yml \
-#              --tags project=udapeople \
-#              --stack-name "frontend-${CIRCLE_WORKFLOW_ID}" \
-#              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
+
+      - deploy-aws-cloudformation:
+          template_file: ".circleci/files/backend.yml"
+          stack_name: "backend-${CIRCLE_WORKFLOW_ID}"
+          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
+          tags: "project=udapeople"
+          description: Ensure back-end infrastructure exists
+
+      - memstash-put:
+          data: "$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
+          key: "backend-dns-name-${CIRCLE_WORKFLOW_ID}"
+
+      - deploy-aws-cloudformation:
+          template_file: ".circleci/files/frontend.yml"
+          stack_name: "frontend-${CIRCLE_WORKFLOW_ID}"
+          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
+          tags: "project=udapeople"
+          description: Ensure front-end infrastructure exists
+
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -228,12 +250,12 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
               --output text >> .circleci/ansible/inventory.txt
+
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
       - slack-notify-fail
-#      - slack-notify-pass
 ##       Here's where you will add some code to rollback on failure
 #
   configure-infrastructure:
@@ -406,17 +428,17 @@ workflows:
 #      - test-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-      - scan-frontend:
-          context: slack-secrets
+#      - scan-frontend:
+#          context: slack-secrets
 #          requires: [build-frontend]
-      - scan-backend:
-          context: slack-secrets
+#      - scan-backend:
+#          context: slack-secrets
 #          requires: [build-backend]
-#      - deploy-infrastructure:
-#          context:
-#            - aws-secrets
-#            - slack-secrets
-#            - memstash-secrets
+      - deploy-infrastructure:
+          context:
+            - aws-secrets
+            - slack-secrets
+            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
