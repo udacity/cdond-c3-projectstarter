@@ -290,7 +290,7 @@ jobs:
             - backend-build-{{ checksum "backend/package-lock.json" }}
             - backend-build-
       - run:
-          name: setup .env file
+          name: Run DB migrations
           working_directory: backend
           command: |
             echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" > .env
@@ -303,20 +303,16 @@ jobs:
             echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
             echo "TYPEORM_ENTITIES=./src/modules/**/*.entity.ts" >> .env
             cat .env
-#      - run:
-#          name: Run DB migrations
-#          working_directory: backend
-#          command: |
-#            npm run migrations > migration-result-${CIRCLE_WORKFLOW_ID}
-#            cat migration-result-${CIRCLE_WORKFLOW_ID}
-#            if grep "has been executed successfully" migration-result-${CIRCLE_WORKFLOW_ID}
-#            then
-#              curl -H "Content-Type: text/plain" \
-#                   -H "token: ${MEMSTASH_TOKEN}" \
-#                   --request PUT \
-#                   --data "1" \
-#                   "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
-#            fi
+            npm run migrations > migration-result-${CIRCLE_WORKFLOW_ID}
+            cat migration-result-${CIRCLE_WORKFLOW_ID}
+            if grep "has been executed successfully" migration-result-${CIRCLE_WORKFLOW_ID}
+            then
+              curl -H "Content-Type: text/plain" \
+                   -H "token: ${MEMSTASH_TOKEN}" \
+                   --request PUT \
+                   --data "1" \
+                   "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
+            fi
       - slack-notify-fail
 
 #     # Here's where you will add some code to rollback on failure
