@@ -5,6 +5,18 @@ orbs:
 
 commands:
 
+  slack-notify-fail:
+    steps:
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
+  slack-notify-pass:
+    steps:
+      - slack/notify:
+          event: pass
+          template: basic_success_1
+
   npm-install-build:
     parameters:
       project_directory:
@@ -28,17 +40,16 @@ commands:
           command: |
             npm run test
 
-  slack-notify-fail:
+  npm-force-critical-fix:
+    parameters:
+      project_directory:
+        type: string
     steps:
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
-
-  slack-notify-pass:
-    steps:
-      - slack/notify:
-          event: pass
-          template: basic_success_1
+      - run:
+          name: Scan dependencies and fix in project directory "<< parameters.project_directory >>"
+          working_directory: "<< parameters.project_directory >>"
+          command: |
+            npm audit fix --audit-level=critical --force
 
   memstash-put:
     parameters:
@@ -159,23 +170,6 @@ jobs:
           project_directory: backend
       - slack-notify-fail
 
-  scan-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - backend-build-{{ checksum "backend/package-lock.json" }}
-            - backend-build-
-      - run:
-          name: Run Back-end scan
-          command: |
-            cd backend
-            npm audit fix --audit-level=critical --force
-      - slack-notify-fail
-
-
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -185,11 +179,21 @@ jobs:
           keys:
             - frontend-build-{{ checksum "frontend/package-lock.json" }}
             - frontend-build-
-      - run:
-          name: Run front-end scan
-          command: |
-            cd frontend
-            npm audit fix --audit-level=critical --force
+      - npm-force-critical-fix:
+          project_directory: frontend
+      - slack-notify-fail
+
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
+            - backend-build-
+      - npm-force-critical-fix:
+          project_directory: backend
       - slack-notify-fail
 
   deploy-infrastructure:
@@ -396,17 +400,17 @@ workflows:
 #          context: slack-secrets
 #      - build-backend:
 #          context: slack-secrets
-      - test-frontend:
-          context: slack-secrets
+#      - test-frontend:
+#          context: slack-secrets
 #          requires: [build-frontend]
-      - test-backend:
-          context: slack-secrets
+#      - test-backend:
+#          context: slack-secrets
 #          requires: [build-backend]
-#      - scan-frontend:
-#          context: slack-secrets
+      - scan-frontend:
+          context: slack-secrets
 #          requires: [build-frontend]
-#      - scan-backend:
-#          context: slack-secrets
+      - scan-backend:
+          context: slack-secrets
 #          requires: [build-backend]
 #      - deploy-infrastructure:
 #          context:
