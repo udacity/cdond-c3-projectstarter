@@ -348,7 +348,7 @@ jobs:
 #
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - add_ssh_keys:
@@ -358,7 +358,10 @@ jobs:
           at: ~/
       - run:
           command: |
-            apk add --update ansible jq curl nodejs npm
+            sudo apt update
+            sudo apt install software-properties-common
+            sudo apt-add-repository --yes --update ppa:ansible/ansible
+            sudo apt install ansible
             cat ~/project/.circleci/ansible/inventory.txt
       - restore_cache:
           keys:
