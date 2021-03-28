@@ -326,10 +326,10 @@ jobs:
           command: |
             curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
             yum -y install jq tar gzip nodejs
-#      - restore_cache:
-#          keys:
-#            - frontend-build-{{ checksum "frontend/package-lock.json" }}
-#            - frontend-build-
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-
       - run:
           name: Deploy frontend objects
           working_directory: frontend
@@ -337,9 +337,8 @@ jobs:
             export BACKEND_IP="$(aws ec2 describe-instances --filters Name=tag:project,Values=udapeople --query 'Reservations[0].Instances[0].PublicDnsName' --output text)"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            npm install
             npm run build
-            aws s3 sync dist s3://udapeople-fb20a029-08e2-4b4d-8288-0e4ee0a79dfc
+            aws s3 sync dist s3://udapeople-cc53cd1a-19bb-4ef3-8748-4209b39a2521
       - slack-notify-fail
 
 #      # Here's where you will add some code to rollback on failure
@@ -358,12 +357,21 @@ jobs:
           command: |
             apk add --update ansible jq curl
             cat ~/project/.circleci/ansible/inventory.txt
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
+            - backend-build-
+      - run:
+          name: build backend
+          working_directory: backend
+          command: |
+            npm run build
       - run:
           name: Deploy backend
+          working_directory: .circleci/ansible
           command: |
-            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+            ansible-playbook -i inventory.txt deploy-backend.yml
       - slack-notify-fail
-      - slack-notify-pass
 #      # Here's where you will add some code to rollback on failure
 #
 #  smoke-test:
@@ -443,11 +451,11 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-#      - deploy-infrastructure:
-#          context:
-#            - aws-secrets
-#            - slack-secrets
-#            - memstash-secrets
+      - deploy-infrastructure:
+          context:
+            - aws-secrets
+            - slack-secrets
+            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
@@ -456,20 +464,20 @@ workflows:
 #          requires: [deploy-infrastructure]
 #          context:
 #            - slack-secrets
-      - run-migrations:
+#      - run-migrations:
 #          requires: [configure-infrastructure]
+#          context:
+#            - slack-secrets
+#            - memstash-secrets
+      - deploy-frontend:
+          context:
+            - aws-secrets
+            - slack-secrets
+          requires: [deploy-infrastructure]
+      - deploy-backend:
           context:
             - slack-secrets
-            - memstash-secrets
-#      - deploy-frontend:
-#          context:
-#            - aws-secrets
-#            - slack-secrets
-#          requires: [run-migrations]
-#      - deploy-backend:
-#          context:
-#            - slack-secrets
-#          requires: [deploy-infrastructure]
+          requires: [deploy-infrastructure]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:

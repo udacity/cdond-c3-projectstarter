@@ -1,8 +1,8 @@
 ---
-#- name: "copy backend distribution files"
-#  copy:
-#    src: ~/project/backend/
-#    dest: ~/app
+- name: "copy backend distribution files"
+  copy:
+    src: ~/project/backend/dist/
+    dest: ~/app
 
 #- name: "Install and Build"
 #  shell: |
