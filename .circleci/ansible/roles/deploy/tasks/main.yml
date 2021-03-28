@@ -18,7 +18,7 @@
 - name: "start pm2"
   shell: |
     cd ~/app
-    npm run start:prod
+    pm2 start npm --name backend -- start
   environment:
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
     TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
@@ -30,3 +30,4 @@
     TYPEORM_MIGRATIONS: "./src/migrations/*.ts"
     TYPEORM_ENTITIES: "./src/modules/**/*.entity.ts"
     ENVIRONMENT: "production"
+    NODE_ENV: "production"
