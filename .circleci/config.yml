@@ -17,6 +17,17 @@ commands:
             npm i
             npm run build
 
+  npm-test:
+    parameters:
+      project_directory:
+        type: string
+    steps:
+      - run:
+          name: Run tests in project directory "<< parameters.project_directory >>"
+          working_directory: "<< parameters.project_directory >>"
+          command: |
+            npm run test
+
   slack-notify-fail:
     steps:
       - slack/notify:
@@ -121,6 +132,20 @@ jobs:
           key: backend-build-{{ checksum "backend/package-lock.json" }}
       - slack-notify-fail
 
+
+  test-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys:
+            - frontend-build-{{ checksum "frontend/package-lock.json" }}
+            - frontend-build-
+      - npm-test:
+          project_directory: frontend
+      - slack-notify-fail
+
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -130,11 +155,8 @@ jobs:
           keys:
             - backend-build-{{ checksum "backend/package-lock.json" }}
             - backend-build-
-      - run:
-          name: Run Back-end tests
-          command: |
-            cd backend
-            npm run test
+      - npm-test:
+          project_directory: backend
       - slack-notify-fail
 
   scan-backend:
@@ -153,21 +175,6 @@ jobs:
             npm audit fix --audit-level=critical --force
       - slack-notify-fail
 
-  test-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - restore_cache:
-          keys:
-            - frontend-build-{{ checksum "frontend/package-lock.json" }}
-            - frontend-build-
-      - run:
-          name: Run front-end tests
-          command: |
-            cd frontend
-            npm run test
-      - slack-notify-fail
 
   scan-frontend:
     docker:
@@ -385,15 +392,15 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context: slack-secrets
-      - build-backend:
-          context: slack-secrets
-#      - test-frontend:
+#      - build-frontend:
 #          context: slack-secrets
+#      - build-backend:
+#          context: slack-secrets
+      - test-frontend:
+          context: slack-secrets
 #          requires: [build-frontend]
-#      - test-backend:
-#          context: slack-secrets
+      - test-backend:
+          context: slack-secrets
 #          requires: [build-backend]
 #      - scan-frontend:
 #          context: slack-secrets
