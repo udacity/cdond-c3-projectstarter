@@ -290,19 +290,33 @@ jobs:
             - backend-build-{{ checksum "backend/package-lock.json" }}
             - backend-build-
       - run:
-          name: Run DB migrations
+          name: setup .env file
+          working_directory: backend
           command: |
-            cd backend
-            npm run migrations > migration-result-${CIRCLE_WORKFLOW_ID}
-            cat migration-result-${CIRCLE_WORKFLOW_ID}
-            if grep "has been executed successfully" migration-result-${CIRCLE_WORKFLOW_ID}
-            then
-              curl -H "Content-Type: text/plain" \
-                   -H "token: ${MEMSTASH_TOKEN}" \
-                   --request PUT \
-                   --data "1" \
-                   "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
-            fi
+            echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" > .env
+            echo "TYPEORM_HOST=${TYPEORM_HOST}" >> .env
+            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
+            echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
+            echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
+            echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
+            echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
+            echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
+            echo "TYPEORM_ENTITIES=./src/modules/**/*.entity.ts" >> .env
+            cat .env
+#      - run:
+#          name: Run DB migrations
+#          working_directory: backend
+#          command: |
+#            npm run migrations > migration-result-${CIRCLE_WORKFLOW_ID}
+#            cat migration-result-${CIRCLE_WORKFLOW_ID}
+#            if grep "has been executed successfully" migration-result-${CIRCLE_WORKFLOW_ID}
+#            then
+#              curl -H "Content-Type: text/plain" \
+#                   -H "token: ${MEMSTASH_TOKEN}" \
+#                   --request PUT \
+#                   --data "1" \
+#                   "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
+#            fi
       - slack-notify-fail
 
 #     # Here's where you will add some code to rollback on failure
@@ -433,24 +447,24 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-      - deploy-infrastructure:
-          context:
-            - aws-secrets
-            - slack-secrets
-            - memstash-secrets
+#      - deploy-infrastructure:
+#          context:
+#            - aws-secrets
+#            - slack-secrets
+#            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-          context:
-            - slack-secrets
-#      - run-migrations:
-#          requires: [configure-infrastructure]
+#      - configure-infrastructure:
+#          requires: [deploy-infrastructure]
 #          context:
 #            - slack-secrets
-#            - memstash-secrets
+      - run-migrations:
+#          requires: [configure-infrastructure]
+          context:
+            - slack-secrets
+            - memstash-secrets
 #      - deploy-frontend:
 #          context:
 #            - aws-secrets
