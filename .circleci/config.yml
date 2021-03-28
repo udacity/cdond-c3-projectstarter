@@ -358,18 +358,18 @@ jobs:
           at: ~/
       - run:
           command: |
-            apk add --update ansible jq curl nodejs npm
+            apk add --update ansible jq curl
             cat ~/project/.circleci/ansible/inventory.txt
-      - restore_cache:
-          keys:
-            - backend-build-{{ checksum "backend/package-lock.json" }}
-            - backend-build-
-      - run:
-          name: build backend
-          working_directory: backend
-          command: |
-            npm install
-            npm run build
+#      - restore_cache:
+#          keys:
+#            - backend-build-{{ checksum "backend/package-lock.json" }}
+#            - backend-build-
+#      - run:
+#          name: build backend
+#          working_directory: backend
+#          command: |
+#            npm install
+#            npm run build
       - run:
           name: Deploy backend
           working_directory: .circleci/ansible

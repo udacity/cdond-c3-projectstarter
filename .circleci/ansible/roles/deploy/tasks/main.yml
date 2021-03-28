@@ -1,15 +1,15 @@
 ---
 - name: "copy backend distribution files"
   copy:
-    src: ~/project/backend/dist/
+    src: ~/project/backend/
     dest: ~/app
 
-#- name: "Install and Build"
-#  shell: |
-#    cd ~/app
-#    env
-#    npm i
-#    npm run build
+- name: "Install and Build"
+  shell: |
+    cd ~/app
+    env
+    npm i
+    npm run build
 
 - name: "start pm2"
   shell: |
