@@ -319,13 +319,12 @@ jobs:
 #
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
           command: |
-            curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
-            yum -y install jq tar gzip nodejs
+            yum -y install jq tar gzip aws-cli
       - restore_cache:
           keys:
             - frontend-build-{{ checksum "frontend/package-lock.json" }}
@@ -343,37 +342,37 @@ jobs:
 
 #      # Here's where you will add some code to rollback on failure
 #
-  deploy-backend:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints:
-            - "50:d5:1c:e8:b9:43:d9:30:82:32:2a:b1:99:12:19:dd"
-      - attach_workspace:
-          at: ~/
-      - run:
-          command: |
-            apk add --update ansible jq curl
-            cat ~/project/.circleci/ansible/inventory.txt
-      - restore_cache:
-          keys:
-            - backend-build-{{ checksum "backend/package-lock.json" }}
-            - backend-build-
-      - run:
-          name: build backend
-          working_directory: backend
-          command: |
-            npm run build
-      - run:
-          name: Deploy backend
-          working_directory: .circleci/ansible
-          command: |
-            ansible-playbook -i inventory.txt deploy-backend.yml
-      - slack-notify-fail
-#      # Here's where you will add some code to rollback on failure
-#
+#  deploy-backend:
+#    docker:
+#      - image: python:3.7-alpine3.11
+#    steps:
+#      - checkout
+#      - add_ssh_keys:
+#          fingerprints:
+#            - "50:d5:1c:e8:b9:43:d9:30:82:32:2a:b1:99:12:19:dd"
+#      - attach_workspace:
+#          at: ~/
+#      - run:
+#          command: |
+#            apk add --update ansible jq curl
+#            cat ~/project/.circleci/ansible/inventory.txt
+#      - restore_cache:
+#          keys:
+#            - backend-build-{{ checksum "backend/package-lock.json" }}
+#            - backend-build-
+#      - run:
+#          name: build backend
+#          working_directory: backend
+#          command: |
+#            npm run build
+#      - run:
+#          name: Deploy backend
+#          working_directory: .circleci/ansible
+#          command: |
+#            ansible-playbook -i inventory.txt deploy-backend.yml
+#      - slack-notify-fail
+      # Here's where you will add some code to rollback on failure
+
 #  smoke-test:
 #    docker:
 #      # Lightweight Docker image
@@ -474,10 +473,10 @@ workflows:
             - aws-secrets
             - slack-secrets
           requires: [deploy-infrastructure]
-      - deploy-backend:
-          context:
-            - slack-secrets
-          requires: [deploy-infrastructure]
+#      - deploy-backend:
+#          context:
+#            - slack-secrets
+#          requires: [deploy-infrastructure]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
