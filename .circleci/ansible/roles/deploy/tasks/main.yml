@@ -11,14 +11,14 @@
 
 - name: "Install and Build"
   shell: |
-    cd ~/app
+    cd ~/app/backend
     npm i
     npm run build
 
 - name: "start pm2"
   shell: |
-    cd ~/app
-    export APP='backend_udacity'
+    cd ~/app/backend
+    export APP='backend_udapeople'
     if pm2 ls | grep ${APP}
     then
     	pm2 restart ${APP}
