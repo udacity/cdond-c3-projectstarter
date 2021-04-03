@@ -229,13 +229,13 @@ jobs:
           template_file: ".circleci/files/backend.yml"
           stack_name: "backend-${CIRCLE_WORKFLOW_ID}"
           parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople circle_workflow_id=${CIRCLE_WORKFLOW_ID}"
+          tags: "project=udapeople" "circle_workflow_id=${CIRCLE_WORKFLOW_ID}"
           description: Ensure back-end infrastructure exists
 
       - memstash-put:
           data: "$(aws ec2 describe-instances \
-                  --filters Name=tag:project,Values=udapeople Name=tag:circle_workflow_id,Values=${CIRCLE_WORKFLOW_ID} \
-                  --query 'Reservations[*].Instances[*].PublicDnsName' \
+                  --filters "Name=tag:project,Values=udapeople" "Name=tag:circle_workflow_id,Values=${CIRCLE_WORKFLOW_ID}" \
+                  --query "Reservations[*].Instances[*].PublicDnsName" \
                   --output text)"
           key: "backend-dns-name-${CIRCLE_WORKFLOW_ID}"
 
@@ -243,7 +243,7 @@ jobs:
           template_file: ".circleci/files/frontend.yml"
           stack_name: "frontend-${CIRCLE_WORKFLOW_ID}"
           parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople circle_workflow_id=${CIRCLE_WORKFLOW_ID}"
+          tags: "project=udapeople" "circle_workflow_id=${CIRCLE_WORKFLOW_ID}"
           description: Ensure front-end infrastructure exists
 
       - run:
@@ -251,7 +251,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople Name=tag:circle_workflow_id,Values=${CIRCLE_WORKFLOW_ID}" \
+              --filters "Name=tag:project,Values=udapeople" "Name=tag:circle_workflow_id,Values=${CIRCLE_WORKFLOW_ID}" \
               --output text >> .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
@@ -341,8 +341,8 @@ jobs:
           working_directory: frontend
           command: |
             export BACKEND_IP="$(aws ec2 describe-instances \
-                --filters Name=tag:project,Values=udapeople Name=tag:circle_workflow_id,Values=${CIRCLE_WORKFLOW_ID} \
-                --query 'Reservations[*].Instances[*].PublicDnsName' \
+                --filters "Name=tag:project,Values=udapeople" "Name=tag:circle_workflow_id,Values=${CIRCLE_WORKFLOW_ID}" \
+                --query "Reservations[*].Instances[*].PublicDnsName" \
                 --output text)"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
