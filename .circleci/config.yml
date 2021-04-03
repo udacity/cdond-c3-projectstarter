@@ -71,7 +71,7 @@ commands:
                 --template-file "<< parameters.template_file >>" \
                 --stack-name "<< parameters.stack_name >>" \
                 --parameter-overrides "<< parameters.parameter_overrides >>" \
-                --tags "<< parameters.tags >>"
+                --tags << parameters.tags >>
 
   memstash-put:
     parameters:
@@ -229,7 +229,7 @@ jobs:
           template_file: ".circleci/files/backend.yml"
           stack_name: "backend-${CIRCLE_WORKFLOW_ID}"
           parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople" "circle_workflow_id=${CIRCLE_WORKFLOW_ID}"
+          tags: ""project=udapeople" "circle_workflow_id=${CIRCLE_WORKFLOW_ID}""
           description: Ensure back-end infrastructure exists
 
       - memstash-put:
@@ -243,7 +243,7 @@ jobs:
           template_file: ".circleci/files/frontend.yml"
           stack_name: "frontend-${CIRCLE_WORKFLOW_ID}"
           parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople" "circle_workflow_id=${CIRCLE_WORKFLOW_ID}"
+          tags: ""project=udapeople" "circle_workflow_id=${CIRCLE_WORKFLOW_ID}""
           description: Ensure front-end infrastructure exists
 
       - run:
