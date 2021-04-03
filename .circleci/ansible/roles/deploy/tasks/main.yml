@@ -18,7 +18,13 @@
 - name: "start pm2"
   shell: |
     cd ~/app
-    pm2 start npm --name backend -- start
+    export APP='backend_udacity'
+    if pm2 ls | grep ${APP}
+    then
+    	pm2 restart ${APP}
+    else
+    	pm2 start npm --name ${APP} -- start
+    fi;
   environment:
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
     TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
