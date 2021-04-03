@@ -401,7 +401,7 @@ jobs:
             export BACKEND_IP="$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET "https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID}")"
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo ${API_URL}
-            if curl -s ${API_URL}
+            if curl -s ${API_URL} | grep \"status\":\"ok\"
             then
               return 0
             else
