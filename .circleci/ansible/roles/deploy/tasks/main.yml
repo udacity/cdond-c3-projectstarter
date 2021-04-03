@@ -2,7 +2,7 @@
 - name: "copy backend tar.gz "
   copy:
     src: ~/project/backend.tar.gz
-    dest: ~/app
+    dest: ~/app/
 
 - name: "un tar backend tar.gz"
   shell: |
