@@ -119,7 +119,7 @@ commands:
           when: on_fail
           command: |
 
-            if aws cloudformation describe-stacks --stack-name "<< parameters.backend_stack_name >>"
+            if aws cloudformation describe-stacks --stack-name "<< parameters.backend_stack_name >>" 2>/dev/null
             then
               aws cloudformation delete-stack \
                 --stack-name "<< parameters.backend_stack_name >>"
