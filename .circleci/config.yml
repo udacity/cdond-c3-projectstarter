@@ -607,14 +607,17 @@ workflows:
           context:
             - slack-secrets
           requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+#      - smoke-test:
+#          requires: [deploy-backend, deploy-frontend]
 #          requires: [run-migrations]
+#          context:
+#            - aws-secrets
+#            - slack-secrets
+#            - memstash-secrets
+      - cloudfront-update:
+          requires: [deploy-backend]
           context:
             - aws-secrets
             - slack-secrets
-            - memstash-secrets
-      - cloudfront-update:
-          requires: [smoke-test]
 #      - cleanup:
 #          requires: [cloudfront-update]
