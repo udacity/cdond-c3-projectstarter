@@ -106,22 +106,58 @@ commands:
     parameters:
       backend_stack_name:
         type: string
+        default: "backend-${CIRCLE_WORKFLOW_ID}"
       frontend_bucket_name:
         type: string
+        default: "udapeople-${CIRCLE_WORKFLOW_ID}"
       frontend_stack_name:
         type: string
+        default: "frontend-${CIRCLE_WORKFLOW_ID}"
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack \
+
+            if aws cloudformation describe-stacks --stack-name "<< parameters.backend_stack_name >>"
+            then
+              aws cloudformation delete-stack \
                 --stack-name "<< parameters.backend_stack_name >>"
+            fi
 
-            aws s3 rm "s3://<< parametersfrontend_bucket_name >>" --recursive
 
-            aws cloudformation delete-stack \
-                --stack-name "<< parameters.frontend_stack_name >>"
+  revert-migrations-node:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      db_migration_key:
+        type: string
+        default: "db-migration-${CIRCLE_WORKFLOW_ID}"
+      backend_directory:
+        type: string
+        default: "~/project/backend"
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          working_directory: "<< parameters.backend_directory >>"
+          command: |
+            export SUCCESS="$(curl -H "token: ${MEMSTASH_TOKEN}" \
+                                   --request GET \
+                                   "https://api.memstash.io/values/<< parameters.db_migration_key >>")"
+            if [ ${SUCCESS} ]
+            then
+              echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" > .env
+              echo "TYPEORM_HOST=${TYPEORM_HOST}" >> .env
+              echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
+              echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
+              echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
+              echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
+              echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
+              echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
+              echo "TYPEORM_ENTITIES=./src/modules/**/*.entity.ts" >> .env
+              npm install
+              npm run migrations:revert
+            fi
 
   revert-migrations-alpine:
     description: Revert the last migration if successfully run in the current workflow.
@@ -133,11 +169,6 @@ commands:
         type: string
         default: "~/project/backend"
     steps:
-#      - restore_cache:
-#          when: on_fail
-#          keys:
-#            - backend-build-{{ checksum "backend/package-lock.json" }}
-#            - backend-build-
       - run:
           name: Revert migrations
           when: on_fail
@@ -252,9 +283,9 @@ jobs:
     docker:
        - image: amazon/aws-cli
     steps:
-#      - checkout
-#      - run: yum -y install jq tar gzip
-#
+      - checkout
+      - run: yum -y install jq tar gzip
+      - run: exit 1
 #      - deploy-aws-cloudformation:
 #          template_file: ".circleci/files/backend.yml"
 #          stack_name: "backend-${CIRCLE_WORKFLOW_ID}"
@@ -262,12 +293,12 @@ jobs:
 #          tags: "project=udapeople"
 #          description: Ensure back-end infrastructure exists
 
-      - memstash-put:
-          data: "$(aws ec2 describe-instances \
-                  --filters Name=tag:project,Values=udapeople \
-                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                  --output text)"
-          key: "backend-ip-${CIRCLE_WORKFLOW_ID}"
+#      - memstash-put:
+#          data: "$(aws ec2 describe-instances \
+#                  --filters Name=tag:project,Values=udapeople \
+#                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
+#                  --output text)"
+#          key: "backend-ip-${CIRCLE_WORKFLOW_ID}"
 
 #      - deploy-aws-cloudformation:
 #          template_file: ".circleci/files/frontend.yml"
@@ -275,7 +306,7 @@ jobs:
 #          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
 #          tags: "project=udapeople"
 #          description: Ensure front-end infrastructure exists
-#
+
 #      - run:
 #          name: Add back-end ip to ansible inventory
 #          command: |
@@ -288,7 +319,8 @@ jobs:
 #          root: ~/
 #          paths:
 #            - project/.circleci/ansible/inventory.txt
-#      - slack-notify-fail
+      - destroy-environment
+      - slack-notify-fail
 #       Here's where you will add some code to rollback on failure
 #
   configure-infrastructure:
@@ -379,7 +411,7 @@ jobs:
             echo "${API_URL}"
             npm run build
             aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID}
-      - revert-migrations
+      - revert-migrations-node
       - slack-notify-fail
 
 #      # Here's where you will add some code to rollback on failure
@@ -450,8 +482,8 @@ jobs:
             fi
       - revert-migrations-alpine
       - slack-notify-fail
-#      # Here's where you will add some code to rollback on failure
-#
+
+
 #  cloudfront-update:
 #    docker:
 #      # Docker image here that supports AWS CLI
@@ -506,11 +538,11 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-#      - deploy-infrastructure:
-#          context:
-#            - aws-secrets
-#            - slack-secrets
-#            - memstash-secrets
+      - deploy-infrastructure:
+          context:
+            - aws-secrets
+            - slack-secrets
+            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
@@ -519,11 +551,11 @@ workflows:
 #          requires: [deploy-infrastructure]
 #          context:
 #            - slack-secrets
-      - run-migrations:
+#      - run-migrations:
 #          requires: [configure-infrastructure]
-          context:
-            - slack-secrets
-            - memstash-secrets
+#          context:
+#            - slack-secrets
+#            - memstash-secrets
 #      - deploy-frontend:
 #          context:
 #            - aws-secrets
@@ -533,12 +565,12 @@ workflows:
 #          context:
 #            - slack-secrets
 #          requires: [run-migrations]
-      - smoke-test:
+#      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
-          requires: [run-migrations]
-          context:
-            - slack-secrets
-            - memstash-secrets
+#          requires: [run-migrations]
+#          context:
+#            - slack-secrets
+#            - memstash-secrets
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
