@@ -126,9 +126,9 @@ commands:
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
-       db_migration_key:
-         type: string
-         default: "db-migration-${CIRCLE_WORKFLOW_ID}"
+      db_migration_key:
+        type: string
+        default: "db-migration-${CIRCLE_WORKFLOW_ID}"
       backend_directory:
         type: string
         default: "~/project/backend"
