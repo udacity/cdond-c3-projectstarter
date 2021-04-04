@@ -504,6 +504,7 @@ jobs:
             export BACKEND_IP="$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET "https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID}")"
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo ${API_URL}
+            sleep 5
             if curl -s ${API_URL} | grep \"status\":\"ok\"
             then
               return 0
@@ -533,7 +534,7 @@ jobs:
       - run: yum -y install jq
       - deploy-aws-cloudformation:
           template_file: ".circleci/files/cloudfront.yml"
-          stack_name: "cloudfront-${CIRCLE_WORKFLOW_ID}"
+          stack_name: "cloudfront-udapeople"
           parameter_overrides: "WorkflowID=${CIRCLE_WORKFLOW_ID}"
           tags: "project=udapeople"
           description: Update cloudfront distribution
@@ -607,15 +608,15 @@ workflows:
           context:
             - slack-secrets
           requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 #          requires: [run-migrations]
-#          context:
-#            - aws-secrets
-#            - slack-secrets
-#            - memstash-secrets
+          context:
+            - aws-secrets
+            - slack-secrets
+            - memstash-secrets
       - cloudfront-update:
-          requires: [deploy-backend]
+          requires: [smoke-test]
           context:
             - aws-secrets
             - slack-secrets
