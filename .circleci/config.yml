@@ -104,7 +104,7 @@
               
     scan-frontend:
       docker:
-        - image: circle/node:13.8.0
+        - image: circleci/node:13.8.0
         # Docker image here
       steps:
         - checkout
