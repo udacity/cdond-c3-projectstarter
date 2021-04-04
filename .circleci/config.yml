@@ -125,6 +125,16 @@ commands:
                 --stack-name "<< parameters.backend_stack_name >>"
             fi
 
+            if aws s3 ls | grep "<< parameters.frontend_bucket_name >>"
+            then
+              aws s3 rm "s3://<< parameters.frontend_bucket_name >>" --recursive
+            fi
+
+            if aws cloudformation describe-stacks --stack-name "<< parameters.frontend_stack_name >>" &>/dev/null
+            then
+              aws cloudformation delete-stack \
+                --stack-name "<< parameters.frontend_stack_name >>"
+            fi
 
   revert-migrations-node:
     description: Revert the last migration if successfully run in the current workflow.
@@ -291,7 +301,7 @@ jobs:
           parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
           tags: "project=udapeople"
           description: Ensure back-end infrastructure exists
-      - run: exit 1
+
 #      - memstash-put:
 #          data: "$(aws ec2 describe-instances \
 #                  --filters Name=tag:project,Values=udapeople \
@@ -299,13 +309,14 @@ jobs:
 #                  --output text)"
 #          key: "backend-ip-${CIRCLE_WORKFLOW_ID}"
 
-#      - deploy-aws-cloudformation:
-#          template_file: ".circleci/files/frontend.yml"
-#          stack_name: "frontend-${CIRCLE_WORKFLOW_ID}"
-#          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-#          tags: "project=udapeople"
-#          description: Ensure front-end infrastructure exists
+      - deploy-aws-cloudformation:
+          template_file: ".circleci/files/frontend.yml"
+          stack_name: "frontend-${CIRCLE_WORKFLOW_ID}"
+          parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
+          tags: "project=udapeople"
+          description: Ensure front-end infrastructure exists
 
+      - run: exit 1
 #      - run:
 #          name: Add back-end ip to ansible inventory
 #          command: |
