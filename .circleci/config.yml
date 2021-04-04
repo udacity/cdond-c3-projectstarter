@@ -145,7 +145,7 @@ commands:
             export SUCCESS="$(curl -H "token: ${MEMSTASH_TOKEN}" \
                                    --request GET \
                                    "https://api.memstash.io/values/<< parameters.db_migration_key >>")"
-            if(( $SUCCESS==1 ));
+            if(( $SUCCESS==1 ))
             then
               echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" > .env
               echo "TYPEORM_HOST=${TYPEORM_HOST}" >> .env
