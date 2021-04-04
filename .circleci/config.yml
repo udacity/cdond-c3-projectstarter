@@ -78,7 +78,8 @@
             name: Run frontend unit test
             command: |
               cd frontend
-              npm test
+              npm install
+              npm run test
         # Checkout code from git
         # Restore from cache
         # Your job code here
@@ -95,6 +96,7 @@
             name: Run backend unit test
             command: |
               cd backend
+              npm install
               npm run test
         # Checkout code from git
         # Restore from cache
