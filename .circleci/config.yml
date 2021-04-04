@@ -337,12 +337,12 @@ jobs:
           tags: "project=udapeople"
           description: Ensure back-end infrastructure exists
 
-#      - memstash-put:
-#          data: "$(aws ec2 describe-instances \
-#                  --filters Name=tag:project,Values=udapeople \
-#                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
-#                  --output text)"
-#          key: "backend-ip-${CIRCLE_WORKFLOW_ID}"
+      - memstash-put:
+          data: "$(aws ec2 describe-instances \
+                  --filters Name=tag:project,Values=udapeople \
+                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                  --output text)"
+          key: "backend-ip-${CIRCLE_WORKFLOW_ID}"
 
       - deploy-aws-cloudformation:
           template_file: ".circleci/files/frontend.yml"
@@ -351,22 +351,21 @@ jobs:
           tags: "project=udapeople"
           description: Ensure front-end infrastructure exists
 
-#      - run:
-#          name: Add back-end ip to ansible inventory
-#          command: |
-#            aws ec2 describe-instances \
-#              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-#              --filters Name=tag:project,Values=udapeople \
-#              --output text >> .circleci/ansible/inventory.txt
-#
-#      - persist_to_workspace:
-#          root: ~/
-#          paths:
-#            - project/.circleci/ansible/inventory.txt
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters Name=tag:project,Values=udapeople \
+              --output text >> .circleci/ansible/inventory.txt
+
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
       - destroy-environment
       - slack-notify-fail
-#       Here's where you will add some code to rollback on failure
-#
+
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
@@ -388,7 +387,6 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
       - slack-notify-fail
-#      # Here's where you will add some code to rollback on failure
 
   run-migrations:
     docker:
@@ -425,9 +423,8 @@ jobs:
                    "https://api.memstash.io/values/db-migration-${CIRCLE_WORKFLOW_ID}"
             fi
       - slack-notify-fail
-
 #     # Here's where you will add some code to rollback on failure
-#
+
   deploy-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -456,12 +453,10 @@ jobs:
             echo "${API_URL}"
             npm run build
             aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID}
-      - destroy-environment
       - revert-migrations-node
       - slack-notify-fail
+  #     # Here's where you will add some code to rollback on failure
 
-#      # Here's where you will add some code to rollback on failure
-#
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -490,7 +485,7 @@ jobs:
           working_directory: .circleci/ansible
           command: |
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy-environment
+      - destroy-environment-python
       - revert-migrations-alpine
       - slack-notify-fail
 #       Here's where you will add some code to rollback on failure
@@ -519,7 +514,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            export URL="http://udapeople-50b13c56-8d83-4e4e-b588-13af2c7ea71b.s3-website-us-east-1.amazonaws.com"
+            export URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
             echo ${URL}
             if curl ${URL} | grep "Welcome"
             then
@@ -531,21 +526,20 @@ jobs:
       - revert-migrations-alpine
       - slack-notify-fail
 
-
-#  cloudfront-update:
-#    docker:
-#      # Docker image here that supports AWS CLI
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # your code here
-#      - run:
-#          name: Update cloudfront distribution
-#          command: |
-#            # your code here
-#      # Here's where you will add some code to rollback on failure
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli:2.1.34
+    steps:
+      - checkout
+      - run: yum -y install jq
+      - deploy-aws-cloudformation:
+          template_file: ".circleci/files/cloudfront.yml"
+          stack_name: "cloudfront-${CIRCLE_WORKFLOW_ID}"
+          parameter_overrides: "WorkflowID=${CIRCLE_WORKFLOW_ID}"
+          tags: "project=udapeople"
+          description: Update cloudfront distribution
+      - destroy-environment
+      - slack-notify-fail
 
 #cleanup:
 #    docker:
@@ -570,58 +564,58 @@ jobs:
 workflows:
   default:
     jobs:
-#      - build-frontend:
-#          context: slack-secrets
-#      - build-backend:
-#          context: slack-secrets
-#      - test-frontend:
-#          context: slack-secrets
-#          requires: [build-frontend]
-#      - test-backend:
-#          context: slack-secrets
-#          requires: [build-backend]
-#      - scan-frontend:
-#          context: slack-secrets
-#          requires: [build-frontend]
-#      - scan-backend:
-#          context: slack-secrets
-#          requires: [build-backend]
+      - build-frontend:
+          context: slack-secrets
+      - build-backend:
+          context: slack-secrets
+      - test-frontend:
+          context: slack-secrets
+          requires: [build-frontend]
+      - test-backend:
+          context: slack-secrets
+          requires: [build-backend]
+      - scan-frontend:
+          context: slack-secrets
+          requires: [build-frontend]
+      - scan-backend:
+          context: slack-secrets
+          requires: [build-backend]
       - deploy-infrastructure:
           context:
             - aws-secrets
             - slack-secrets
             - memstash-secrets
-#          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
 #              only: [test-feature-branch]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
-#          context:
-#            - slack-secrets
-      - run-migrations:
-#          requires: [configure-infrastructure]
+      - configure-infrastructure:
           requires: [deploy-infrastructure]
           context:
             - slack-secrets
+      - run-migrations:
+          requires: [configure-infrastructure]
+#          requires: [deploy-infrastructure]
+          context:
+            - slack-secrets
             - memstash-secrets
-#      - deploy-frontend:
-#          context:
-#            - aws-secrets
-#            - slack-secrets
-#          requires: [run-migrations]
-#      - deploy-backend:
-#          context:
-#            - slack-secrets
-#          requires: [run-migrations]
-      - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
+      - deploy-frontend:
+          context:
+            - aws-secrets
+            - slack-secrets
           requires: [run-migrations]
+      - deploy-backend:
+          context:
+            - slack-secrets
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+#          requires: [run-migrations]
           context:
             - aws-secrets
             - slack-secrets
             - memstash-secrets
-#      - cloudfront-update:
-#          requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
 #      - cleanup:
 #          requires: [cloudfront-update]
