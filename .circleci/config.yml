@@ -170,8 +170,10 @@
 
     configure-infrastructure:
       docker:
+        - image: amazon/aws-cli
         # Docker image here that supports Ansible
       steps:
+        - checkout
         # Checkout code from git
         # Add ssh keys with fingerprint
         # attach workspace
@@ -189,6 +191,7 @@
 
     run-migrations:
       docker:
+        - image: circleci/node:13.8.0
         # Docker image here that supports NodeJS
       steps:
         # Checkout code from git
@@ -206,6 +209,7 @@
 
     deploy-frontend:
       docker:
+        - image: amazon/aws-cli
         # Docker image here that supports AWS CLI
       steps:
         # Checkout code from git
@@ -227,8 +231,10 @@
                       
     deploy-backend:
       docker:
+        - image: python:3.7-alpine3.11
         # Docker image here that supports Ansible
       steps:
+        - checkout
         # Checkout code from git
         # Add ssh keys with fingerprint
         # attach workspace
@@ -244,6 +250,7 @@
 
     smoke-test:
       docker:
+        - image: circleci/node:13.8.0
         # Lightweight Docker image 
       steps:
         # Checkout code from git
@@ -267,8 +274,10 @@
 
     cloudfront-update:
       docker:
+        - image: amazon/aws-cli
         # Docker image here that supports AWS CLI
       steps:
+        - checkout
         # Checkout code from git
         - run:
             name: Install dependencies
