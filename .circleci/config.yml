@@ -542,13 +542,13 @@ cleanup:
     steps:
       - destroy-environment:
           backend_stack_name: "backend-$(aws cloudformation list-exports \
-                                --query \"Exports[?Name==\`WorkflowID\`].Value\" \
+                                --query \"Exports[?Name==\\`WorkflowID\\`].Value\" \
                                 --no-paginate --output text)"
           frontend_bucket_name: "udapeople-$(aws cloudformation list-exports \
-                                   --query \"Exports[?Name==\`WorkflowID\`].Value\" \
+                                   --query \"Exports[?Name==\\`WorkflowID\\`].Value\" \
                                    --no-paginate --output text)"
           frontend_stack_name: "frontend-$(aws cloudformation list-exports \
-                                    --query \"Exports[?Name==\`WorkflowID\`].Value\" \
+                                    --query \"Exports[?Name==\\`WorkflowID\\`].Value\" \
                                     --no-paginate --output text)"
           when_to_run: always
       - slack-notify-fail
