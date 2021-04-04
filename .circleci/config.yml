@@ -148,10 +148,13 @@ commands:
       frontend_stack_name:
         type: string
         default: "frontend-${CIRCLE_WORKFLOW_ID}"
+      when_to_run:
+        type: string
+        default: on_fail
     steps:
       - run:
           name: Destroy environments
-          when: on_fail
+          when: << parameters.when_to_run >>
           command: |
 
             if aws cloudformation describe-stacks --stack-name "<< parameters.backend_stack_name >>" &>/dev/null
@@ -334,12 +337,12 @@ jobs:
           template_file: ".circleci/files/backend.yml"
           stack_name: "backend-${CIRCLE_WORKFLOW_ID}"
           parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople"
+          tags: "project=udapeople-${CIRCLE_WORKFLOW_ID}"
           description: Ensure back-end infrastructure exists
 
       - memstash-put:
           data: "$(aws ec2 describe-instances \
-                  --filters Name=tag:project,Values=udapeople \
+                  --filters Name=tag:project,Values=udapeople-${CIRCLE_WORKFLOW_ID} \
                   --query 'Reservations[*].Instances[*].PublicIpAddress' \
                   --output text)"
           key: "backend-ip-${CIRCLE_WORKFLOW_ID}"
@@ -348,7 +351,7 @@ jobs:
           template_file: ".circleci/files/frontend.yml"
           stack_name: "frontend-${CIRCLE_WORKFLOW_ID}"
           parameter_overrides: "ID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople"
+          tags: "project=udapeople-${CIRCLE_WORKFLOW_ID}"
           description: Ensure front-end infrastructure exists
 
       - run:
@@ -356,7 +359,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters Name=tag:project,Values=udapeople \
+              --filters Name=tag:project,Values=udapeople-${CIRCLE_WORKFLOW_ID} \
               --output text >> .circleci/ansible/inventory.txt
 
       - persist_to_workspace:
@@ -445,13 +448,14 @@ jobs:
           working_directory: frontend
           command: |
             export BACKEND_IP="$(aws ec2 describe-instances \
-                --filters Name=tag:project,Values=udapeople \
+                --filters Name=tag:project,Values=udapeople-${CIRCLE_WORKFLOW_ID} \
                 --query "Reservations[*].Instances[*].PublicDnsName" \
                 --output text)"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             npm run build
             aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID}
+      - destroy-environment
       - revert-migrations-node
       - slack-notify-fail
   #     # Here's where you will add some code to rollback on failure
@@ -470,15 +474,10 @@ jobs:
           command: |
             apk add --update ansible jq curl tar
             cat ~/project/.circleci/ansible/inventory.txt
-#      - restore_cache:
-#          keys:
-#            - backend-build-{{ checksum "backend/package-lock.json" }}
-#            - backend-build-
       - run:
           name: tar backend directory
           command: |
             tar czf backend.tar.gz backend
-
       - run:
           name: Deploy backend
           working_directory: .circleci/ansible
@@ -487,19 +486,15 @@ jobs:
       - destroy-environment-python
       - revert-migrations-alpine
       - slack-notify-fail
-#       Here's where you will add some code to rollback on failure
 
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - run: apk add --update jq curl
       - run:
-          command: |
-            apk add --update jq curl
-
-      - run:
-          name:  Backend smoke test.
+          name:  Backend smoke test
           command: |
             export BACKEND_IP="$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET "https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID}")"
             export API_URL="http://${BACKEND_IP}:3030/api/status"
@@ -512,7 +507,7 @@ jobs:
               return 1
             fi
       - run:
-          name: Frontend smoke test.
+          name: Frontend smoke test
           command: |
             export URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
             echo ${URL}
@@ -536,30 +531,27 @@ jobs:
           template_file: ".circleci/files/cloudfront.yml"
           stack_name: "cloudfront-udapeople"
           parameter_overrides: "WorkflowID=${CIRCLE_WORKFLOW_ID}"
-          tags: "project=udapeople"
+          tags: "project=udapeople-${CIRCLE_WORKFLOW_ID}"
           description: Update cloudfront distribution
       - destroy-environment
       - slack-notify-fail
 
-#cleanup:
-#    docker:
-#      # Docker image here
-#    steps:
-#      # Checkout code from git
-#      - run:
-#          name: Get old stack workflow id
-#          command: |
-#            # your code here
-#            export OldWorkflowID="the id here"
-#            export STACKS=[] #put the list of stacks here
-#      - run:
-#          name: Remove old stacks and files
-#          command: |
-#            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#            then
-#              # your code here
-#            fi
-#
+cleanup:
+    docker:
+      - image: amazon/aws-cli:2.1.34
+    steps:
+      - destroy-environment:
+          backend_stack_name: "backend-$(aws cloudformation list-exports \
+                                --query \"Exports[?Name==\`WorkflowID\`].Value\" \
+                                --no-paginate --output text)"
+          frontend_bucket_name: "udapeople-$(aws cloudformation list-exports \
+                                   --query \"Exports[?Name==\`WorkflowID\`].Value\" \
+                                   --no-paginate --output text)"
+          frontend_stack_name: "frontend-$(aws cloudformation list-exports \
+                                    --query \"Exports[?Name==\`WorkflowID\`].Value\" \
+                                    --no-paginate --output text)"
+          when_to_run: always
+      - slack-notify-fail
 
 workflows:
   default:
@@ -620,5 +612,5 @@ workflows:
           context:
             - aws-secrets
             - slack-secrets
-#      - cleanup:
-#          requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
