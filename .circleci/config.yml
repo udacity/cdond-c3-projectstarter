@@ -411,7 +411,6 @@ jobs:
             echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
             echo "TYPEORM_ENTITIES=./src/modules/**/*.entity.ts" >> .env
             cat .env
-            npm run migrations:revert
             npm run migrations > migration-result-${CIRCLE_WORKFLOW_ID}
             cat migration-result-${CIRCLE_WORKFLOW_ID}
             if grep "has been executed successfully" migration-result-${CIRCLE_WORKFLOW_ID}

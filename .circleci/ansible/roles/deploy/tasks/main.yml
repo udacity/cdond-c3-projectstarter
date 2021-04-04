@@ -19,12 +19,7 @@
   shell: |
     cd ~/app/backend
     export APP='backend_udapeople'
-    if pm2 ls | grep ${APP}
-    then
-    	pm2 restart ${APP}
-    else
-    	pm2 start npm --name ${APP} -- start
-    fi;
+    pm2 start npm --name ${APP} -- start
   environment:
     TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
     TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
