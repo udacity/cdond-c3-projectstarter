@@ -73,7 +73,7 @@
       steps:
         - checkout
         - restore_cache:
-            at: ./
+            at: ~/
         - run:
             name: Run frontend unit test
             command: |
@@ -90,7 +90,7 @@
       steps:
         - checkout
         - restore_cache:
-            at: ./
+            at: ~/
         - run:
             name: Run backend unit test
             command: |
