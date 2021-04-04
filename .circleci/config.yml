@@ -44,7 +44,7 @@ jobs:
           name: Build front-end
           command: |
             cd ~/cdond-c3-projectstarter/frontend
-            npm i
+            npm install
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
@@ -61,7 +61,7 @@ jobs:
           name: Back-end build
           command: |
             cd ~/cdond-c3-projectstarter/frontend
-            npm i
+            npm install
             npm run build
       - save_cache:
           paths: [backend/node_modules]
@@ -102,16 +102,32 @@ jobs:
             
   scan-frontend:
     docker:
+      - image: circle/node:13.8.0
       # Docker image here
     steps:
+      - checkout
+      run: 
+        name: Run the frontend audit
+        command: |
+          cd frontend
+          npm install
+          npm audit --audit-level=critical
       # Checkout code from git
       # Restore from cache
       # Your job code here
 
   scan-backend:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here
     steps:
+      - checkout
+      - run:
+          name: Run the backend scan
+          command: |
+            cd backend
+            npm install
+            npm audit --audit-level=critical          
       # Checkout code from git
       # Restore from cache
       # Your job code here
