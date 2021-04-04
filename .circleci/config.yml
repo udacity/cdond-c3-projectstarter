@@ -101,36 +101,48 @@ commands:
                  --request GET \
                  "https://api.memstash.io/values/<< parameters.key >>"
 
-#  destroy-environment:
-#    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-#    parameters:
-#       Add parameter here
-#    steps:
-#      - run:
-#          name: Destroy environments
-#          when: on_fail
-#          command: |
-#             Your code here
-#            exit 1
-#
-#  revert-migrations:
-#    description: Revert the last migration if successfully run in the current workflow.
-#    parameters:
-      # Add parameter here     
-#    steps:
-#      - run:
-#          name: Revert migrations
-          # Add when this will run
-#          command: |
-#             Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-#            SUCCESS = 1
-#            if(( $SUCCESS==1 ));
-#            then
-        #  cd ~/project/backend
-        #  npm install
-        #  Add revert code here. You can find this in the Getting Started section.
-#        exit 1
-#        fi
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks.
+    parameters:
+      backend_stack_name:
+        type: string
+      frontend_bucket_name:
+        type: string
+      frontend_stack_name:
+        type: string
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack \
+                --stack-name "<< parameters.backend_stack_name >>"
+
+            aws s3 rm "s3://<< parametersfrontend_bucket_name >>" --recursive
+
+            aws cloudformation delete-stack \
+                --stack-name "<< parameters.frontend_stack_name >>"
+
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+       db_migration_key:
+         type: string
+         default: "db-migration-${CIRCLE_WORKFLOW_ID}"
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            SUCCESS = $(curl -H "token: ${MEMSTASH_TOKEN}" \
+                           --request GET \
+                           "https://api.memstash.io/values/<< parameters.db_migration_key >>")
+            if(( $SUCCESS==1 ));
+            then
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
+            fi
 
 jobs:
   build-frontend:
@@ -348,6 +360,7 @@ jobs:
             echo "${API_URL}"
             npm run build
             aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID}
+      - revert-migrations
       - slack-notify-fail
 
 #      # Here's where you will add some code to rollback on failure
@@ -380,6 +393,7 @@ jobs:
           working_directory: .circleci/ansible
           command: |
             ansible-playbook -i inventory.txt deploy-backend.yml
+      - revert-migrations
       - slack-notify-fail
 #       Here's where you will add some code to rollback on failure
 
@@ -388,12 +402,9 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           command: |
             apk add --update jq curl
-            cat ~/project/.circleci/ansible/inventory.txt
 
       - run:
           name:  Backend smoke test.
@@ -418,6 +429,7 @@ jobs:
             else
               return 1
             fi
+      - revert-migrations
       - slack-notify-fail
 #      # Here's where you will add some code to rollback on failure
 #
@@ -475,11 +487,11 @@ workflows:
 #      - scan-backend:
 #          context: slack-secrets
 #          requires: [build-backend]
-      - deploy-infrastructure:
-          context:
-            - aws-secrets
-            - slack-secrets
-            - memstash-secrets
+#      - deploy-infrastructure:
+#          context:
+#            - aws-secrets
+#            - slack-secrets
+#            - memstash-secrets
 #          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
 #          filters:
 #            branches:
@@ -488,11 +500,11 @@ workflows:
 #          requires: [deploy-infrastructure]
 #          context:
 #            - slack-secrets
-#      - run-migrations:
+      - run-migrations:
 #          requires: [configure-infrastructure]
-#          context:
-#            - slack-secrets
-#            - memstash-secrets
+          context:
+            - slack-secrets
+            - memstash-secrets
 #      - deploy-frontend:
 #          context:
 #            - aws-secrets
@@ -504,7 +516,7 @@ workflows:
 #          requires: [run-migrations]
       - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
-          requires: [deploy-infrastructure]
+          requires: [run-migrations]
           context:
             - slack-secrets
             - memstash-secrets
