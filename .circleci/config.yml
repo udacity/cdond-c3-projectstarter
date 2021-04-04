@@ -77,8 +77,8 @@ jobs:
       - run:
           name: Run frontend unit test
           command: |
-          cd frontend
-          npm test
+            cd frontend
+            npm test
       # Checkout code from git
       # Restore from cache
       # Your job code here
@@ -94,8 +94,8 @@ jobs:
       - run:
           name: Run backend unit test
           command: |
-          cd backend
-          npm run test
+            cd backend
+            npm run test
       # Checkout code from git
       # Restore from cache
       # Your job code here
