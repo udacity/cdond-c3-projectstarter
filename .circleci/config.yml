@@ -72,8 +72,8 @@
         - image: circleci/node:13.8.0
       steps:
         - checkout
-        - restore_cache:
-            at: ~/
+        - attach_workspace:
+            at: ./
         - run:
             name: Run frontend unit test
             command: |
@@ -89,8 +89,8 @@
         # Docker image here
       steps:
         - checkout
-        - restore_cache:
-            at: ~/
+        - attach_workspace:
+            at: ./
         - run:
             name: Run backend unit test
             command: |
