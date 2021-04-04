@@ -123,7 +123,7 @@ commands:
             aws cloudformation delete-stack \
                 --stack-name "<< parameters.frontend_stack_name >>"
 
-  revert-migrations:
+  revert-migrations-alpine:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
       db_migration_key:
@@ -156,6 +156,7 @@ commands:
               echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
               echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
               echo "TYPEORM_ENTITIES=./src/modules/**/*.entity.ts" >> .env
+              apk add --update npm
               npm run migrations:revert
             fi
 
@@ -409,7 +410,7 @@ jobs:
           working_directory: .circleci/ansible
           command: |
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - revert-migrations
+      - revert-migrations-alpine
       - slack-notify-fail
 #       Here's where you will add some code to rollback on failure
 
@@ -445,7 +446,7 @@ jobs:
             else
               return 1
             fi
-      - revert-migrations
+      - revert-migrations-alpine
       - slack-notify-fail
 #      # Here's where you will add some code to rollback on failure
 #
