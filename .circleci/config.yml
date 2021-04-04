@@ -43,7 +43,7 @@
         - run:
             name: Build front-end
             command: |
-              cd ~/cdond-c3-projectstarter/frontend
+              cd frontend
               npm install
               npm run build
         - save_cache:
@@ -60,7 +60,7 @@
         - run:
             name: Back-end build
             command: |
-              cd ~/cdond-c3-projectstarter/frontend
+              cd ~/cdond-c3-projectstarter/.circleci/frontend
               npm install
               npm run build
         - save_cache:
