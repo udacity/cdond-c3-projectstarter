@@ -32,7 +32,7 @@ commands:
               exit 1
             fi
             
-jobs:
+  jobs:
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -106,12 +106,12 @@ jobs:
       # Docker image here
     steps:
       - checkout
-      - run: 
-          name: Run the frontend audit
-          command: |
-            cd frontend
-            npm install
-            npm audit --audit-level=critical
+      -run: 
+        name: Run the frontend audit
+        command: |
+          cd frontend
+          npm install
+          npm audit --audit-level=critical
       # Checkout code from git
       # Restore from cache
       # Your job code here
