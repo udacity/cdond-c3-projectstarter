@@ -134,6 +134,7 @@ commands:
         default: "~/project/backend"
     steps:
       - restore_cache:
+          when: on_fail
           keys:
             - backend-build-{{ checksum "backend/package-lock.json" }}
             - backend-build-
