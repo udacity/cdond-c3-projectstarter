@@ -133,11 +133,11 @@ commands:
         type: string
         default: "~/project/backend"
     steps:
-      - restore_cache:
-          when: on_fail
-          keys:
-            - backend-build-{{ checksum "backend/package-lock.json" }}
-            - backend-build-
+#      - restore_cache:
+#          when: on_fail
+#          keys:
+#            - backend-build-{{ checksum "backend/package-lock.json" }}
+#            - backend-build-
       - run:
           name: Revert migrations
           when: on_fail
@@ -158,6 +158,7 @@ commands:
               echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
               echo "TYPEORM_ENTITIES=./src/modules/**/*.entity.ts" >> .env
               apk add --update npm
+              npm install
               npm run migrations:revert
             fi
 
