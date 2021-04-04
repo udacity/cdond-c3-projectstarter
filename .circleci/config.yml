@@ -129,18 +129,33 @@ commands:
        db_migration_key:
          type: string
          default: "db-migration-${CIRCLE_WORKFLOW_ID}"
+      backend_directory:
+        type: string
+        default: "~/project/backend"
     steps:
+      - restore_cache:
+          keys:
+            - backend-build-{{ checksum "backend/package-lock.json" }}
+            - backend-build-
       - run:
           name: Revert migrations
           when: on_fail
+          working_directory: "<< parameters.backend_directory >>"
           command: |
-            SUCCESS = $(curl -H "token: ${MEMSTASH_TOKEN}" \
-                           --request GET \
-                           "https://api.memstash.io/values/<< parameters.db_migration_key >>")
+            export SUCCESS="$(curl -H "token: ${MEMSTASH_TOKEN}" \
+                                   --request GET \
+                                   "https://api.memstash.io/values/<< parameters.db_migration_key >>")"
             if(( $SUCCESS==1 ));
             then
-              cd ~/project/backend
-              npm install
+              echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" > .env
+              echo "TYPEORM_HOST=${TYPEORM_HOST}" >> .env
+              echo "TYPEORM_PORT=${TYPEORM_PORT}" >> .env
+              echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> .env
+              echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> .env
+              echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> .env
+              echo "TYPEORM_MIGRATIONS_DIR=./src/migrations" >> .env
+              echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
+              echo "TYPEORM_ENTITIES=./src/modules/**/*.entity.ts" >> .env
               npm run migrations:revert
             fi
 
@@ -318,6 +333,7 @@ jobs:
             echo "TYPEORM_MIGRATIONS=./src/migrations/*.ts" >> .env
             echo "TYPEORM_ENTITIES=./src/modules/**/*.entity.ts" >> .env
             cat .env
+            npm run migrations:revert
             npm run migrations > migration-result-${CIRCLE_WORKFLOW_ID}
             cat migration-result-${CIRCLE_WORKFLOW_ID}
             if grep "has been executed successfully" migration-result-${CIRCLE_WORKFLOW_ID}
