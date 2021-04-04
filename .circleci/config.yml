@@ -111,7 +111,7 @@
             command: |
               cd frontend
               npm install
-             npm audit fix --audit-level=critical --force              
+              npm audit fix --audit-level=critical --force              
         # Checkout code from git
         # Restore from cache
         # Your job code here
