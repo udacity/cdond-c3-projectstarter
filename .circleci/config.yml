@@ -95,7 +95,7 @@
             name: Deploy the backend infrastructure using cloudformation
             command: |
               aws cloudformation deploy \
-                --template-file .circleci/cloudformation/backend_infrastructure.yml \
+                --template-file .circleci/files/backend.yml \
                 --parameter-overrides ID="prod-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --stack-name udapeople-backend-prod-${CIRCLE_WORKFLOW_ID:0:7}
         - run:
@@ -113,8 +113,8 @@
         - persist_to_workspace:
             root: ~/
             paths:
-              - project/.circleci/outputs/backend_url.txt
-              - project/.circleci/ansible/inventory.txt
+              - .circleci/outputs/backend_url.txt
+              - .circleci/ansible/inventory.txt
         - destroy_environment:
             workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -127,7 +127,7 @@
             name: Deploy the frontend infrastructure using cloudformation
             command: |
               aws cloudformation deploy \
-                --template-file .circleci/cloudformation/frontend_infrastructure.yml \
+                --template-file .circleci/files/frontend.yml \
                 --parameter-overrides ID="prod-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --stack-name udapeople-frontend-prod-${CIRCLE_WORKFLOW_ID:0:7}
         - destroy_environment:
@@ -152,12 +152,12 @@
               cd backend
               if grep -q "has been executed successfully." migration_output.txt
               then
-                touch ~/project/.circleci/outputs/db_migration_success
+                touch .circleci/outputs/db_migration_success
               fi
         - persist_to_workspace:
             root: ~/
             paths:
-              - project/.circleci/outputs/
+              - .circleci/outputs/
         - destroy_environment:
             workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -176,23 +176,23 @@
         - run:
             name: Build backend app
             command: |
-              cd ~/project/backend
+              cd backend
               npm i
               npm run build
               cd dist
               cp ../package.json .
               zip -rq dist.zip *
-              mkdir -p ~/project/.circleci/ansible/roles/deploy_backend/files/
-              mv dist.zip ~/project/.circleci/ansible/roles/deploy_backend/files/
+              mkdir -p .circleci/ansible/roles/deploy_backend/files/
+              mv dist.zip .circleci/ansible/roles/deploy_backend/files/
         - add_ssh_keys:
             fingerprints: [ "ba:fe:61:06:6d:00:6e:31:44:5d:19:cf:ef:44:3e:cf" ]
         - run:
             name: Setup EC2 instance & copy compiled backend to the EC2 instance
             command: |
-              ls ~/project/.circleci/ansible/roles/deploy_backend/files/
-              cd ~/project/backend
+              ls .circleci/ansible/roles/deploy_backend/files/
+              cd backend
               ansible-galaxy install weareinteractive.environment
-              ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/playbook.yml
+              ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/playbook.yml
         - destroy_environment:
             workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
         - undo_migrations
@@ -214,7 +214,7 @@
             command: |
               export API_URL=`cat .circleci/outputs/backend_url.txt`
               echo "API_URL: $API_URL"
-              cd ~/project/frontend
+              cd frontend
               npm i
               npm install typescript@rc
               npm run build
@@ -309,7 +309,7 @@
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
               printf '%s\n' "${STACKS[@]}"
               aws cloudformation deploy \
-                --template-file .circleci/cloudformation/cloudfront_infrastructure.yml \
+                --template-file .circleci/files/cloudfront.yml \
                 --parameter-overrides ID="prod-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --stack-name udapeople-prod-cloudfront
               if printf '%s\n' "${STACKS[@]}" | grep -q "$OLD_WORKFLOW_ID"; then
