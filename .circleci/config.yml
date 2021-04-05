@@ -276,8 +276,8 @@
                 -H "token: << pipeline.parameters.memstash-token >>" \
                 --request PUT --data "1" \
                 https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-      - revert-migrations
-      - destroy-environment
+        - revert-migrations
+        - destroy-environment
 
     deploy-frontend:
       docker:
