@@ -259,7 +259,7 @@
               echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
               cd backend
-              npm install
+              npm install --silent
               npm audit fix --force
               npm run migrations > migration.log
               cat migration.log
@@ -288,8 +288,8 @@
             name: Install dependencies
             command: |
               cd frontend
-              sudo npm install webpack-dev-server -g
-              sudo npm install
+              npm install webpack-dev-server -g
+              npm install
         - run:
             name: Get backend url
             command: |
@@ -300,6 +300,12 @@
               echo API_URL=$API_URL >> "frontend/.env"
 
               echo "${API_URL}"
+        - run:
+            name: Build Frontend
+            command: |
+              cd frontend
+              npm run build
+        - aws-cli/setup
         - run:
             name: Deploy frontend objects
             command: |
@@ -314,17 +320,21 @@
         # Docker image here that supports Ansible
       steps:
         - checkout
-        # Checkout code from git
-        # Add ssh keys with fingerprint
-        # attach workspace
+        - add_ssh_keys:
+            fingerprints: ["ba:fe:61:06:6d:00:6e:31:44:5d:19:cf:ef:44:3e:cf"]
+        - attach_workspaces:
+            at: ~/
         - run:
             name: Install dependencies
             command: |
-              # your code here
+              apk add --update ansible openssh-client tar gzip 
+        - restore_cache:
+            keys: ["backend-dist"]
         - run:
             name: Deploy backend
             command: |
-              # your code here
+              cd /cdond-c3-projectstarter
+              tar czf backend.tar.gz -P /cdond-c3-projectstarter/circleci/project/backend/dist
         # Here's where you will add some code to rollback on failure  
 
     smoke-test:
