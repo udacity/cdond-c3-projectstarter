@@ -94,10 +94,11 @@
         - run:
             name: Deploy the backend infrastructure using cloudformation
             command: |
-              aws cloudformation deploy \
+             aws cloudformation deploy \
                 --template-file .circleci/files/backend.yml \
-                --parameter-overrides ID="prod-${CIRCLE_WORKFLOW_ID:0:7}" \
-                --stack-name udapeople-backend-prod-${CIRCLE_WORKFLOW_ID:0:7}
+                --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+                 --stack-name "udapeople-backend-prod-${CIRCLE_WORKFLOW_ID:0:7}" \
+                 --parameter-overrides ID="prod-${CIRCLE_WORKFLOW_ID:0:7}"
         - run:
             name: Save backend URL and IP (for ansible)
             command: |
