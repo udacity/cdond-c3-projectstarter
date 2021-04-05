@@ -153,7 +153,7 @@
                 --tags project=udapeople \
                 --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
-                exit 1
+          ## exit 1
         - run:
             name: Ensure front-end infrastructure exist
             command: |
@@ -162,7 +162,7 @@
                 --tags project=udapeople \
                 --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
-                exit 1
+            ## exit 1
         - run:
             name: Add back-end ip to ansible inventory
             command: |
@@ -201,7 +201,7 @@
               echo [all] > ~/inventory.txt &&
               curl -H "token: 0cd52177-868d-4982-ac51-f1e6b661064a" --request GET https://api.memstash.io/values/ips >> ~/inventory.txt && 
               export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook  -i ~/inventory.txt .circleci/ansible/roles/configure-server/playbook.yml --extra-vars "TYPEORM_HOST=${TYPEORM_HOST} TYPEORM_PORT=${TYPEORM_PORT} TYPEORM_USERNAME=${TYPEORM_USERNAME} TYPEORM_PASSWORD=${TYPEORM_PASSWORD} TYPEORM_DATABASE=${TYPEORM_DATABASE}"
-              exit 1
+          ## exit 1
         # Here's where you will add some code to rollback on failure      
 
     run-migrations:
