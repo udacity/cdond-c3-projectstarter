@@ -264,8 +264,7 @@
               echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
               cd backend
-              npm install
-              npm config set fund false --global
+              npm install --no-fund
               npm audit fix --force
               npm run migrations > migration.log
               cat migration.log
