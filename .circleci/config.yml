@@ -270,7 +270,7 @@
               cat migration.log
               migration_status=$(cat migration.log | grep -c "has been executed successfully")
             ## if [ $migration_status > 0 ]; then exit 0; else exit 1; 
-              fi;
+              ##fi;
 
         - run:
             name: Send migration results to memstash
