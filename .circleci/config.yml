@@ -77,14 +77,14 @@
         - image: circleci/node:13.8.0
       steps:
         - checkout
-        - run: npm audit --audit-level=critical --prefix backend
+        - run: npm audit fix --audit-level=critical --prefix backend
 
     analyze_frontend:
       docker:
         - image: circleci/node:13.8.0
       steps:
         - checkout
-        - run: npm audit --audit-level=critical --prefix frontend
+        - run: npm audit fix --audit-level=critical --prefix frontend
 
     deploy_backend_infrastructure:
       docker:
