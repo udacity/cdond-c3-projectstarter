@@ -266,8 +266,8 @@
             root: ~/
             paths:
               - project/.circleci/outputs/
-        - destroy_environment:
-            workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+        - revert-migrations
+        - destroy-environment
 
 
     deploy-frontend:
