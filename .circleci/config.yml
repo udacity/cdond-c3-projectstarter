@@ -161,25 +161,22 @@
                 --template-file .circleci/files/frontend.yml \
                 --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
                 --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-              
-              ARN=$(aws s3 ls | grep udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7})
-              echo "ARN=$ARN"
-              echo "$ARN"
-              curl -H "Content-Type: text/plain" -H "token: 7c7e45d9-6a83-4d93-b869-7338fcf92714" --request PUT --data "$ARN" https://api.memstash.io/values/udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
             ## exit 1
         - run:
             name: Add back-end ip to ansible inventory
             command: |
-              echo "[backend]" >> inventory.txt
+              echo "[backend]"
               Backend_ip=$(aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"  --output text)
               echo "$Backend_ip" >> inventory.txt
+              cat .circleci/ansible/inventory.txt
             # Your code here
             ## exit 1
         - persist_to_workspace:
             root: ./
             paths:
               - .circleci/ansible/inventory.txt
+        - destroy-environment
         # Here's where you will add some code to rollback on failure      
 
     configure-infrastructure:
@@ -189,40 +186,47 @@
         - checkout
         - add_ssh_keys:
             fingerprints: ["ba:fe:61:06:6d:00:6e:31:44:5d:19:cf:ef:44:3e:cf"]
-        # Checkout code from git
-        # Add ssh keys with fingerprint
-        # attach workspace
-        - run:
-            name: save ips
-            command: | 
-                curl -H "Content-Type: text/plain" -H "token: 0cd52177-868d-4982-ac51-f1e6b661064a" --request PUT --data "$(aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name, Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --output=text)" https://api.memstash.io/values/ips        
+        - attach_workspace:
+            at: ~/
         - run:
             name: Install dependencies
             command: |
               apk add --update tar gzip ansible nodejs npm curl
-              apk add openssh-client
-              pip install awscli
+              apk add --update ansible
+              cat .circleci/ansible/inventory.txt
+        - run:
+            name: save ips
+            command: | 
+                curl -H "Content-Type: text/plain" -H "token: 0cd52177-868d-4982-ac51-f1e6b661064a" --request PUT --data "$(aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name, Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" --output=text)" https://api.memstash.io/values/ips   
+        
             ##exit 1
         - run: 
             name: Configure server
             command: |
-              cd .circleci/ansible
-              echo "[ssh_connection]" > ansible.cfg
-              echo "scp_if_ssh=True" >> ansible.cfg
-              echo "timeout=20">> ansible.cfg
-              cat ansible.cfg
+              echo ENVIRONMENT=production > "backend/.env"
+              echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+              echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+              echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+              echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+              echo NODE_ENV=production >> "backend/.env"
 
-              echo "[web]" >> inventory.txt
-              YUVOPS_URLS=$(curl -H "token: 7c7e45d9-6a83-4d93-b869-7338fcf92714" --request GET https://api.memstash.io/values/udapeople-${CIRCLE_WORKFLOW_ID:0:7}
-              echo "$YUVOPS_URLS" >> inventory.txt
-              cat inventory.txt
+              echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+              echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+              echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+              echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+              echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
-              apk --no-cache add curl && 
-              echo [all] > ~/inventory.txt &&
-              curl -H "token: 0cd52177-868d-4982-ac51-f1e6b661064a" --request GET https://api.memstash.io/values/ips >> ~/inventory.txt && 
-              export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook  -i ~/inventory.txt .circleci/ansible/roles/configure-server.yml --extra-vars "TYPEORM_HOST=${TYPEORM_HOST} TYPEORM_PORT=${TYPEORM_PORT} TYPEORM_USERNAME=${TYPEORM_USERNAME} TYPEORM_PASSWORD=${TYPEORM_PASSWORD} TYPEORM_DATABASE=${TYPEORM_DATABASE}"
+              ansible-playbook \
+                -i .circleci/ansible/inventory.txt \
+                .circleci/ansible/configure-server.yml
           ## exit 1
-        # Here's where you will add some code to rollback on failure      
+        # Here's where you will add some code to rollback on failure
+        - run:
+            name: Install AWS Cli for rollback
+            when: on_fail
+            command: |
+              apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+        - destroy-environment
 
     run-migrations:
       docker:
