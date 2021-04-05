@@ -1,5 +1,10 @@
   version: 2.1
 
+  
+  orbs:
+    slack: circleci/slack@4.1.1
+    aws-cli: circleci/aws-cli@1.3.0
+
   parameters:
     workflow-id:
       type: string
@@ -335,6 +340,20 @@
             command: |
               cd /cdond-c3-projectstarter
               tar czf backend.tar.gz -P /cdond-c3-projectstarter/circleci/project/backend/dist
+        - run:
+            name: Deploy backend 2
+            command: |
+              export ANSIBLE_HOST_KEY_CHECKING=False
+              ansible-playbook \
+                -i .circleci/ansible/inventory.txt \
+                .circleci/ansible/deploy-backend.yml
+        - run:
+            name: Install AWS CLI for rollback
+            when: on_fail
+            command: |
+              apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+        - revert-migrations
+        - destroy-environment
         # Here's where you will add some code to rollback on failure  
 
     smoke-test:
