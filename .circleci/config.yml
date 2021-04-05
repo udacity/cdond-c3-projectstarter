@@ -140,8 +140,10 @@
         # Docker image here that supports AWS CLI
       steps:
         - checkout
-        - command: |
-            yum -y install tar gzip
+        - run:
+            name: Install dependencies
+            command: |
+              yum -y install tar gzip
         # Checkout code from git
         - run:
             name: Ensure back-end infrastructure exists
