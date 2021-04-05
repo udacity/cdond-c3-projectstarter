@@ -167,11 +167,11 @@
             name: Add back-end ip to ansible inventory
             command: |
               echo "[backend]" >> inventory.txt
-              (aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"  --output text) >> inventory.txt
+              echo (aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"  --output text) >> inventory.txt
             # Your code here
             ## exit 1
         - persist_to_workspace:
-            root: ~/
+            root: ./
             paths:
               - .circleci/ansible/inventory.txt
         # Here's where you will add some code to rollback on failure      
