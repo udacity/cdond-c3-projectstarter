@@ -179,7 +179,6 @@
     configure-infrastructure:
       docker:
         - image: amazon/aws-cli
-        # Docker image here that supports Ansible
       steps:
         - checkout
         - add_ssh_keys:
