@@ -1,5 +1,13 @@
   version: 2.1
 
+  parameters:
+    workflow-id:
+      type: string
+      default: "${CIRCLE_WORKFLOW_ID:0:7}"
+    memstash-token:
+      type: string
+      default: "b9461c43-6888-4d04-8e76-7beeddbb863c"
+
   commands:
     destroy-environment:
       description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -255,7 +263,8 @@
               sudo npm run migrations > migration.log
               cat migration.log
               migration_status=$(cat migration.log | grep -c "has been executed successfully")
-              if [ $migration_status > 0 ]; then exit 0; else exit 1; fi;
+              if [ $migration_status > 0 ]; then exit 0; else exit 1; f
+              i;
 
         - run:
             name: Send migration results to memstash
