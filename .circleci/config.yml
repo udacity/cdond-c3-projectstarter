@@ -150,7 +150,7 @@
             command: |
               aws cloudformation deploy \
                 --template-file .circleci/files/backend.yml \
-                --tags project=udapeople \
+                --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
                 --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
           ## exit 1
@@ -159,15 +159,17 @@
             command: |
               aws cloudformation deploy \
                 --template-file .circleci/files/frontend.yml \
-                --tags project=udapeople \
+                --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
                 --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
             ## exit 1
         - run:
             name: Add back-end ip to ansible inventory
             command: |
-              # Your code here
-              exit 1
+              echo "[backend]" >>> inventory.txt
+              echo (aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"  --output text) >>> inventory.txt
+            # Your code here
+            ## exit 1
         - persist_to_workspace:
             root: ~/
             paths:
