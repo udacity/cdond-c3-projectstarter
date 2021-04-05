@@ -264,7 +264,8 @@
               echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
               cd backend
-              npm install --silent
+              npm install
+              npm config set fund false --global
               npm audit fix --force
               npm run migrations > migration.log
               cat migration.log
@@ -384,11 +385,25 @@
             name: Frontend smoke test.
             command: |
               URL="http://udapeople-<< pipeline.parameters.workflow-id >>.s3-website-us-east-1.amazonaws.com"
-        # Here's where you will add some code to rollback on failure  
+              echo $URL
+
+              if curl -s ${URL} | grep "Welcome"
+              then
+              return 1
+              else
+              return 0
+              fi
+        - run:
+            name: Install AWS CLI for rollback
+            when: on_fail
+            command: |
+              apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+        - revert-migrations
+        - destroy-environment 
 
     cloudfront-update:
       docker:
-        - image: amazon/aws-cli
+        - image: python:3.7-alpine3.11
         # Docker image here that supports AWS CLI
       steps:
         - checkout
@@ -396,32 +411,49 @@
         - run:
             name: Install dependencies
             command: |
-              # your code here
+              apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+              apk add --update curl
+        - run: 
+            name: Save old workflow ID
+            command: |
+              export OldWorkflowID=$(aws cloudformation list-exports \
+              --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+              echo "Old Workflow ID: ${OldWorkflowID}"
+              curl -H "Content-Type: text/plain" \
+              -H "token: << pipeline.parameters.memstash-token >>" \
+              --request PUT --data $OldWorkflowID \
+              https://api.memstash.io/values/old_workflow_id_${CIRCLE_WORKFLOW_ID}
         - run:
             name: Update cloudfront distribution
             command: |
-              # your code here
-        # Here's where you will add some code to rollback on failure  
+              aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name "udapeople-cloudfront" \
+              --parameter-overrides WorkflowID="<< pipeline.parameters.workflow-id >>" \
+              --tags project=udapeople
+        - revert-migrations
+        - destroy-environment
 
     cleanup:
       docker:
-        - image: circleci/node:13.8.0
+        - image: cimg/base:2020.01
         # Docker image here
       steps:
-        # Checkout code from git
+        - checkout
+        - aws-cli/setup
         - run:
             name: Get old stack workflow id
             command: |
               # your code here
-              export OldWorkflowID="the id here"
-              export STACKS=[] #put the list of stacks here
-        - run:
-            name: Remove old stacks and files
-            command: |
-              if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+              export OldWorkflowID==$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/old_workflow_id_${CIRCLE_WORKFLOW_ID})
+              echo "Old Workflow ID: ${OldWorkflowID}"
+              if [ "${OldWorkflowID}" != "<< pipeline.parameters.workflow-id >>" ]
               then
-                # your code here
-              fi
+                aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+                aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+                aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+              fi           
               
 
   workflows:
