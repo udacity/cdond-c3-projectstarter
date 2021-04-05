@@ -327,8 +327,8 @@
         - checkout
         - add_ssh_keys:
             fingerprints: ["ba:fe:61:06:6d:00:6e:31:44:5d:19:cf:ef:44:3e:cf"]
-        - attach_workspaces:
-            at: ~/
+        - attach_workspace:
+            at: ./
         - run:
             name: Install dependencies
             command: |
@@ -354,30 +354,36 @@
               apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
         - revert-migrations
         - destroy-environment
-        # Here's where you will add some code to rollback on failure  
 
     smoke-test:
       docker:
-        - image: circleci/node:13.8.0
+        - image: python:3.7-alphine3.11
         # Lightweight Docker image 
       steps:
-        # Checkout code from git
+        - checkout
         - run:
             name: Install dependencies
             command: |
-              # your code here
+              apk add --update curl
+        - attach_workspace:
+            at: ~/
         - run:
             name: Get backend url
             command: |
-              # your code here
+              export BACKEND_URL=$(sed -n 2p .circleci/ansible/inventory.txt)
         - run:
             name: Backend smoke test.
             command: |
-              # your code here
+              if curl -s https://${BACKEND_URL}:3030/api/status
+              then
+              return 1
+              else
+              retrun 0
+              fi
         - run:
             name: Frontend smoke test.
             command: |
-              # your code here
+              URL="http://udapeople-<< pipeline.parameters.workflow-id >>.s3-website-us-east-1.amazonaws.com"
         # Here's where you will add some code to rollback on failure  
 
     cloudfront-update:
