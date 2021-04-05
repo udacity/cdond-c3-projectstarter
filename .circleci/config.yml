@@ -260,6 +260,7 @@
 
               cd backend
               sudo npm install
+              sudo npm audit fix
               sudo npm run migrations > migration.log
               cat migration.log
               migration_status=$(cat migration.log | grep -c "has been executed successfully")
