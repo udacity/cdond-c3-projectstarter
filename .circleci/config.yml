@@ -265,12 +265,12 @@
               echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
               echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
               echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-              yum -y install tar gzip sudo
-              curl -sL https://rpm.nodesource.com/setup_12.x | bash -
-              yum -y install nodejs
+
+              
               cd backend
-              sudo npm install --no-fund
-              sudo npm run migrations > migration.log
+              npm install --no-fund
+              npm audit fix --audit-level=critical  
+              npm run migrations > migration.log
               cat migration.log
               migration_status=$(cat migration.log | grep -c "has been executed successfully")
               if [ $migration_status > 0 ]; then exit 0; else exit 1; fi;
