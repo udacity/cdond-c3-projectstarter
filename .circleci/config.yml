@@ -140,6 +140,8 @@
         # Docker image here that supports AWS CLI
       steps:
         - checkout
+        - command: |
+            yum -y install tar gzip
         # Checkout code from git
         - run:
             name: Ensure back-end infrastructure exists
@@ -176,18 +178,27 @@
         # Docker image here that supports Ansible
       steps:
         - checkout
+        - add_ssh_keys:
+            fingerprints: ["ba:fe:61:06:6d:00:6e:31:44:5d:19:cf:ef:44:3e:cf"]
         # Checkout code from git
         # Add ssh keys with fingerprint
         # attach workspace
         - run:
+            name: save ips
+            command: | 
+                curl -H "Content-Type: text/plain" -H "token: 0cd52177-868d-4982-ac51-f1e6b661064a" --request PUT --data "$(aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output=text)" https://api.memstash.io/values/ips        
+        - run:
             name: Install dependencies
             command: |
-              # Your code here
+              apk add --update ansible
               exit 1
-        - run:
+        - run: 
             name: Configure server
             command: |
-              # Your code here
+              apk --no-cache add curl && 
+              echo [all] > ~/inventory.txt &&
+              curl -H "token: 0cd52177-868d-4982-ac51-f1e6b661064a" --request GET https://api.memstash.io/values/ips >> ~/inventory.txt && 
+              export ANSIBLE_HOST_KEY_CHECKING=False && ansible-playbook  -i ~/inventory.txt .circleci/ansible/roles/configure-server/playbook.yml --extra-vars "TYPEORM_HOST=${TYPEORM_HOST} TYPEORM_PORT=${TYPEORM_PORT} TYPEORM_USERNAME=${TYPEORM_USERNAME} TYPEORM_PASSWORD=${TYPEORM_PASSWORD} TYPEORM_DATABASE=${TYPEORM_DATABASE}"
               exit 1
         # Here's where you will add some code to rollback on failure      
 
