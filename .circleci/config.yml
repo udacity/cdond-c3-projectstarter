@@ -137,7 +137,7 @@
             command: |
               cd backend
               npm install
-              npm audit fix --audit-level=critical       
+              npm audit fix     
         # Checkout code from git
         # Restore from cache
         # Your job code here
