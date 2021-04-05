@@ -252,6 +252,7 @@
             name: Run DB migrations
             command: |
               cd backend
+              npm install typescript -g
               npm run migrations >> migration_output.txt
               cat migration_output.txt
         - run:
