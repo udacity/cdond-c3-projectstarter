@@ -252,7 +252,7 @@
 
               cd backend
               sudo npm install
-              
+
               sudo npm run migrations > migration.log
               cat migration.log
               migration_status=$(cat migration.log | grep -c "has been executed successfully")
@@ -286,9 +286,7 @@
             name: Get backend url
             command: |
               export BACKEND_IP=$(sed -n 2p .circleci/ansible/inventory.txt)
-            # your code here
-              export API_URL="http://${BACKEND_IP}:3030"
-              
+              export API_URL="http://${BACKEND_IP}:3030"              
               echo ENVIRONMENT=production > "frontend/.env"
               echo NODE_ENV=production >> "frontend/.env"
               echo API_URL=$API_URL >> "frontend/.env"
@@ -300,8 +298,7 @@
               aws s3 cp --recursive frontend/dist "s3://udapeople-<< pipeline.parameters.workflow-id >>"
         - revert-migrations
         - destroy-environment
-            # your code here
-        # Here's where you will add some code to rollback on failure      
+
                       
     deploy-backend:
       docker:
