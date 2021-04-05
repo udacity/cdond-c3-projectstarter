@@ -252,7 +252,6 @@
 
               cd backend
               sudo npm install
-
               sudo npm run migrations > migration.log
               cat migration.log
               migration_status=$(cat migration.log | grep -c "has been executed successfully")
@@ -267,7 +266,6 @@
               https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
         - revert-migrations
         - destroy-environment
-      # Here's where you will add some code to rollback on failure      
 
     deploy-frontend:
       docker:
