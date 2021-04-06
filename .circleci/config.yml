@@ -142,15 +142,12 @@
         - attach_workspace:
             at: ~/
         - run:
-            name: no time out  
-            command: . ./ourlongscript.sh
-            no_output_timeout: 30m
-        - run:
             name: Run DB migrations
             command: |
               cd backend
               npm run migrations >> migration_output.txt
               cat migration_output.txt
+            no_output_timeout: 30m
         - run:
             name: Store migration result in a file.
             command: |
