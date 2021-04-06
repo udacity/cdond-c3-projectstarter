@@ -1,5 +1,13 @@
   version: 2.1
 
+  parameters:
+    workflow-id:
+      type: string
+      default: "${CIRCLE_WORKFLOW_ID:0:7}"
+    memstash-token:
+      type: string
+      default: "b9461c43-6888-4d04-8e76-7beeddbb863c"
+
   commands:
     destroy_environment:
       description: Destroy backend and frontend cloudformation stacks given a workflow ID.
@@ -244,7 +252,7 @@
             name: Copy frontend to s3 bucket.
             command: |
               cd ~/project/frontend
-              aws s3 cp dist s3://udapeople-prod-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+              aws s3 cp --recursive frontend/dist "s3://udapeople-<< pipeline.parameters.workflow-id >>"
         - destroy_environment:
             workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
         - undo_migrations
