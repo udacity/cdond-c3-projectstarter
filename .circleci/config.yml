@@ -199,7 +199,6 @@
         - run:
             name: Setup EC2 instance & copy compiled backend to the EC2 instance
             command: |
-              ls .circleci/ansible/roles/deploy_backend/files/
               cd backend
               ansible-galaxy install weareinteractive.environment
               ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/playbook.yml
@@ -252,7 +251,7 @@
             name: Copy frontend to s3 bucket.
             command: |
               cd ~/project/frontend
-              aws s3 cp --recursive frontend/dist "s3://udapeople-<< pipeline.parameters.workflow-id >>"
+              aws s3 cp --recursive "s3://udapeople-<< pipeline.parameters.workflow-id >>"
         - destroy_environment:
             workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
         - undo_migrations
