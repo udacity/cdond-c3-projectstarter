@@ -114,8 +114,8 @@
         - persist_to_workspace:
             root: ~/
             paths:
-              - .circleci/outputs/backend_url.txt
-              - .circleci/ansible/inventory.txt
+              - project/.circleci/outputs/backend_url.txt
+              - project/.circleci/ansible/inventory.txt
         - destroy_environment:
             workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
