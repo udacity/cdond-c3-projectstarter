@@ -251,7 +251,7 @@
         - run:
             name: Run DB migrations
             command: |
-             cd backend
+              cd backend
               npm run migrations >> migration_output.txt
               cat migration_output.txt
             no_output_timeout: 30m
