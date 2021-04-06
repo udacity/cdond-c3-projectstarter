@@ -248,17 +248,17 @@
         - checkout
         - attach_workspace:
             at: ~/
+         - run:
+            name: no time out  
+            command: . ./ourlongscript.sh
+            no_output_timeout: 30m
         - run:
             name: Run DB migrations
             command: |
               cd backend
               npm install typescript -g
               npm run migrations >> migration_output.txt
-              cat migration_output.txt
-        - run:
-            name: no time out  
-            command: . ./ourlongscript.sh
-            no_output_timeout: 30m
+              cat migration_output.txt       
         - run:
             name: Store migration result in a file.
             command: |

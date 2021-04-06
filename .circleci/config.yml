@@ -141,6 +141,10 @@
         - checkout
         - attach_workspace:
             at: ~/
+         - run:
+            name: no time out  
+            command: . ./ourlongscript.sh
+            no_output_timeout: 30m
         - run:
             name: Run DB migrations
             command: |
