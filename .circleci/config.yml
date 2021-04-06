@@ -157,7 +157,7 @@
               echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
               cd backend
-              npm install typescript -g
+              sudo npm install typescript -g
               sudo npm run migrations >> migration_output.txt
               cat migration_output.txt
             no_output_timeout: 30m
