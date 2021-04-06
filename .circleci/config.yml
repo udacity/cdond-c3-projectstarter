@@ -158,8 +158,10 @@
 
               cd backend
               sudo npm install typescript -g
-              sudo npm run migrations >> migration_output.txt
-              cat migration_output.txt
+              sudo npm run migrations > migration.log
+              cat migration.log
+              migration_status=$(cat migration.log | grep -c "has been executed successfully")
+              if [ $migration_status > 0 ]; then exit 0; else exit 1; fi;
             no_output_timeout: 30m
         - run:
             name: Store migration result in a file.
