@@ -1,0 +1,23 @@
+- name: Configuring newly created EC2 instances
+  hosts: all
+  user: ubuntu
+  roles:
+    - role: deploy
+      become: true
+    - role: deploy
+      become: true
+    - role: configure-prometheus-node-exporter
+      become: true
+  vars:
+    environment_config:
+      NODE_ENV: production
+      ENVIRONMENT: production
+      TYPEORM_CONNECTION: postgres
+      TYPEORM_ENTITIES: /root/backend_app/modules/domain/**/*.entity.js
+      CIRCLE_WORKFLOW_ID: "{{ lookup('env','CIRCLE_WORKFLOW_ID') }}"
+      TYPEORM_MIGRATIONS: "{{ lookup('env','TYPEORM_MIGRATIONS') }}"
+      TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
+      TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
+      TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
+      TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
+      TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"

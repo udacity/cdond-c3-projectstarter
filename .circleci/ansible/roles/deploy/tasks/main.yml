@@ -1,0 +1,22 @@
+- name: "build package"
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+
+- name: "run migrations and save status to https://memstash.io/"
+  shell: |
+    cd /home/ubuntu/backend
+    npm run migrations > migrations.txt
+    cat migrations.txt
+    export CIRCLE_WORKFLOW_ID="{{ CIRCLE_WORKFLOW_ID }}"
+    echo CIRCLE_WORKFLOW_ID=${CIRCLE_WORKFLOW_ID}
+    curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data $( grep -c "No migrations are pending" migrations.txt ) https://api.memstash.io/values/migration_status
+  register: migration_output
+
+- debug:
+    msg: "{{ migration_output.stdout_lines }}"
+
+- name: "use pm2 to run the node server"
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm -- run "start:dev"

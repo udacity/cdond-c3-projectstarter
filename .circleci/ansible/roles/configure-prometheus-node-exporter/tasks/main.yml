@@ -1,10 +1,10 @@
-- name: "install node exporter."
+- name: "install node exporter"
   unarchive:
     src: https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-amd64.tar.gz
     dest: /tmp
     remote_src: yes
 
-- name: "move binary to /usr/local/bin."
+- name: "move binary to /usr/local/bin"
   become: true
   copy:
     src: /tmp/node_exporter-0.17.0.linux-amd64/node_exporter
@@ -12,7 +12,7 @@
     remote_src: yes
     mode: '0777'
     
-- name: "add node exporter configuration."
+- name: "add node exporter configuration"
   become: true
   copy:
     src: node_exporter.service

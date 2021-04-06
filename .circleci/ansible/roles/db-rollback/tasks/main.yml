@@ -1,0 +1,15 @@
+- name: "load migration status from https://memstash.io/ and revert migration if necessary"
+  shell: |
+    export CIRCLE_WORKFLOW_ID="{{ CIRCLE_WORKFLOW_ID }}"
+    echo CIRCLE_WORKFLOW_ID=${CIRCLE_WORKFLOW_ID}
+    MIGRATION_STATUS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration_status)
+    echo ${MIGRATION_STATUS}
+    if [[ ${MIGRATION_STATUS} == 1 ]]
+    then
+      cd /home/ubuntu/backend
+      npm run migrations:revert
+    fi
+  register: revert_migration_output
+
+- debug:
+    msg: "{{ revert_migration_output.stdout_lines }}"
