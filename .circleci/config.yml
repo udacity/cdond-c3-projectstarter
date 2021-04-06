@@ -251,10 +251,10 @@
         - run:
             name: Run DB migrations
             command: |
-              cd backend
-              npm install typescript -g
+             cd backend
               npm run migrations >> migration_output.txt
               cat migration_output.txt
+            no_output_timeout: 30m
         - run:
             name: Store migration result in a file.
             command: |
