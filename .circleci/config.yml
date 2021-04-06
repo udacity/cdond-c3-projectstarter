@@ -141,7 +141,7 @@
         - checkout
         - attach_workspace:
             at: ~/
-         - run:
+        - run:
             name: no time out  
             command: . ./ourlongscript.sh
             no_output_timeout: 30m
