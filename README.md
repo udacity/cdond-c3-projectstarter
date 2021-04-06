@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/zhulingchen/cdond-c3-projectstarter.svg?style=svg)](https://circleci.com/gh/zhulingchen/cdond-c3-projectstarter)
+
 ## Give your Application Auto-Deploy Superpowers
 
 In this project, you will prove your mastery of the following learning objectives:

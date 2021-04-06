@@ -19,7 +19,7 @@ describe('Employee Remover', () => {
       const handler = new EmployeeActivator(employeeRepository);
 
       const params = {
-        employeeId: 101, //change this to 100 to make the test pass
+        employeeId: 100, //change this to 100 to make the test pass (done)
         isActive: false,
       };
 
@@ -32,7 +32,7 @@ describe('Employee Remover', () => {
       await handler.handle(activateEmployeeCommand);
 
       // Assert
-      expect(employeeRepository.findById).toBeCalledWith(101);
+      expect(employeeRepository.findById).toBeCalledWith(100);
       expect(employeeRepository.save).toBeCalled();
     });
   });

@@ -1,0 +1,27 @@
+---
+- name: "Udapeople Server Configurations"
+  hosts: all
+  user: ubuntu
+ 
+  vars:
+    ansible_python_interpreter: /usr/bin/python3
+    host_key_checking: False
+    ansible_ssh_common_args: '-o StrictHostKeyChecking=no'
+    # Get the environment variables from CircleCI and add to the instance
+    CIRCLE_WORKFLOW_ID: "{{ lookup('env','CIRCLE_WORKFLOW_ID') }}"
+    TYPEORM_MIGRATIONS: "{{ lookup('env','TYPEORM_MIGRATIONS') }}"
+    TYPEORM_ENTITIES: "{{ lookup('env','TYPEORM_ENTITIES') }}"
+    TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
+    TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
+    ENVIRONMENT: "{{ lookup('env','ENVIRONMENT') }}"
+    #API_URL: "{{ lookup('env','API_URL') }}"
+
+  gather_facts: true
+
+  roles:
+    - configure-server
+    - db-rollback
