@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.0
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -38,15 +41,16 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-build2]
       - run:
           name: Build front-end
           command: |
               cd frontend && npm i && npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-build4
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   build-backend:
     docker:
@@ -54,7 +58,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build2]
+          keys: [backend-build]
       - run:
           name: Back-end build
           command: |
@@ -62,6 +66,9 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   test-frontend:
     docker:
@@ -69,11 +76,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build]
+          keys: [frontend-build4]
       - run:
           name: Run frontend unit test
           command: |
-            cd frontend && npm run test    
+            cd frontend && npm run test   
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   test-backend:
     docker:
@@ -85,7 +95,10 @@ jobs:
       - run:
           name: Run backend unit test
           command: |
-            cd backend && npm run test    
+            cd backend && npm run test
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
             
   scan-frontend:
     docker:
@@ -100,7 +113,10 @@ jobs:
             cd frontend && \
             npm audit fix --audit-level=critical --force
           # npm audit --audit-level=critical   
-          
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -114,6 +130,9 @@ jobs:
             cd backend && \
             npm audit fix --audit-level=critical --force  
            # npm audit --audit-level=critical   
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
 workflows:
   default:
