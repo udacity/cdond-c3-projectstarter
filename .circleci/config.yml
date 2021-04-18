@@ -71,7 +71,7 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: Run unit test
+          name: Run frontend unit test
           command: |
             cd frontend && npm run test    
 
@@ -83,7 +83,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Run unit test
+          name: Run backend unit test
           command: |
             cd backend && npm run test    
             
@@ -95,7 +95,7 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: Run unit test
+          name: Scan frontend dependencies
           command: |
             cd frontend && npm audit --audit-level=critical   
           #npm audit fix --audit-level=critical --force  
@@ -108,7 +108,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Run unit test
+          name: Scan backend dependencies
           command: |
             cd backend && npm audit --audit-level=critical   
           #npm audit fix --audit-level=critical --force  
