@@ -97,9 +97,10 @@ jobs:
       - run:
           name: Scan frontend dependencies
           command: |
-            cd frontend && npm audit --audit-level=critical   
-          #npm audit fix --audit-level=critical --force  
-
+            cd frontend && \
+            npm audit fix --audit-level=critical --force
+          # npm audit --audit-level=critical   
+          
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -110,8 +111,9 @@ jobs:
       - run:
           name: Scan backend dependencies
           command: |
-            cd backend && npm audit --audit-level=critical   
-          #npm audit fix --audit-level=critical --force  
+            cd backend && \
+            npm audit fix --audit-level=critical --force  
+           # npm audit --audit-level=critical   
 
 workflows:
   default:
