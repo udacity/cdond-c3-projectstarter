@@ -116,7 +116,7 @@ jobs:
                 }
               }
             ]
-            }
+          }
             
   scan-frontend:
     docker:
