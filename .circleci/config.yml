@@ -133,6 +133,9 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
+      - slack/notify:
+          color: "#42e2f4"
+          message: A custom message to notify the channel about the latest build
 
 workflows:
   default:
