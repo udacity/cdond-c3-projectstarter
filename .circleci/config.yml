@@ -191,42 +191,42 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
 
-  #configure-infrastructure:
-  #  docker:
-  #    - image: circleci/python:3.9
-  #  steps:
-  #    - checkout
-  #    - add_ssh_keys:
-  #        fingerprints: ["2f:a5:b5:03:e9:fa:77:d5:e3:7f:68:33:c3:cc:37:72"]
-  #    - run:
-  #        name: Install dependencies
-  #        command: |
-  #          pip3 install ansible --user 
-  #    - attach_workspace:
-  #        at: ~/
-  #    - run:
-  #        command: cat .circleci/ansible/inventory.txt
-  #    - run:
-  #        name: Configure server
-  #        command: |
-  #          echo ENVIRONMENT=production > "backend/.env"
-  #          echo TYPEORM_CONNECTION=postgres >> "backend/.env"
-  #          echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
-  #          echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
-  #          echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-  #          echo NODE_ENV=production >> "backend/.env"
-  #          echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-  #          echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-  #          echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-  #          echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-  #          echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-  #          ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-  #    - run:
-  #        name: Install AWS CLI for rollback
-  #        when: on_fail
-  #        command: |
-  #          pip3 install --upgrade pip && pip3 install awscli
-  #    - destroy-environment
+  configure-infrastructure:
+    docker:
+      - image: circleci/python:3.9
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["2f:a5:b5:03:e9:fa:77:d5:e3:7f:68:33:c3:cc:37:72"]
+      - run:
+          name: Install dependencies
+          command: |
+            pip3 install ansible --user 
+      - attach_workspace:
+          at: ~/
+      - run:
+          command: cat project/.circleci/ansible/inventory.txt
+      - run:
+          name: Configure server
+          command: |
+            echo ENVIRONMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      - run:
+          name: Install AWS CLI for rollback
+          when: on_fail
+          command: |
+            pip3 install --upgrade pip && pip3 install awscli
+      - destroy-environment
 
 workflows:
   default:
@@ -253,5 +253,5 @@ workflows:
           filters:
             branches:
               only: [master]
-#      - configure-infrastructure:
-#          requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
