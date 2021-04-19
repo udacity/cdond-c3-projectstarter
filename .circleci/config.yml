@@ -24,7 +24,7 @@ commands:
           name: Install aws cli
           when: on_fail
           command: |
-            pip3 install --upgrade pip && pip3 install awscli
+            apt install python3-pip && pip3 install --upgrade pip && pip3 install awscli
       - destroy-environment:
           stack-name: <<parameters.stack-name>>
       
