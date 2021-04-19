@@ -14,11 +14,20 @@ parameters:
 
 commands:
 
-  install-aws-cli:
-    description: Install aws cli
+  destroy-environment-with-aws:
+    description: Install aws cli and destroy environment
+    parameters:
+      stack-name:
+        type: string
     when: on_fail
-    command: |
-      pip3 install --upgrade pip && pip3 install awscli
+    steps:
+      - run:
+          name: Install aws cli
+          when: on_fail
+          command: |
+            pip3 install --upgrade pip && pip3 install awscli
+      - destroy-environment:
+          stack-name: <<parameters.stack-name>>
       
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -236,8 +245,7 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      - install-aws-cli
-      - destroy-environment:
+      - destroy-environment-with-aws:
           stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
 
   run-migrations:
@@ -265,8 +273,9 @@ jobs:
             https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
           project_name: backend
-      - destroy-environment:
+      - destroy-environment-with-aws:
           stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
+
 
 workflows:
   default:
