@@ -158,6 +158,16 @@ jobs:
               --tags project=udapeople
       - destroy-environment:
           stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
+      - run: Save back-end url
+          command: |
+            BACKENDIP="$(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:Project,Values=udapeople" \
+            --output text)" &&
+            curl -H "Content-Type: text/plain" -H "token: 5203fb63-f5d6-42e8-9fc3-4e0d24b4767d" --request PUT \
+            --data "$BACKENDIP" \
+            https://api.memstash.io/values/backend-ip
+
       - run:
           name: Ensure front-end infrastructure exist
           command: |
