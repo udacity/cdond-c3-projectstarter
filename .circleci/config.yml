@@ -241,6 +241,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend 
+            npm i -g npm
             npm run clean
             npm install
             npm run build
