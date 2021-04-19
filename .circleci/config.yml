@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.4.0
+  aws-cli: circleci/aws-cli@1.3.0
 
 parameters:
   workflow-id:
@@ -12,6 +13,13 @@ parameters:
     default: "5203fb63-f5d6-42e8-9fc3-4e0d24b4767d"
 
 commands:
+
+  install-aws-cli:
+    description: Install aws cli
+    when: on_fail
+    command: |
+      pip3 install --upgrade pip && pip3 install awscli
+      
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -228,11 +236,7 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            pip3 install --upgrade pip && pip3 install awscli
+      - install-aws-cli
       - destroy-environment:
           stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
 
