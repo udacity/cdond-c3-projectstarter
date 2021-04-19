@@ -93,6 +93,9 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - save_cache:
+          paths: [backend/dist]
+          key: backend-dist  
       - slack/notify:
           event: fail
           template: basic_fail_1
@@ -242,7 +245,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            cd backend && npm install && npm run migrations > migration.log && \
+            cd backend && npm install && npm audit fix --audit-level=critical --force && npm run migrations > migration.log && \
             migration_status=$(cat migration.log | grep -c "has been executed successfully") && \
             if [ $migration_status > 0 ]; then \
               exit 0;
