@@ -14,20 +14,6 @@ parameters:
 
 commands:
 
-  destroy-environment-with-aws:
-    description: Install aws cli and destroy environment
-    parameters:
-      stack-name:
-        type: string
-    steps:
-      - run:
-          name: Install aws cli
-          when: on_fail
-          command: |
-            apt install python3-pip && pip3 install --upgrade pip && pip3 install awscli
-      - destroy-environment:
-          stack-name: <<parameters.stack-name>>
-      
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -229,6 +215,7 @@ jobs:
       - image: circleci/python:3.9
     steps:
       - checkout
+      - aws-cli/setup
       - add_ssh_keys:
           fingerprints: ["2f:a5:b5:03:e9:fa:77:d5:e3:7f:68:33:c3:cc:37:72"]
       - run:
@@ -237,14 +224,12 @@ jobs:
             pip3 install ansible --user 
       - attach_workspace:
           at: ~/
-      - run:
-          command: cat .circleci/ansible/inventory.txt
       - set-env-parameters
       - run:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      - destroy-environment-with-aws:
+      - destroy-environment:
           stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
 
   run-migrations:
@@ -253,6 +238,7 @@ jobs:
     steps:
       - checkout
       - set-env-parameters
+      - aws-cli/setup
       - run:
           name: Run migrations
           command: |
@@ -275,7 +261,7 @@ jobs:
           command: echo migration_${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
           project_name: backend
-      - destroy-environment-with-aws:
+      - destroy-environment:
           stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
 
   deploy-frontend:
@@ -283,6 +269,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - aws-cli/setup
       - run:
           name: Install dependencies
           command: |
@@ -308,12 +295,11 @@ jobs:
           name: Build frontend
           command: |
             cd frontend && npm run build
-      - aws-cli/setup
       - run:
           name: Deploy frontend objects
           command: |
             aws s3 cp --recursive frontend/dist "s3://udapeople-<< pipeline.parameters.workflow-id >>"
-      - destroy-environment-with-aws:
+      - destroy-environment:
           stack-name: udapeople-frontend-<< pipeline.parameters.workflow-id >>
 
 workflows:
