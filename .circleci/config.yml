@@ -270,6 +270,9 @@ jobs:
             --request PUT \
             --data "1" \
             https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+      - run:
+          name: workflowid
+          command: echo migration_${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
           project_name: backend
       - destroy-environment-with-aws:
