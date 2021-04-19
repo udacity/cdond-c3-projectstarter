@@ -3,6 +3,14 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.4.0
 
+parameters:
+  workflow-id:
+    type: string
+    default: "${CIRCLE_WORKFLOW_ID:0:7}"
+  memstash-token:
+    type: string
+    default: "5203fb63-f5d6-42e8-9fc3-4e0d24b4767d"
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
