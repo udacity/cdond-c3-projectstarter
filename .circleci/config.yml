@@ -226,7 +226,8 @@ jobs:
           when: on_fail
           command: |
             pip3 install --upgrade pip && pip3 install awscli
-      - destroy-environment
+      - destroy-environment:
+          stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
 
 workflows:
   default:
