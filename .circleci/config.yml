@@ -96,27 +96,6 @@ jobs:
           name: Run backend unit test
           command: |
             cd backend && npm run test
-      - slack/notify:
-          event: always
-          custom: |
-          {
-            "blocks": [
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "Current Job: $CIRCLE_JOB"
-                }
-              },
-              {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "Write some text here"
-                }
-              }
-            ]
-          }
             
   scan-frontend:
     docker:
