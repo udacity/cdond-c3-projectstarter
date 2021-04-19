@@ -163,10 +163,10 @@ jobs:
           command: |
             BACKENDIP="$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:Name,Values=udapeople-backend-<< pipeline.parameters.workflow-id >>" \
+            --filters "Name=tag:project,Values=udapeople" \
             --output text)" &&
-            echo $BACKENDIP &&
-            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT \
+            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" \
+            --request PUT \
             --data "$BACKENDIP" \
             https://api.memstash.io/values/backend-ip
       - run:
@@ -183,7 +183,7 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             curl -H "token: << pipeline.parameters.memstash-token >>" \
-            --request GET https://api.memstash.io/values/backend-url >> .circleci/ansible/inventory.txt
+            --request GET https://api.memstash.io/values/backend-ip >> .circleci/ansible/inventory.txt
       - run:
           command: cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
