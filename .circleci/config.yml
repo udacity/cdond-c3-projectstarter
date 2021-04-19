@@ -80,7 +80,9 @@ jobs:
           name: Run frontend unit test
           command: |
             cd frontend && npm run test   
-
+      - slack/status:
+          fail_only: true
+          mentions: "yemiwebby"
 
   test-backend:
     docker:
