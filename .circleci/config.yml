@@ -34,14 +34,31 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            export SUCCESS=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/<<parameters.project_name>>
               npm install
               npm run migrations:revert
             fi
+  
+  set-env-parameters:
+    description: Creating .env file
+    steps:
+      - run:
+          name: echo parameters to .env file
+          command: |
+            echo ENVIRONMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo NODE_ENV=production >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             
 jobs:
   build-frontend:
@@ -206,26 +223,44 @@ jobs:
           at: ~/
       - run:
           command: cat .circleci/ansible/inventory.txt
+      - set-env-parameters
       - run:
           name: Configure server
           command: |
-            echo ENVIRONMENT=production > "backend/.env"
-            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-            echo NODE_ENV=production >> "backend/.env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - run:
           name: Install AWS CLI for rollback
           when: on_fail
           command: |
             pip3 install --upgrade pip && pip3 install awscli
+      - destroy-environment:
+          stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
+
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - set-env-parameters
+      - run:
+          name: Run migrations
+          command: |
+            cd backend && npm install && npm run migrations > migration.log && \
+            migration_status=$(cat migration.log | grep -c "has been executed successfully") && \
+            if [ $migration_status > 0 ]; then \
+              exit 0;
+            else
+              exit 1;
+            fi;
+      - run:
+          name: Send migration results to memstash
+          command: |
+            curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" \
+            --request PUT \
+            --data "1" \
+            https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+      - revert-migrations:
+          project_name: backend
       - destroy-environment:
           stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
 
@@ -257,3 +292,6 @@ workflows:
       - configure-infrastructure:
           context: slack-secrets
           requires: [deploy-infrastructure]
+      - run-migrations:
+          context: slack-secrets
+          requires: [configure-infrastructure]
