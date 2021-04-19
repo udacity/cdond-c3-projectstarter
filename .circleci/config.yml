@@ -67,8 +67,8 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
       - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
+          event: fail
+          template: basic_fail_1
 
   test-frontend:
     docker:
@@ -96,6 +96,9 @@ jobs:
           name: Run backend unit test
           command: |
             cd backend && npm run test
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
             
   scan-frontend:
     docker:
@@ -110,6 +113,9 @@ jobs:
             cd frontend && \
             npm audit fix --audit-level=critical --force
           # npm audit --audit-level=critical   
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   scan-backend:
     docker:
@@ -124,6 +130,9 @@ jobs:
             cd backend && \
             npm audit fix --audit-level=critical --force  
            # npm audit --audit-level=critical   
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
 workflows:
   default:
