@@ -19,7 +19,6 @@ commands:
     parameters:
       stack-name:
         type: string
-    when: on_fail
     steps:
       - run:
           name: Install aws cli
