@@ -163,9 +163,9 @@ jobs:
           command: |
             BACKENDIP="$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --filters "Name=tag:Name,Values=udapeople-backend-<< pipeline.parameters.workflow-id >" \
+            --filters "Name=tag:Name,Values=udapeople-backend-<< pipeline.parameters.workflow-id >>" \
             --output text)" &&
-            echo $BACKENDIP
+            echo $BACKENDIP &&
             curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" --request PUT \
             --data "$BACKENDIP" \
             https://api.memstash.io/values/backend-ip
