@@ -241,8 +241,9 @@ jobs:
           name: Run migrations
           command: |
             cd backend 
-            npm i -g npm
             npm run clean
+            rm package-lock.json
+            npm i -g npm
             npm install
             npm run build
             npm run migrations > migration.log
