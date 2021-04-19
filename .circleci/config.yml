@@ -236,11 +236,10 @@ jobs:
     steps:
       - checkout
       - set-env-parameters
-      - aws-cli/setup
       - run:
           name: Run migrations
           command: |
-            cd backend && npm update && npm install && npm audit fix && npm run migrations > migration.log && \
+            cd backend && npm install && npm run migrations > migration.log
             migration_status=$(cat migration.log | grep -c "has been executed successfully") && \
             if [ $migration_status > 0 ]; then \
               exit 0;
@@ -259,6 +258,7 @@ jobs:
           command: echo migration_${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
           project_name: backend
+      - aws-cli/setup
       - destroy-environment
 
   deploy-frontend:
