@@ -194,13 +194,13 @@ jobs:
       - run:
           name: Save back-end url
           command: |
-            BACKENDIP="$(aws ec2 describe-instances \
+            BACKEND_IP="$(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=udapeople" \
             --output text)" &&
             curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" \
             --request PUT \
-            --data "$BACKENDIP" \
+            --data "$BACKEND_IP" \
             https://api.memstash.io/values/backend-ip
       - run:
           name: Ensure front-end infrastructure exist
@@ -275,6 +275,43 @@ jobs:
       - destroy-environment-with-aws:
           stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
 
+  deploy-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            cd frontend && npm install
+      - run:
+          name: Get backend url
+          command: |
+            BACKEND_IP=$(curl -H "token: << pipeline.parameters.memstash-token >>" \
+            --request GET https://api.memstash.io/values/backend-ip) && \
+            export API_URL="http://${BACKEND_IP}:3030" && \
+            echo ENVIRONMENT=production > "frontend/.env" && \
+            echo NODE_ENV=production >> "frontend/.env" && \
+            echo API_URL=$API_URL >> "frontend/.env" && \
+      - run:
+          name: echo api url
+          command:             echo "${API_URL}"
+      - run:
+          name: ls
+          command: |
+            ls -la
+            cat .env
+      - run:
+          name: Build frontend
+          command: |
+            cd frontend && npm run build
+      - aws-cli/setup
+      - run:
+          name: Deploy frontend objects
+          command: |
+            aws s3 cp --recursive frontend/dist "s3://udapeople-<< pipeline.parameters.workflow-id >>"
+      - destroy-environment-with-aws:
+          stack-name: udapeople-frontend-<< pipeline.parameters.workflow-id >>
 
 workflows:
   default:
@@ -307,3 +344,6 @@ workflows:
       - run-migrations:
           context: slack-secrets
           requires: [configure-infrastructure]
+      - deploy-frontend:
+          context: slack-secrets
+          requires: [run-migrations]
