@@ -240,7 +240,9 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            cd backend && npm install
+            cd backend 
+            npm run clean
+            npm install
             npm run build
             npm run migrations > migration.log
             cat migration.log
