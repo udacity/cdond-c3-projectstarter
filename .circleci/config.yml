@@ -16,15 +16,13 @@ commands:
 
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      stack-name:
-        type: string
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name <<parameters.stack-name>>
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< pipeline.parameters.workflow-id >>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< pipeline.parameters.workflow-id >>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -178,8 +176,7 @@ jobs:
               --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>" \
               --tags project=udapeople
-      - destroy-environment:
-          stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
+      - destroy-environment
       - run:
           name: Save back-end url
           command: |
@@ -199,8 +196,7 @@ jobs:
               --stack-name "udapeople-frontend-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>" \
               --tags project=udapeople
-      - destroy-environment:
-          stack-name: udapeople-frontend-<< pipeline.parameters.workflow-id >>
+      - destroy-environment
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -232,8 +228,7 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      - destroy-environment:
-          stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
+      - destroy-environment
 
   run-migrations:
     docker:
@@ -245,7 +240,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            cd backend && npm install && npm audit fix --audit-level=critical --force && npm run migrations > migration.log && \
+            cd backend && npm update && npm install && npm audit fix && npm run migrations > migration.log && \
             migration_status=$(cat migration.log | grep -c "has been executed successfully") && \
             if [ $migration_status > 0 ]; then \
               exit 0;
@@ -264,8 +259,7 @@ jobs:
           command: echo migration_${CIRCLE_WORKFLOW_ID}
       - revert-migrations:
           project_name: backend
-      - destroy-environment:
-          stack-name: udapeople-backend-<< pipeline.parameters.workflow-id >>
+      - destroy-environment
 
   deploy-frontend:
     docker:
@@ -302,8 +296,7 @@ jobs:
           name: Deploy frontend objects
           command: |
             aws s3 cp --recursive frontend/dist "s3://udapeople-<< pipeline.parameters.workflow-id >>"
-      - destroy-environment:
-          stack-name: udapeople-frontend-<< pipeline.parameters.workflow-id >>
+      - destroy-environment
 
 workflows:
   default:
