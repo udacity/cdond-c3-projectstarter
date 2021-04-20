@@ -246,7 +246,7 @@ jobs:
             cat migration.log
             migration_completed=$(cat migration.log | grep -c "No migrations are pending")
             migration_status=$(cat migration.log | grep -c "has been executed successfully")
-            if [ $migration_status > 0 || $migration_completed ]; then
+            if [ $migration_status > 0 || $migration_completed > 0 ]; then
               exit 0;
             else
               exit 1;
@@ -301,6 +301,40 @@ jobs:
           name: Deploy frontend objects
           command: |
             aws s3 cp --recursive frontend/dist "s3://udapeople-<< pipeline.parameters.workflow-id >>"
+      - revert-migrations:
+          project_name: backend
+      - destroy-environment
+
+  deploy-backend:
+    docker:
+      - image: circleci/python:3.9
+    steps:
+      - checkout
+      - set-env-parameters
+      - aws-cli/setup
+      - add_ssh_keys:
+          fingerprints: ["2f:a5:b5:03:e9:fa:77:d5:e3:7f:68:33:c3:cc:37:72"]
+      - run:
+          name: Install dependencies
+          command: |
+            pip3 install ansible --user 
+      - attach_workspace:
+          at: ~/
+      - restore_cache:
+          keys: [backend-dist]
+      - run:
+          name: Package backend
+          command: |
+            ls
+            cd /home
+            ls
+           # tar czf backend.tar.gz -P /home/circleci/project/backend/dist
+      - run:
+          name: Deploy backend
+          command: |
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+      - revert-migrations:
+          project_name: backend
       - destroy-environment
 
 workflows:
@@ -335,5 +369,8 @@ workflows:
           context: slack-secrets
           requires: [configure-infrastructure]
       - deploy-frontend:
+          context: slack-secrets
+          requires: [run-migrations]
+      - deploy-backend:
           context: slack-secrets
           requires: [run-migrations]
