@@ -251,7 +251,7 @@ jobs:
             export migration_status=$(cat migration.log | grep -c "has been executed successfully")
             echo "rty";
             echo $migration_status;
-            if [ $migration_status > 0 || $migration_completed > 0 ]; then
+            if [ $migration_status > 0 ] || [ $migration_completed > 0 ]; then
               echo "qqq";
               exit 0;
             else
