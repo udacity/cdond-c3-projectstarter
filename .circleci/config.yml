@@ -339,14 +339,9 @@ jobs:
 
   smoke-test:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: cibuilds/aws:1.19
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update curl
-      - aws-cli/setup
       - run:
           name: Get backend url
           command: |
