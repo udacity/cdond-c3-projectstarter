@@ -246,9 +246,7 @@ jobs:
             cat migration.log
             migration_completed=$(cat migration.log | grep -c "No migrations are pending")
             migration_status=$(cat migration.log | grep -c "has been executed successfully")
-            echo $migration_status
-            echo $migration_completed
-            if [ $migration_status > 0 || $migration_completed > 0 ]; then
+            if [ $migration_status > 0 ] || [ $migration_completed > 0 ]; then
               exit 0;
             else
               exit 1;
