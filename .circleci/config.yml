@@ -342,6 +342,7 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - aws-cli/setup
       - run:
           name: Install dependencies
           command: |
@@ -368,7 +369,6 @@ jobs:
             else
               return 1
             fi
-      - aws-cli/setup
       - revert-migrations:
           project_name: backend
       - destroy-environment
