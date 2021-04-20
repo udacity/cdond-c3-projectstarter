@@ -246,24 +246,21 @@ jobs:
             cat migration.log
             migration_completed=$(cat migration.log | grep -c "No migrations are pending")
             migration_status=$(cat migration.log | grep -c "has been executed successfully")
-            echo $migration_completed
-            echo $migration_status
-            if [ $migration_status -gt 0 ] || [ $migration_completed -gt 0 ]; then
-              exit 0;
-            else
-              exit 1;
-            fi;
-      - run:
-          name: Send migration results to memstash
-          command: |
-            if [ $migration_status > 0 ]; then
+
+            if [ $migration_status -gt 0 ] then
             curl -H "Content-Type: text/plain" -H "token: << pipeline.parameters.memstash-token >>" \
             --request PUT \
             --data "1" \
             https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-            else
-              exit 0;
+            exit 0;
             fi;
+            
+            if [ $migration_completed -gt 0 ]; then
+              exit 0;
+            else
+            exit 1;
+            fi;
+            
       - revert-migrations:
           project_name: backend
       - destroy-environment
