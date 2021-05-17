@@ -68,7 +68,6 @@ commands:
       - run:
           name: Run unit test
           command: |
-            mkdir -p /tmp/test-reports
             cd << parameters.path >>
             npm run test
 
@@ -82,6 +81,7 @@ commands:
       - run:
           name: Scan the code for vulnerabilities
           command: |
+            pwd; ls
             cd << parameters.path >>
             npm audit --audit-level=critical
 
@@ -127,8 +127,6 @@ jobs:
           path: frontend
       - run-test:
           path: frontend
-      - store_test_results:
-          path: /tmp/test-reports
          
   test-backend:
     docker:
@@ -141,8 +139,6 @@ jobs:
           path: backend
       - run-test:
           path: backend
-      - store_test_results:
-          path: /tmp/test-reports
 
   scan-frontend:
     docker:
