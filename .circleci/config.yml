@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack:latest
+  slack: circleci/slack@4.4.2
 
 commands:
   destroy-environment:
