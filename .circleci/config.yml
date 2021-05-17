@@ -35,28 +35,42 @@ commands:
   install-npm-dependecies:
     description: "Install NPM dependencies"
     parameters:
-      side:
+      path:
         type: string
-        default: "."
+        default: ""
     steps:
       - run:
           name: Install npm
           command: |
-            cd << parameters.side>>
+            cd << parameters.path>>
             npm install
 
   build-package:
     description: "Build package"
     parameters:
-      side:
+      path:
         type: string
-        default: "."
+        default: ""
     steps:
       - run:
           name: Build package
           command: |
-            cd << parameters.side >>
+            cd << parameters.path >>
             npm run build
+
+  run-test:
+    description: "Run unit tests"
+    parameters:
+      path:
+        type: string
+        default: "."
+    steps:
+      - run:
+          name: Run unit test
+          command: |
+            cd << parameters.path >>
+            mkdir -p /tmp/test-results
+            npm run test
 jobs:
   build-frontend:
     docker:
@@ -66,9 +80,9 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - install-npm-dependecies:
-          side: frontend
+          path: frontend
       - build-package:
-          side: frontend
+          path: frontend
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -81,9 +95,9 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - install-npm-dependecies:
-          side: backend
+          path: backend
       - build-package:
-          side: backend
+          path: backend
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -96,12 +110,9 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - install-npm-dependecies:
-          side: frontend
-      - run:
-          name: Run unit test
-          command: |
-            cd frontend
-            npm run test
+          path: frontend
+      - run-test:
+          path: frontend
       - store_test_results:
           path: /tmp/test-reports          
   test-backend:
@@ -112,12 +123,9 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - install-npm-dependecies:
-          side: backend
-      - run:
-          name: Run unit test
-          command: |
-            cd backend
-            npm run test
+          path: backend
+      - run-test:
+          path: backend
       - store_test_results:
           path: /tmp/test-reports
 
@@ -126,7 +134,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - install-npm-dependecies:
-          side: frontend
+          path: frontend
       - run:
           name: Scan the code for vulnerabilities
           command: |
@@ -138,7 +146,7 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - install-npm-dependecies:
-          side: backend
+          path: backend
       - run:
           name: Scan the code for vulnerabilities
           command: |
