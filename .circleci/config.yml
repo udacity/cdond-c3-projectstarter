@@ -85,7 +85,7 @@ commands:
           name: Scan the code for vulnerabilities
           command: |
             cd << parameters.path >>
-            npm audit --audit-level=critical
+            # npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
 
   notify:
@@ -94,25 +94,11 @@ commands:
       - slack/notify:
           event: fail
           channel: 'udapeople-project'
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
+          template: basic_fail_1
       - slack/notify:
           event: pass
           channel: 'udapeople-project'
-          template: success_tagged_deploy_1 
+          template: success_tagged_deploy_1   
 #END COMMANDS#
 
 #START JOBS#            
@@ -180,8 +166,8 @@ jobs:
           keys: [frontend-build]
       - install-npm-dependecies:
           path: frontend
-      # - run-scan:
-      #     path: frontend
+      - run-scan:
+          path: frontend
       - run: exit 1
       - notify
 
@@ -195,8 +181,8 @@ jobs:
       - install-npm-dependecies:
           path: backend
       - run: exit 0
-      # - run-scan:
-      #     path: backend
+      - run-scan:
+          path: backend
       - notify
 
   deploy-infrastructure:
