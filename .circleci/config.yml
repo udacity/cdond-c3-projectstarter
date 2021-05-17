@@ -168,7 +168,6 @@ jobs:
           path: frontend
       - run-scan:
           path: frontend
-      - run: exit 1
       - notify
 
   scan-backend:
@@ -180,7 +179,6 @@ jobs:
           keys: [backend-build]
       - install-npm-dependecies:
           path: backend
-      - run: exit 0
       - run-scan:
           path: backend
       - notify
