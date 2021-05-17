@@ -182,15 +182,15 @@ jobs:
       # - run-scan:
       #     path: frontend
       - run: exit 1
-      - notify
-      # - slack/notify:
-      #     event: fail
-      #     channel: 'udapeople-project'
-      #     template: basic_fail_1
-      # - slack/notify:
-      #     event: pass
-      #     channel: 'udapeople-project'
-      #     template: success_tagged_deploy_1
+      # - notify
+      - slack/notify:
+          event: fail
+          channel: 'udapeople-project'
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          channel: 'udapeople-project'
+          template: success_tagged_deploy_1
 
   scan-backend:
     docker:
@@ -202,17 +202,17 @@ jobs:
       - install-npm-dependecies:
           path: backend
       - run: exit 1
-      - notify
+      # - notify
       # - run-scan:
       #     path: backend
-      # - slack/notify:
-      #     event: fail
-      #     channel: 'udapeople-project'
-      #     template: basic_fail_1
-      # - slack/notify:
-      #     event: pass
-      #     channel: 'udapeople-project'
-      #     template: success_tagged_deploy_1
+      - slack/notify:
+          event: fail
+          channel: 'udapeople-project'
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          channel: 'udapeople-project'
+          template: success_tagged_deploy_1
 
   deploy-infrastructure:
     docker:
