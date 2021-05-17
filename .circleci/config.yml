@@ -181,6 +181,8 @@ jobs:
       - install-npm-dependecies:
           path: backend
       - run: exit 0
+      # - run-scan:
+      #     path: backend
       - notify
 
   deploy-infrastructure:
