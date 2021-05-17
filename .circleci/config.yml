@@ -99,7 +99,7 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli:latest
     steps:
       # Checkout code from git
       - run:
@@ -169,7 +169,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli:latest
     steps:
       # Checkout code from git
       - run:
@@ -207,7 +207,7 @@ jobs:
 
   smoke-test:
     docker:
-      # Lightweight Docker image 
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       - run:
@@ -230,7 +230,7 @@ jobs:
 
   cloudfront-update:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli:latest
     steps:
       # Checkout code from git
       - run:
@@ -243,7 +243,7 @@ jobs:
             # your code here
       # Here's where you will add some code to rollback on failure  
 
-cleanup:
+  cleanup:
     docker:
       # Docker image here
     steps:
@@ -260,8 +260,7 @@ cleanup:
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               # your code here
-            fi
-            
+            fi      
 
 workflows:
   default:
