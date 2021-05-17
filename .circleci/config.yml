@@ -144,6 +144,9 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - install-npm-dependecies:
           path: frontend
       - run-scan:
@@ -153,6 +156,9 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       - install-npm-dependecies:
           path: backend
       - run-scan:
