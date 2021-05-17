@@ -89,29 +89,16 @@ commands:
             npm audit fix --audit-level=critical --force
 
   notify:
-    description: |
-        Send a custom notification using Slack's Block Kit Builder.
-        Create the payload code and paste it in your notify command's custom parameter.
-        Detailed instructions in the GitHub readme.
-        https://app.slack.com/block-kit-builder
+    description: "Send a notification using Slack"
     steps:
       - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always           
+          event: fail
+          channel: 'udapeople-project'
+          template: basic_fail_1
+      - slack/notify:
+          event: pass
+          channel: 'udapeople-project'
+          template: success_tagged_deploy_1   
 #END COMMANDS#
 
 #START JOBS#            
@@ -182,15 +169,7 @@ jobs:
       # - run-scan:
       #     path: frontend
       - run: exit 1
-      # - notify
-      - slack/notify:
-          event: fail
-          channel: 'udapeople-project'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          channel: 'udapeople-project'
-          template: success_tagged_deploy_1
+      - notify
 
   scan-backend:
     docker:
@@ -201,18 +180,8 @@ jobs:
           keys: [backend-build]
       - install-npm-dependecies:
           path: backend
-      - run: exit 1
-      # - notify
-      # - run-scan:
-      #     path: backend
-      - slack/notify:
-          event: fail
-          channel: 'udapeople-project'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          channel: 'udapeople-project'
-          template: success_tagged_deploy_1
+      - run: exit 0
+      - notify
 
   deploy-infrastructure:
     docker:
