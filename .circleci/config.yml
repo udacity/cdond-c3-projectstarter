@@ -72,7 +72,7 @@ commands:
             cd << parameters.path >>
             npm run test
 
-  build-package:
+  scan-test:
     description: "Build package"
     parameters:
       path:
