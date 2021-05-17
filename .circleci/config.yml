@@ -87,27 +87,6 @@ commands:
             cd << parameters.path >>
             npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
-  notify:
-      docker:
-        - image: 'cimg/base:stable'
-      steps:
-        - slack/notify:
-            custom: |
-              {
-                "blocks": [
-                  {
-                    "type": "section",
-                    "fields": [
-                      {
-                        "type": "plain_text",
-                        "text": "*This is a text notification*",
-                        "emoji": true
-                      }
-                    ]
-                  }
-                ]
-              }
-            event: always
 #END COMMANDS#
 
 #START JOBS#            
