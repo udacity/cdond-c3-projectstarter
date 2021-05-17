@@ -158,11 +158,11 @@ jobs:
           path: frontend
       - slack/notify:
           event: fail
-          mentions: '@channel'
+          mentions: '@all,'
           template: basic_fail_1
       - slack/notify:
           event: pass
-          mentions: '@channel'
+          mentions: '@all'
           template: success_tagged_deploy_1
 
   scan-backend:
