@@ -31,38 +31,55 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
-            
+
+  install-npm-dependecies:
+    description: "Install NPM dependencies"
+    # parameters:
+    #   to:
+    #     type: string
+    #     default: "."
+    steps:
+      - run:
+          name: Install npm
+          command: |
+            cd << parameters >>
+            npm install
+
+  build-package:
+    description: "Build package"
+    # parameters:
+    #   to:
+    #     type: string
+    #     default: "."
+    steps:
+      - run:
+          name: Build package
+          command: |
+            cd << parameters >>
+            npm run build
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:latest
     steps:
       - checkout
       - restore_cache:
           keys: [frontend-build]
-      - run:
-          name: Front-end build
-          command: |
-            cd frontend
-            npm install
-            exit 1
+      - install-npm-dependecies frontend
+      - build-package frontend
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:latest
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - run:
-          name: Back-end build
-          command: |
-            cd backend
-            npm install
-            exit 1
+      - install-npm-dependecies backend
+      - build-package backend
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
