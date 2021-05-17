@@ -87,6 +87,31 @@ commands:
             cd << parameters.path >>
             npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
+
+  notify:
+    description: |
+        Send a custom notification using Slack's Block Kit Builder.
+        Create the payload code and paste it in your notify command's custom parameter.
+        Detailed instructions in the GitHub readme.
+        https://app.slack.com/block-kit-builder
+    steps:
+      - slack/notify:
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*This is a text notification*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
+          event: always           
 #END COMMANDS#
 
 #START JOBS#            
@@ -154,17 +179,18 @@ jobs:
           keys: [frontend-build]
       - install-npm-dependecies:
           path: frontend
-      # - run-scan:
-      #     path: frontend
+      - run-scan:
+          path: frontend
       - run: exit 1
-      - slack/notify:
-          event: fail
-          channel: 'udapeople-project'
-          template: basic_fail_1
-      - slack/notify:
-          event: pass
-          channel: 'udapeople-project'
-          template: success_tagged_deploy_1
+      - notify
+      # - slack/notify:
+      #     event: fail
+      #     channel: 'udapeople-project'
+      #     template: basic_fail_1
+      # - slack/notify:
+      #     event: pass
+      #     channel: 'udapeople-project'
+      #     template: success_tagged_deploy_1
 
   scan-backend:
     docker:
@@ -175,8 +201,8 @@ jobs:
           keys: [backend-build]
       - install-npm-dependecies:
           path: backend
-      # - run-scan:
-      #     path: backend
+      - run-scan:
+          path: backend
       - run: echo FAIL
 
   deploy-infrastructure:
