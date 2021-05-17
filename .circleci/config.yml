@@ -393,6 +393,7 @@ workflows:
           requires: [build-backend]
       - scan-backend:
           requires: [build-backend]
+          context: final_project_cicd
       - scan-frontend:
           requires: [build-frontend]
           context: final_project_cicd
