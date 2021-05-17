@@ -68,9 +68,23 @@ commands:
       - run:
           name: Run unit test
           command: |
-            mkdir -p /tmp/test-results
+            mkdir -p /tmp/test-reports
             cd << parameters.path >>
             npm run test
+
+  build-package:
+    description: "Build package"
+    parameters:
+      path:
+        type: string
+        default: ""
+    steps:
+      - run:
+          name: Build package
+          command: |
+            cd << parameters.path >>
+            npm run build
+
 jobs:
   build-frontend:
     docker:
@@ -114,7 +128,8 @@ jobs:
       - run-test:
           path: frontend
       - store_test_results:
-          path: /tmp/test-reports          
+          path: /tmp/test-reports
+         
   test-backend:
     docker:
       - image: circleci/node:13.8.0
