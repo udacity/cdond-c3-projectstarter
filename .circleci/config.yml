@@ -179,8 +179,8 @@ jobs:
           keys: [frontend-build]
       - install-npm-dependecies:
           path: frontend
-      - run-scan:
-          path: frontend
+      # - run-scan:
+      #     path: frontend
       - run: exit 1
       - notify
       # - slack/notify:
@@ -201,9 +201,18 @@ jobs:
           keys: [backend-build]
       - install-npm-dependecies:
           path: backend
-      - run-scan:
-          path: backend
-      - run: echo FAIL
+      - run: exit 1
+      - notify
+      # - run-scan:
+      #     path: backend
+      # - slack/notify:
+      #     event: fail
+      #     channel: 'udapeople-project'
+      #     template: basic_fail_1
+      # - slack/notify:
+      #     event: pass
+      #     channel: 'udapeople-project'
+      #     template: success_tagged_deploy_1
 
   deploy-infrastructure:
     docker:
