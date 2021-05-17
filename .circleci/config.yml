@@ -34,28 +34,28 @@ commands:
 
   install-npm-dependecies:
     description: "Install NPM dependencies"
-    # parameters:
-    #   to:
-    #     type: string
-    #     default: "."
+    parameters:
+      to:
+        type: string
+        default: ""
     steps:
       - run:
           name: Install npm
           command: |
-            cd << parameters >>
+            cd << parameters.to>>
             npm install
 
   build-package:
     description: "Build package"
-    # parameters:
-    #   to:
-    #     type: string
-    #     default: "."
+    parameters:
+      to:
+        type: string
+        default: ""
     steps:
       - run:
           name: Build package
           command: |
-            cd << parameters >>
+            cd << parameters.to >>
             npm run build
 jobs:
   build-frontend:
