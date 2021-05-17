@@ -94,11 +94,25 @@ commands:
       - slack/notify:
           event: fail
           channel: 'udapeople-project'
-          template: basic_fail_1
+          custom: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "fields": [
+                    {
+                      "type": "plain_text",
+                      "text": "*This is a text notification*",
+                      "emoji": true
+                    }
+                  ]
+                }
+              ]
+            }
       - slack/notify:
           event: pass
           channel: 'udapeople-project'
-          template: success_tagged_deploy_1   
+          template: success_tagged_deploy_1 
 #END COMMANDS#
 
 #START JOBS#            
