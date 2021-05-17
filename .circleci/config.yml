@@ -35,9 +35,9 @@ commands:
   install-npm-dependecies:
     description: "Install NPM dependencies"
     parameters:
-      to:
+      side:
         type: string
-        default: ""
+        default: "."
     steps:
       - run:
           name: Install npm
@@ -48,9 +48,9 @@ commands:
   build-package:
     description: "Build package"
     parameters:
-      to:
+      side:
         type: string
-        default: ""
+        default: "."
     steps:
       - run:
           name: Build package
@@ -65,8 +65,10 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
-      - install-npm-dependecies frontend
-      - build-package frontend
+      - install-npm-dependecies
+          side: frontend
+      - build-package
+          side: frontend
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -78,8 +80,10 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - install-npm-dependecies backend
-      - build-package backend
+      - install-npm-dependecies
+          side: backend
+      - build-package
+          side: backend
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
