@@ -161,12 +161,10 @@ jobs:
           event: fail
           channel: 'udapeople-project'
           template: basic_fail_1
-          text: Failed scan-frontend workflow. Click link below for more information
       - slack/notify:
           event: pass
           channel: 'udapeople-project'
           template: success_tagged_deploy_1
-          text: Successfully completed scan-frontend workflow
 
   scan-backend:
     docker:
