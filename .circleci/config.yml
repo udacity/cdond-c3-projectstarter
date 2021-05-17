@@ -42,7 +42,7 @@ commands:
       - run:
           name: Install npm
           command: |
-            cd << parameters.to>>
+            cd << parameters.side>>
             npm install
 
   build-package:
@@ -55,7 +55,7 @@ commands:
       - run:
           name: Build package
           command: |
-            cd << parameters.to >>
+            cd << parameters.side >>
             npm run build
 jobs:
   build-frontend:
