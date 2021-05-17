@@ -68,8 +68,8 @@ commands:
       - run:
           name: Run unit test
           command: |
-            cd << parameters.path >>
             mkdir -p /tmp/test-results
+            cd << parameters.path >>
             npm run test
 jobs:
   build-frontend:
