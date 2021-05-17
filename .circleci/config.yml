@@ -81,9 +81,9 @@ commands:
       - run:
           name: Scan the code for vulnerabilities
           command: |
-            pwd; ls
             cd << parameters.path >>
             npm audit --audit-level=critical
+            npm audit fix --audit-level=critical --force
 
 jobs:
   build-frontend:
