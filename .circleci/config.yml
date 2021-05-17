@@ -102,7 +102,8 @@ jobs:
           command: |
             cd frontend
             npm run test
-                
+      - store_test_results:
+          path: /tmp/test-reports          
   test-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -117,22 +118,32 @@ jobs:
           command: |
             cd backend
             npm run test
+      - store_test_results:
+          path: /tmp/test-reports
 
-  # scan-frontend:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     # Checkout code from git
-  #     # Restore from cache
-  #     # Your job code here
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - install-npm-dependecies:
+          side: frontend
+      - run:
+          name: Scan the code for vulnerabilities
+          command: |
+            cd frontend
+            npm audit --audit-level=critical
 
-  # scan-backend:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     # Checkout code from git
-  #     # Restore from cache
-  #     # Your job code here
+  scan-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - install-npm-dependecies:
+          side: backend
+      - run:
+          name: Scan the code for vulnerabilities
+          command: |
+            cd backend
+            npm audit --audit-level=critical
 
   deploy-infrastructure:
     docker:
