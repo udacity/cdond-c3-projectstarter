@@ -65,37 +65,37 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
 
-  test-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+  # test-frontend:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     # Checkout code from git
+  #     # Restore from cache
+  #     # Your job code here
                 
-  test-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+  # test-backend:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     # Checkout code from git
+  #     # Restore from cache
+  #     # Your job code here
             
-  scan-frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+  # scan-frontend:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     # Checkout code from git
+  #     # Restore from cache
+  #     # Your job code here
 
-  scan-backend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+  # scan-backend:
+  #   docker:
+  #     - image: circleci/node:13.8.0
+  #   steps:
+  #     # Checkout code from git
+  #     # Restore from cache
+  #     # Your job code here
 
   deploy-infrastructure:
     docker:
