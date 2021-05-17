@@ -156,10 +156,7 @@ jobs:
           path: frontend
       - run-scan:
           path: frontend
-      - slack/notify:
-          color: "#42e2f4"
-          mentions: "masud,"
-          message: A custom message to notify the channel about the latest build
+      - slack/notify
 
   scan-backend:
     docker:
