@@ -193,35 +193,39 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags Name udapeople-backend-${ID} \
+              --tags Key=Name Value=udapeople-frontend-${ID} \
               --region ${AWS_DEFAULT_REGION} \
               --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"  
+              --parameter-overrides ID="dfh4hjitrghiuy5466yoity"  
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags Name udapeople-frontend-${ID} \
+              --tags Key=Name Value=udapeople-frontend-${ID} \
               --region ${AWS_DEFAULT_REGION} \
               --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[all]" > project/.circleci/ansible/inventory.ini
+            echo "[all]" > ~/project/.circleci/ansible/inventory.ini
             aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
             --region ${AWS_DEFAULT_REGION} \
             --filters 'Name=tag:Name,Values=udapeople-backend-${ID}' \
             --query "Reservations[*].Instances[0].PublicDnsName" \
-            --output text >> project/.circleci/ansible/inventory.ini 
-            echo -e "[all:vars]\nansible_user=ubuntu" >> project/.circleci/ansible/inventory.ini
+            --output text >> ~/project/.circleci/ansible/inventory.ini 
+            echo -e "[all:vars]\nansible_user=ubuntu" >> ~/project/.circleci/ansible/inventory.ini
+            nano ~/project/.circleci/ansible/inventory.ini
+      - run: nano ~/project/.circleci/ansible/inventory.ini
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.ini
+      - run: nano ~/project/.circleci/ansible/inventory.ini
       # Here's where you will add some code to rollback on failure 
-      # - destroy-environment
+      - destroy-environment:
+          when: on_fail
 
   configure-infrastructure:
     docker:
@@ -241,7 +245,9 @@ jobs:
           command: |
             # Your code here
             exit 1
-      # Here's where you will add some code to rollback on failure      
+      # Here's where you will add some code to rollback on failure
+      - destroy-environment:
+          when: on_fail  
 
   run-migrations:
     docker:
@@ -260,6 +266,8 @@ jobs:
             # Your code here
             exit 1
      # Here's where you will add some code to rollback on failure      
+      - destroy-environment:
+          when: on_fail
 
   deploy-frontend:
     docker:
@@ -281,7 +289,9 @@ jobs:
           command: |
             # your code here
       # Here's where you will add some code to rollback on failure      
-                    
+      - destroy-environment:
+          when: on_fail
+
   deploy-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -299,6 +309,8 @@ jobs:
           command: |
             # your code here
       # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          when: on_fail
 
   smoke-test:
     docker:
@@ -322,6 +334,8 @@ jobs:
           command: |
             # your code here
       # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          when: on_fail
 
   cloudfront-update:
     docker:
@@ -337,6 +351,8 @@ jobs:
           command: |
             # your code here
       # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          when: on_fail
 
   cleanup:
     docker:
@@ -362,22 +378,24 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-          context: final_project_cicd
-      - scan-frontend:
-          requires: [build-frontend]
-          context: final_project_cicd
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          context: final_project_cicd         
-          filters:
-            branches:
-              only: [test-feature-branch]
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      #     context: final_project_cicd
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      #     context: final_project_cicd
+      - deploy-infrastructure
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     context: final_project_cicd         
+      #     filters:
+      #       branches:
+      #         only: [test-feature-branch]
+
       # - configure-infrastructure:
       #     requires: [deploy-infrastructure]
       # - run-migrations:
