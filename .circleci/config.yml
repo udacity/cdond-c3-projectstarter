@@ -105,13 +105,12 @@ commands:
       - run:
           name: Configure the docker image
           command: |
-            yum install -y tar
-          # yum install -y tar && \
-          # yum install -y sudo && \
-          # ls -al /bin/sh && \
-          # sudo rm /bin/sh && \
-          # sudo ln -s /bin/bash /bin/sh && \
-          # ls -al /bin/sh
+            yum install -y tar && \
+            yum install -y sudo && \
+            ls -al /bin/sh && \
+            sudo rm /bin/sh && \
+            sudo ln -s /bin/bash /bin/sh && \
+            ls -al /bin/sh
 
 #END COMMANDS#
 
