@@ -187,7 +187,6 @@ jobs:
     docker:
       - image: amazon/aws-cli:latest
     steps:
-      # Checkout code from git
       - checkout
       - run:
           name: Ensure back-end infrastructure exists
@@ -213,16 +212,16 @@ jobs:
             echo "[all]" > project/.circleci/ansible/inventory.ini
             aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
             --region ${AWS_DEFAULT_REGION} \
-            --filters 'Name=tag:Name,Values=udapeople-backend-${ID}'
+            --filters 'Name=tag:Name,Values=udapeople-backend-${ID}' \
             --query "Reservations[*].Instances[0].PublicDnsName" \
-            --output text >> project/.circleci/ansible/inventory.ini
+            --output text >> project/.circleci/ansible/inventory.ini 
             echo -e "[all:vars]\nansible_user=ubuntu" >> project/.circleci/ansible/inventory.ini
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.ini
       # Here's where you will add some code to rollback on failure 
-      -     
+      - destroy-environment
 
   configure-infrastructure:
     docker:
