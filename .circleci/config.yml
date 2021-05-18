@@ -245,10 +245,10 @@ jobs:
       # https://docs.ansible.com/ansible/latest/reference_appendices/config.html
       # https://github.com/radekg/terraform-provisioner-ansible/issues/98
       ANSIBLE_HOST_KEY_CHECKING: False
-    - attach_workspace:
-        at: ~/project/.circleci/ansible/inventory.txt
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/project/.circleci/ansible/inventory.txt
       - add_ssh_keys:
           fingerprints: ["68:a2:c6:74:07:02:da:ea:6c:92:2e:76:91:ba:92:f1"] # You can get this ID in the section where you registered the SSH Key
       - run:
