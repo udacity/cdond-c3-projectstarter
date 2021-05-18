@@ -13,8 +13,8 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
-            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name backend-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name frontend-${CIRCLE_WORKFLOW_ID}
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -253,7 +253,7 @@ jobs:
           command: |
             pip3 install awscli
       - add_ssh_keys:
-          fingerprints: ["68:a2:c6:74:07:02:da:ea:6c:92:2e:76:91:ba:92:f1"] # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["28:5d:59:03:c5:43:d0:51:1c:31:4c:ce:0e:b2:38:1a"] # You can get this ID in the section where you registered the SSH Key
       - run:
           name: Install dependencies
           command: |
@@ -263,6 +263,8 @@ jobs:
           name: Configure server
           # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
           command: (yes || true) |
+            printenv >> ./backend/.env
+            cd .circleci/ansible/
             ansible-playbook -i inventory.txt configure-server.yml
       - when:
           condition: on_fail
