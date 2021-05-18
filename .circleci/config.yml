@@ -374,6 +374,7 @@ workflows:
           context: final_project_cicd
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          context: final_project_cicd         
           filters:
             branches:
               only: [test-feature-branch]
