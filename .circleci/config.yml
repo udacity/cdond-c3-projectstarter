@@ -13,8 +13,8 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID}
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation delete-stack --stack-name backend-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation delete-stack --stack-name frontend-${CIRCLE_WORKFLOW_ID}
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -246,7 +246,12 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: ~/project/.circleci/ansible/inventory.txt
+          at: ~/project/.circleci/ansible/
+      - run:
+          # In order to run command destroy-environment if needed
+          name: Install system dependencies
+          command: |
+            pip3 install awscli
       - add_ssh_keys:
           fingerprints: ["68:a2:c6:74:07:02:da:ea:6c:92:2e:76:91:ba:92:f1"] # You can get this ID in the section where you registered the SSH Key
       - run:
