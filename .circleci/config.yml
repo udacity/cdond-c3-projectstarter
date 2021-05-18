@@ -111,7 +111,6 @@ commands:
             sudo rm /bin/sh && \
             sudo ln -s /bin/bash /bin/sh && \
             ls -al /bin/sh
-
 #END COMMANDS#
 
 #START JOBS#            
@@ -234,7 +233,6 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.ini
-      - run: nano ~/project/.circleci/ansible/inventory.ini
       # Here's where you will add some code to rollback on failure 
       - when:
           condition: on_fail
