@@ -196,7 +196,7 @@ jobs:
               --tags Key=Name Value=udapeople-frontend-${ID} \
               --region ${AWS_DEFAULT_REGION} \
               --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="dfh4hjitrghiuy5466yoity"  
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -380,6 +380,8 @@ workflows:
       #     context: final_project_cicd
       - deploy-infrastructure:
           requires: [build-frontend, build-backend]
+          context: final_project_cicd
+          
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     context: final_project_cicd         
