@@ -227,7 +227,6 @@ jobs:
             --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text >> ~/project/.circleci/ansible/inventory.ini 
-            echo -e "[all:vars]\nansible_user=ubuntu" >> ~/project/.circleci/ansible/inventory.ini
       - configure_docker_image
       - persist_to_workspace:
           root: ~/
@@ -259,7 +258,31 @@ jobs:
             # Your code here
             exit 1
       # Here's where you will add some code to rollback on failure
-
+  configure_infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    environment:
+      # https://docs.ansible.com/ansible/latest/reference_appendices/config.html
+      # https://github.com/radekg/terraform-provisioner-ansible/issues/98
+      ANSIBLE_HOST_KEY_CHECKING: False
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["eb:18:93:6b:d8:ef:c5:d7:8f:3b:b5:78:59:21:f1:9c"] # You can get this ID in the section where you registered the SSH Key
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible # install the dependencies needed for your playbook
+      - run: ansible all --list-hosts
+      - run:
+          name: Configure server
+          # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
+          command: (yes || true) |
+            ansible-playbook -i ansiblePlaybookFiles/inventory.txt ansiblePlaybookFiles/configure-server.yml
+      - when:
+          condition: on_fail
+          steps:
+            - destroy-environment
   run-migrations:
     docker:
       # Docker image here that supports NodeJS

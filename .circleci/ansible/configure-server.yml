@@ -8,13 +8,25 @@
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
-
+    - CIRCLE_WORKFLOW_ID: "{{ lookup('env','CIRCLE_WORKFLOW_ID') }}"
+    - TYPEORM_MIGRATIONS: "{{ lookup('env','TYPEORM_MIGRATIONS') }}"
+    - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env','TYPEORM_MIGRATIONS_DIR') }}"
+    - TYPEORM_ENTITIES: "{{ lookup('env','TYPEORM_ENTITIES') }}"
+    - TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
+    - TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
+    - TYPEORM_PORT: "{{ lookup('env','TYPEORM_PORT') }}"
+    - TYPEORM_USERNAME: "{{ lookup('env','TYPEORM_USERNAME') }}"
+    - TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
+    - TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
+    - ENVIRONMENT: "production"
   pre_tasks:
-    - name: "wait 600 seconds for target connection to become reachable/usable."
-      # Your code here
+    - name: "Wait 300 seconds for target connection to become reachable/usable."
+      wait_for_connection:
+        delay: 60
+        timeout: 300
 
-    - name: "install python for Ansible."
-      # Your code here
+    - name: "Install python for Ansible."
+      command: sudo python -m pip install ansible
 
   roles:
-    # Your code here
+    - configure-server
