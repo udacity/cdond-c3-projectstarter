@@ -216,8 +216,6 @@ jobs:
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text >> ~/project/.circleci/ansible/inventory.ini 
             echo -e "[all:vars]\nansible_user=ubuntu" >> ~/project/.circleci/ansible/inventory.ini
-            nano ~/project/.circleci/ansible/inventory.ini
-      - run: nano ~/project/.circleci/ansible/inventory.ini
       - persist_to_workspace:
           root: ~/
           paths:
