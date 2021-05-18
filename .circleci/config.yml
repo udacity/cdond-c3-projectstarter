@@ -212,7 +212,7 @@ jobs:
             echo "[all]" > ~/project/.circleci/ansible/inventory.ini
             aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
             --region ${AWS_DEFAULT_REGION} \
-            --filters 'Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID}' \
+            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID}' \
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text >> ~/project/.circleci/ansible/inventory.ini 
             echo -e "[all:vars]\nansible_user=ubuntu" >> ~/project/.circleci/ansible/inventory.ini
@@ -237,6 +237,7 @@ jobs:
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -290,7 +291,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7-alpine3.11
       # Docker image here that supports Ansible
     steps:
       # Checkout code from git
