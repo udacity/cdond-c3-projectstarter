@@ -405,8 +405,8 @@ workflows:
       #       branches:
       #         only: [test-feature-branch]
 
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
