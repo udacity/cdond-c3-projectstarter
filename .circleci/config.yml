@@ -205,7 +205,6 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags Key=Name Value=udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
               --region ${AWS_DEFAULT_REGION} \
               --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
@@ -214,17 +213,15 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags Key=Name Value=udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
               --region ${AWS_DEFAULT_REGION} \
               --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[all]" > ~/project/.circleci/ansible/inventory.txt
-            aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
+            aws ec2 describe-instances \
             --region ${AWS_DEFAULT_REGION} \
-            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+            --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" \
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text >> ~/project/.circleci/ansible/inventory.txt
       - configure_docker_image
