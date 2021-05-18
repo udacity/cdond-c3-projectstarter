@@ -221,43 +221,23 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[all]" > ~/project/.circleci/ansible/inventory.ini
+            echo "[all]" > ~/project/.circleci/ansible/inventory.txt
             aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
             --region ${AWS_DEFAULT_REGION} \
             --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
             --query "Reservations[*].Instances[0].PublicDnsName" \
-            --output text >> ~/project/.circleci/ansible/inventory.ini 
+            --output text >> ~/project/.circleci/ansible/inventory.txt
       - configure_docker_image
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.ini
+            - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure 
       - when:
           condition: on_fail
           steps:
             - destroy-environment
 
-  configure-infrastructure:
-    docker:
-      # Docker image here that supports Ansible
-      - image: python:3.7-alpine3.11
-    steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
-      - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            # Your code here
-            exit 1
-      - run:
-          name: Configure server
-          command: |
-            # Your code here
-            exit 1
-      # Here's where you will add some code to rollback on failure
   configure_infrastructure:
     docker:
       - image: python:3.7-alpine3.11
@@ -265,10 +245,12 @@ jobs:
       # https://docs.ansible.com/ansible/latest/reference_appendices/config.html
       # https://github.com/radekg/terraform-provisioner-ansible/issues/98
       ANSIBLE_HOST_KEY_CHECKING: False
+    - attach_workspace:
+        at: ~/project/.circleci/ansible/inventory.txt
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["eb:18:93:6b:d8:ef:c5:d7:8f:3b:b5:78:59:21:f1:9c"] # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["68:a2:c6:74:07:02:da:ea:6c:92:2e:76:91:ba:92:f1"] # You can get this ID in the section where you registered the SSH Key
       - run:
           name: Install dependencies
           command: |
@@ -278,7 +260,7 @@ jobs:
           name: Configure server
           # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
           command: (yes || true) |
-            ansible-playbook -i ansiblePlaybookFiles/inventory.txt ansiblePlaybookFiles/configure-server.yml
+            ansible-playbook -i inventory.txt configure-server.yml
       - when:
           condition: on_fail
           steps:
