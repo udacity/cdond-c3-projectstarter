@@ -22,8 +22,8 @@
   pre_tasks:
     - name: "Wait 300 seconds for target connection to become reachable/usable."
       wait_for_connection:
-        # delay: 60
-        # timeout: 300
+        delay: 60
+        timeout: 300
 
     - name: "Install python for Ansible."
       command: sudo python -m pip install ansible
