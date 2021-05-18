@@ -212,7 +212,7 @@ jobs:
             echo "[all]" > ~/project/.circleci/ansible/inventory.ini
             aws cloudformation describe-stacks --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
             --region ${AWS_DEFAULT_REGION} \
-            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID}' \
+            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text >> ~/project/.circleci/ansible/inventory.ini 
             echo -e "[all:vars]\nansible_user=ubuntu" >> ~/project/.circleci/ansible/inventory.ini
