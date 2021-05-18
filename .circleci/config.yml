@@ -99,6 +99,20 @@ commands:
           event: pass
           channel: 'udapeople-project'
           template: success_tagged_deploy_1   
+  
+  configure_docker_image:
+    steps:
+      - run:
+          name: Configure the docker image
+          command: |
+            yum install -y tar
+          # yum install -y tar && \
+          # yum install -y sudo && \
+          # ls -al /bin/sh && \
+          # sudo rm /bin/sh && \
+          # sudo ln -s /bin/bash /bin/sh && \
+          # ls -al /bin/sh
+
 #END COMMANDS#
 
 #START JOBS#            
@@ -216,6 +230,7 @@ jobs:
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text >> ~/project/.circleci/ansible/inventory.ini 
             echo -e "[all:vars]\nansible_user=ubuntu" >> ~/project/.circleci/ansible/inventory.ini
+      - configure_docker_image
       - persist_to_workspace:
           root: ~/
           paths:
