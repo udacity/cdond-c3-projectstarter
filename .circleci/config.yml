@@ -314,9 +314,7 @@ jobs:
             # Your code here
             exit 1
           when: on_success
-      - run:      
-        - destroy-environment
-        when: on_fail
+      - destroy-environment
   
   deploy-frontend:
     docker:
