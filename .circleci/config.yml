@@ -267,8 +267,7 @@ jobs:
             - run:
               # In order to run command destroy-environment if needed
               name: Install system dependencies
-              command: |
-                apk add --update awscli
+              command: apk add --update awscli
             - destroy-environment
   run-migrations:
     docker:
