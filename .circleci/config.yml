@@ -265,7 +265,7 @@ jobs:
       #     keys: [backend-build]
       - attach_workspace:
           at: /tmp/workspace/
-      - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspac/env-vars)
+      - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspace/env-vars)
       - run: echo $BACKEND_PUBLIC_DNS
   
   configure-infrastructure:
@@ -310,7 +310,7 @@ jobs:
           keys: [backend-build]
       - attach_workspace:
           at: /tmp/workspace/
-      - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspac/env-vars)
+      - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspace/env-vars)
       - run: echo $BACKEND_PUBLIC_DNS
       - run:
           name: Run migrations
