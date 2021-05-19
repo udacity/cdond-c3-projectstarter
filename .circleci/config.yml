@@ -308,12 +308,12 @@ jobs:
           command: |
             cd backend && npm install 
             npm run build
-            npm run migrations >> /tmp/workspace/migrations_dump
-            cat /tmp/workspace/migrations_dump
-            # npm audit fix --force
+            mkdir -p /tmp/workspace/
+            npm run migrations > /tmp/workspace/migrations_dump
       - run:
           name: PUT migration results to memstash
           command: |
+            cat /tmp/workspace/migrations_dump
             if grep -q "has been executed successfully" ~/project/backend/migrations_dump.txt
             then
               curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
