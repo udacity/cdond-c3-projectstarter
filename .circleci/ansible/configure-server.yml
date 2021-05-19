@@ -24,9 +24,19 @@
       wait_for_connection:
         delay: 60
         timeout: 300
+    
+    # - name: "Install python for Ansible."
+    #   become: true
+    #   become_method: sudo
+    #   command: apt install python3.8
 
     - name: "Install python for Ansible."
-      command: sudo python -m pip install ansible
+      become: true
+      become_method: sudo
+      apt:
+        name: python3.8
+        state: latest
+        update_cache: yes
 
   roles:
     - configure-server
