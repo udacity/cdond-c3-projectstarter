@@ -270,7 +270,7 @@ jobs:
       - run:
           name: Persist public DNS of EC2 instance
           command: |
-            echo export 'BACKEND_PUBLIC_DNS=$(aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" --query "Reservations[*].Instances[0].PublicDnsName" --output text)' >> workspace/env-vars
+            echo export 'BACKEND_PUBLIC_DNS=$(aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" --query "Reservations[*].Instances[0].PublicDnsName" --output text)' > /tmp/workspace/env-vars
       - persist_to_workspace:
           root: /tmp/workspace/
           paths:
