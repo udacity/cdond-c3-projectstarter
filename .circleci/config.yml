@@ -253,7 +253,7 @@ jobs:
           command: |
             pip install awscliv2
       - add_ssh_keys:
-          fingerprints: ["28:5d:59:03:c5:43:d0:51:1c:31:4c:ce:0e:b2:38:1a"] # You can get this ID in the section where you registered the SSH Key
+          fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"] # You can get this ID in the section where you registered the SSH Key
       - run:
           name: Install dependencies
           command: |
