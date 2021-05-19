@@ -245,8 +245,8 @@ jobs:
           name: Persist public DNS of EC2 instance
           command: |
             aws ec2 describe-instances \
-            --region ${AWS_DEFAULT_REGION} \
-            --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" \
+            --region us-west-1 \
+            --filters "Name=tag:Name",Values="backend-5dd387f3-7232-40ed-bf0c-e8267452f93f" \
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text > /tmp/workspace/env-vars
       - persist_to_workspace:
@@ -260,8 +260,8 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - restore_cache:
-          keys: [backend-build]
+      # - restore_cache:
+      #     keys: [backend-build]
       - attach_workspace:
           at: /tmp/workspace/
       - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspac/env-vars)
@@ -434,6 +434,7 @@ workflows:
     jobs:
       - get-store-backend-ip
       - test-env-var
+          requires: [get-store-backend-ip]
 
       # - build-frontend
       # - build-backend
