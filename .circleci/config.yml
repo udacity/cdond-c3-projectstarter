@@ -255,24 +255,15 @@ jobs:
           root: /tmp/workspace/
           paths:
               - env-vars
+  
   test-env-var:
     docker:
-      # Docker image here that supports NodeJS
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
       - checkout
-      # - restore_cache:
-      #     keys: [backend-build]
       - attach_workspace:
           at: /tmp/workspace/
       - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspace/env-vars) && echo $BACKEND_PUBLIC_DNS
-      - run: echo BACKEND_DNS=$(cat /tmp/workspace/env-vars)
-      - run: echo $BACKEND_DNS
-      - run: cat $BACKEND_DNS
-      - run: eval $BACKEND_DNS
-
-      # - run: cat /tmp/workspace/env-vars
   
   configure-infrastructure:
     docker:
@@ -316,8 +307,7 @@ jobs:
           keys: [backend-build]
       - attach_workspace:
           at: /tmp/workspace/
-      - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspace/env-vars)
-      - run: echo $BACKEND_PUBLIC_DNS
+      - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspace/env-vars) && echo $BACKEND_PUBLIC_DNS
       - run:
           name: Run migrations
           command: |
@@ -439,45 +429,42 @@ jobs:
 workflows:
   default:
     jobs:
+      - build-frontend
+      - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      #     context: final_project_cicd
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      #     context: final_project_cicd
+      - deploy-infrastructure:
+          requires: [build-frontend, build-backend]
+          context: final_project_cicd
+          
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     context: final_project_cicd         
+      #     filters:
+      #       branches:
+      #         only: [test-feature-branch]
       - get-store-backend-ip:
           context: final_project_cicd
-      - test-env-var:
-          requires: [get-store-backend-ip]
-
-      # - build-frontend
-      # - build-backend
-      # # - test-frontend:
-      # #     requires: [build-frontend]
-      # # - test-backend:
-      # #     requires: [build-backend]
-      # # - scan-backend:
-      # #     requires: [build-backend]
-      # #     context: final_project_cicd
-      # # - scan-frontend:
-      # #     requires: [build-frontend]
-      # #     context: final_project_cicd
-      # - deploy-infrastructure:
-      #     requires: [build-frontend, build-backend]
-      #     context: final_project_cicd
-          
-      # # - deploy-infrastructure:
-      # #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      # #     context: final_project_cicd         
-      # #     filters:
-      # #       branches:
-      # #         only: [test-feature-branch]
-
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # # - deploy-frontend:
-      # #     requires: [run-migrations]
-      # # - deploy-backend:
-      # #     requires: [run-migrations]
-      # # - smoke-test:
-      # #     requires: [deploy-backend, deploy-frontend]
-      # # - cloudfront-update:
-      # #     requires: [smoke-test]
-      # # - cleanup:
-      # #     requires: [cloudfront-update]
+          requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      # - cleanup:
+      #     requires: [cloudfront-update]
