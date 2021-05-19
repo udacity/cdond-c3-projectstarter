@@ -247,6 +247,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project/.circleci/ansible/
+      - configure_docker_image
       - run:
           # In order to run command destroy-environment if needed
           name: Install system dependencies
