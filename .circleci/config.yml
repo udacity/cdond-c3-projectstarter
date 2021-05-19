@@ -254,7 +254,6 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible # install the dependencies needed for your playbook
-      - run: ansible web --list-hosts
       - run:
           name: Configure server
           # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
@@ -267,12 +266,26 @@ jobs:
             # In order to run command destroy-environment if needed
             - run: apk add python curl && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
             - destroy-environment
+      - run: mkdir -p /tmp/workspace/
+      - run:
+          name: Persist public DNS of EC2 instance
+          command: |
+            echo export 'BACKEND_PUBLIC_DNS=$(aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" --query "Reservations[*].Instances[0].PublicDnsName" --output text)' >> workspace/env-vars
+      - persist_to_workspace:
+          root: /tmp/workspace/
+          paths:
+              - env-vars
+  
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
       - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
+      - attach_workspace:
+          at: /tmp/workspace/
+      - run: cat /tmp/workspace/env-vars >> $BASH_ENV; echo $BACKEND_PUBLIC_DNS
       - run:
           name: Run migrations
           command: |
@@ -407,10 +420,10 @@ workflows:
       #       branches:
       #         only: [test-feature-branch]
 
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
