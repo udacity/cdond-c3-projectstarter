@@ -259,8 +259,7 @@ jobs:
           # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
           command:
             # printenv >> ./backend/.env
-            cd .circleci/ansible/
-            ansible-playbook -i inventory.txt configure-server.yml
+            cd .circleci/ansible/ && ls -a && ansible-playbook -i inventory.txt configure-server.yml
       - when:
           condition: on_fail
           steps:
