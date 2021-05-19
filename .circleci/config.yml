@@ -206,7 +206,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --region ${AWS_DEFAULT_REGION} \
-              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+              --stack-name backend-${CIRCLE_WORKFLOW_ID} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
       - run:
           name: Ensure front-end infrastructure exist
@@ -214,7 +214,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --region ${AWS_DEFAULT_REGION} \
-              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
+              --stack-name frontend-${CIRCLE_WORKFLOW_ID} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
       - run:
           name: Add back-end ip to ansible inventory
@@ -270,7 +270,12 @@ jobs:
       - run:
           name: Persist public DNS of EC2 instance
           command: |
-            echo export 'BACKEND_PUBLIC_DNS=$(aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" --query "Reservations[*].Instances[0].PublicDnsName" --output text)' > /tmp/workspace/env-vars
+            aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" --query "Reservations[*].Instances[0].PublicDnsName"
+            aws ec2 describe-instances \
+            --region ${AWS_DEFAULT_REGION} \
+            --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" \
+            --query "Reservations[*].Instances[0].PublicDnsName" \
+            --output text > /tmp/workspace/env-vars
       - persist_to_workspace:
           root: /tmp/workspace/
           paths:
@@ -283,21 +288,36 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - attach_workspace:
           at: /tmp/workspace/
-      - run: cat /tmp/workspace/env-vars >> $BASH_ENV; echo $BACKEND_PUBLIC_DNS
+      - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspac/env-vars)
+      - run: echo $BACKEND_PUBLIC_DNS
       - run:
           name: Run migrations
           command: |
-            # Your code here
-            exit 1
+            cd backend && npm install 
+            npm run build
+            npm run migrations >> /tmp/workspace/migrations_dump
+            cat /tmp/workspace/migrations_dump
+            # npm audit fix --force
       - run:
           name: Send migration results to memstash
           command: |
             # Your code here
             exit 1
-     # Here's where you will add some code to rollback on failure      
-
+          when: on_success
+      - run:      
+          name: Persist results
+          command: |
+            # Your code here
+            exit 1
+          when: on_success
+      - run:      
+        - destroy-environment
+        when: on_fail
+  
   deploy-frontend:
     docker:
       - image: amazon/aws-cli:latest
