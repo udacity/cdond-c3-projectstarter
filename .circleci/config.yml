@@ -247,13 +247,12 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project/.circleci/ansible/
-      - configure_docker_image
       - run:
           # In order to run command destroy-environment if needed
           name: Install system dependencies
           command: |
-            sudo apt-get update
-            sudo apt-get install awscli
+            apt update
+            apt install awscli
       - add_ssh_keys:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"] # You can get this ID in the section where you registered the SSH Key
       - run:
