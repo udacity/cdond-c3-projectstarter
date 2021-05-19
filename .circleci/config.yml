@@ -267,8 +267,8 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace/
       - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspace/env-vars)
-      # - run: echo $BACKEND_PUBLIC_DNS
-      - run: cat /tmp/workspace/env-vars
+      - run: echo $BACKEND_PUBLIC_DNS
+      # - run: cat /tmp/workspace/env-vars
   
   configure-infrastructure:
     docker:
