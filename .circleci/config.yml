@@ -432,7 +432,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - get-store-backend-ip
+      - get-store-backend-ip:
           context: final_project_cicd
       - test-env-var:
           requires: [get-store-backend-ip]
