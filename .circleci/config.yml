@@ -250,6 +250,7 @@ jobs:
             --filters "Name=tag:Name",Values="backend-5dd387f3-7232-40ed-bf0c-e8267452f93f" \
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text > /tmp/workspace/env-vars
+      - run: cat /tmp/workspace/env-vars
       - persist_to_workspace:
           root: /tmp/workspace/
           paths:
