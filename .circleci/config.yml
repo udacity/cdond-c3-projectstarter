@@ -256,7 +256,7 @@ jobs:
           paths:
               - env-vars
   
-  test-env-var:
+  check-var-example:
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -303,11 +303,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - restore_cache:
-          keys: [backend-build]
-      - attach_workspace:
-          at: /tmp/workspace/
-      - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspace/env-vars) && echo $BACKEND_PUBLIC_DNS
       - run:
           name: Run migrations
           command: |
@@ -317,17 +312,18 @@ jobs:
             cat /tmp/workspace/migrations_dump
             # npm audit fix --force
       - run:
-          name: Send migration results to memstash
+          name: PUT migration results to memstash
           command: |
-            # Your code here
-            exit 1
-          when: on_success
-      - run:      
-          name: Persist results
-          command: |
-            # Your code here
-            exit 1
-          when: on_success
+            if grep -q "has been executed successfully" ~/project/backend/migrations_dump.txt
+            then
+              curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
+              echo migration_${CIRCLE_WORKFLOW_ID}
+              echo "SUCCESS"
+            else
+              echo $(curl -H "Content-Type: text/plain" -H "token: migration--${CIRCLE_WORKFLOW_ID}" --request PUT --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID} | grep "No migrations")
+              echo migration_${CIRCLE_WORKFLOW_ID}
+              echo "FAIL"
+            fi
       - destroy-environment
   
   deploy-frontend:
