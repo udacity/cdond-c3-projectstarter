@@ -227,9 +227,9 @@ jobs:
       - configure_docker_image
       - run: cat ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: ~/
+          root: ~/project/.circleci/ansible/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - inventory.txt
       # Here's where you will add some code to rollback on failure 
       - when:
           condition: on_fail
@@ -247,6 +247,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project/.circleci/ansible/
+      - run: cat ~/project/.circleci/ansible/inventory.txt 
       - add_ssh_keys:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"] # You can get this ID in the section where you registered the SSH Key
       - run:
