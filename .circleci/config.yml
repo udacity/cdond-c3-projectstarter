@@ -240,6 +240,7 @@ jobs:
     docker:
       - image: amazon/aws-cli:latest
     steps:
+      - configure_docker_image
       - run: mkdir -p /tmp/workspace/
       - run:
           name: Persist public DNS of EC2 instance
