@@ -267,9 +267,10 @@ jobs:
       - attach_workspace:
           at: /tmp/workspace/
       - run: BACKEND_PUBLIC_DNS=$(cat /tmp/workspace/env-vars) && echo $BACKEND_PUBLIC_DNS
-      - run: echo export BACKEND_DNS=$(cat /tmp/workspace/env-vars)
+      - run: echo BACKEND_DNS=$(cat /tmp/workspace/env-vars)
       - run: echo $BACKEND_DNS
       - run: cat $BACKEND_DNS
+      - run: eval $BACKEND_DNS
 
       # - run: cat /tmp/workspace/env-vars
   
