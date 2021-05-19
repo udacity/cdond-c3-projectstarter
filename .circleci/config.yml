@@ -265,7 +265,7 @@ jobs:
           condition: on_fail
           steps:
             # In order to run command destroy-environment if needed
-            - run: apk add --update awscli
+            - run: apk add python curl && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
             - destroy-environment
   run-migrations:
     docker:
