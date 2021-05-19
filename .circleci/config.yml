@@ -420,12 +420,10 @@ workflows:
       #       branches:
       #         only: [test-feature-branch]
 
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       - run-migrations
-          requires: [build-frontend, build-backend]
-
-          # requires: [configure-infrastructure]
+          requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
