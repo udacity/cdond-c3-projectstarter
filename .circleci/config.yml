@@ -253,7 +253,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible # install the dependencies needed for your playbook
-      - run: ansible all --list-hosts
+      - run: ansible web --list-hosts
       - run:
           name: Configure server
           # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
