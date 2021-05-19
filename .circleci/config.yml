@@ -264,10 +264,8 @@ jobs:
       - when:
           condition: on_fail
           steps:
-            - run:
-              # In order to run command destroy-environment if needed
-              name: Install system dependencies
-              command: apk add --update awscli
+            # In order to run command destroy-environment if needed
+            - run: apk add --update awscli
             - destroy-environment
   run-migrations:
     docker:
