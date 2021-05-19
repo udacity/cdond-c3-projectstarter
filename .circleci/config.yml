@@ -433,7 +433,7 @@ workflows:
   default:
     jobs:
       - get-store-backend-ip
-      - test-env-var
+      - test-env-var:
           requires: [get-store-backend-ip]
 
       # - build-frontend
