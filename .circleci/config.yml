@@ -251,7 +251,7 @@ jobs:
       #       --query "Reservations[*].Instances[0].PublicDnsName" \
       #       --output text > /tmp/workspace/env-vars
       - run: echo "tester de test" > /tmp/workspace/env-vars
-      - run: BACKEND_IP=$(cat /tmp/workspace/migration)
+      - run: BACKEND_IP=$(cat /tmp/workspace/env-vars)
       - run: 
           name: Persist public DNS of EC2 instance on MemStash
           command: |
