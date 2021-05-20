@@ -473,8 +473,9 @@ jobs:
           name: Install dependencies
           command: |
             curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
-            sudo apt-get install -y nodejs
-
+            yum install -y nodejs
+            yum install npm
+            yum install curl
 
 workflows:
   default:
