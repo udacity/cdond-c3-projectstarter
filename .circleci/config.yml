@@ -252,9 +252,12 @@ jobs:
       #       --output text > /tmp/workspace/env-vars
       - run: echo "tester de test" > /tmp/workspace/env-vars
       - run: BACKEND_IP=$(cat /tmp/workspace/migration)
-      - run: curl -H "Content-Type: text/plain" -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$(echo $BACKEND_IP)" https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID}
       - run: 
           name: Persist public DNS of EC2 instance on MemStash
+          command: |
+            curl -H "Content-Type: text/plain" -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$(echo $BACKEND_IP)" https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID}
+      - run: 
+          name: Get public DNS of EC2 instance on MemStash
           command: |
             MIGRATION_RESULT=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
             echo $MIGRATION_RESULT
