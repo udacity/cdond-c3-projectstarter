@@ -252,6 +252,7 @@ jobs:
       #       --output text > /tmp/workspace/env-vars
       - run: echo "tester de test" > /tmp/workspace/env-vars
       - run: BACKEND_IP=$(cat /tmp/workspace/env-vars)
+      - run: echo $BACKEND_IP
       - run: 
           name: Persist public DNS of EC2 instance on MemStash
           command: |
