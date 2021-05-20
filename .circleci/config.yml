@@ -304,6 +304,8 @@ jobs:
       # Checkout code from git
       - checkout
       # - run: npm audit fix --audit-level=critical
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
@@ -325,7 +327,18 @@ jobs:
               echo migration_${CIRCLE_WORKFLOW_ID}
               echo "FAIL"
             fi
-      - destroy-environment
+      # - run:
+      #     name: Configure server
+      #     # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
+      #     command:
+      #       # printenv >> ./backend/.env
+      #       cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt configure-server.yml
+      # - run: apk add python curl && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
+      # - when:
+      #     condition: on_fail
+      #     steps:
+      #       # In order to run command destroy-environment if needed
+      #       - destroy-environment
   
   deploy-frontend:
     docker:
