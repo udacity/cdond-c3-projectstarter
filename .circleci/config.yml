@@ -472,8 +472,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd frontend
-            yum install nodejs
+            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            sudo apt-get install -y nodejs
             yum install npm
             yum install curl
 
