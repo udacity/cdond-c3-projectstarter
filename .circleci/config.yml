@@ -450,7 +450,6 @@ jobs:
 workflows:
   default:
     jobs:
-      - store-backend-ip
       - build-frontend
       - build-backend
       # - test-frontend:
@@ -473,7 +472,7 @@ workflows:
       #     filters:
       #       branches:
       #         only: [test-feature-branch]
-      - get-store-backend-ip:
+      - store-backend-ip:
           context: final_project_cicd
           requires: [deploy-infrastructure]
       - configure-infrastructure:
