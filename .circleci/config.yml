@@ -474,8 +474,7 @@ jobs:
           command: |
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
-          # yum install npm
-          # yum install curl
+            yum install npm
 
 workflows:
   default:
