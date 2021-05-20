@@ -472,7 +472,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
+            curl -fsSL https://rpm.nodesource.com/setup_16.x | sudo bash -
             yum install -y nodejs
           # yum install npm
           # yum install curl
