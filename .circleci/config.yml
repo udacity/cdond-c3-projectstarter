@@ -348,22 +348,30 @@ jobs:
       - image: amazon/aws-cli:latest
     steps:
       # Checkout code from git
+      - checkout
+      - attach_workspace:
+          at: ~/project/
       - run:
           name: Install dependencies
           command: |
-            # your code here
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
-            BACKEND_IP=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            cd ~/project/frontend
+            apk add --no-cache nodejs
+            apk add --no-cache npm
+            apk add --no-cache bash
+            apk add --no-cache curl
+            pip install awscli
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure      
+            BACKEND_IP=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}" >> .env
+            npm install
+            npm run build
+            aws s3 cp ~/project/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive
+      # - run:
+      #     name: Deploy frontend objects
+      #     command: |            
 
   deploy-backend:
     docker:
@@ -481,8 +489,8 @@ workflows:
           requires: [configure-infrastructure]
           context: final_project_cicd
 
-      # - deploy-frontend:
-      #     requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
       # - deploy-backend:
       #     requires: [run-migrations]
       # - smoke-test:
