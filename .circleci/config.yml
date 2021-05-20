@@ -251,11 +251,12 @@ jobs:
       #       --query "Reservations[*].Instances[0].PublicDnsName" \
       #       --output text > /tmp/workspace/env-vars
       - run: echo "tester de test" > /tmp/workspace/env-vars
-      - run: BACKEND_IP=$(cat /tmp/workspace/env-vars)
       - run: echo $BACKEND_IP
       - run: 
           name: Persist public DNS of EC2 instance on MemStash
           command: |
+            BACKEND_IP=$(cat /tmp/workspace/env-vars)
+            echo $BACKEND_IP
             curl -H "Content-Type: text/plain" -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$(echo $BACKEND_IP)" https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID}
       - run: 
           name: Get public DNS of EC2 instance on MemStash
