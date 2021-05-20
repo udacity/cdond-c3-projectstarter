@@ -111,24 +111,6 @@ commands:
             sudo rm /bin/sh && \
             sudo ln -s /bin/bash /bin/sh && \
             ls -al /bin/sh
-  
-  persist_on_memstash:
-    parameters:
-        token:
-          type: string
-          default: ""
-        Key:
-          type: string
-          default: ""
-        value:
-          type: string
-          default: ""
-    steps:
-      - run:
-          name: Persist value on MemStash
-          command: |
-            curl -H "Content-Type: text/plain" -H "token: << parameters.token >>" --request PUT --data "<< parameters.value >>" https://api.memstash.io/values/<< parameters.key >>
-
 #END COMMANDS#
 
 #START JOBS#            
