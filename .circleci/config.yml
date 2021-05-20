@@ -469,10 +469,12 @@ jobs:
           at: ~/
       - run:
           name: Install dependencies
+          # https://github.com/nodesource/distributions
           command: |
+            sudo yum update
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
-            # yum install npm
+            npm --version
 
 workflows:
   default:
