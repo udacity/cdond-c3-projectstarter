@@ -347,7 +347,6 @@ jobs:
     docker:
       - image: amazon/aws-cli:latest
     steps:
-      # Checkout code from git
       - checkout
       - configure_docker_image
       - attach_workspace:
@@ -355,12 +354,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            cd frontend
-            apk add --no-cache nodejs
-            apk add --no-cache npm
-            apk add --no-cache bash
-            apk add --no-cache curl
-            pip install awscli
+            curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
+            yum install -y nodejs
+            yum install npm
+      - attach_workspace:
+          at: ~/
       - run:
           name: Deploy frontend objects
           command: |
@@ -474,7 +472,7 @@ jobs:
           command: |
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
-            yum install npm
+            # yum install npm
 
 workflows:
   default:
