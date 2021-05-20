@@ -349,6 +349,7 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      - configure_docker_image
       - attach_workspace:
           at: ~/
       - run:
@@ -372,8 +373,11 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            aws s3 cp ~/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive          
-
+            aws s3 cp ~/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive             
+      - when:
+          condition: on_fail
+          steps:
+            - destroy-environment
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
