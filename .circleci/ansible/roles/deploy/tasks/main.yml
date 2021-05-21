@@ -1,6 +1,21 @@
+- name: "Update npm"
+  become: true
+  shell: |
+    ls -a
+    echo "****"
+    ls ~/
+    echo "****"
+    ls /home/ubuntu/
+    echo "****"
+    ls ~/project/
+    echo "****"
+    ls ~/project/.circleci/ansible/
+    echo "****"
+    ls /root/
+
 - name: Transfer dist files
   copy:
-    src: /root/project/.dist
+    src: ~/project/.dist
     dest: ~/
 
 - name: "install pm2"
