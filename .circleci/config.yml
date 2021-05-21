@@ -371,11 +371,12 @@ jobs:
             BACKEND_IP=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}" >> .env
-            cd frontend
+            cd backend && npm install
             npm run build
       - run:
           name: Deploy frontend objects
           command: |
+            ls ~/frontend
             aws s3 cp ~/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive             
       - when:
           condition: on_fail
