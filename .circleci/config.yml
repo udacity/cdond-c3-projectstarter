@@ -517,6 +517,7 @@ workflows:
 
       - deploy-frontend:
           requires: [run-migrations]
+          context: final_project_cicd
       # - deploy-backend:
       #     requires: [run-migrations]
       # - smoke-test:
