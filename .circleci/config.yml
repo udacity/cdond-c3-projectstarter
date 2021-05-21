@@ -504,10 +504,10 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            BACKEND_IP_GET="ec2-18-144-28-77.us-west-1.compute.amazonaws.com"
-            echo $BACKEND_IP_GET
-            touch backend/dummy-file.txt
-            scp backend/dummy-file.txt ubuntu@$BACKEND_IP_GET:~/.
+            # BACKEND_IP_GET="ec2-18-144-28-77.us-west-1.compute.amazonaws.com"
+            # echo $BACKEND_IP_GET
+            # touch backend/dummy-file.txt
+            cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt deploy-backend.yml             
 
       # Here's where you will add some code to rollback on failure 
 workflows:
