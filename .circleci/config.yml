@@ -496,6 +496,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
+            apk add --update nodejs npm
       - run:
           name: Deploy backend
           command: |
