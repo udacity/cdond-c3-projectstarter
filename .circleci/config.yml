@@ -399,7 +399,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl
+            apt install curl
       - run:
           name: Get backend url
           command: |
