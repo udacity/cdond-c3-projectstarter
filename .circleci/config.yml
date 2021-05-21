@@ -385,9 +385,11 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            ls -a ~/
-            ls -a ./backend/
-            tar -czvf dist.tar.gz ./project/backend/dist/
+            cd ~/backend
+            npm run build
+            ls
+            tar -czvf dist.tar.gz ./backend/dist/
+            ls
             cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt deploy-backend.yml
       - when:
           condition: on_fail

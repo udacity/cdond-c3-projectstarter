@@ -1,7 +1,7 @@
-- name: Transfer dist files
-  copy:
-    src: /root/project/dist.tar.gz
-    dest: ~/
+# - name: Transfer dist files
+#   copy:
+#     src: /root/project/dist.tar.gz
+#     dest: ~/
 
 - name: "install pm2"
   become: true
@@ -18,11 +18,16 @@
     state: latest
     update_cache: yes
 
-- name: "build package"
-  become: true
-  shell: |
-    cd ~/backend
-    npm run build
+# - name: "build package"
+#   become: true
+#   shell: |
+#     cd ~/backend
+#     npm run build
+
+- name: Transfer dist files
+  copy:
+    src: backend/dist.tar.gz
+    dest: ~/
 
 - name: Start node
   become: true
