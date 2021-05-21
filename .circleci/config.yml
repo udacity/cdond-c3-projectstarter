@@ -409,6 +409,7 @@ jobs:
       - run:
           name: Backend smoke test.
           command: |
+            echo "${API_URL}"
             curl "http://${API_URL}:3030/api/status"
       - run:
           name: Frontend smoke test.
@@ -420,8 +421,11 @@ jobs:
             else
             return 0
             fi
-      # Here's where you will add some code to rollback on failure  
-
+      - when:
+          condition: on_fail
+          steps:
+            - destroy-environment
+            
   cloudfront-update:
     docker:
       - image: amazon/aws-cli:latest
