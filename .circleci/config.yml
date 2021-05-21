@@ -382,15 +382,17 @@ jobs:
           command: |
             apk add --update ansible
             apk add --no-cache tar
-            apk add --update nodejs npm
+            apk add --update nodejs npm typescript
       - run:
-          name: Deploy backend
+          name: Build backend
           command: |
             cd backend
             npm run build
             ls
             tar -czvf dist.tar.gz ./backend/dist/
-            ls
+      - run:
+          name: Deploy backend
+          command: |
             cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt deploy-backend.yml
       - when:
           condition: on_fail
