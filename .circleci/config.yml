@@ -372,10 +372,12 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - add_ssh_keys:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
       - attach_workspace:
-          at: ~/
+          at: ~/project/.circleci/ansible/
       - run:
           name: Install dependencies
           command: |
@@ -425,7 +427,7 @@ jobs:
           condition: on_fail
           steps:
             - destroy-environment
-            
+
   cloudfront-update:
     docker:
       - image: amazon/aws-cli:latest
@@ -497,8 +499,8 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
+      # - build-frontend
+      # - build-backend
       # - test-frontend:
       #     requires: [build-frontend]
       # - test-backend:
@@ -533,8 +535,8 @@ workflows:
           context: final_project_cicd
       - deploy-backend:
           requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
