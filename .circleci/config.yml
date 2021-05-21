@@ -410,23 +410,33 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
+      - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            apk add --update curl
       - run:
           name: Get backend url
           command: |
-            # your code here
+            BACKEND_IP=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}" >> .env
       - run:
           name: Backend smoke test.
           command: |
-            # your code here
+            curl "http://${API_URL}:3030/api/status"
       - run:
           name: Frontend smoke test.
           command: |
-            # your code here
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            if curl -s ${URL} | grep "Welcome"
+            then
+            return 1
+            else
+            return 0
+            fi
       # Here's where you will add some code to rollback on failure  
 
   cloudfront-update:
