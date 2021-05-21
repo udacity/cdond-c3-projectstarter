@@ -1,1 +1,2 @@
 [web]
+ec2-18-144-28-77.us-west-1.compute.amazonaws.com
