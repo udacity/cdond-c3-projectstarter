@@ -390,23 +390,23 @@ jobs:
       # Docker image here that supports Ansible
     steps:
       # Checkout code from git
+      - checkout
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
       # attach workspace
-      - run: 
-          name: Get public DNS of EC2 instance on MemStash
-          command: |
-            BACKEND_IP_GET=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
-            echo $BACKEND_IP_GET
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            apk add --update ansible
+            apk add python curl && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
       - run:
           name: Deploy backend
           command: |
-            # your code here
+            BACKEND_IP_GET=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
+            echo $BACKEND_IP_GET
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
@@ -481,49 +481,76 @@ jobs:
             sudo yum update
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
+  
+  test-copy-to-ec2:
+    docker:
+      - image: python:3.7-alpine3.11
+      # Docker image here that supports Ansible
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add python curl && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
+      - run:
+          name: Deploy backend
+          command: |
+            BACKEND_IP_GET="ec2-18-144-28-77.us-west-1.compute.amazonaws.com"
+            echo $BACKEND_IP_GET
+            touch backend/dummy-file.txt
+            scp backend/dummy-file.txt $BACKEND_IP_GET
 
+      # Here's where you will add some code to rollback on failure 
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      #     context: final_project_cicd
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      #     context: final_project_cicd
-      - deploy-infrastructure:
-          requires: [build-frontend, build-backend]
-          context: final_project_cicd
-          
+      - test-copy-to-ec2
+      # - build-frontend
+      # - build-backend
+      # # - test-frontend:
+      # #     requires: [build-frontend]
+      # # - test-backend:
+      # #     requires: [build-backend]
+      # # - scan-backend:
+      # #     requires: [build-backend]
+      # #     context: final_project_cicd
+      # # - scan-frontend:
+      # #     requires: [build-frontend]
+      # #     context: final_project_cicd
       # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     context: final_project_cicd         
-      #     filters:
-      #       branches:
-      #         only: [test-feature-branch]
-      - store-backend-ip:
-          context: final_project_cicd
-          requires: [deploy-infrastructure]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-          context: final_project_cicd
+      #     requires: [build-frontend, build-backend]
+      #     context: final_project_cicd
+          
+      # # - deploy-infrastructure:
+      # #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      # #     context: final_project_cicd         
+      # #     filters:
+      # #       branches:
+      # #         only: [test-feature-branch]
+      # - store-backend-ip:
+      #     context: final_project_cicd
+      #     requires: [deploy-infrastructure]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      #     context: final_project_cicd
 
-      - deploy-frontend:
-          requires: [run-migrations]
-          context: final_project_cicd
-      # - deploy-backend:
+      # - deploy-frontend:
       #     requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      #     context: final_project_cicd
+      # # - deploy-backend:
+      # #     requires: [run-migrations]
+      # # - smoke-test:
+      # #     requires: [deploy-backend, deploy-frontend]
+      # # - cloudfront-update:
+      # #     requires: [smoke-test]
+      # # - cleanup:
+      # #     requires: [cloudfront-update]
