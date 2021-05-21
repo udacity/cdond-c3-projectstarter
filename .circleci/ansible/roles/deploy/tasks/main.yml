@@ -26,12 +26,12 @@
 
 - name: Transfer dist files
   copy:
-    src: backend/dist.tar.gz
+    src: /root/project/dist.tar.gz
     dest: ~/
 
 - name: Start node
   become: true
   shell: |
-    cd ~/backend
+    cd ~/backend/dist
     pm2 start npm --name backend -- start
     pm2 ls
