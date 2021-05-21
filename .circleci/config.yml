@@ -381,9 +381,12 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
+            apk add --no-cache tar
       - run:
           name: Deploy backend
-          command: |
+            tar -czvf /root/project/.circleci/dist.tgz ./dist
+            ls -a
+            ls -a tar -czvf /root/project/.circleci/
             cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt deploy-backend.yml
       - when:
           condition: on_fail
