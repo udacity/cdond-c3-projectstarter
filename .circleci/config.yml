@@ -1,8 +1,11 @@
 version: 2.1
 
+# Note to developers:
+# Dependencies can be best figured out by using runing the respective containers in docker on your local machine. 
+
 orbs:
   slack: circleci/slack@4.4.2
-
+  
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -120,6 +123,18 @@ commands:
             sudo yum update
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
+  
+  configure_alpine_image_w_aws:
+    steps:
+      - run:
+          name: Configure the docker image
+          command: |
+            apk add --no-cache \
+            python3 \
+            py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install \
+            pip3 install awscliv2  && awscliv2 -i
 #END COMMANDS#
 
 #START JOBS#        
@@ -400,6 +415,7 @@ jobs:
       - when:
           condition: on_fail
           steps:
+            - configure_alpine_image_w_aws
             - destroy-environment  
 
   smoke-test:
