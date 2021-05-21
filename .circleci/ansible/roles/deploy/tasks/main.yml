@@ -1,6 +1,6 @@
 - name: Transfer dist files
   copy:
-    src: ./dist
+    src: /root/project/.circleci/dist
     dest: ~/
 
 - name: "install pm2"

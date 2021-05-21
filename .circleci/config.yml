@@ -11,6 +11,7 @@ commands:
           name: Destroy environments
           command: |
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name backend-${CIRCLE_WORKFLOW_ID}
+            aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name frontend-${CIRCLE_WORKFLOW_ID}
           when: on_fail
 
