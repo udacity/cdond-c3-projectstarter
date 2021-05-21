@@ -376,7 +376,7 @@ jobs:
       - run:
           name: Deploy frontend objects
           command: |
-            ls ~/frontend
+            ls -a
             aws s3 cp ~/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive             
       - when:
           condition: on_fail
