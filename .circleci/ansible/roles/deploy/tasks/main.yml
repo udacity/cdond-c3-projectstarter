@@ -1,0 +1,32 @@
+- name: Transfer dist files
+  copy:
+    src: /root/project/.dist
+    dest: ~/
+
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+
+- name: "build package"
+  become: true
+  shell: |
+    cd ~/backend
+    npm run build
+
+- name: Start node
+  become: true
+  shell: |
+    cd ~/backend
+    pm2 start npm --name backend -- start
+    pm2 ls
