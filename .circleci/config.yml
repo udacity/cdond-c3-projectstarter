@@ -129,11 +129,9 @@ commands:
       - run:
           name: Configure the docker image
           command: |
-            apk add --no-cache \
-            python3 \
-            py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install \
+            apk add --no-cache 
+            python3
+            py3-pip && pip3 install --upgrade pip && pip3 install
             pip3 install awscliv2  && awscliv2 -i
 #END COMMANDS#
 
@@ -392,30 +390,23 @@ jobs:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
       - attach_workspace:
           at: ~/
+      - configure_alpine_image_w_aws
       - run:
           name: Install dependencies
           command: |
-            apk add --update 
-            apk add --no-cache ansible
-            apk add --no-cache tar
-            apk add --no-cache nodejs
-            apk add --no-cache npm
-            npm install -g tsc --force && npm install -g concurrently --force && npm install -g typescript --force
+            apk --no-cache add curl
+            apk add --update ansible
       - run:
           name: Build backend
           command: |
-            cd backend
-            npm run build
-            ls
-            tar -czvf dist.tar.gz ./backend/dist/
+            tar -czvf backend.tar.gz backend
       - run:
           name: Deploy backend
           command: |
-            cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt deploy-backend.yml
+            cd .circleci/ansible/ && ansible-playbook -i inventory.txt deploy-backend.yml
       - when:
           condition: on_fail
           steps:
-            - configure_alpine_image_w_aws
             - destroy-environment  
 
   smoke-test:
