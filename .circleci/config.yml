@@ -111,6 +111,15 @@ commands:
             sudo rm /bin/sh && \
             sudo ln -s /bin/bash /bin/sh && \
             ls -al /bin/sh
+
+  configure_aws_image_w_nodejs:
+    steps:
+      - run:
+          name: Configure the docker image
+          command: |
+            sudo yum update
+            curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
+            yum install -y nodejs
 #END COMMANDS#
 
 #START JOBS#            
@@ -351,12 +360,9 @@ jobs:
       - configure_docker_image
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
-            yum install -y nodejs
-            yum install npm
+      - add_ssh_keys:
+          fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
+      - configure_aws_image_w_nodejs
       - attach_workspace:
           at: ~/
       - run:
@@ -366,7 +372,6 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}" >> .env
             cd frontend
-            npm install
             npm run build
       - run:
           name: Deploy frontend objects
@@ -474,50 +479,48 @@ jobs:
             sudo yum update
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
-            npm --version
 
 workflows:
   default:
     jobs:
-      - test-docker-setup
-      # - build-frontend
-      # - build-backend
-      # # - test-frontend:
-      # #     requires: [build-frontend]
-      # # - test-backend:
-      # #     requires: [build-backend]
-      # # - scan-backend:
-      # #     requires: [build-backend]
-      # #     context: final_project_cicd
-      # # - scan-frontend:
-      # #     requires: [build-frontend]
-      # #     context: final_project_cicd
-      # - deploy-infrastructure:
-      #     requires: [build-frontend, build-backend]
+      - build-frontend
+      - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
       #     context: final_project_cicd
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      #     context: final_project_cicd
+      - deploy-infrastructure:
+          requires: [build-frontend, build-backend]
+          context: final_project_cicd
           
-      # # - deploy-infrastructure:
-      # #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      # #     context: final_project_cicd         
-      # #     filters:
-      # #       branches:
-      # #         only: [test-feature-branch]
-      # - store-backend-ip:
-      #     context: final_project_cicd
-      #     requires: [deploy-infrastructure]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      #     context: final_project_cicd
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     context: final_project_cicd         
+      #     filters:
+      #       branches:
+      #         only: [test-feature-branch]
+      - store-backend-ip:
+          context: final_project_cicd
+          requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+          context: final_project_cicd
 
-      # - deploy-frontend:
+      - deploy-frontend:
+          requires: [run-migrations]
+      # - deploy-backend:
       #     requires: [run-migrations]
-      # # - deploy-backend:
-      # #     requires: [run-migrations]
-      # # - smoke-test:
-      # #     requires: [deploy-backend, deploy-frontend]
-      # # - cloudfront-update:
-      # #     requires: [smoke-test]
-      # # - cleanup:
-      # #     requires: [cloudfront-update]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      # - cleanup:
+      #     requires: [cloudfront-update]
