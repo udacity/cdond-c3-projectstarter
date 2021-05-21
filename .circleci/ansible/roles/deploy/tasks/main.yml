@@ -1,6 +1,6 @@
 - name: Transfer dist files
   copy:
-    src: /root/project/dist.tgz
+    src: /root/project/dist.tar.gz
     dest: ~/
 
 - name: "install pm2"
