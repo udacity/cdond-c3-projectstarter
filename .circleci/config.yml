@@ -129,10 +129,8 @@ commands:
       - run:
           name: Configure the docker image
           command: |
-            apk add --no-cache 
-            python3
-            py3-pip && pip3 install --upgrade pip && pip3 install
-            pip3 install awscliv2  && awscliv2 -i
+            apk add --no-cache
+            pip install awscliv2  && awscliv2 -i
 #END COMMANDS#
 
 #START JOBS#        
