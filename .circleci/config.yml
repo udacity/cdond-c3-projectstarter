@@ -6,15 +6,14 @@ orbs:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      # Add parameter here   
     steps:
       - run:
           name: Destroy environments
-          when: on_fail
           command: |
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name backend-${CIRCLE_WORKFLOW_ID}
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name frontend-${CIRCLE_WORKFLOW_ID}
+          when: on_fail
+
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -300,11 +299,7 @@ jobs:
             # printenv >> ./backend/.env
             cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt configure-server.yml
       - run: apk add python curl && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
-      - when:
-          condition: on_fail
-          steps:
-            # In order to run command destroy-environment if needed
-            - destroy-environment
+      - destroy-environment
   
   run-migrations:
     docker:
@@ -339,18 +334,6 @@ jobs:
               echo migration_${CIRCLE_WORKFLOW_ID}
               echo "FAIL"
             fi
-      # - run:
-      #     name: Configure server
-      #     # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
-      #     command:
-      #       # printenv >> ./backend/.env
-      #       cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt configure-server.yml
-      # - run: apk add python curl && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
-      # - when:
-      #     condition: on_fail
-      #     steps:
-      #       # In order to run command destroy-environment if needed
-      #       - destroy-environment
   
   deploy-frontend:
     docker:
@@ -544,8 +527,8 @@ workflows:
       - deploy-frontend:
           requires: [run-migrations]
           context: final_project_cicd
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
