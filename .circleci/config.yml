@@ -385,7 +385,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            cd ~/backend
+            cd backend
             npm run build
             ls
             tar -czvf dist.tar.gz ./backend/dist/
