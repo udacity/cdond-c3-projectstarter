@@ -380,9 +380,12 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
+            apk add --update 
+            apk add --no-cache ansible
             apk add --no-cache tar
-            apk add --update nodejs npm typescript
+            apk add --no-cache nodejs
+            apk add --no-cache npm
+            npm install typescript
       - run:
           name: Build backend
           command: |
