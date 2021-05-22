@@ -267,7 +267,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
             --region us-west-1 \
-            --filters "Name=tag:Name",Values="backend-5dd387f3-7232-40ed-bf0c-e8267452f93f" \
+            --filters "Name=tag:Name",Values="backend-${CIRCLE_WORKFLOW_ID}" \
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text > /tmp/workspace/env-vars
             BACKEND_IP=$(cat /tmp/workspace/env-vars)
