@@ -384,6 +384,8 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - add_ssh_keys:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
       - attach_workspace:
@@ -397,6 +399,7 @@ jobs:
           name: Build backend
           command: |
             tar -czvf backend.tar.gz backend
+      - run: cat inventory.txt
       - run:
           name: Deploy backend
           command: |
