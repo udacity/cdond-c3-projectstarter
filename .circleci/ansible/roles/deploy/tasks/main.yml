@@ -35,5 +35,7 @@
   become: true
   shell: |
     cd ~/backend/dist
+    npm install
+    npm run build
     pm2 start npm --name backend -- start
     pm2 ls

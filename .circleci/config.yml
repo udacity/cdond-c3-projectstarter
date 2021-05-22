@@ -364,10 +364,17 @@ jobs:
           name: Deploy frontend objects
           command: |
             BACKEND_IP=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}" >> .env
-            cd frontend && npm install
-            npm run build
+            echo $BACKEND_IP
+            export API_URL=http://$BACKEND_IP:3030
+            echo "API_URL=$API_URL" >> frontend/.env
+      - run:
+          name: "Baking backend API_URL into the front-end"
+          command: |
+              cat frontend/.env
+              npm install webpack-dev-server -g
+              cd frontend
+              npm i
+              npm run build
       - run:
           name: Deploy frontend objects
           command: |
@@ -426,7 +433,7 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}" >> .env
       - run:
-          name: Backend smoke test.
+          name: Backend smoke test.ls
           command: |
             echo "${API_URL}"
             curl "http://${API_URL}:3030/api/status"
