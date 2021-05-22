@@ -18,16 +18,16 @@
     state: latest
     update_cache: yes
 
-# - name: "build package"
-#   become: true
-#   shell: |
-#     cd ~/backend
-#     npm run build
-
+# tar reduces chance of timeout
 - name: Transfer dist files
   copy:
-    src: /root/project/dist.tar.gz
+    src: /root/project/backend.tar.gz
     dest: ~/
+
+- name: Unpack dist files
+  become: true
+  shell: |
+    tar -xvf ~/backend.tar.gz
 
 - name: Start node
   become: true
