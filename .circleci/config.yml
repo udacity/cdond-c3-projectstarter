@@ -448,7 +448,7 @@ jobs:
           name: Backend smoke test.ls
           command: |
             API_URL="$(cat .env)"
-            echo "$API_URL/api/status"
+            curl "$API_URL/api/status"
       - run:
           name: Frontend smoke test.
           command: |
