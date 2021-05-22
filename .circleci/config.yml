@@ -388,7 +388,6 @@ jobs:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
       - attach_workspace:
           at: ~/
-      - configure_alpine_image_w_aws
       - run:
           name: Install dependencies
           command: |
