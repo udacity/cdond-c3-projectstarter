@@ -399,7 +399,7 @@ jobs:
           name: Build backend
           command: |
             tar -czvf backend.tar.gz backend
-      - run: cat inventory.txt
+      - run: cat .circleci/ansible/inventory.txt
       - run:
           name: Deploy backend
           command: |
