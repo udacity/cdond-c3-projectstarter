@@ -273,7 +273,17 @@ jobs:
             BACKEND_IP=$(cat /tmp/workspace/env-vars)
             echo $BACKEND_IP
             curl -H "Content-Type: text/plain" -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$(echo $BACKEND_IP)" https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID}
-      
+      - run:
+          name: Check IP
+          command: |
+            BACKEND_IP=$(cat /tmp/workspace/env-vars)
+            echo $BACKEND_IP
+      - run:
+          name: Persist on MemStash
+          command: |
+            BACKEND_IP=$(cat /tmp/workspace/env-vars)
+            curl -H "Content-Type: text/plain" -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$(echo $BACKEND_IP)" https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID}
+        
   check-var-example:
     docker:
       - image: circleci/node:13.8.0
@@ -358,10 +368,14 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Deploy frontend objects
+          name: Check backend IP
           command: |
             BACKEND_IP=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
             echo $BACKEND_IP
+      - run:
+          name: Deploy frontend objects
+          command: |
+            BACKEND_IP=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
             export API_URL=http://$BACKEND_IP:3030
             echo "API_URL=$API_URL" >> frontend/.env
       - run:
