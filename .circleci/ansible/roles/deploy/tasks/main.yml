@@ -24,10 +24,12 @@
     src: /root/project/backend.tar.gz
     dest: ~/
 
-- name: Unpack dist files
-  become: true
-  shell: |
-    tar -xvf ~/backend.tar.gz
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
+- name: Unarchive dist file
+  unarchive:
+    src: ~/backend.tar.gz
+    dest: ~/
+    remote_src: yes
 
 - name: Start node
   become: true
