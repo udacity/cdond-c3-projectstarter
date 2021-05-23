@@ -354,10 +354,12 @@ jobs:
             mkdir -p /tmp/workspace/
             npm run migrations > /tmp/workspace/migration
             RESULT=$(cat /tmp/workspace/migration)
+            echo "$RESULT"
             curl -H "Content-Type: text/plain" -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$(echo $RESULT)" https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID}
       - run:
           name: PUT migration results to memstash
           command: |
+            echo "$MIGRATION_RESULT"
             MIGRATION_RESULT=$(curl -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID})
             if echo "$MIGRATION_RESULT" | grep "has been executed successfully"
             then
@@ -449,7 +451,7 @@ jobs:
       - run: cat .circleci/ansible/inventory.txt
       - run:
           name: Deploy backend
-          command: |
+          command:  (yes || true) |
             cd .circleci/ansible/ && ansible-playbook -i inventory.txt deploy-backend.yml
       - when:
           condition: on_fail
