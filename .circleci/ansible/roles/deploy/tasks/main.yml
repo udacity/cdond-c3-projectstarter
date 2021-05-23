@@ -3,6 +3,13 @@
 #     src: /root/project/dist.tar.gz
 #     dest: ~/
 
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+
 - name: "install pm2"
   become: true
   npm:
@@ -10,13 +17,6 @@
     global: yes
     production: yes
     state: present
-
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
 
 - name: Creates directory
   file:
