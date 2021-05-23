@@ -598,6 +598,7 @@ workflows:
           requires: [deploy-infrastructure]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+          context: final_project_cicd
       - run-migrations:
           requires: [configure-infrastructure]
           context: final_project_cicd
