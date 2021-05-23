@@ -22,19 +22,19 @@
 - name: Transfer dist files
   copy:
     src: /root/project/backend.tar.gz
-    dest: ~/
+    dest: /home/ubuntu/
 
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
 - name: Unarchive dist file
   unarchive:
-    src: ~/backend.tar.gz
-    dest: ~/
+    src: /home/ubuntu/backend.tar.gz
+    dest: /home/ubuntu/
     remote_src: yes
 
 - name: Start node
   become: true
   shell: |
-    cd ~/backend/dist
+    cd /home/ubuntu/backend/dist
     npm install
     npm run build
     pm2 start npm --name backend -- start
