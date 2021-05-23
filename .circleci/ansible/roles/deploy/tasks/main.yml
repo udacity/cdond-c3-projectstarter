@@ -46,8 +46,8 @@
 - name: Start npm
   become: true
   shell: |
-    cd /home/ubuntu/backend/
-    pm2 start npm --name backend -- start
+    cd /home/ubuntu/backend/dist
+    pm2 start main.js
 
 - name: list pm2
   become: true
