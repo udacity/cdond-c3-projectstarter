@@ -18,18 +18,29 @@
     state: latest
     update_cache: yes
 
+- name: Creates directory
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+
 # tar reduces chance of timeout
 - name: Transfer dist files
   copy:
-    src: /root/project/backend.tar.gz
-    dest: /home/ubuntu/
+    src: /root/project/artifact.tar.gz
+    dest: /home/ubuntu/backend/artifact.tar.gz
 
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
-- name: Unarchive dist file
-  unarchive:
-    src: /home/ubuntu/backend.tar.gz
-    dest: /home/ubuntu/
-    remote_src: yes
+# - name: Unarchive dist file
+#   unarchive:
+#     src: /home/ubuntu/backend.tar.gz
+#     dest: /home/ubuntu/
+#     remote_src: yes
+
+- name: Uncompress Backend
+  shell: |
+    cd /home/ubuntu/backend
+    tar xvzf artifact.tar.gz -C .
+    ls -la
 
 - name: npm install
   become: true
@@ -43,11 +54,16 @@
     cd /home/ubuntu/backend/
     sudo npm run build
 
-- name: Start npm
-  become: true
+# - name: Start npm
+#   become: true
+#   shell: |
+#     cd /home/ubuntu/backend/dist
+#     sudo pm2 start main.js
+
+- name: start PM2
   shell: |
-    cd /home/ubuntu/backend/dist
-    sudo pm2 start main.js
+    cd /home/ubuntu/backend 
+    pm2 start npm --name backend -- start
 
 - name: list pm2
   become: true
