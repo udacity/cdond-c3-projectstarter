@@ -452,7 +452,7 @@ jobs:
       - run:
           name: Deploy backend
           command:  (yes || true) |
-            cd .circleci/ansible/ && ansible-playbook -i inventory.txt deploy-backend.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - when:
           condition: on_fail
           steps:
