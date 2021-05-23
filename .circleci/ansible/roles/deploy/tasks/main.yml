@@ -47,7 +47,7 @@
   become: true
   shell: |
     cd /home/ubuntu/backend/dist
-    pm2 start main.js
+    sudo pm2 start main.js
 
 - name: list pm2
   become: true
