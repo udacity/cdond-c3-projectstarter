@@ -33,9 +33,9 @@ commands:
             if(( $SUCCESS==1 )); 
             then
             #  cd ~/project/backend
-            #  npm install
+              npm install
             #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              npm migrations:revert
             fi
 
   install-npm-dependecies:
@@ -412,6 +412,17 @@ jobs:
       - run:
           name: Build backend
           command: |
+            echo ENVIROMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            cat backend/.env
             tar -czvf backend.tar.gz backend
       - run: cat .circleci/ansible/inventory.txt
       - run:
@@ -441,15 +452,15 @@ jobs:
           command: |
             BACKEND_IP=$(curl -H "token: backend-ip-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backend-ip-${CIRCLE_WORKFLOW_ID})
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}" >> .env
+            echo "${API_URL}" >> frontend/.env
       - run:
           name: Check .env content
           command: |
-            cat .env
+            cat frontend/.env
       - run:
           name: Backend smoke test.ls
           command: |
-            API_URL="$(cat .env)"
+            API_URL="$(cat frontend/.env)"
             sudo curl "$API_URL/api/status"
       - run:
           name: Frontend smoke test.
