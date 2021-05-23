@@ -307,14 +307,33 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible # install the dependencies needed for your playbook
+            apk add --update ansible
+            apk add --no-cache \
+                python3 \
+                py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install \
+                awscli \
+            && rm -rf /var/cache/apk/*
+            apk add --update ansible
+            ansible-galaxy install weareinteractive.environment
       - run:
           name: Configure server
           # https://stackoverflow.com/questions/53126057/using-yes-with-interactive-script-results-in-exit-code-141/53126200
           command:
-            # printenv >> ./backend/.env
+            echo ENVIROMENT=production > "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            cat backend/.env
+            ansible-galaxy install weareinteractive.environment
             cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt configure-server.yml
-      - run: apk add python curl && curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip" && unzip awscliv2.zip && ./aws/install
       - destroy-environment
   
   run-migrations:
@@ -407,8 +426,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk --no-cache add curl
+            apk add --update curl tar gzip
             apk add --update ansible
+            apk add --update openssh-client
       - run:
           name: Build backend
           command: |
@@ -423,7 +443,9 @@ jobs:
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat backend/.env
-            tar -czvf backend.tar.gz backend
+            tar -C backend -czvf artifact.tar.gz .
+            ls -la
+            ansible-galaxy install weareinteractive.environment
       - run: cat .circleci/ansible/inventory.txt
       - run:
           name: Deploy backend
