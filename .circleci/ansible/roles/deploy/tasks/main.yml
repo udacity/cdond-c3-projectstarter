@@ -34,7 +34,7 @@
 - name: Start node
   become: true
   shell: |
-    cd /home/ubuntu/backend/dist
+    cd /home/ubuntu/backend/
     npm install
     npm run build
     pm2 start npm --name backend -- start
