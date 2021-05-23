@@ -35,7 +35,7 @@
   become: true
   shell: |
     cd /home/ubuntu/backend/
-    npm install
-    npm run build
+    sudo npm install
+    sudo npm run build
     pm2 start npm --name backend -- start
     pm2 ls
