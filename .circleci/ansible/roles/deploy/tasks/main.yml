@@ -31,11 +31,25 @@
     dest: /home/ubuntu/
     remote_src: yes
 
-- name: Start node
+- name: npm install
   become: true
   shell: |
     cd /home/ubuntu/backend/
     sudo npm install
+
+- name: run build
+  become: true
+  shell: |
+    cd /home/ubuntu/backend/
     sudo npm run build
+
+- name: Start npm
+  become: true
+  shell: |
+    cd /home/ubuntu/backend/
     pm2 start npm --name backend -- start
+
+- name: list pm2
+  become: true
+  shell: |
     pm2 ls
