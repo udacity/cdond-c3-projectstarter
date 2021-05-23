@@ -333,7 +333,7 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat backend/.env
             ansible-galaxy install weareinteractive.environment
-            cd .circleci/ansible/ && cat inventory.txt && ls -a && ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/configure-server.yml
       - destroy-environment
   
   run-migrations:
