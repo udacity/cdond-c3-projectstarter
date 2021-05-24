@@ -266,7 +266,7 @@ jobs:
             - inventory.txt
       # Here's where you will add some code to rollback on failure
       # Uncomment exit to simulate error and check if destroy-environment works
-      # - run: exit 1 #
+      # - run: exit 1
       - destroy-environment
 
   store-backend-ip:
@@ -384,6 +384,8 @@ jobs:
               echo migration_${CIRCLE_WORKFLOW_ID}
               echo "FAIL"
             fi
+      # Uncomment exit to simulate error and check if destroy-environment works
+      - run: exit 1
       - destroy-environment
       - revert-migrations
   
