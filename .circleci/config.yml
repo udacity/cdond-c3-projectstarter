@@ -527,14 +527,13 @@ jobs:
           name: Frontend smoke test
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-1.amazonaws.com"
-            if curl -s ${URL} | grep "Welcome"
+            if curl -s ${URL} | grep "BYE BYE"
             then
             echo SUCCESS; exit 0
             else
             echo FAIL; exit 1
             fi
       # For [SCREENSHOT07]. Comment afterwards.
-      - run: exit 1
       - destroy-environment
       - revert-migrations
       - notify
@@ -547,29 +546,33 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum -y install tar
-            yum -y install gzip
-      # - run:
-      #     name: Update cloudfront distribution
-      #     command: |
-      #       echo "*Export Old ID*"
-      #       export OldID=$(aws cloudformation list-exports \
-      #       --query "Exports[?Name==\`WorkflowID\`].Value" \
-      #       --no-paginate --output text)
-      #       export STACKS=$(aws cloudformation list-stacks \
-      #       --query "StackSummaries[*].StackName" \
-      #       --stack-status-filter CREATE_COMPLETE \
-      #       --no-paginate --output text)
-      #       aws cloudformation deploy \
-      #       --template-file /root/project/.circleci/files/cloudfront.yml \
-      #       --stack-name udapeople-cloudfront \
-      #       --parameter-overrides NewID="${CIRCLE_WORKFLOW_ID}" 
-      #       curl -H "Content-Type: text/plain" -H "token: OldID-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$OldID" https://api.memstash.io/values/OldID-${CIRCLE_WORKFLOW_ID}
-      #       echo "ID Summary:""
-      #       echo OldID: "$OldID"
-      #       echo NewID: "$NewID"
+            yum install -y tar
+            yum install -y gzip
+            yum install -y python3-pip
+            yum install -y curl
+            curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
+            yum install -y nodejs
       - run:
-          name: Deploy backend
+          name: Update cloudfront distribution
+          command: |
+            echo "*Export Old ID*"
+            export OldWorkflowID=$(aws cloudformation list-exports \
+            --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text)
+            export STACKS=$(aws cloudformation list-stacks \
+            --query "StackSummaries[*].StackName" \
+            --stack-status-filter CREATE_COMPLETE \
+            --no-paginate --output text)
+            aws cloudformation deploy \
+            --template-file /root/project/.circleci/files/cloudfront.yml \
+            --stack-name udapeople-cloudfront \
+            --parameter-overrides NewWorkflowID="${CIRCLE_WORKFLOW_ID}" 
+            curl -H "Content-Type: text/plain" -H "token: OldWorkflowID-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$OldWorkflowID" https://api.memstash.io/values/OldWorkflowID-${CIRCLE_WORKFLOW_ID}
+            echo "ID Summary:""
+            echo OldWorkflowID: "$OldWorkflowID"
+            echo NewWorkflowID: "$NewWorkflowID"
+      - run:
+          name: Change the origin of your CloudFront distribution
           command:  |
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/cloudfront.yml
       - destroy-environment
@@ -586,16 +589,16 @@ jobs:
           name: Get old stack workflow id
           command: |
             # your code here
-            export OldID="$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)"
+            export OldWorkflowIDID="$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)"
             export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text) #put the list of stacks here
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${OldID}" ]]
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowIDID}" ]]
             then
-              aws s3 rm "s3://udapeople-${OldID}" --recursive
-              aws cloudformation delete-stack --stack-name bckend${OldID}"
-              aws cloudformation delete-stack --stack-name frntend${OldID}"
+              aws s3 rm "s3://udapeople-${OldWorkflowIDID}" --recursive
+              aws cloudformation delete-stack --stack-name backend-${OldWorkflowIDID}"
+              aws cloudformation delete-stack --stack-name frontend-${OldWorkflowIDID}"
             fi
   
   test-docker-setup:
