@@ -261,8 +261,9 @@ jobs:
           root: ~/project/.circleci/ansible/
           paths:
             - inventory.txt
-      - run: exit 1
-      # Here's where you will add some code to rollback on failure 
+      # Here's where you will add some code to rollback on failure
+      # Uncomment exit to simulate error and check if destroy-environment works
+      # - run: exit 1 #
       - when:
           condition: on_fail
           steps:
@@ -313,6 +314,7 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project/.circleci/ansible/
+      - run: exit 1
       - run: cat ~/project/.circleci/ansible/inventory.txt 
       - add_ssh_keys:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
