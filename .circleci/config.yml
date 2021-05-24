@@ -518,6 +518,8 @@ jobs:
             else
             echo FAIL; exit 1
             fi
+      # For [SCREENSHOT07]. Comment afterwards.
+      - run: exit 1
       - destroy-environment
       - revert-migrations
 
