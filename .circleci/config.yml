@@ -13,7 +13,7 @@ commands:
       - run:
           name: Install awscli
           command: |
-            VERSION=$(aws --version)
+            VERSION=$(aws --version) || VERSION=$(echo FALSE)
             if echo "${VERSION}" | grep "aws-cli"
             then
             echo "${VERSION}"
