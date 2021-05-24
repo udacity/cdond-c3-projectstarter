@@ -13,10 +13,10 @@ commands:
       - run:
           name: Install awscli
           command: |
-            VERSION=$(python --version)
-            if echo "${VERSION}" | grep "Python"
+            VERSION=$(aws --version)
+            if echo "${VERSION}" | grep "aws-cli"
             then
-            python --version
+            echo "${VERSION}"
             else
             pip install awscli
             fi
