@@ -42,15 +42,6 @@ commands:
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             MIGRATION_RESULT=$(curl -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID})
             echo "$MIGRATION_RESULT"
-
-            SUCCESS = 1
-            # if(( $SUCCESS==1 ));
-            # then
-            #   cd ~/project/backend
-            #   npm install
-            #   # Add revert code here. You can find this in the Getting Started section.
-            #   npm migrations:revert
-            # fi
           when: on_fail
 
 
