@@ -450,10 +450,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-
-      - run:
-          name: Install dependencies
-          command: |
             apk add --update curl tar gzip
             apk add --update openssh-client
             apk add --update ansible
@@ -539,7 +535,8 @@ jobs:
           command: |
             # your code here
       # Here's where you will add some code to rollback on failure  
-
+      - destroy-environment
+      - revert-migrations
   cleanup:
     docker:
       - image: circleci/node:13.8.0
