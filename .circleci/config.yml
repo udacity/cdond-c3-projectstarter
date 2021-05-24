@@ -369,21 +369,17 @@ jobs:
           command: |
             MIGRATION_RESULT=$(curl -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID})
             echo "$MIGRATION_RESULT"
-
             if echo "$MIGRATION_RESULT" | grep "No migrations are pending"
             then
               curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "NO MIGRATIONS PENDING" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
-              echo migration_${CIRCLE_WORKFLOW_ID}
               echo "NO MIGRATIONS PENDING"
             else
               if echo "$MIGRATION_RESULT" | grep "has been executed successfully"
               then
                 curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
-                echo migration_${CIRCLE_WORKFLOW_ID}
                 echo "SUCCESS"
               else
                 curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
-                echo migration_${CIRCLE_WORKFLOW_ID}
                 echo "FAIL"
               fi
             fi
