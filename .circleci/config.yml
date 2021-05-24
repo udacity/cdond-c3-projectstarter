@@ -525,15 +525,18 @@ jobs:
             sudo curl "$API_URL/api/status"
       - run:
           name: Frontend smoke test
+          # For [SCREENSHOT06].
+          # if curl -s ${URL} | grep "BYE BYE"
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-1.amazonaws.com"
-            if curl -s ${URL} | grep "BYE BYE"
+            if curl -s ${URL} | grep "Welcome"
             then
             echo SUCCESS; exit 0
             else
             echo FAIL; exit 1
             fi
-      # For [SCREENSHOT07]. Comment afterwards.
+      # For [SCREENSHOT07].
+      # run: exit 1
       - destroy-environment
       - revert-migrations
       - notify
@@ -554,6 +557,7 @@ jobs:
             yum install -y nodejs
       - run:
           name: Update cloudfront distribution
+          # From "5. Configuration Management", SCREENSHOT08 Example
           command: |
             echo "*Export Old ID*"
             export OldWorkflowID=$(aws cloudformation list-exports \
@@ -681,5 +685,5 @@ workflows:
           context: final_project_cicd
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
