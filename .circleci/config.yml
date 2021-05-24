@@ -234,10 +234,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install slack dependencies for notification
-          command: |
-            sudo apt install jq
-      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
@@ -262,6 +258,10 @@ jobs:
             --query "Reservations[*].Instances[0].PublicDnsName" \
             --output text >> ~/project/.circleci/ansible/inventory.txt
       - configure_docker_image
+      - run:
+          name: Install slack dependencies for notification
+          command: |
+            sudo apt install jq      
       - run: cat ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/project/.circleci/ansible/
