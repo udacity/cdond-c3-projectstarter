@@ -27,6 +27,8 @@ commands:
             aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name frontend-${CIRCLE_WORKFLOW_ID}
           when: on_fail
+      - notify
+
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -436,6 +438,7 @@ jobs:
       # Uncomment exit command to simulate error.
       - destroy-environment
       - revert-migrations
+      
 
   deploy-backend:
     docker:
@@ -522,6 +525,7 @@ jobs:
       - run: exit 1
       - destroy-environment
       - revert-migrations
+      - notify
 
   cloudfront-update:
     docker:
@@ -531,14 +535,31 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            yum -y install tar
+            yum -y install gzip
       - run:
           name: Update cloudfront distribution
           command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure  
+            echo "*Export Old ID*"
+            export OldID=$(aws cloudformation list-exports \
+            --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text)
+            export STACKS=$(aws cloudformation list-stacks \
+            --query "StackSummaries[*].StackName" \
+            --stack-status-filter CREATE_COMPLETE \
+            --no-paginate --output text)
+            aws cloudformation deploy \
+            --template-file /root/project/.circleci/files/cloudfront.yml \
+            --stack-name udapeople-cloudfront \
+            --parameter-overrides NewID="${CIRCLE_WORKFLOW_ID}" 
+            curl -H "Content-Type: text/plain" -H "token: OldID-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$OldID" https://api.memstash.io/values/OldID-${CIRCLE_WORKFLOW_ID}
+            echo "ID Summary:""
+            echo OldID: "$OldID"
+            echo NewID: "$NewID"
       - destroy-environment
       - revert-migrations
+      - notify
+
   cleanup:
     docker:
       - image: circleci/node:13.8.0
