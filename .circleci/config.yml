@@ -40,14 +40,17 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+            MIGRATION_RESULT=$(curl -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID})
+            echo "$MIGRATION_RESULT"
+
             SUCCESS = 1
-            if(( $SUCCESS==1 )); 
-            then
-            #  cd ~/project/backend
-              npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              npm migrations:revert
-            fi
+            # if(( $SUCCESS==1 ));
+            # then
+            #   cd ~/project/backend
+            #   npm install
+            #   # Add revert code here. You can find this in the Getting Started section.
+            #   npm migrations:revert
+            # fi
 
   install-npm-dependecies:
     description: "Install NPM dependencies"
@@ -264,10 +267,7 @@ jobs:
       # Here's where you will add some code to rollback on failure
       # Uncomment exit to simulate error and check if destroy-environment works
       # - run: exit 1 #
-      - when:
-          condition: on_fail
-          steps:
-            - destroy-environment
+      - destroy-environment
 
   store-backend-ip:
     docker:
@@ -314,7 +314,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project/.circleci/ansible/
-      - run: exit 1
       - run: cat ~/project/.circleci/ansible/inventory.txt 
       - add_ssh_keys:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
@@ -373,8 +372,8 @@ jobs:
       - run:
           name: PUT migration results to memstash
           command: |
-            echo "$MIGRATION_RESULT"
             MIGRATION_RESULT=$(curl -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID})
+            echo "$MIGRATION_RESULT"
             if echo "$MIGRATION_RESULT" | grep "has been executed successfully"
             then
               curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
@@ -385,6 +384,8 @@ jobs:
               echo migration_${CIRCLE_WORKFLOW_ID}
               echo "FAIL"
             fi
+      - destroy-environment
+      - revert-migrations
   
   deploy-frontend:
     docker:
