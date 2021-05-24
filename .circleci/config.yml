@@ -38,7 +38,7 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            MIGRATION_RESULT=$(curl -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID})
+            MIGRATION_RESULT=$(curl -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID})
             echo "$MIGRATION_RESULT"
           when: on_fail
 
