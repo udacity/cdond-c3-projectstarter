@@ -312,12 +312,13 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/project/.circleci/ansible/
-      - run: cat ~/project/.circleci/ansible/inventory.txt 
+      - run: cat ~/project/.circleci/ansible/inventory.txt
       - add_ssh_keys:
           fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
       - run:
           name: Install dependencies
           command: |
+            apk add --update jq
             apk add --update ansible
             apk add --no-cache \
                 python3 \
@@ -496,6 +497,7 @@ jobs:
           name: Install dependencies
           command: |
             sudo apt install curl
+            sudo apt install jq
       - run:
           name: Get backend url
           command: |
@@ -569,12 +571,12 @@ jobs:
           name: Get old stack workflow id
           command: |
             # your code here
-            export OldWorkflowID="the id here"
+            export OldID="the id here"
             export STACKS=[] #put the list of stacks here
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            if [[ "${STACKS[@]}" =~ "${OldID}" ]]
             then
               # your code here
             fi
