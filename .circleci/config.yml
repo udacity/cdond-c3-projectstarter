@@ -682,5 +682,7 @@ workflows:
           context: final_project_cicd
       - cloudfront-update:
           requires: [smoke-test]
+          context: final_project_cicd
       - cleanup:
           requires: [cloudfront-update]
+          context: final_project_cicd
