@@ -1,6 +1,5 @@
 version: 2.1
-
-# Note to developers:
+# Note to developer:
 # Dependencies can be best figured out by using runing the respective containers in docker on your local machine. 
 
 orbs:
@@ -29,7 +28,6 @@ commands:
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name frontend-${CIRCLE_WORKFLOW_ID}
           when: on_fail
 
-
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -43,7 +41,6 @@ commands:
             MIGRATION_RESULT=$(curl -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID})
             echo "$MIGRATION_RESULT"
           when: on_fail
-
 
   install-npm-dependecies:
     description: "Install NPM dependencies"
@@ -140,7 +137,7 @@ commands:
             pip install awscliv2  && awscliv2 -i
 #END COMMANDS#
 
-#START JOBS#        
+#START JOBS#     
 jobs:
   build-frontend:
     docker:
@@ -257,8 +254,7 @@ jobs:
           root: ~/project/.circleci/ansible/
           paths:
             - inventory.txt
-      # Here's where you will add some code to rollback on failure
-      # Uncomment exit to simulate error and check if destroy-environment works
+      # Uncomment exit command to simulate error.
       # - run: exit 1
       - destroy-environment
 
@@ -340,6 +336,8 @@ jobs:
             cat backend/.env
             ansible-galaxy install weareinteractive.environment
             ansible-playbook -i ~/project/.circleci/ansible/inventory.txt ~/project/.circleci/ansible/configure-server.yml
+      # Uncomment exit command to simulate error.
+      # - run: exit 1
       - destroy-environment
   
   run-migrations:
@@ -371,17 +369,25 @@ jobs:
           command: |
             MIGRATION_RESULT=$(curl -H "token: migration-result-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-result-${CIRCLE_WORKFLOW_ID})
             echo "$MIGRATION_RESULT"
-            if echo "$MIGRATION_RESULT" | grep "has been executed successfully"
+
+            if echo "$MIGRATION_RESULT" | grep "No migrations are pending"
             then
               curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
               echo migration_${CIRCLE_WORKFLOW_ID}
-              echo "SUCCESS"
+              echo "NO MIGRATIONS PENDING"
             else
-              curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
-              echo migration_${CIRCLE_WORKFLOW_ID}
-              echo "FAIL"
+              if echo "$MIGRATION_RESULT" | grep "has been executed successfully"
+              then
+                curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
+                echo migration_${CIRCLE_WORKFLOW_ID}
+                echo "SUCCESS"
+              else
+                curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "0" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
+                echo migration_${CIRCLE_WORKFLOW_ID}
+                echo "FAIL"
+              fi
             fi
-      # Uncomment exit to simulate error and check if destroy-environment works
+      # Uncomment exit command to simulate error.
       - run: exit 1
       - destroy-environment
       - revert-migrations
