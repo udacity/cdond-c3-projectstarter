@@ -51,6 +51,8 @@ commands:
             #   # Add revert code here. You can find this in the Getting Started section.
             #   npm migrations:revert
             # fi
+          when: on_fail
+
 
   install-npm-dependecies:
     description: "Install NPM dependencies"
