@@ -357,6 +357,10 @@ jobs:
       # Checkout code from git
       - checkout
       # - run: npm audit fix --audit-level=critical
+      - run:
+          name: Install dependencies
+          command: |
+            sudo apt install python-pip
       - restore_cache:
           keys: [backend-build]
       - run:
