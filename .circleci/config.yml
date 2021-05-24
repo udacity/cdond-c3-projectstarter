@@ -11,6 +11,17 @@ commands:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     steps:
       - run:
+          name: Install awscli
+          command: |
+            VERSION=$(python --version)
+            if echo "${VERSION}" | grep "Python"
+            then
+            python --version
+            else
+            pip install awscli
+            fi
+          when: on_fail
+      - run:
           name: Destroy environments
           command: |
             aws cloudformation delete-stack --region ${AWS_DEFAULT_REGION} --stack-name backend-${CIRCLE_WORKFLOW_ID}
@@ -250,6 +261,7 @@ jobs:
           root: ~/project/.circleci/ansible/
           paths:
             - inventory.txt
+      - run: exit 1
       # Here's where you will add some code to rollback on failure 
       - when:
           condition: on_fail
@@ -492,9 +504,9 @@ jobs:
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-1.amazonaws.com"
             if curl -s ${URL} | grep "Welcome"
             then
-            return 1
+            exit 0; echo SUCCESS
             else
-            return 0
+            exit 1; echo FAIL
             fi
       - when:
           condition: on_fail
