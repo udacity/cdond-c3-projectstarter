@@ -330,7 +330,7 @@ jobs:
             && pip3 install \
                 awscli \
             && rm -rf /var/cache/apk/*
-            apk add --update ansible
+            apk add --update curl
             ansible-galaxy install weareinteractive.environment
       - run:
           name: Configure server
