@@ -1,8 +1,3 @@
-# - name: Transfer dist files
-#   copy:
-#     src: /root/project/dist.tar.gz
-#     dest: ~/
-
 - name: "install dependencies."
   become: true
   apt:
@@ -18,13 +13,13 @@
     production: yes
     state: present
 
-- name: Creates directory
+- name: create directory
   file:
     path: /home/ubuntu/backend
     state: directory
 
 # tar reduces chance of timeout
-- name: Transfer dist files
+- name: transfer dist files
   copy:
     src: /root/project/artifact.tar.gz
     dest: /home/ubuntu/backend/artifact.tar.gz
@@ -32,11 +27,11 @@
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
 # - name: Unarchive dist file
 #   unarchive:
-#     src: /home/ubuntu/backend.tar.gz
-#     dest: /home/ubuntu/
+#     src: /home/ubuntu/backend/artifact.tar.gz
+#     dest: /home/ubuntu/backend/
 #     remote_src: yes
 
-- name: Uncompress Backend
+- name: uncompress backend
   shell: |
     cd /home/ubuntu/backend
     tar xvzf artifact.tar.gz -C .

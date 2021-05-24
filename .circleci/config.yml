@@ -41,13 +41,13 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             MIGRATION_RESULT=$(curl -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID})
-            echo "$MIGRATION_RESULT"
-            if(( "$MIGRATION_RESULT"=="1" ));
-            then
+            if [ "$MIGRATION_RESULT" == "1" ]; then
               cd ~/project/backend
               npm install
               # Add revert code here. You can find this in the Getting Started section.
               npm migrations:revert
+            else
+              echo "$MIGRATION_RESULT"
             fi
           when: on_fail
 
@@ -384,7 +384,7 @@ jobs:
             echo "$MIGRATION_RESULT"
             if echo "$MIGRATION_RESULT" | grep "No migrations are pending"
             then
-              curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "NO MIGRATIONS PENDING" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
+              curl -H "Content-Type: text/plain" -H "token: migration-${CIRCLE_WORKFLOW_ID}" --request PUT --data "3" https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
               echo "NO MIGRATIONS PENDING"
             else
               if echo "$MIGRATION_RESULT" | grep "has been executed successfully"
@@ -462,7 +462,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl tar gzip
+            apk add --update curl jq tar gzip
             apk add --update openssh-client
             apk add --update ansible
             apk add --no-cache python3 py3-pip && pip3 install --upgrade pip && pip3 install awscli
@@ -667,7 +667,7 @@ workflows:
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
           context: final_project_cicd
-      # - cloudfront-update:
-      #     requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
