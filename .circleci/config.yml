@@ -667,7 +667,6 @@ workflows:
           #   branches:
           #     only: [master]          
       - store-backend-ip:
-          context: final_project_cicd
           requires: [deploy-infrastructure]
           context: final_project_cicd
           # filters:
