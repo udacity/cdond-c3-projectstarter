@@ -567,10 +567,10 @@ jobs:
           # From "5. Configuration Management", SCREENSHOT08 Example
           command: |
             ls -a
-            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
-            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+            OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides newWorkflowID="${CIRCLE_WORKFLOW_ID}" 
             curl -H "Content-Type: text/plain" -H "token: OldWorkflowID-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$OldWorkflowID" https://api.memstash.io/values/OldWorkflowID-${CIRCLE_WORKFLOW_ID}
+            echo "$OldWorkflowID"
       - revert-migrations
       - destroy-environment
       - notify
@@ -593,12 +593,12 @@ jobs:
           command: |
             # your code here
             OldWorkflowID=$(curl -H "token: OldWorkflowID-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/OldWorkflowID-${CIRCLE_WORKFLOW_ID})
-            echo "Old WF ID"
-            echo ${OldWorkflowID}"
+            echo "Old WF ID:"
+            echo "${OldWorkflowID}"
             # put the list of stacks here
-            export STACKS=[$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)]
-            echo "Stacks"
-            echo ${STACKS[@]}"
+            STACKS=[$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)]
+            echo "Stacks:"
+            echo "${STACKS[@]}"
             
             # Check if the old workflow ID is present in the stack list that contains all active IDs in the stack names
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
