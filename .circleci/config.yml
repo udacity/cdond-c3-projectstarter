@@ -557,8 +557,6 @@ jobs:
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
             yum install -y jq
-            sudo yum install -y epel-release
-            sudo yum install -y ansible
       - attach_workspace:
           at: ~/project/.circleci/ansible/
       - run:
@@ -570,10 +568,6 @@ jobs:
             export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID}" 
             curl -H "Content-Type: text/plain" -H "token: OldWorkflowID-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$OldWorkflowID" https://api.memstash.io/values/OldWorkflowID-${CIRCLE_WORKFLOW_ID}
-      - run:
-          name: Change the origin of your CloudFront distribution
-          command:  |
-            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/cloudfront.yml
       - revert-migrations
       - destroy-environment
       - notify
