@@ -547,8 +547,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/project/.circleci/ansible/
       - run:
           name: Install dependencies
           command: |
@@ -559,6 +557,8 @@ jobs:
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
             yum install -y jq
+      - attach_workspace:
+          at: ~/project/.circleci/ansible/
       - run:
           name: Update cloudfront distribution
           # From "5. Configuration Management", SCREENSHOT08 Example
@@ -572,7 +572,6 @@ jobs:
           name: Change the origin of your CloudFront distribution
           command:  |
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/cloudfront.yml
-      - destroy-environment
       - revert-migrations
       - destroy-environment
       - notify
