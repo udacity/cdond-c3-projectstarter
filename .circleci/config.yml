@@ -557,8 +557,8 @@ jobs:
             curl -fsSL https://rpm.nodesource.com/setup_current.x | bash -
             yum install -y nodejs
             yum install -y jq
-            yum install -y epel-release
-            yum install -y ansible
+            sudo yum install -y epel-release
+            sudo yum install -y ansible
       - attach_workspace:
           at: ~/project/.circleci/ansible/
       - run:
