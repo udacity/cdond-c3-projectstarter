@@ -532,7 +532,7 @@ jobs:
           # if curl -s ${URL} | grep "BYE BYE"
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-1.amazonaws.com"
-            if curl -s ${URL} | grep "BYE BYE"
+            if curl -s ${URL} | grep "Welcome"
             then
             echo SUCCESS; exit 0
             else
