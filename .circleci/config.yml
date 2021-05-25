@@ -600,8 +600,8 @@ jobs:
               aws cloudformation delete-stack --stack-name backend-${OldWorkflowIDID}"
               aws cloudformation delete-stack --stack-name frontend-${OldWorkflowIDID}"
             fi
-      - revert-migrations
-      - destroy-environment
+      #- revert-migrations
+      #- destroy-environment
       - notify
   
   test-docker-setup:
