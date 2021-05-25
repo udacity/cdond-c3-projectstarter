@@ -593,10 +593,12 @@ jobs:
           command: |
             # your code here
             OldWorkflowID=$(curl -H "token: OldWorkflowID-${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/OldWorkflowID-${CIRCLE_WORKFLOW_ID)
+            echo "Old WF ID"
+            echo ${OldWorkflowID}"
             # put the list of stacks here
             export STACKS=[$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)]
-            echo "Stacks: ${STACKS[@]}"
-            echo "Old WF ID: ${OldWorkflowID}"
+            echo "Stacks"
+            echo ${STACKS[@]}"
             
             # Check if the old workflow ID is present in the stack list that contains all active IDs in the stack names
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
