@@ -566,11 +566,10 @@ jobs:
           name: Update cloudfront
           # From "5. Configuration Management", SCREENSHOT08 Example
           command: |
-            ls -a
-            OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
-            aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides newWorkflowID="${CIRCLE_WORKFLOW_ID}" 
+            OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`newWorkflowID\`].Value" --no-paginate --output text)
             curl -H "Content-Type: text/plain" -H "token: OldWorkflowID-${CIRCLE_WORKFLOW_ID}" --request PUT --data "$OldWorkflowID" https://api.memstash.io/values/OldWorkflowID-${CIRCLE_WORKFLOW_ID}
             echo "$OldWorkflowID"
+            aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-cloudfront --parameter-overrides newWorkflowID="${CIRCLE_WORKFLOW_ID}" 
       - revert-migrations
       - destroy-environment
       - notify
@@ -581,6 +580,10 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      - add_ssh_keys:
+          fingerprints: ["ba:87:73:66:22:41:7d:24:d5:9a:67:3f:6e:75:39:55"]
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
