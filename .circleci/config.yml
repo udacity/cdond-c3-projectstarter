@@ -1,10 +1,13 @@
 version: 2.1
 # Note to developer:
-# Dependencies can be best figured out by using runing the respective containers in docker on your local machine. 
+# Dependencies can be best figured out by using runing the respective containers in docker on your local machine.
 
+# START ORBS
 orbs:
   slack: circleci/slack@4.4.2
-  
+# END ORBS
+
+# START COMMANDS
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -589,16 +592,19 @@ jobs:
           name: Get old stack workflow id
           command: |
             # your code here
-            export OldWorkflowIDID="$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)"
-            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text) #put the list of stacks here
+            export OldWorkflowID="$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --no-paginate --output text)"
+            # put the list of stacks here
+            export STACKS=[$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)]
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowIDID}" ]]
+            echo "Stacks: ${STACKS[@]}"
+            echo "Old WF ID: ${OldWorkflowID}"
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
-              aws s3 rm "s3://udapeople-${OldWorkflowIDID}" --recursive
-              aws cloudformation delete-stack --stack-name backend-${OldWorkflowIDID}"
-              aws cloudformation delete-stack --stack-name frontend-${OldWorkflowIDID}"
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name backend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name frontend-${OldWorkflowID}"
             fi
       - revert-migrations
       - destroy-environment
@@ -657,34 +663,59 @@ workflows:
       - deploy-infrastructure:
           requires: [build-frontend, build-backend]
           context: final_project_cicd
-          
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     context: final_project_cicd         
-      #     filters:
-      #       branches:
-      #         only: [test-feature-branch]
+          # filters:
+          #   branches:
+          #     only: [master]          
       - store-backend-ip:
           context: final_project_cicd
           requires: [deploy-infrastructure]
+          context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
+          context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
       - configure-infrastructure:
           requires: [deploy-infrastructure]
           context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
       - run-migrations:
           requires: [configure-infrastructure]
           context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
       - deploy-frontend:
           requires: [run-migrations]
           context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
       - deploy-backend:
           requires: [run-migrations]
           context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
           context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
       - cloudfront-update:
           requires: [smoke-test]
           context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
       - cleanup:
           requires: [cloudfront-update]
           context: final_project_cicd
+          # filters:
+          #   branches:
+          #     only: [master]   
