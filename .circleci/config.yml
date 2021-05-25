@@ -673,10 +673,6 @@ workflows:
           # filters:
           #   branches:
           #     only: [master]   
-          context: final_project_cicd
-          # filters:
-          #   branches:
-          #     only: [master]   
       - configure-infrastructure:
           requires: [deploy-infrastructure]
           context: final_project_cicd
