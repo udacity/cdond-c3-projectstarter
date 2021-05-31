@@ -103,12 +103,11 @@ commands:
           command: |
             SUCCESS=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
-              npm install
-              npm run migrations:revert
+              sudo npm install
+              sudo npm run migrations:revert
             fi
 
 ##############################################################################################################################        
@@ -310,8 +309,8 @@ jobs:
           name: Run migrations 
           command: |
             cd backend
-            npm i 
-            npm run migrations > migration.out
+            sudo npm install
+            sudo npm run migrations > migration.out
       - run:
           name: Send migrations result to memstash
           command: |
