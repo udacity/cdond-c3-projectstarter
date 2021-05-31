@@ -240,11 +240,11 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[web]" > ansible/inventory.txt
+            echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
             --filters "Name=tag:Project,Values=Udapeople" \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text >> ansible/inventory.txt      
+            --output text >> .circleci/ansible/inventory.txt      
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -256,7 +256,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
           when_to_run: on_fail   
@@ -275,7 +275,7 @@ jobs:
       - run:
           name: Install dependencies & configure server
           command: |
-            ansible-playbook ./ansible/configure-server.yml -i ./ansible/inventory.txt 
+            ansible-playbook ./.circleci/ansible/configure-server.yml -i ./.circleci/ansible/inventory.txt 
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
           when_to_run: on_fail   
@@ -387,7 +387,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            ansible-playbook ./ansible/deploy-backend.yml -i ./ansible/inventory.txt 
+            ansible-playbook ./.circleci/ansible/deploy-backend.yml -i ./.circleci/ansible/inventory.txt 
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
           when_to_run: on_fail    
