@@ -270,7 +270,11 @@ jobs:
       - image: alpine:latest       # Docker image here that supports Ansible
     steps:
       - checkout             # Checkout code from git
-      - run: apk add --update ansible
+      - run: 
+          name: Install dependencies
+          command: |
+            apk add ansible py3-pip
+            pip3 install awscli
       - attach_workspace:
           at: .          
       - add_ssh_keys:             # Add ssh keys with fingerprint
@@ -283,7 +287,6 @@ jobs:
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
           when_to_run: on_fail   
-      # Here's where you will add some code to rollback on failure      
 
   run-migrations:
     docker:
