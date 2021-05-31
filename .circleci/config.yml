@@ -80,7 +80,7 @@ commands:
           when: << parameters.when_to_run >>
           command: |
             echo "Deleting frontend infrastructure with workflow id: << parameters.workflowID >>"
-            aws s3 rm s3://udapeople-<< parameters.workflowID >> --recursive
+            aws s3 rb s3://udapeople-<< parameters.workflowID >> --force
             aws cloudformation delete-stack --stack-name udacity-frontend-<< parameters.workflowID >> 
       - run:
           name: Destroy Backend
