@@ -103,7 +103,7 @@ commands:
           command: |
             SUCCESS=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            if(( $SUCCESS==1 )); 
+            if (( $SUCCESS==1 )); 
             then
               cd ~/project/backend
               sudo npm install
