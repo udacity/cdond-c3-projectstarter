@@ -1,0 +1,49 @@
+Description: >
+  UdaPeople backend stack.
+
+Parameters:
+  ID:
+    Description: Unique identifier.
+    Type: String
+
+Resources:
+  EC2InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub UdaPeople-${ID}
+      GroupDescription: Allow port 22 and port 3030
+      VpcId: !ImportValue network-vpc
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3030
+          ToPort: 3030
+          CidrIp: 0.0.0.0/0
+
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.medium
+      ImageId: ami-05f7491af5eef733a  #ubuntu20
+      KeyName: udacity
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: true
+        DeviceIndex: "0"
+        GroupSet: 
+        - !Ref EC2InstanceSecurityGroup
+        SubnetId: !Select [0, !Split [",", !ImportValue network-PublicSubnets]]
+      Tags:
+        - Key: Name
+          Value: !Sub backend-${ID}
+        - Key: Project
+          Value: Udapeople
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        # put your script here
+Outputs:
+  EC2InstanceIP:
+    Description: Public IP of EC2 instance
+    Value: !GetAtt EC2Instance.PublicIp

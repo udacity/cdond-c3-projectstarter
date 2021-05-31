@@ -1,0 +1,22 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Description: |
+  Creates EC2 instance using imports from network.yml and sg.yml
+Resources:
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t3.small
+      KeyName: udacity 
+      ImageId: ami-05f7491af5eef733a  #ubuntu
+      NetworkInterfaces: 
+      - AssociatePublicIpAddress: true
+        DeviceIndex: "0"
+        GroupSet: 
+        - !ImportValue ec2SecurityGroup
+        SubnetId: !Select [0, !Split [",", !ImportValue network-PublicSubnets]]
+      UserData: !Base64 |
+        #!/bin/bash -ex
+        # put your script here
+      Tags:
+        - Key: Name
+          Value: backend-udapeople
