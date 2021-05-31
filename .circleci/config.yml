@@ -398,14 +398,14 @@ jobs:
   smoke-test:
     docker:
       - image: alpine:latest
-      # Lightweight Docker image 
+
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            apk get jq curl
-
+            apk get jq curl py3-pip
+            pip3 install awscli
       - run:
           name: Get backend url
           command: |
@@ -490,6 +490,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 #MM   default:
 #MM     jobs:
 #MM       - build-frontend:
