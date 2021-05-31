@@ -1,0 +1,31 @@
+---
+
+
+##Install Python, if needed.
+
+##Update/upgrade packages.
+- name: "update apt packages."
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: yes
+
+##Install nodejs.
+- name: "install nodejs and npm"
+  become: yes
+  apt:
+    state: latest
+    name: ["nodejs", "npm"]
+
+##Install and Configure PM2 to run back-end server.
+- name: "install pm2"
+  become: yes
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present

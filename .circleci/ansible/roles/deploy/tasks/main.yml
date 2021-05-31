@@ -1,0 +1,38 @@
+---
+- name: Git checkout
+  git:
+    repo: 'https://github.com/meluzovm/udacity-devops-cicd.git'
+    version: circleci-project-setup
+    dest: /home/ubuntu/git
+    force: yes
+
+- name: Install dependencies
+  shell: |
+    cd /home/ubuntu/git/backend
+    npm install
+
+- name: Build Backend
+  become: true
+  shell: |
+    cd /home/ubuntu/git/backend
+    npm run build
+
+- name: Prepare env file
+  shell: |
+    > /home/ubuntu/git/backend/.env
+    echo "ENVIRONMENT={{ lookup('env','ENVIRONMENT') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_MIGRATIONS={{ lookup('env', 'TYPEORM_MIGRATIONS') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_MIGRATIONS_DIR={{ lookup('env', 'TYPEORM_MIGRATIONS_DIR') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_CONNECTION={{ lookup('env','TYPEORM_CONNECTION') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_ENTITIES={{ lookup('env','TYPEORM_ENTITIES') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_HOST={{ lookup('env', 'TYPEORM_HOST') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_PORT={{ lookup('env','TYPEORM_PORT') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_USERNAME={{ lookup('env', 'TYPEORM_USERNAME') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_PASSWORD={{ lookup('env', 'TYPEORM_PASSWORD') }}" >> /home/ubuntu/git/backend/.env
+    echo "TYPEORM_DATABASE={{ lookup('env', 'TYPEORM_DATABASE') }}" >> /home/ubuntu/git/backend/.env
+    cat /home/ubuntu/git/backend/.env
+
+- name: Run PM2
+  shell: |
+    cd /home/ubuntu/git/backend
+    pm2 start npm -- run start
