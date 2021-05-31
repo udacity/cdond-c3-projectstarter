@@ -343,10 +343,10 @@ jobs:
           name: Get backend url
           command: |
             BACKEND_IP=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backend_${CIRCLE_WORKFLOW_ID})
-            #BACKEND_IP=3.67.185.38
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
             echo "${API_URL}" >> "frontend/.env"
+            echo ENVIRONMENT=production > "frontend/.env"
+            echo NODE_ENV=production >> "frontend/.env"
       - run:
           name: Install dependencies & deploy frontend objects
           command: |
