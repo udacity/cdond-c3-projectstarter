@@ -350,6 +350,7 @@ jobs:
             echo "${API_URL}" >> "frontend/.env"
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
+            cat "frontend/.env"
       - run:
           name: Install dependencies & deploy frontend objects
           command: |
@@ -407,7 +408,6 @@ jobs:
   smoke-test:
     docker:
       - image: alpine:latest
-
     steps:
       - checkout
       - run:
@@ -420,6 +420,7 @@ jobs:
           command: |
             BACKEND_IP=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backend_${CIRCLE_WORKFLOW_ID})
             export API_URL="http://${BACKEND_IP}:3030/api/status"
+            echo ${API_URL}
       - run:
           name: Backend smoke test.
           command: |
