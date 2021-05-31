@@ -67,7 +67,7 @@ commands:
             } 
 
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    description: Destroy backend and frontend cloudformation stacks with a given workflow ID.
     parameters:
       workflowID:
         type: string
@@ -76,13 +76,18 @@ commands:
         default: "on_fail"
     steps:
       - run:
-          name: Destroy environments
+          name: Destroy Frontend
           when: << parameters.when_to_run >>
           command: |
-            echo "!!Deleting frontend and backend with workflow id: << parameters.workflowID >>"
-            aws cloudformation delete-stack --stack-name udacity-backend-<< parameters.workflowID >> 
+            echo "Deleting frontend infrastructure with workflow id: << parameters.workflowID >>"
+            aws s3 rm s3://udapeople-<< parameters.workflowID >> --recursive
             aws cloudformation delete-stack --stack-name udacity-frontend-<< parameters.workflowID >> 
-
+      - run:
+          name: Destroy Backend
+          when: << parameters.when_to_run >>
+          command: |
+            echo "Deleting backend infrastructure with workflow id: << parameters.workflowID >>"
+            aws cloudformation delete-stack --stack-name udacity-backend-<< parameters.workflowID >> 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -104,7 +109,6 @@ commands:
               cd ~/project/backend
               npm install
               npm run migrations:revert
-              #Add revert code here. You can find this in the Getting Started section.
             fi
 
 ##############################################################################################################################        
