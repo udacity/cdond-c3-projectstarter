@@ -470,7 +470,7 @@ jobs:
             --template-file infra/cloudfront.yml \
             --tags Project=Udapeople \
             --stack-name udacity-cloudfront \
-            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} 
+            --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7} 
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
           when_to_run: on_fail    
@@ -494,6 +494,7 @@ jobs:
           command: |
             echo "Old Workflow ID: ${OldWorkflowID}"
             if [ "${OldWorkflowID}" != "${CIRCLE_WORKFLOW_ID:0:7}" ]
+            then
                 echo "Removing old backend and frontend:"
                 #aws s3 rb "s3://udapeople-${OldWorkflowID}" --force
                 #aws cloudformation delete-stack --stack-name "udacity-backend-${OldWorkflowID}"
