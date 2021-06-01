@@ -223,6 +223,13 @@ jobs:
     steps:
       - checkout        # Checkout code from git
       - run: yum install -y tar gzip   #Install tar and gzip to use workspaces
+      - run: 
+          name: Save old workflowID to Memstash
+          command: |
+            OldWorkflowID=$(aws cloudformation list-exports \
+            --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text)
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request PUT --data "${OldWorkflowID}" https://api.memstash.io/values/OldWorkflowID_${CIRCLE_WORKFLOW_ID}      
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -470,21 +477,24 @@ jobs:
 cleanup:
     docker:
       - image: amazon/aws-cli 
-      # Docker image here
+
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Get old stack workflow id
           command: |
-            # your code here
-            export OldWorkflowID="the id here"
-            export STACKS=[] #put the list of stacks here
+            export OldWorkflowID=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/OldWorkflowID_${CIRCLE_WORKFLOW_ID})
+            echo $OldWorkflowID
+            echo "export OldWorkflowID=$OldWorkflowID" >> $BASH_ENV
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              # your code here
+            echo "Old Workflow ID: ${OldWorkflowID}"
+            if [ "${OldWorkflowID}" != "${CIRCLE_WORKFLOW_ID:0:7}" ]
+                echo "Removing old backend and frontend:"
+                #aws s3 rb "s3://udapeople-${OldWorkflowID}" --force
+                #aws cloudformation delete-stack --stack-name "udacity-backend-${OldWorkflowID}"
+                #aws cloudformation delete-stack --stack-name "udacity-frontend-${OldWorkflowID}"
             fi
             
 workflows:
