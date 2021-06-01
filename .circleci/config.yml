@@ -408,7 +408,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            ansible-playbook ./.circleci/ansible/deploy-backend.yml -i ./.circleci/ansible/inventory.txt 
+            ansible-playbook -vv ./.circleci/ansible/deploy-backend.yml -i ./.circleci/ansible/inventory.txt 
       - destroy-environment:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
           when_to_run: on_fail    
