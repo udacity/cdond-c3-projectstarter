@@ -475,7 +475,7 @@ jobs:
           workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
           when_to_run: on_fail        
 
-cleanup:
+  cleanup:
     docker:
       - image: amazon/aws-cli 
 
