@@ -452,16 +452,20 @@ jobs:
       - image: amazon/aws-cli 
     steps:
       - checkout
-      # Checkout code from git
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
       - run:
           name: Update cloudfront distribution
           command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure  
+            aws cloudformation deploy 
+            --template-file infra/cloudformation.yml \
+            --tags Project=Udapeople \
+            --stack-name udacity-cloudfront-dg2fft5w25j6gfah2 \
+            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} 
+      - destroy-environment:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+          when_to_run: on_fail    
+      - revert-migrations:
+          workflowID: ${CIRCLE_WORKFLOW_ID:0:7}
+          when_to_run: on_fail        
 
 cleanup:
     docker:
