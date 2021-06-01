@@ -408,7 +408,7 @@ jobs:
       - run:
           name: Prepare archive for deployment
           command: |   
-            tar -czvf backend.tar.gz  
+            tar -czvf backend.tar.gz  backend
       - run:
           name: Deploy backend
           command: |
