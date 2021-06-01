@@ -254,10 +254,6 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             echo "[web]" > .circleci/ansible/inventory.txt
-            #aws ec2 describe-instances \
-            #--filters "Name=tag:Project,Values=Udapeople" \
-            #--query 'Reservations[*].Instances[*].PublicIpAddress' \
-            #--output text >> .circleci/ansible/inventory.txt
             aws cloudformation describe-stacks \
             --stack-name udacity-backend-${CIRCLE_WORKFLOW_ID:0:7} \
             --query "Stacks[0].Outputs[0].OutputValue" \
@@ -506,14 +502,43 @@ jobs:
             fi
             
 workflows:
-##  short:
+  short:
+    jobs:
+      - deploy-infrastructure
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]     
+        #      - run-migrations:
+        #          requires: [configure-infrastructure]
+        #- deploy-frontend:
+        #    requires: [configure-infrastructure]
+        #          requires: [run-migrations]
+      - deploy-backend:
+          requires: [configure-infrastructure]
+        #          requires: [run-migrations]
+
+##  default:
 ##    jobs:
+##      - build-frontend:
+##          context:
+##            - SLACK
+##      - build-backend:
+##          context:
+##            - SLACK
+##      - test-frontend:
+##          requires: [build-frontend]
+##      - test-backend:
+##          requires: [build-backend]
+##      - scan-backend:
+##          requires: [build-backend]
+##      - scan-frontend:
+##          requires: [build-frontend]
 ##      - deploy-infrastructure:
-##      #          filters:
-##      #            branches:
-##      #              only: [master]
+##          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+##          filters:
+##            branches:
+##              only: [master]
 ##      - configure-infrastructure:
-##          requires: [deploy-infrastructure]     
+##          requires: [deploy-infrastructure]
 ##      - run-migrations:
 ##          requires: [configure-infrastructure]
 ##      - deploy-frontend:
@@ -526,38 +551,3 @@ workflows:
 ##          requires: [smoke-test]
 ##      - cleanup:
 ##          requires: [cloudfront-update]
-  default:
-    jobs:
-      - build-frontend:
-          context:
-            - SLACK
-      - build-backend:
-          context:
-            - SLACK
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
