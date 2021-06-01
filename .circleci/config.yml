@@ -391,7 +391,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible 
+            apk add ansible
       - run:
           name: Prepare environment
           command: |
@@ -405,6 +405,10 @@ jobs:
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat backend/.env
+      - run:
+          name: Prepare archive for deployment
+          command: |   
+            tar -czvf backend.tar.gz  
       - run:
           name: Deploy backend
           command: |

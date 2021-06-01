@@ -6,10 +6,10 @@
 #    dest: /home/ubuntu/git
 #    force: yes
 
-- copy:
-    src: ~/project/backend
-    dest: /home/ubuntu
-    
+- unarchive:
+    src: ~/project/backend.tar.gz
+    dest: /home/ubuntu/
+
 - name: Install dependencies
   shell: |
     cd /home/ubuntu/backend
