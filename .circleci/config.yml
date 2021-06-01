@@ -254,10 +254,14 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             echo "[web]" > .circleci/ansible/inventory.txt
-            aws ec2 describe-instances \
-            --filters "Name=tag:Project,Values=Udapeople" \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \
-            --output text >> .circleci/ansible/inventory.txt      
+            #aws ec2 describe-instances \
+            #--filters "Name=tag:Project,Values=Udapeople" \
+            #--query 'Reservations[*].Instances[*].PublicIpAddress' \
+            #--output text >> .circleci/ansible/inventory.txt
+            aws cloudformation describe-stacks \
+            --stack-name udacity-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --query "Stacks[0].Outputs[0].OutputValue" \
+            --output=text >> .circleci/ansible/inventory.txt
       - run:
           name: Ensure front-end infrastructure exist
           command: |
