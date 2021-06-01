@@ -105,9 +105,12 @@ commands:
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             if [ $SUCCESS = 1 ]
             then
+              echo "Migration should be reverted"
               cd ~/project/backend
               sudo npm install
               sudo npm run migrations:revert
+            else
+              echo "No need to revert migration"
             fi
 
 ##############################################################################################################################        
@@ -350,12 +353,12 @@ jobs:
           name: Get backend url
           command: |
             BACKEND_IP=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backend_${CIRCLE_WORKFLOW_ID})
-            export BACKEND_URL="http://${BACKEND_IP}:3030"
-            echo "export BACKEND_URL=$BACKEND_URL" >> $BASH_ENV
+            BACKEND_URL="http://${BACKEND_IP}:3030"
+            echo "export BACKEND_URL=${BACKEND_URL}" >> $BASH_ENV
       - run:
           name: Setup environment
           command: |
-            echo API_URL="${BACKEND_URL}" >> "frontend/.env"
+            echo "API_URL=${BACKEND_URL}" >> "frontend/.env"
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
             cat "frontend/.env"
@@ -463,7 +466,7 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            aws cloudformation deploy 
+            aws cloudformation deploy \
             --template-file infra/cloudformation.yml \
             --tags Project=Udapeople \
             --stack-name udacity-cloudfront-dg2fft5w25j6gfah2 \
@@ -478,7 +481,6 @@ jobs:
   cleanup:
     docker:
       - image: amazon/aws-cli 
-
     steps:
       - checkout
       - run:
@@ -486,7 +488,7 @@ jobs:
           command: |
             export OldWorkflowID=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/OldWorkflowID_${CIRCLE_WORKFLOW_ID})
             echo $OldWorkflowID
-            echo "export OldWorkflowID=$OldWorkflowID" >> $BASH_ENV
+            echo "export OldWorkflowID=${OldWorkflowID}" >> $BASH_ENV
       - run:
           name: Remove old stacks and files
           command: |
