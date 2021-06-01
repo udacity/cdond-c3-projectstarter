@@ -350,11 +350,12 @@ jobs:
           name: Get backend url
           command: |
             BACKEND_IP=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/backend_${CIRCLE_WORKFLOW_ID})
-            export API_URL="http://${BACKEND_IP}:3030"
+            export BACKEND_URL="http://${BACKEND_IP}:3030"
+            echo "export BACKEND_URL=$BACKEND_URL" >> $BASH_ENV
       - run:
           name: Setup environment
           command: |
-            echo "${API_URL}" >> "frontend/.env"
+            echo API_URL="${BACKEND_URL}" >> "frontend/.env"
             echo ENVIRONMENT=production > "frontend/.env"
             echo NODE_ENV=production >> "frontend/.env"
             cat "frontend/.env"
