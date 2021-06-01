@@ -8,7 +8,7 @@
 
 - copy:
     src: ~/project/backend
-    dest: /home/ubuntu/backend
+    dest: /home/ubuntu
     
 - name: Install dependencies
   shell: |
@@ -21,20 +21,20 @@
     cd /home/ubuntu/backend
     npm run build
 
-- name: Prepare env file
-  shell: |
-    > /home/ubuntu/backend/.env
-    echo "ENVIRONMENT={{ lookup('env','ENVIRONMENT') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_MIGRATIONS={{ lookup('env', 'TYPEORM_MIGRATIONS') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_MIGRATIONS_DIR={{ lookup('env', 'TYPEORM_MIGRATIONS_DIR') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_CONNECTION={{ lookup('env','TYPEORM_CONNECTION') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_ENTITIES={{ lookup('env','TYPEORM_ENTITIES') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_HOST={{ lookup('env', 'TYPEORM_HOST') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_PORT={{ lookup('env','TYPEORM_PORT') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_USERNAME={{ lookup('env', 'TYPEORM_USERNAME') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_PASSWORD={{ lookup('env', 'TYPEORM_PASSWORD') }}" >> /home/ubuntu/backend/.env
-    echo "TYPEORM_DATABASE={{ lookup('env', 'TYPEORM_DATABASE') }}" >> /home/ubuntu/backend/.env
-    cat /home/ubuntu/backend/.env
+#- name: Prepare env file
+#  shell: |
+#    > /home/ubuntu/backend/.env
+#    echo "ENVIRONMENT={{ lookup('env','ENVIRONMENT') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_MIGRATIONS={{ lookup('env', 'TYPEORM_MIGRATIONS') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_MIGRATIONS_DIR={{ lookup('env', 'TYPEORM_MIGRATIONS_DIR') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_CONNECTION={{ lookup('env','TYPEORM_CONNECTION') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_ENTITIES={{ lookup('env','TYPEORM_ENTITIES') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_HOST={{ lookup('env', 'TYPEORM_HOST') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_PORT={{ lookup('env','TYPEORM_PORT') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_USERNAME={{ lookup('env', 'TYPEORM_USERNAME') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_PASSWORD={{ lookup('env', 'TYPEORM_PASSWORD') }}" >> /home/ubuntu/backend/.env
+#    echo "TYPEORM_DATABASE={{ lookup('env', 'TYPEORM_DATABASE') }}" >> /home/ubuntu/backend/.env
+#    cat /home/ubuntu/backend/.env
 
 - name: Run PM2
   shell: |
