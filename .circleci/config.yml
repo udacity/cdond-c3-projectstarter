@@ -74,7 +74,7 @@ jobs:
           name: Front end audit
           command: |
             cd frontend
-            npm audit --audit-level=critical
+            npm audit fix --audit-level=critical --force
       - slack/notify: 
           event: fail
           channel: cicd
@@ -89,7 +89,7 @@ jobs:
           name: Back end audit
           command: |
             cd backend
-            npm audit --audit-level=critical
+            npm audit fix --audit-level=critical --force
       - slack/notify: 
           event: fail
           channel: cicd
