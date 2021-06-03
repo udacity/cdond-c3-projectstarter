@@ -132,6 +132,9 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: [75:a7:81:ac:34:ca:cf:57:89:57:06:d1:b4:9c:0e:b2]
+      - attach_workspace:
+          at: ~/
+      
 
 workflows:
   default:
