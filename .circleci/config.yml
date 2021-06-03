@@ -105,15 +105,15 @@ jobs:
           name: Get the backend EC2 server's public hostname using AWS CLI
           command: |
             DNS=$(aws ec2 describe-instances --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].[PublicDnsName]" --output text)
-            echo $DNS
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${DNS}" https://api.memstash.io/values/key_${CIRCLE_WORKFLOW_ID:0:5}
+            echo ${DNS}
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data ${DNS} https://api.memstash.io/values/publicdns
       
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             cd .circleci/ansible/
-            EC2DNS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/key_${CIRCLE_WORKFLOW_ID:0:5})
-            echo $EC2DNS >> inventory.txt
+            EC2DNS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/publicdns
+            echo ${EC2DNS} >> inventory.txt
             cat inventory.txt
       - persist_to_workspace:
           root: ~/
