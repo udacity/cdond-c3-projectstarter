@@ -113,7 +113,7 @@ jobs:
           command: |
             cd .circleci/ansible/
             EC2DNS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/publicdns)
-            echo $"{EC2DNS}" >> inventory.txt
+            echo ${EC2DNS} >> inventory.txt
             cat inventory.txt
       - persist_to_workspace:
           root: ~/
