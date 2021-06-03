@@ -119,7 +119,7 @@ jobs:
       - run:
           name: Get the backend EC2 server's public hostname using AWS CLI
           command: |
-            Dns = $(aws ec2 describe-instances -- region ${AWS_DEFAULT_REGION} --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            Dns = $(aws ec2 describe-instances --image-id "ami-09e67e426f25ce0d7" --query Reservations[*].Instances[*].[PublicDnsName] --output text])
             echo ${Dns}
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${Dns}" https://api.memstash.io/values/key_${CIRCLE_WORKFLOW_ID:0:5}
       
@@ -139,18 +139,5 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [test-frontend]
-      - scan-backend:
-          requires: [test-backend]
-      - deploy-infrastructure:
-          requires:
-            - scan-frontend
-            - scan-backend
+      - deploy-infrastructure
 
