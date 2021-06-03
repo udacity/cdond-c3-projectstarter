@@ -105,7 +105,7 @@ jobs:
           name: Get the backend EC2 server's public hostname using AWS CLI
           command: |
             Dns = $(aws ec2 describe-instances --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].[PublicDnsName]" --output text)
-            echo $"{Dns}"
+            echo ${Dns}
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${Dns}" https://api.memstash.io/values/key_${CIRCLE_WORKFLOW_ID:0:5}
       
       - run:
