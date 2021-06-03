@@ -100,27 +100,12 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --tags project=UdaPeople \
-              --stack-name backend-udapeople-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --tags project=UdaPeople \
-              --stack-name frontend-udapeople-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
+      #enter here
       - run:
           name: Get the backend EC2 server's public hostname using AWS CLI
           command: |
-            Dns = $(aws ec2 describe-instances --image-id "ami-09e67e426f25ce0d7" --query Reservations[*].Instances[*].[PublicDnsName] --output text])
-            echo ${Dns}
+            Dns = $(aws ec2 describe-instances --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].[PublicDnsName]" --output text)
+            echo $"{Dns}"
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${Dns}" https://api.memstash.io/values/key_${CIRCLE_WORKFLOW_ID:0:5}
       
       - run:
