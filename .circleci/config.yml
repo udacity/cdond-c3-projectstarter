@@ -102,6 +102,10 @@ jobs:
       - checkout
       #enter here
       - run:
+          name: Install tar utility
+          command: |
+            yum -y install tar
+      - run:
           name: Get the backend EC2 server's public hostname using AWS CLI
           command: |
             DNS=$(aws ec2 describe-instances --filters "Name=tag-key,Values=Name" --query "Reservations[*].Instances[*].[PublicDnsName]" --output text)
@@ -120,6 +124,13 @@ jobs:
           paths:
             - .circleci/ansible/inventory.txt
 
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [75:a7:81:ac:34:ca:cf:57:89:57:06:d1:b4:9c:0e:b2]
 
 workflows:
   default:
