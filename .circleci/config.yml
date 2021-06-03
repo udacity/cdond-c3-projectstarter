@@ -106,7 +106,7 @@ jobs:
           command: |
             DNS=$(aws ec2 describe-instances --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].[PublicDnsName]" --output text)
             echo $DNS
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data $"{DNS}" https://api.memstash.io/values/publicdns
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${DNS}" https://api.memstash.io/values/publicdns
       
       - run:
           name: Add back-end ip to ansible inventory
