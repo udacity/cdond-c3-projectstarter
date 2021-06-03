@@ -104,7 +104,7 @@ jobs:
       - run:
           name: Get the backend EC2 server's public hostname using AWS CLI
           command: |
-            DNS=$(aws ec2 describe-instances --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].[PublicDnsName]" --output text)
+            DNS=$(aws ec2 describe-instances --filters "Name=tag-key,Values=Name" --query "Reservations[*].Instances[*].[PublicDnsName]" --output text)
             echo $DNS
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${DNS}" https://api.memstash.io/values/publicdns
       
@@ -118,7 +118,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
 
 
 workflows:
