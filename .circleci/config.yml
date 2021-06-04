@@ -1,5 +1,8 @@
 version: 2.1
 
+commands:
+  destroy_environment:
+
 orbs:
   slack: circleci/slack@4.4.2
 jobs:
@@ -211,16 +214,46 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
+
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl nodejs npm
+            pip install awscli
+      - run:
+          name: Get backend URL, Run backend smoke tests
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag-key,Values=Name" --query "Reservations[*].Instances[*].[PublicIpAddress]" --output text)
+            echo "http://${BACKEND_IP}:3030/api/status"
+            curl "http://${BACKEND_IP}:3030/api/status"
+      - run:
+          name: FrontEnd Smoke Test
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            if curl -s ${URL} | grep "Welcome"
+            then
+            return 1
+            else
+            return 1
+            fi
+
 workflows:
   default:
     jobs:
       - deploy-infrastructure
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      - run-migrations
+      - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend
+      - deploy-frontend:
           requires: [run-migrations]
-      - deploy-backend
+      - deploy-backend:
           requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-frontend, deploy-backend]
 
