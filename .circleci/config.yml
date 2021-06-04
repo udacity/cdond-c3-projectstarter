@@ -141,8 +141,7 @@ jobs:
       - run:
           name: Install dependencies and configure server
           command: |
-            sudo apt update
-            sudo apt install ansible
+            apk add --update ansible
             pip install awscli
             cat ~/project/.circleci/ansible/inventory.txt
             ansible --version
