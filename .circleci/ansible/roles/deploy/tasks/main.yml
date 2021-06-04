@@ -1,4 +1,5 @@
 - name: Creates directory
+  become: yes
   file:
     path: /home/ubuntu/backend
     state: directory
