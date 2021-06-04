@@ -132,20 +132,95 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: [75:a7:81:ac:34:ca:cf:57:89:57:06:d1:b4:9c:0e:b2]
+          fingerprints: ["75:a7:81:ac:34:ca:cf:57:89:57:06:d1:b4:9c:0e:b2"]
       - attach_workspace:
           at: ~/project
       - run:
-          name: Install dependencies
+          name: Install dependencies and configure server
           command: |
             sudo apt update
             sudo apt install ansible
             cat ~/project/.circleci/ansible/inventory.txt
             ansible --version
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+  
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run: 
+          name: Run migrations
+          command: |
+            cd backend
+            npm install
+            npm run migrations >> migrations_dump.txt
+      - run: 
+          name: Send migrations result to Memstash
+          command: |
+            cd backend
+            if grep -q "has been executed successfully." migrations_dump.txt
+            then
+              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            else
+              echo $(curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
+            fi
+
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+            yum -y install tar gzip
+      - run:
+          name: Get backend url and deploy frontend objects
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag-key,Values=Name" --query "Reservations[*].Instances[*].[PublicIpAddress]" --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}" >> "frontend/.env"
+            cat frontend/.env
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["75:a7:81:ac:34:ca:cf:57:89:57:06:d1:b4:9c:0e:b2"]
+      - attach_workspace:
+          at: ~/project/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm
+            pip install awscli
+      - run:
+          name: Deploy backend
+          command: |
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt deploy-backend.yml
 workflows:
   default:
     jobs:
       - deploy-infrastructure
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations
+          requires: [configure-infrastructure]
+      - deploy-frontend
+          requires: [run-migrations]
+      - deploy-backend
+          requires: [run-migrations]
 
