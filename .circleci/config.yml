@@ -121,7 +121,7 @@ jobs:
             echo $EC2DNS >> inventory.txt
             cat inventory.txt
       - persist_to_workspace:
-          root: ~/
+          root: /tmp
           paths:
             - .circleci/ansible/inventory.txt
 
@@ -133,13 +133,13 @@ jobs:
       - add_ssh_keys:
           fingerprints: [75:a7:81:ac:34:ca:cf:57:89:57:06:d1:b4:9c:0e:b2]
       - attach_workspace:
-          at: ~/
+          at: /tmp/
       - run:
           name: Install dependencies
           command: |
             sudo apt update
             sudo apt install ansible
-            cat .circleci/ansible/inventory.txt
+            cat /.circleci/ansible/inventory.txt
             ansible --version
 workflows:
   default:
