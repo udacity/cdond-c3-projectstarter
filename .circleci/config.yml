@@ -140,7 +140,7 @@ jobs:
           command: |
             sudo apt update
             sudo apt install ansible
-            cat /.circleci/ansible/inventory.txt
+            cat ~/project/.circleci/ansible/inventory.txt
             ansible --version
 workflows:
   default:
