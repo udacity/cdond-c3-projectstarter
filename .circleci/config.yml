@@ -170,16 +170,24 @@ jobs:
     steps:
       - checkout
       - run: 
-          name: Run migrations
+          name: awscli install
           command: |
-            cd backend
-            npm install
-            npm run migrations > migrations_dump.txt
-      - run: 
+            sudo apt-get -y -qq update
+            sudo apt-get -y -qq install python3
+            sudo apt-get -qq install awscli
+      - run: cd backend && npm install
+      - run:
+          name: Run Migrations
+          command: |
+            touch dbmigrationresults.txt
+            cd backend 
+            npm run migrations > dbmigrationresults.txt
+      - run: cat dbmigrationresults.txt
+      - run:
           name: Send migrations result to Memstash
           command: |
-            cd backend
-            if grep -q "has been executed successfully." migrations_dump.txt
+            
+            if grep -q "has been executed successfully." dbmigrationresults.txt
             then
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             else
