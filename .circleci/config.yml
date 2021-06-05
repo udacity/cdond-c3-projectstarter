@@ -194,7 +194,7 @@ jobs:
             touch dbmigrationresults.txt
             
             npm run migrations > dbmigrationresults.txt
-      - run: cat dbmigrationresults.txt
+      - run: cat backend/dbmigrationresults.txt
       - run:
           name: Send migrations result to Memstash
           command: |
