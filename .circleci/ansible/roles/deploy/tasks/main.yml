@@ -1,10 +1,11 @@
 - name: Creates directory
-  become: yes
+  become: true
   file:
     path: /home/ubuntu/backend
     state: directory
 
 - name: Transfer backend files cloud server
+  become: true
   copy:
     src: /root/project/backend
     dest: /home/ubuntu/
