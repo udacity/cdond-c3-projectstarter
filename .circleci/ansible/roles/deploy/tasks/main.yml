@@ -14,7 +14,8 @@
   become: true
   shell: |
     cd /home/ubuntu/backend
-    npm install -g npm@latest
+    npm install 
+
 - name: "install package dependencies"
   become: true
   shell: |
