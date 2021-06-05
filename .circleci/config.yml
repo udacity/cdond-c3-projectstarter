@@ -244,7 +244,7 @@ jobs:
             npm install
             npm run build
             echo ${CIRCLE_WORKFLOW_ID}
-            aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID}
+            aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-backend:
     docker:
