@@ -22,7 +22,6 @@
     cd /home/ubuntu/backend   
     ls -la
     npm install
-    npm audit fix --audit-level=critical --force
 
 
 - name: "build package"
@@ -30,6 +29,7 @@
   shell: |
     cd /home/ubuntu/backend
     npm run build
+    npm run start
     
 - name: Executing node
   become: true
