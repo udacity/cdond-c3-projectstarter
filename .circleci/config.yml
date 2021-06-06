@@ -272,7 +272,7 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       
   
-  cloudfront-update and clean up:
+  cloudfront-update:
     docker:
       - image: amazon/aws-cli
     steps:
