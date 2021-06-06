@@ -272,7 +272,7 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       
   
-  cloudfront-update:
+  cloudfront-update and clean up:
     docker:
       - image: amazon/aws-cli
     steps:
@@ -282,13 +282,12 @@ jobs:
           command: |
             yum install -y gzip tar
       - run:
-          name: Update cloudfront distribution
+          name: Promote newly deployed app to production
           command: |
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/workflow_${CIRCLE_WORKFLOW_ID}
             aws cloudformation update-stack \
+            --stack-name frontend-udapeople-${CIRCLE_WORKFLOW_ID} \
             --template-file .circleci/files/cloudfront.yml \
-            --tags project=udapeople \
-            --stack-name udapeople-cloudfront \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
       
   cleanup:
@@ -299,9 +298,18 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            export OldWorkflowID=$(curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/workflow_${CIRCLE_WORKFLOW_ID})
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --region us-east-1 --no-paginate --output text)
+            echo "Old Workflow Id is ${OldWorkflowID}"
+
+            if [ -n "${OldWorkflowID}" ]
+            then
+              echo "Empty old S3 bucket and delete old frontend stack"
+              aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
+              aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
+              echo "Delete old backend stack"
+              aws cloudformation delete-stack --stack-name udapeople-backend-prod-${OldWorkflowID} 
+              echo "stack deleted succesfully"
+            fi 
       - run:
           name: Remove old stacks and files
           command: |
