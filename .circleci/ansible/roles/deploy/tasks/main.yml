@@ -16,12 +16,6 @@
     cd /home/ubuntu/backend
     npm install 
 
-- name: "install package dependencies"
-  become: true
-  shell: |
-    cd /home/ubuntu/backend   
-    ls -la
-    npm install
 
 
 - name: "build package"
@@ -29,7 +23,6 @@
   shell: |
     cd /home/ubuntu/backend
     npm run build
-    npm run start
     
 - name: Executing node
   become: true
