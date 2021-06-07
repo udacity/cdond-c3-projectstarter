@@ -1,5 +1,34 @@
 version: 2.1
 
+commands:
+  destroy_environment:
+    description: Destroy back-end and front-end cloudformation stacks for a given workflow ID.
+    parameters:
+      workflow_id:
+      type: string 
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_id >>
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_id >>
+            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.  
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: |
+            success_migration=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
+            if((${success_migration}==1)); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
+            fi
+
 orbs:
   slack: circleci/slack@4.4.2
 jobs:
@@ -245,7 +274,9 @@ jobs:
             npm run build
             echo ${CIRCLE_WORKFLOW_ID}
             aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
-      
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -267,7 +298,9 @@ jobs:
             cd .circleci/ansible
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt deploy-backend.yml
-      
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
@@ -294,7 +327,9 @@ jobs:
             else
             return 1
             fi
-
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations
   cloudfront-update:
     docker:
       - image: amazon/aws-cli
@@ -312,7 +347,9 @@ jobs:
             --stack-name udapeople-frontend \
             --template-file .circleci/files/cloudfront.yml \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
-      
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - revert-migrations 
   cleanup:
     docker:
       - image: amazon/aws-cli
@@ -377,9 +414,15 @@ workflows:
               only:
                 - master
       
+      - smoke-test:
+          requires: [deploy-frontend, deploy-backend]
+          filters:
+            branches:
+              only:
+                - master
                 
       - cloudfront-update:
-          requires: [deploy-frontend, deploy-backend]
+          requires: [smoke-test]
           filters:
             branches:
               only:
