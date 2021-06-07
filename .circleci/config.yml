@@ -1,8 +1,5 @@
 version: 2.1
 
-
-
-
 orbs:
   slack: circleci/slack@4.4.2
 jobs:
@@ -271,7 +268,33 @@ jobs:
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt deploy-backend.yml
       
-  
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl nodejs npm
+            pip install awscli
+      - run:
+          name: Get backend URL, Run backend smoke tests
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].[PublicIpAddress]" --output text)
+            echo "http://${BACKEND_IP}:3030/api/status"
+            curl "http://${BACKEND_IP}:3030/api/status"
+      - run:
+          name: FrontEnd Smoke Test
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"
+            if curl -s ${URL} | grep "Welcome"
+            then
+            return 0
+            else
+            return 1
+            fi
+
   cloudfront-update:
     docker:
       - image: amazon/aws-cli
@@ -284,9 +307,9 @@ jobs:
       - run:
           name: Promote newly deployed app to production
           command: |
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "${CIRCLE_WORKFLOW_ID}" https://api.memstash.io/values/workflow_${CIRCLE_WORKFLOW_ID}
-            aws cloudformation update-stack \
-            --stack-name frontend-udapeople-${CIRCLE_WORKFLOW_ID} \
+            
+            aws cloudformation deploy \
+            --stack-name udapeople-frontend \
             --template-file .circleci/files/cloudfront.yml \
             --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
       
@@ -296,32 +319,19 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Get old stack workflow id
+          name: Get old CF Stack Workflow id and delete the S3 bucket(old)
           command: |
             export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name=='WorkflowID'].Value" --region us-east-1 --no-paginate --output text)
             echo "Old Workflow Id is ${OldWorkflowID}"
-
             if [ -n "${OldWorkflowID}" ]
             then
-              echo "Empty old S3 bucket and delete old frontend stack"
+              echo "Empty old S3 bucket"
               aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
-              aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
-              echo "Delete old backend stack"
-              aws cloudformation delete-stack --stack-name udapeople-backend-prod-${OldWorkflowID} 
-              echo "stack deleted succesfully"
-            fi 
+            fi      
       - run:
-          name: Remove old stacks and files
+          name: Delete the old stack
           command: |
-            echo Old Workflow Id: "${OldWorkflowID}"
-            echo Current Workflow Id: "${CIRCLE_WORKFLOW_ID:0:7}"
-            if [[ ! -z "${OLD_WORKFLOW_ID}" ]] && [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              echo Remove old stack
-              aws s3 rb s3://udapeople-${OldWorkflowID} --force
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
-            fi
+            aws cloudformation delete-stack cfstack
 
 workflows:
   default:
