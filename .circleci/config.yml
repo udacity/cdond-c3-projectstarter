@@ -331,7 +331,7 @@ jobs:
       - run:
           name: Delete the old stack
           command: |
-            aws cloudformation delete-stack cfstack
+            aws cloudformation delete-stack --stack-name cfstack
 
 workflows:
   default:
