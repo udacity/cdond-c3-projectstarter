@@ -89,7 +89,7 @@ In this phase, you will add CircleCI jobs that execute Cloud Formation templates
       - Configure environment variables (use the `environment` module type in your role):
         - `ENVIRONMENT`=`production`
         - `TYPEORM_CONNECTION`=`postgres`
-        - `TYPEORM_ENTITIES`=`./src/modules/domain/**/*.entity.ts`
+        - `TYPEORM_ENTITIES`=`./modules/domain/**/*.entity{.ts,.js}`
         - `TYPEORM_HOST`={your postgres database hostname in RDS}
         - `TYPEORM_PORT`=`5532` (or the port from RDS if it’s different)
         - `TYPEORM_USERNAME`={your postgres database username in RDS}
