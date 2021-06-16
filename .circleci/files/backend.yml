@@ -17,6 +17,12 @@ Parameters:
   WebCidrIp:
     Description: Range of IP addresses allowed to send requests to the web API.
     Type: String
+  DatabaseUsername:
+    Description: Database's master username
+    Type: String
+  DatabasePassword:
+    Description: Database's master password
+    Type: String
 
 Resources:
   InstanceSecurityGroup:
@@ -45,3 +51,13 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
+
+  RDSDatabase:
+    Type: AWS::RDS::DBInstance
+    Properties:
+      AllocatedStorage: 20
+      DBInstanceClass: db.t2.micro
+      DBName: udagram
+      Engine: postgres
+      MasterUsername: !Ref DatabaseUsername
+      MasterUserPassword: !Ref DatabasePassword
