@@ -89,7 +89,9 @@ jobs:
           keys: [frontend-build]
       - run:
           name: Front-end unit tests
-          command: npm run tests
+          command: |
+            cd frontend
+            npm run tests
                 
   test-backend:
     <<: *nodejs-image
@@ -99,7 +101,9 @@ jobs:
           keys: [backend-build]
       - run:
           name: Back-end unit tests
-          command: npm run tests
+          command: |
+            cd backend
+            npm run tests
             
   scan-frontend:
     <<: *nodejs-image
