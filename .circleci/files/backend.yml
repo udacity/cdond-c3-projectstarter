@@ -61,3 +61,15 @@ Resources:
       Engine: postgres
       MasterUsername: !Ref DatabaseUsername
       MasterUserPassword: !Ref DatabasePassword
+
+Outputs:
+  DatabaseHost:
+    Value: !GetAtt RDSDatabase.Endpoint.Address
+    Description: The database host address
+    Export:
+      Name: DatabaseHost
+  DatabasePort:
+    Value: !GetAtt RDSDatabase.Endpoint.Port
+    Description: The database port
+    Export:
+      Name: DatabasePort
