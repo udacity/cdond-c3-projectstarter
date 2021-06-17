@@ -111,6 +111,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
+      - run:
+          name: Scan for vulnerable packages
+          command: |
+            cd frontend
+            npm audit --audit-level=critical
 
   scan-backend:
     <<: *nodejs-image
@@ -118,6 +123,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - run:
+          name: Scan for vulnerable packages
+          command: |
+            cd backend
+            npm audit --audit-level=critical
 
   deploy-infrastructure:
     <<: *aws-cli
