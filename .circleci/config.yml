@@ -2,7 +2,7 @@ version: 2.1
 
 alpine-image: &alpine-image
   docker:
-    - iamge: alpine:latest
+    - image: alpine:latest
 
 aws-cli: &aws-cli
   docker:
