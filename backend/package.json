@@ -61,7 +61,7 @@
     "reflect-metadata": "^0.1.12",
     "rxjs": "^6.5.4",
     "swagger-ui-express": "^4.1.4",
-    "typeorm": "^0.2.24",
+    "typeorm": "^0.2.34",
     "uuid": "^3.4.0",
     "winston-loggly-bulk": "^2.0.3",
     "winston-slack-webhook": "^0.1.6"
