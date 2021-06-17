@@ -4,16 +4,6 @@ nodejs-image: &nodejs-image
   docker:
     - image: circleci/node:13.8.0
 
-checkout-and-restore-frontend: &checkout-and-restore-frontend
-  - checkout
-  - restore_cache:
-      keys: [frontend-build]
-
-checkout-and-restore-backend: &checkout-and-restore-backend
-  - checkout
-  - restore_cache:
-      keys: [backend-build]
-
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -50,7 +40,9 @@ jobs:
   build-frontend:
     <<: *nodejs-image
     steps:
-      <<: *checkout-and-restore-frontend
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Build front-end
           command: |
@@ -64,7 +56,9 @@ jobs:
   build-backend:
     <<: *nodejs-image
     steps:
-      <<: *checkout-and-restore-backend
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Back-end build
           command: |
@@ -78,7 +72,9 @@ jobs:
   test-frontend:
     <<: *nodejs-image
     steps:
-      <<: *checkout-and-restore-frontend
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Front-end unit tests
           command: npm run tests
@@ -86,7 +82,9 @@ jobs:
   test-backend:
     <<: *nodejs-image
     steps:
-      <<: *checkout-and-restore-backend
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Back-end unit tests
           command: npm run tests
@@ -94,7 +92,9 @@ jobs:
   scan-frontend:
     <<: *nodejs-image
     steps:
-      <<: *checkout-and-restore-frontend
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
       # Checkout code from git
       # Restore from cache
       # Your job code here
@@ -102,7 +102,9 @@ jobs:
   scan-backend:
     <<: *nodejs-image
     steps:
-      <<: *checkout-and-restore-backend
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       # Checkout code from git
       # Restore from cache
       # Your job code here
