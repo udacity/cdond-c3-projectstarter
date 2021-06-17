@@ -107,16 +107,13 @@ jobs:
       - checkout
       - restore_cache:
           keys: [frontend-build]
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
 
   scan-backend:
     <<: *nodejs-image
     steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
 
   deploy-infrastructure:
     <<: *aws-cli
