@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.4.2
+
 alpine-image: &alpine-image
   docker:
     - image: alpine:latest
