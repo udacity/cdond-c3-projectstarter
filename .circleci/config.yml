@@ -3,6 +3,24 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.4.2
 
+slack-notify-deploy: &slack-notify-deploy
+  - slack/notify:
+      event: fail
+      mentions: '@andrenoberto'
+      template: basic_fail_1
+  - slack/notify:
+      event: pass
+      template: success_tagged_deploy_1
+
+slack-notify-job: &slack-notify-job
+  - slack/notify:
+      event: fail
+      mentions: '@andrenoberto'
+      template: basic_fail_1
+  - slack/notify:
+      event: pass
+      template: basic_success_1
+
 alpine-image: &alpine-image
   docker:
     - image: alpine:latest
@@ -67,6 +85,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      <<: *slack-notify-job
 
   build-backend:
     <<: *nodejs-image
@@ -83,6 +102,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      <<: *slack-notify-job
 
   test-frontend:
     <<: *nodejs-image
@@ -95,6 +115,7 @@ jobs:
           command: |
             cd frontend
             npm run test
+      <<: *slack-notify-job
                 
   test-backend:
     <<: *nodejs-image
@@ -107,6 +128,7 @@ jobs:
           command: |
             cd backend
             npm run tests
+      <<: *slack-notify-job
             
   scan-frontend:
     <<: *nodejs-image
@@ -119,6 +141,7 @@ jobs:
           command: |
             cd frontend
             npm audit --audit-level=critical
+      <<: *slack-notify-job
 
   scan-backend:
     <<: *nodejs-image
@@ -131,6 +154,7 @@ jobs:
           command: |
             cd backend
             npm audit --audit-level=critical
+      <<: *slack-notify-job
 
   deploy-infrastructure:
     <<: *aws-cli
