@@ -177,6 +177,7 @@ jobs:
     <<: *aws-cli
     steps:
       - checkout
+      - install_dependencies
       - run:
           name: Ensure back-end infrastructure exists
           command: |
