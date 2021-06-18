@@ -59,7 +59,7 @@ Resources:
     Properties:
       AllocatedStorage: 20
       DBInstanceClass: db.t2.micro
-      DBName: udagram
+      DBName: udapeople
       Engine: postgres
       MasterUsername: !Ref DatabaseUsername
       MasterUserPassword: !Ref DatabasePassword
