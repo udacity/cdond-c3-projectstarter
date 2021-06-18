@@ -184,7 +184,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --stack-name udapeople-backend \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
                   ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} \
                   SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} \
@@ -214,7 +214,7 @@ jobs:
           command: |
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
-            --stack-name udapeople-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
+            --stack-name udapeople-cloudfront \
             --parameter-overrides ID=s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Create invalidation
