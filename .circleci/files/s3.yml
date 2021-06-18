@@ -4,7 +4,7 @@ Description: >
   A simple template for provisioning an S3 bucket with static hosting
 
 Parameters:
-  WorkflowID:
+  ID:
     Description: Unique identifier.
     Type: String
 
@@ -13,7 +13,7 @@ Resources:
   S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub s3-bucket-udapeople-${WorkflowID}
+      BucketName: !Sub s3-bucket-udapeople-${ID}
       AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: index.html

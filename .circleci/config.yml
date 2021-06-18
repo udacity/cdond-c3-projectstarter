@@ -38,6 +38,15 @@ nodejs-image: &nodejs-image
     - image: circleci/node:13.8.0
 
 commands:
+  delete-unsuccessful-stack:
+    description: Deletes the specified stack when the deploy step has not succeeded
+    parameters:
+      stackName:
+        type: string
+    steps:
+      - run: 
+          command: aws cloudformation delete-stack --stack-name << parameters.stackName >>
+          when: on_fail
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
@@ -49,6 +58,14 @@ commands:
           command: |
             # Your code here
             exit 1
+  install_dependencies:
+    description: Install all missing dependencies
+    steps:
+      - run:
+          command: |
+            yum clean all
+            yum update -y
+            yum install tar gzip -y
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -161,14 +178,23 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Ensure bucket infrastructure exists
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/s3.yml \
+            --stack-name s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7} \
+            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              #--tags project=your-tag \
-              # --stack-name "your back-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"  
-              exit 1
+              --tags project=your-tag \
+              --stack-name "your back-end stack name with workflow id" \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
+                  ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} \
+                  SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} \
+                  DatabaseUsername=${TYPEORM_USERNAME} DatabasePassword=${TYPEORM_PASSWORD}
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -296,9 +322,25 @@ jobs:
       # Here's where you will add some code to rollback on failure  
 
   cleanup:
-    <<: *alpine-image
+    <<: *aws-cli
     steps:
-      # Checkout code from git
+      - install_dependencies
+      - attach_workspace:
+          at: .
+      - run:
+          name: delete old S3 bucket stack
+          command: |
+            export PIPELINE_ID=$(cat pipeline_id.txt)
+            export BUCKET_EXISTS=$(aws s3 ls s3://${PIPELINE_ID} 2>&1 | grep -c 'index.html')
+            echo "Deleting bucket: ${PIPELINE_ID}"
+            if [ $BUCKET_EXISTS -eq 1 ]
+            then
+              aws s3 rm s3://${PIPELINE_ID} --recursive
+              aws cloudformation delete-stack --stack-name "${PIPELINE_ID}"
+              echo "Previous bucket have been deleted"
+            else
+              echo "No previous bucket to be deleted"
+            fi
       - run:
           name: Get old stack workflow id
           command: |
@@ -331,7 +373,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only: [test-feature-branch]
+              only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
