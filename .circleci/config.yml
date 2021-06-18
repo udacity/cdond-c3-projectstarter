@@ -103,7 +103,7 @@ jobs:
           name: Back-end unit tests
           command: |
             cd backend
-            npm run test
+            npm run tests
             
   scan-frontend:
     <<: *nodejs-image
