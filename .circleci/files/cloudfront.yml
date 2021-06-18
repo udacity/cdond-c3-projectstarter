@@ -1,3 +1,5 @@
+AWSTemplateFormatVersion: 2010-09-09
+
 Description: >
   Cloudfront distribution for UdaPeople.
 
@@ -5,7 +7,6 @@ Parameters:
   WorkflowID:
     Description: Unique identifier.
     Type: String
-
 
 Resources:
   
@@ -20,7 +21,7 @@ Resources:
     Properties:
       DistributionConfig:
         Origins:
-          - DomainName: !Sub "udapeople-${WorkflowID}.s3.amazonaws.com"
+          - DomainName: !Sub "s3-bucket-udapeople-${WorkflowID}.s3.amazonaws.com"
             Id: webpage
             S3OriginConfig:
               OriginAccessIdentity: !Sub "origin-access-identity/cloudfront/${CloudFrontOriginAccessIdentity}"

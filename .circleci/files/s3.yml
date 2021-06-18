@@ -1,36 +1,32 @@
 AWSTemplateFormatVersion: 2010-09-09
 
 Description: >
-  UdaPeople frontend stack.
+  A simple template for provisioning an S3 bucket with static hosting
 
 Parameters:
-  ID:
+  WorkflowID:
     Description: Unique identifier.
     Type: String
 
 Resources:
-  WebsiteBucket:
+
+  S3Bucket:
     Type: AWS::S3::Bucket
     Properties:
-      BucketName: !Sub "udapeople-${ID}"
+      BucketName: !Sub s3-bucket-udapeople-${WorkflowID}
       AccessControl: PublicRead
       WebsiteConfiguration:
         IndexDocument: index.html
         ErrorDocument: 404.html
 
-  WebsiteBucketPolicy:
+  S3BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
-      Bucket: !Ref 'WebsiteBucket'
+      Bucket: !Ref S3Bucket
       PolicyDocument:
         Statement:
         - Sid: PublicReadForGetBucketObjects
           Effect: Allow
           Principal: '*'
           Action: s3:GetObject
-          Resource: !Join ['', ['arn:aws:s3:::', !Ref 'WebsiteBucket', /*]]
-
-Outputs:
-  WebsiteURL:
-    Value: !GetAtt WebsiteBucket.WebsiteURL
-    Description: URL for website hosted on S3
+          Resource: !Join ['', ['arn:aws:s3:::', !Ref S3Bucket, /*]]
