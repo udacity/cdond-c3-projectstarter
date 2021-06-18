@@ -85,7 +85,7 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      <<: *slack-notify-job
+  <<: *slack-notify-job
 
   build-backend:
     <<: *nodejs-image
@@ -102,7 +102,7 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      <<: *slack-notify-job
+      *slack-notify-job
 
   test-frontend:
     <<: *nodejs-image
@@ -115,7 +115,7 @@ jobs:
           command: |
             cd frontend
             npm run test
-      <<: *slack-notify-job
+      *slack-notify-job
                 
   test-backend:
     <<: *nodejs-image
@@ -128,7 +128,7 @@ jobs:
           command: |
             cd backend
             npm run tests
-      <<: *slack-notify-job
+      *slack-notify-job
             
   scan-frontend:
     <<: *nodejs-image
@@ -141,7 +141,7 @@ jobs:
           command: |
             cd frontend
             npm audit --audit-level=critical
-      <<: *slack-notify-job
+      *slack-notify-job
 
   scan-backend:
     <<: *nodejs-image
@@ -154,7 +154,7 @@ jobs:
           command: |
             cd backend
             npm audit --audit-level=critical
-      <<: *slack-notify-job
+      *slack-notify-job
 
   deploy-infrastructure:
     <<: *aws-cli
