@@ -3,21 +3,21 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.4.2
 
-slack-notify-deploy: &slack-notify-deploy
-  - slack/notify:
+slack-notify-deploy-fail: &slack-notify-deploy-fail
       event: fail
       mentions: '@andrenoberto'
       template: basic_fail_1
-  - slack/notify:
+
+slack-notify-deploy-success: &slack-notify-deploy-success
       event: pass
       template: success_tagged_deploy_1
 
-slack-notify-job: &slack-notify-job
-  - slack/notify:
+slack-notify-job-fail: &slack-notify-job-fail
       event: fail
       mentions: '@andrenoberto'
       template: basic_fail_1
-  - slack/notify:
+
+slack-notify-job-success: &slack-notify-job-success
       event: pass
       template: basic_success_1
 
@@ -85,7 +85,8 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-  <<: *slack-notify-job
+      - slack/notify: *slack-notify-job-fail
+      - slack/notify: *slack-notify-job-success
 
   build-backend:
     <<: *nodejs-image
@@ -102,7 +103,8 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      *slack-notify-job
+      - slack/notify: *slack-notify-job-fail
+      - slack/notify: *slack-notify-job-success
 
   test-frontend:
     <<: *nodejs-image
@@ -115,7 +117,8 @@ jobs:
           command: |
             cd frontend
             npm run test
-      *slack-notify-job
+      - slack/notify: *slack-notify-job-fail
+      - slack/notify: *slack-notify-job-success
                 
   test-backend:
     <<: *nodejs-image
@@ -128,7 +131,8 @@ jobs:
           command: |
             cd backend
             npm run tests
-      *slack-notify-job
+      - slack/notify: *slack-notify-job-fail
+      - slack/notify: *slack-notify-job-success
             
   scan-frontend:
     <<: *nodejs-image
@@ -141,7 +145,8 @@ jobs:
           command: |
             cd frontend
             npm audit --audit-level=critical
-      *slack-notify-job
+      - slack/notify: *slack-notify-job-fail
+      - slack/notify: *slack-notify-job-success
 
   scan-backend:
     <<: *nodejs-image
@@ -154,7 +159,8 @@ jobs:
           command: |
             cd backend
             npm audit --audit-level=critical
-      *slack-notify-job
+      - slack/notify: *slack-notify-job-fail
+      - slack/notify: *slack-notify-job-success
 
   deploy-infrastructure:
     <<: *aws-cli
