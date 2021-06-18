@@ -130,7 +130,7 @@ jobs:
           name: Back-end unit tests
           command: |
             cd backend
-            npm run tests
+            npm run test
       - slack/notify: *slack-notify-job-fail
       - slack/notify: *slack-notify-job-success
             
