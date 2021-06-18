@@ -178,13 +178,6 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Ensure bucket infrastructure exists
-          command: |
-            aws cloudformation deploy \
-            --template-file .circleci/files/s3.yml \
-            --stack-name s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7} \
-            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
-      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
@@ -195,6 +188,7 @@ jobs:
                   ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} \
                   SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} \
                   DatabaseUsername=${TYPEORM_USERNAME} DatabasePassword=${TYPEORM_PASSWORD}
+          no_output_timeout: 20m
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -204,6 +198,33 @@ jobs:
               --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
       - run:
+          name: Save latest workflow ID
+          command: |
+            touch workflow_id.txt
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text >> workflow_id.txt
+      - persist_to_workspace:
+          root: .
+          paths:
+            - workflow_id.txt
+      - run:
+          name: Ensure cloudfront infrastructure exists
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name udapeople-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
+            --parameter-overrides ID=s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Create invalidation
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`DistributionID\`].Value" \
+            --no-paginate --output text >> distribution_id.txt
+            export DISTRIBUTION_ID=$(cat distribution_id.txt)
+            aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+          when: on_success
+      - run:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
@@ -212,7 +233,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure      
+      # Here's where you will add some code to rollback on failure
 
   configure-infrastructure:
     <<: *default-image
