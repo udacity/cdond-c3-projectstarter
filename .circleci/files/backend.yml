@@ -52,7 +52,7 @@ Resources:
       ImageId: !Ref ImageID
       Tags:
         - Key: Name
-          Value: !Sub backend-${ID}
+          Value: !Sub udapeople-backend
 
   RDSDatabase:
     Type: AWS::RDS::DBInstance
