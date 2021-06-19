@@ -78,7 +78,7 @@ commands:
           command: |
             curl -H "Content-Type: text/plain" \
               -H "token: ${MEMSTASH_TOKEN}" --request PUT \
-              --data "<< parameters.keyValue>" https://api.memstash.io/values/<< parameters.keyName >>
+              --data "<< parameters.keyValue >>" https://api.memstash.io/values/<< parameters.keyName >>
   retrieve-key-from-mem-stash:
     description: Retrieves a key stored in MemStash
     parameters:
