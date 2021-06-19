@@ -1,0 +1,27 @@
+- name: Update packages
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: Upgrade packages
+  become: yes
+  apt:
+    upgrade: yes
+
+- name: Install Node Version Manager
+  become: yes
+  shell: |
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
+    source ~/.bashrc
+    nvm install 13.14.0
+    nvm use default 13.14.0
+
+- name: Install pm2
+  become: yes
+  shell: npm install -g pm2
+
+- name: Export environment config
+  become: yes
+  shell: |
+    cat .env >> ~/.bashrc
+    ~/.bashrc

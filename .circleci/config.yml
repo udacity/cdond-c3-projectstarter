@@ -215,6 +215,12 @@ jobs:
       - save-key-to-mem-stash:
           keyName: BACKEND_PUBLIC_DNS_NAME
           keyValue: $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filter 'Name=tag:Name,Values=udapeople-backend' --output text)
+      - save-key-to-mem-stash:
+          keyName: TYPEORM_PORT
+          keyValue: $(aws cloudformation list-exports --query "Exports[?Name==\`DatabasePort\`].Value" --no-paginate --output text)
+      - save-key-to-mem-stash:
+          keyName: TYPEORM_HOST
+          keyValue: $(aws cloudformation list-exports --query "Exports[?Name==\`DatabaseHost\`].Value" --no-paginate --output text)
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -267,19 +273,26 @@ jobs:
   configure-infrastructure:
     <<: *default-image
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - add_ssh_keys:
+          fingerprints: ["ba:cf:19:36:76:06:84:e1:c6:bd:b3:96:c1:f1:d6:f4"]
+      - attach_workspace:
+          at: ~/
+      - checkout
       - run:
-          name: Install dependencies
-          command: |
-            # Your code here
-            exit 1
+          name: Install gettext
+          command: apk add --update gettext
+      - run:
+          name: Install Ansible
+          command: apk add --update ansible
+      - retrieve-key-from-mem-stash:
+          keyName: TYPEORM_HOST
+      - retrieve-key-from-mem-stash:
+          keyName: TYPEORM_PORT
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
+            envsubst < .circleci/ansible/roles/configure-server/files/.env.template > .circleci/ansible/roles/configure-server/files/.env
+            ansible-playbook -i project/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # Here's where you will add some code to rollback on failure      
 
   run-migrations:
