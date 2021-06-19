@@ -215,9 +215,7 @@ jobs:
           no_output_timeout: 20m
       - save-key-to-mem-stash:
           keyName: BACKEND_PUBLIC_DNS_NAME
-          keyValue: $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' \
-                      --filter 'Name=tag:Name,Values=udapeople-backend' \
-                      --output text)
+          keyValue: $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filter 'Name=tag:Name,Values=udapeople-backend' --output text)
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -258,8 +256,10 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+            echo $BACKEND_PUBLIC_DNS_NAME
             echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
             ls -la
       - persist_to_workspace:
           root: ~/
