@@ -58,7 +58,7 @@ commands:
           command: |
             # Your code here
             exit 1
-  install_dependencies:
+  install-dependencies:
     description: Install all missing dependencies
     steps:
       - run:
@@ -66,6 +66,29 @@ commands:
             yum clean all
             yum update -y
             yum install tar gzip -y
+  save-key-to-mem-stash:
+    description: Saves a key into MemStash
+    parameters:
+      keyName:
+        type: string
+      keyValue:
+        type: string
+    steps:
+      - run:
+          command: |
+            curl -H "Content-Type: text/plain" \
+              -H "token: ${MEMSTASH_TOKEN}" --request PUT \
+              --data "<< parameters.keyValue>" https://api.memstash.io/values/<< parameters.keyName >>
+  retrieve-key-from-mem-stash:
+    description: Retrieves a key stored in MemStash
+    parameters:
+      keyName:
+        type: string
+    steps:
+      - run:
+          command: |
+            export << parameters.keyName >>=$(curl -H "token: ${MEMSTASH_TOKEN}" \
+              --request GET https://api.memstash.io/values/<< parameters.keyName >>)
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -177,7 +200,7 @@ jobs:
     <<: *aws-cli
     steps:
       - checkout
-      - install_dependencies
+      - install-dependencies
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -190,6 +213,11 @@ jobs:
                   SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} \
                   DatabaseUsername=${TYPEORM_USERNAME} DatabasePassword=${TYPEORM_PASSWORD}
           no_output_timeout: 20m
+      - save-key-to-mem-stash:
+          keyName: BACKEND_PUBLIC_DNS_NAME
+          keyValue: $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' \
+                      --filter 'Name=tag:Name,Values=Prometheus' \
+                      --output text)
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -225,11 +253,14 @@ jobs:
             export DISTRIBUTION_ID=$(cat distribution_id.txt)
             aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
           when: on_success
+      - retrieve-key-from-mem-stash:
+          keyName: BACKEND_PUBLIC_DNS_NAME
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            # Your code here
-            exit 1
+            echo .circleci/ansible/inventory.txt
+            echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
+            ls -la
       - persist_to_workspace:
           root: ~/
           paths:
@@ -345,7 +376,7 @@ jobs:
   cleanup:
     <<: *aws-cli
     steps:
-      - install_dependencies
+      - install-dependencies
       - attach_workspace:
           at: .
       - run:
