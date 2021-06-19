@@ -87,8 +87,7 @@ commands:
     steps:
       - run:
           command: |
-            export << parameters.keyName >>=$(curl -H "token: ${MEMSTASH_TOKEN}" \
-              --request GET https://api.memstash.io/values/<< parameters.keyName >>)
+            echo "export << parameters.keyName >>=$(curl -H \"token: ${MEMSTASH_TOKEN}\" --request GET https://api.memstash.io/values/<< parameters.keyName >>)" >> $BASH_ENV
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -265,6 +264,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - slack/notify: *slack-notify-deploy-fail
+      - slack/notify: *slack-notify-deploy-success
       # Here's where you will add some code to rollback on failure
 
   configure-infrastructure:
