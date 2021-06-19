@@ -236,10 +236,6 @@ jobs:
             aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
             --no-paginate --output text >> workflow_id.txt
-      - persist_to_workspace:
-          root: .
-          paths:
-            - workflow_id.txt
       - run:
           name: Ensure cloudfront infrastructure exists
           command: |
@@ -266,6 +262,7 @@ jobs:
           root: .
           paths:
             - project/.circleci/ansible/inventory.txt
+            - workflow_id.txt
       - slack/notify: *slack-notify-deploy-fail
       - slack/notify: *slack-notify-deploy-success
       # Here's where you will add some code to rollback on failure
