@@ -65,7 +65,7 @@ commands:
           command: |
             yum clean all
             yum update -y
-            yum install tar gzip -y
+            yum install tar gzip jq -y
   save-key-to-mem-stash:
     description: Saves a key into MemStash
     parameters:
