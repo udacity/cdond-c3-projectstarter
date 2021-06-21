@@ -75,6 +75,7 @@ commands:
         type: string
     steps:
       - run:
+          name: Save key to MemStash
           command: |
             curl -H "Content-Type: text/plain" \
               -H "token: ${MEMSTASH_TOKEN}" --request PUT \
@@ -86,6 +87,7 @@ commands:
         type: string
     steps:
       - run:
+          name: Retrieve key from MemStash
           command: |
             echo 'export << parameters.keyName >>=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/<< parameters.keyName >>)' >> $BASH_ENV
 
@@ -257,13 +259,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo $BACKEND_PUBLIC_DNS_NAME
-            echo $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filter 'Name=tag:Name,Values=udapeople-backend' --output text)
-            # echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
-      - run:
-          name: Print files
-          command: |
-            cat .circleci/ansible/inventory.txt
+            echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
