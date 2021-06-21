@@ -62,6 +62,7 @@ commands:
     description: Install all missing dependencies
     steps:
       - run:
+          name: Install all missing dependencies
           command: |
             yum clean all
             yum update -y
