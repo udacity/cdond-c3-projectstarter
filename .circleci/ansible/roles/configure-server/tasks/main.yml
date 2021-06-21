@@ -15,8 +15,8 @@
     . ~/.bashrc
     nvm install 13.14.0
     nvm use default 13.14.0
-  args:
-    warn: false
+  # args:
+  #   warn: false
 
 - name: Install pm2
   become: yes
