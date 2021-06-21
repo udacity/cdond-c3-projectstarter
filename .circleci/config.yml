@@ -257,16 +257,13 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            cat .circleci/ansible/inventory.txt
             echo $BACKEND_PUBLIC_DNS_NAME
-            echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+            # echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
       - run:
           name: Print files
           command: |
-            echo "circleci"
             cat .circleci/ansible/inventory.txt
-            echo "project"
-            cat project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
