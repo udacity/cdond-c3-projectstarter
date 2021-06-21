@@ -4,8 +4,9 @@
     update_cache: yes
 
 - name: Upgrade packages
+  become: yes
   apt:
-    upgrade: yes
+    upgrade: safe
 
 - name: Install Node Version Manager
   become: yes
@@ -15,7 +16,10 @@
 - name: Install node and set version
   become: yes
   become_user: root
-  shell: . /root/.nvm/nvm.sh && nvm install 13.14.0
+  shell: |
+    . /root/.nvm/nvm.sh
+    nvm install 13.14.0
+    nvm use default 13.14.0
 
 - name: Install pm2
   become: yes
