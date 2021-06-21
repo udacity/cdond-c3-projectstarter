@@ -272,9 +272,9 @@ jobs:
     steps:
       - add_ssh_keys:
           fingerprints: ["ba:cf:19:36:76:06:84:e1:c6:bd:b3:96:c1:f1:d6:f4"]
+      - checkout
       - attach_workspace:
           at: ~/
-      - checkout
       - run:
           name: Install gettext
           command: apk add --update gettext
