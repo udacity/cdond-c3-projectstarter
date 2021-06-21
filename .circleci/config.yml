@@ -288,9 +288,9 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cat project/.circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
             envsubst < .circleci/ansible/roles/configure-server/files/.env.template > .circleci/ansible/roles/configure-server/files/.env
-            ansible-playbook -i project/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # Here's where you will add some code to rollback on failure      
 
   run-migrations:
