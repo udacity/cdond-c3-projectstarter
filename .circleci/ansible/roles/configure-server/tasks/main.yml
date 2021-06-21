@@ -35,6 +35,5 @@
 
 - name: Export environment config
   become: yes
-  become_user: root
   shell: |
     cat .env >> /root/.bashrc
