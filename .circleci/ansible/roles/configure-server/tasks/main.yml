@@ -15,6 +15,7 @@
     . ~/.bashrc
     nvm install 13.14.0
     nvm use default 13.14.0
+    nvm ls
   # args:
   #   warn: false
 
