@@ -33,7 +33,13 @@
     global: yes
     name: pm2
 
+- name: Copy .env file
+  copy:
+    src: .env
+    dest: /home/ubuntu/.env
+
 - name: Export environment config
   become: yes
+  become_user: root
   shell: |
-    cat .env >> /root/.bashrc
+    cat /home/ubuntu/.env >> /root/.bashrc
