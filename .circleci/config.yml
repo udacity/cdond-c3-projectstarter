@@ -259,9 +259,9 @@ jobs:
           command: |
             echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: .
+          root: ~/
           paths:
-            - .circleci/ansible/inventory.txt
+            - project/.circleci/ansible/inventory.txt
             - workflow_id.txt
       - slack/notify: *slack-notify-deploy-fail
       - slack/notify: *slack-notify-deploy-success
@@ -273,7 +273,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["ba:cf:19:36:76:06:84:e1:c6:bd:b3:96:c1:f1:d6:f4"]
       - attach_workspace:
-          at: .
+          at: ~/
       - checkout
       - run:
           name: Install gettext
@@ -385,7 +385,7 @@ jobs:
     steps:
       - install-dependencies
       - attach_workspace:
-          at: .
+          at: ~/
       - run:
           name: delete old S3 bucket stack
           command: |
