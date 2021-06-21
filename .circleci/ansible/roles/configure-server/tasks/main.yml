@@ -4,11 +4,8 @@
     update_cache: yes
 
 - name: Upgrade packages
-  become: yes
   apt:
     upgrade: yes
-  args:
-    warn: false
 
 - name: Install Node Version Manager
   become: yes
