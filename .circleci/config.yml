@@ -265,7 +265,7 @@ jobs:
             echo "circleci"
             cat .circleci/ansible/inventory.txt
             echo "project"
-            cat project/.circleci/ansible/inventory.txt
+            # cat project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
