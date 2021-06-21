@@ -10,12 +10,13 @@
 
 - name: Install Node Version Manager
   become: yes
-  warn: false
   shell: |
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
     . ~/.bashrc
     nvm install 13.14.0
     nvm use default 13.14.0
+  args:
+    warn: false
 
 - name: Install pm2
   become: yes
