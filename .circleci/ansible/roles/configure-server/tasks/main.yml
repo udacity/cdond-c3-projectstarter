@@ -26,12 +26,14 @@
 - name: Install pm2
   become: yes
   become_user: root
-  shell: npm install -g pm2
+  shell: |
+    source /root/.bashrc
+    npm install -g pm2
   args:
     executable: /bin/bash
 
 - name: Export environment config
   become: yes
+  become_user: root
   shell: |
-    cat .env >> ~/.bashrc
-    ~/.bashrc
+    cat .env >> /root/.bashrc
