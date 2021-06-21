@@ -87,9 +87,7 @@ commands:
     steps:
       - run:
           command: |
-            echo "export << parameters.keyName >>=$(curl -H \"token: ${MEMSTASH_TOKEN}\" --request GET https://api.memstash.io/values/<< parameters.keyName >>)" >> $BASH_ENV
-            echo $(curl -H \"token: ${MEMSTASH_TOKEN}\" --request GET https://api.memstash.io/values/<< parameters.keyName >>)
-            cat $BASH_ENV
+            echo 'export << parameters.keyName >>=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/<< parameters.keyName >>)' >> $BASH_ENV
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
