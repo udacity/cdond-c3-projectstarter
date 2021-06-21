@@ -13,7 +13,7 @@
   warn: false
   shell: |
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-    source ~/.bashrc
+    . ~/.bashrc
     nvm install 13.14.0
     nvm use default 13.14.0
 
