@@ -8,29 +8,28 @@
   apt:
     upgrade: safe
 
-- name: Install Node Version Manager
-  become: yes
-  git: repo=https://github.com/creationix/nvm.git dest=/root/.nvm version=v0.38.0
-  tags: nvm
+- name: Add Node.js apt key
+  apt_key:
+    url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+    state: present
 
-- name: Install node and set version
+- name: Add Node.js 13.x ppa for apt repo
+  apt_repository:
+    repo: deb https://deb.nodesource.com/node_13.x focal main
+    update_cache: yes
+
+- name: Install Node.js
   become: yes
-  become_user: root
-  shell: |
-    source /root/.nvm/nvm.sh
-    nvm install 13.14.0
-    nvm use default 13.14.0
-  args:
-    executable: /bin/bash
+  apt:
+    update_cache: yes
+    name: nodejs
+    state: present
 
 - name: Install pm2
   become: yes
-  become_user: root
-  shell: |
-    source /root/.bashrc
-    /root/.nvm/versions/node/v13.14.0/bin/npm install -g pm2
-  args:
-    executable: /bin/bash
+  npm:
+    global: yes
+    name: pm2
 
 - name: Export environment config
   become: yes
