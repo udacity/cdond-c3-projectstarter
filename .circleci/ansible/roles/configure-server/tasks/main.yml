@@ -7,17 +7,18 @@
   become: yes
   apt:
     upgrade: yes
+  args:
+    warn: false
 
 - name: Install Node Version Manager
   become: yes
-  shell: |
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.38.0/install.sh | bash
-    . ~/.bashrc
-    nvm install 13.14.0
-    nvm use default 13.14.0
-    nvm ls
-  # args:
-  #   warn: false
+  git: repo=https://github.com/creationix/nvm.git dest=/root/.nvm version=v0.38.0
+  tags: nvm
+
+- name: Install node and set version
+  become: yes
+  become_user: root
+  shell: . /root/.nvm/nvm.sh && nvm install 13.14.0
 
 - name: Install pm2
   become: yes
