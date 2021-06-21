@@ -28,8 +28,7 @@
   become_user: root
   shell: |
     source /root/.bashrc
-    nvm use 13.14.0
-    npm install -g pm2
+    /root/.nvm/versions/node/v13.14.0/bin/npm install -g pm2
   args:
     executable: /bin/bash
 
