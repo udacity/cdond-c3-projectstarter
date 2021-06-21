@@ -23,7 +23,7 @@
 
 - name: Install pm2
   become: yes
-  shell: npm install -g pm2
+  shell: /root/.nvm/versions/node/v13.14.0/bin/npm install -g pm2
 
 - name: Export environment config
   become: yes
