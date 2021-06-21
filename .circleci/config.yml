@@ -224,37 +224,37 @@ jobs:
       - save-key-to-mem-stash:
           keyName: TYPEORM_HOST
           keyValue: $(aws cloudformation list-exports --query "Exports[?Name==\`DatabaseHost\`].Value" --no-paginate --output text)
-      # - run:
-      #     name: Ensure front-end infrastructure exist
-      #     command: |
-      #       aws cloudformation deploy \
-      #         --template-file .circleci/files/frontend.yml \
-      #         --tags project=udapeople \
-      #         --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
-      #         --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
-      # - run:
-      #     name: Save latest workflow ID
-      #     command: |
-      #       touch workflow_id.txt
-      #       aws cloudformation \
-      #       list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-      #       --no-paginate --output text >> workflow_id.txt
-      # - run:
-      #     name: Ensure cloudfront infrastructure exists
-      #     command: |
-      #       aws cloudformation deploy \
-      #       --template-file .circleci/files/cloudfront.yml \
-      #       --stack-name udapeople-cloudfront \
-      #       --parameter-overrides ID=s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7}
-      # - run:
-      #     name: Create invalidation
-      #     command: |
-      #       aws cloudformation \
-      #       list-exports --query "Exports[?Name==\`DistributionID\`].Value" \
-      #       --no-paginate --output text >> distribution_id.txt
-      #       export DISTRIBUTION_ID=$(cat distribution_id.txt)
-      #       aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
-      #     when: on_success
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Save latest workflow ID
+          command: |
+            touch workflow_id.txt
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text >> workflow_id.txt
+      - run:
+          name: Ensure cloudfront infrastructure exists
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name udapeople-cloudfront \
+            --parameter-overrides ID=s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Create invalidation
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`DistributionID\`].Value" \
+            --no-paginate --output text >> distribution_id.txt
+            export DISTRIBUTION_ID=$(cat distribution_id.txt)
+            aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+          when: on_success
       - retrieve-key-from-mem-stash:
           keyName: BACKEND_PUBLIC_DNS_NAME
       - run:
@@ -421,16 +421,16 @@ jobs:
 workflows:
   default:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
       - deploy-infrastructure:
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
