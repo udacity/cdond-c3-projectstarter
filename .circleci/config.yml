@@ -81,6 +81,7 @@ commands:
             curl -H "Content-Type: text/plain" \
               -H "token: ${MEMSTASH_TOKEN}" --request PUT \
               --data "<< parameters.keyValue >>" https://api.memstash.io/values/<< parameters.keyName >>
+          when: on_success
   retrieve-key-from-mem-stash:
     description: Retrieves a key stored in MemStash
     parameters:
@@ -293,6 +294,7 @@ jobs:
           command: |
             envsubst < .circleci/ansible/roles/configure-server/files/.env.template > .circleci/ansible/roles/configure-server/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      - slack/notify: *slack-notify-job-fail
       # Here's where you will add some code to rollback on failure      
 
   run-migrations:
@@ -312,6 +314,7 @@ jobs:
       - save-key-to-mem-stash:
           keyName: MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
           keyValue: $(cat result.txt)
+      - slack/notify: *slack-notify-job-fail
      # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
