@@ -311,6 +311,7 @@ jobs:
               echo 1 >> result.txt
             else
               echo 0 >> result.txt
+            fi
       - save-key-to-mem-stash:
           keyName: MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
           keyValue: $(cat result.txt)
