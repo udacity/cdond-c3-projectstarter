@@ -145,6 +145,10 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend/dist/
       - slack/notify: *slack-notify-job-fail
 
   test-frontend:
@@ -340,17 +344,23 @@ jobs:
   deploy-backend:
     <<: *default-image
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - add_ssh_keys:
+          fingerprints: ["ba:cf:19:36:76:06:84:e1:c6:bd:b3:96:c1:f1:d6:f4"]
+      - checkout
+      - attach_workspace:
+          at: ~/
       - run:
-          name: Install dependencies
-          command: |
-            # your code here
+          name: Install gettext
+          command: apk add --update gettext
+      - run:
+          name: Install Ansible
+          command: apk add --update ansible
       - run:
           name: Deploy backend
           command: |
-            # your code here
+            cp -R backend/dist .circleci/ansible/roles/deploy-backend/files
+            envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
@@ -438,7 +448,7 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
               only: [master]

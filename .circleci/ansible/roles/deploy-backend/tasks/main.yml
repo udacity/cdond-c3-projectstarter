@@ -1,0 +1,34 @@
+- name: Update packages
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: Upgrade packages
+  become: yes
+  apt:
+    upgrade: safe
+
+- name: Copy .env file
+  copy:
+    src: .env
+    dest: /home/ubuntu/.env
+
+- name: Export environment config
+  become: yes
+  become_user: root
+  shell: |
+    cat /home/ubuntu/.env >> /root/.bashrc
+
+- name: Reload bash
+  become: yes
+  become_user: root
+  shell: . /root/.bashrc
+
+- name: Copy dist files
+  copy:
+    src: dist/
+    dest: /home/ubuntu/dist/
+
+- name: Start server
+  become: yes
+  shell: pm2 start /home/ubuntu/dist/main.js
