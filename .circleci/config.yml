@@ -298,17 +298,20 @@ jobs:
   run-migrations:
     <<: *nodejs-image
     steps:
-      # Checkout code from git
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
-            # Your code here
-            exit 1
-      - run:
-          name: Send migration results to memstash
-          command: |
-            # Your code here
-            exit 1
+            if npm run migrations | grep "has been executed successfully"
+            then
+              export $1 >> result.txt
+            else
+              echo 0 >> result.txt
+      - save-key-to-mem-stash:
+          keyName: MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
+          keyValue: $(cat result.txt)
      # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
