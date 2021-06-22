@@ -306,7 +306,7 @@ jobs:
           command: |
             if npm run migrations | grep "has been executed successfully"
             then
-              export $1 >> result.txt
+              echo 1 >> result.txt
             else
               echo 0 >> result.txt
       - save-key-to-mem-stash:
