@@ -24,16 +24,21 @@
   become_user: root
   shell: . /root/.bashrc
 
-- name: Copy dist files
+- name: Copy project files
   copy:
-    src: dist/
-    dest: /home/ubuntu/dist/
+    src: backend/
+    dest: /home/ubuntu/backend/
 
-- name: Copy modules
-  copy:
-    src: node_modules/
-    dest: /home/ubuntu/dist/node_modules/
+- name: Install dependencies
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    npm install
+
+- name: Build project
+  become: true
+  shell: npm run build
 
 - name: Start server
   become: yes
-  shell: pm2 start /home/ubuntu/dist/main.js
+  shell: pm2 start /home/ubuntu/backend/dist/main.js
