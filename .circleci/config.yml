@@ -149,6 +149,7 @@ jobs:
           root: ~/
           paths:
             - project/backend/dist/
+            - project/backend/node_modules
       - slack/notify: *slack-notify-job-fail
 
   test-frontend:
@@ -350,8 +351,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
-      - restore_cache:
-          keys: [backend-build]
       - run:
           name: Install gettext
           command: apk add --update gettext
