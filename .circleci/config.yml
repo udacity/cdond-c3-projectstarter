@@ -363,6 +363,7 @@ jobs:
             cp -R backend .circleci/ansible/roles/deploy-backend/files
             envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+          no_output_timeout: 20m
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
