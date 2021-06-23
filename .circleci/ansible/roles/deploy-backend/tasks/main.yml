@@ -31,7 +31,7 @@
 
 - name: Copy modules
   copy:
-    src: backend/node_modules/
+    src: node_modules/
     dest: /home/ubuntu/dist/node_modules/
 
 - name: Start server
