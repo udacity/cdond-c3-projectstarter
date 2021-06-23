@@ -149,7 +149,6 @@ jobs:
           root: ~/
           paths:
             - project/backend/dist/
-            - project/backend/node_modules
       - slack/notify: *slack-notify-job-fail
 
   test-frontend:
