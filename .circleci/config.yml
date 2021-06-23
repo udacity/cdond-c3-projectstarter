@@ -282,8 +282,6 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["ba:cf:19:36:76:06:84:e1:c6:bd:b3:96:c1:f1:d6:f4"]
       - checkout
-      - restore_cache:
-          keys: [backend-build]
       - attach_workspace:
           at: ~/
       - run:
@@ -352,6 +350,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install gettext
           command: apk add --update gettext
