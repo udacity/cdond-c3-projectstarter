@@ -29,6 +29,11 @@
     src: dist/
     dest: /home/ubuntu/dist/
 
+- name: Copy modules
+  copy:
+    src: backend/node_modules/
+    dest: /home/ubuntu/dist/node_modules/
+
 - name: Start server
   become: yes
   shell: pm2 start /home/ubuntu/dist/main.js
