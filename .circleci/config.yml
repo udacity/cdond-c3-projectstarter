@@ -362,6 +362,7 @@ jobs:
           name: Deploy backend
           command: |
             cp -R backend/dist .circleci/ansible/roles/deploy-backend/files
+            cp -R backend/node_modules .circleci/ansible/roles/deploy-backend/files
             envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
