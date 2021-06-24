@@ -37,7 +37,9 @@
 
 - name: Build project
   become: true
-  shell: npm run build
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
 
 - name: Start server
   become: yes
