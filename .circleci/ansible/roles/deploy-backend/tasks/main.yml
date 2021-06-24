@@ -41,6 +41,12 @@
     cd /home/ubuntu/backend
     npm run build
 
+- name: Cleanup previous instance
+  become: yes
+  shell: |
+    pm2 stop all
+    pm2 delete all
+
 - name: Start server
   become: yes
   shell: pm2 start /home/ubuntu/backend/dist/main.js
