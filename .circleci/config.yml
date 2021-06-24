@@ -299,6 +299,8 @@ jobs:
           name: Configure server
           command: |
             source $BASH_ENV
+            echo $TYPEORM_HOST
+            echo $TYPEORM_PORT
             envsubst < .circleci/ansible/roles/configure-server/files/.env.template > .circleci/ansible/roles/configure-server/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # Here's where you will add some code to rollback on failure      
@@ -358,13 +360,18 @@ jobs:
       - run:
           name: Install Ansible
           command: apk add --update ansible
+      - retrieve-key-from-mem-stash:
+          keyName: TYPEORM_HOST
+      - retrieve-key-from-mem-stash:
+          keyName: TYPEORM_PORT
       - run:
           name: Deploy backend
           command: |
             source $BASH_ENV
+            echo $TYPEORM_HOST
+            echo $TYPEORM_PORT
             cp -R backend .circleci/ansible/roles/deploy-backend/files
             envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
-            cat .circleci/ansible/roles/deploy-backend/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
           no_output_timeout: 20m
       # Here's where you will add some code to rollback on failure  
