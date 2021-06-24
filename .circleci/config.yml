@@ -348,19 +348,17 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["ba:cf:19:36:76:06:84:e1:c6:bd:b3:96:c1:f1:d6:f4"]
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install gettext
           command: apk add --update gettext
       - run:
           name: Install Ansible
           command: apk add --update ansible
-      - retrieve-key-from-mem-stash:
-          keyName: BACKEND_PUBLIC_DNS_NAME
       - run:
           name: Deploy backend
           command: |
-            echo $BACKEND_PUBLIC_DNS_NAME
-            echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
             cp -R backend .circleci/ansible/roles/deploy-backend/files
             envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
