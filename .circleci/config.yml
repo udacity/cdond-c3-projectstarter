@@ -266,6 +266,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
+            source $BASH_ENV
             echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -297,6 +298,7 @@ jobs:
       - run:
           name: Configure server
           command: |
+            source $BASH_ENV
             envsubst < .circleci/ansible/roles/configure-server/files/.env.template > .circleci/ansible/roles/configure-server/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # Here's where you will add some code to rollback on failure      
@@ -359,8 +361,10 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            source $BASH_ENV
             cp -R backend .circleci/ansible/roles/deploy-backend/files
             envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
+            cat .circleci/ansible/roles/deploy-backend/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
           no_output_timeout: 20m
       # Here's where you will add some code to rollback on failure  
