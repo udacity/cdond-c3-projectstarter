@@ -30,8 +30,10 @@
 - name: Install pm2
   become: yes
   npm:
-    global: yes
     name: pm2
+    global: yes
+    production: true
+    state: present
 
 - name: Copy .env file
   copy:
