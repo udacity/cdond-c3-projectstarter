@@ -359,6 +359,7 @@ jobs:
       - run:
           name: Deploy backend
           command: |
+            echo $BACKEND_PUBLIC_DNS_NAME
             echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
             cp -R backend .circleci/ansible/roles/deploy-backend/files
             envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
