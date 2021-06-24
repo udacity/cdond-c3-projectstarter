@@ -51,4 +51,4 @@
 
 - name: Start server
   become: yes
-  shell: pm2 start {{ ansible_user_dir }}/backend/dist/main.js -f
+  shell: pm2 start /home/ubuntu/backend/dist/main.js -f
