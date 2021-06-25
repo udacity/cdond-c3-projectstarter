@@ -299,8 +299,6 @@ jobs:
           name: Configure server
           command: |
             source $BASH_ENV
-            echo $TYPEORM_HOST
-            echo $TYPEORM_PORT
             envsubst < .circleci/ansible/roles/configure-server/files/.env.template > .circleci/ansible/roles/configure-server/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # Here's where you will add some code to rollback on failure      
@@ -368,8 +366,6 @@ jobs:
           name: Deploy backend
           command: |
             source $BASH_ENV
-            echo $TYPEORM_HOST
-            echo $TYPEORM_PORT
             cp -R backend .circleci/ansible/roles/deploy-backend/files
             envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
