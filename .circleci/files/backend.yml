@@ -63,6 +63,7 @@ Resources:
       Engine: postgres
       MasterUsername: !Ref DatabaseUsername
       MasterUserPassword: !Ref DatabasePassword
+      PubliclyAccessible: true
 
 Outputs:
   DatabaseHost:

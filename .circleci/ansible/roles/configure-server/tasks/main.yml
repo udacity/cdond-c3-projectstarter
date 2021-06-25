@@ -39,9 +39,3 @@
   copy:
     src: .env
     dest: /home/ubuntu/.env
-
-- name: Export environment config
-  become: yes
-  become_user: root
-  shell: |
-    cat /home/ubuntu/.env >> /root/.bashrc
