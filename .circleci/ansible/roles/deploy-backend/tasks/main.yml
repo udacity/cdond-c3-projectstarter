@@ -13,17 +13,6 @@
     src: .env
     dest: /home/ubuntu/.env
 
-- name: Export environment config
-  become: yes
-  become_user: root
-  shell: |
-    cat /home/ubuntu/.env >> /root/.bashrc
-
-- name: Reload bash
-  become: yes
-  become_user: root
-  shell: . /root/.bashrc
-
 - name: Copy project files
   copy:
     src: backend/
@@ -51,4 +40,4 @@
 
 - name: Start server
   become: yes
-  shell: pm2 start /home/ubuntu/backend/dist/main.js -f
+  shell: pm2 start /home/ubuntu/backend/pm2.config.js -f
