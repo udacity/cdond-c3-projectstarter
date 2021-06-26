@@ -315,6 +315,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            cd backend/
             if npm run migrations | grep "has been executed successfully"
             then
               echo 1 >> result.txt

@@ -8,15 +8,15 @@
   apt:
     upgrade: safe
 
-- name: Copy .env file
-  copy:
-    src: .env
-    dest: /home/ubuntu/.env
-
 - name: Copy project files
   copy:
     src: backend/
     dest: /home/ubuntu/backend/
+
+- name: Copy .env file
+  copy:
+    src: .env
+    dest: /home/ubuntu/backend/.env
 
 - name: Install dependencies
   become: true
