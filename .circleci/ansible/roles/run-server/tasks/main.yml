@@ -1,0 +1,11 @@
+- name: Stop all previous instances
+  become: yes
+  shell: pm2 stop all || return 0
+
+- name: Delete all previous instances
+  become: yes
+  shell: pm2 delete all || return 0
+
+- name: Start server
+  become: yes
+  shell: pm2 start /home/ubuntu/backend/pm2.config.js -f
