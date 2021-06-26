@@ -7,5 +7,6 @@
   shell: pm2 delete all || return 0
 
 - name: Start server
-  become: yes
-  shell: pm2 start /home/ubuntu/backend/pm2.config.js -f
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start /home/ubuntu/backend/pm2.config.js -f
