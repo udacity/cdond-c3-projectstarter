@@ -313,8 +313,21 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
+          name: Install gettext
+          command: apk add --update gettext
+      - run:
+          name: Install Curl
+          command: apk add --update curl
+      - retrieve-key-from-mem-stash:
+          keyName: TYPEORM_HOST
+      - retrieve-key-from-mem-stash:
+          keyName: TYPEORM_PORT
+      - run:
           name: Run migrations
           command: |
+            source $BASH_ENV
+            cp -R backend .circleci/ansible/roles/deploy-backend/files
+            envsubst < backend/.env.template > backend/.env
             cd backend/
             if npm run migrations | grep "has been executed successfully"
             then
