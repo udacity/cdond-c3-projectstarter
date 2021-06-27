@@ -392,6 +392,8 @@ jobs:
     steps:
       - checkout
       - install-aws-cli
+      - retrieve-key-from-mem-stash:
+          keyName: BACKEND_PUBLIC_DNS_NAME
       - run:
           name: Backend smoke test.
           command: |
@@ -416,9 +418,9 @@ jobs:
               echo "Front-end cannot be reached!"
               return 1
             fi
-      - destroy-environment:
-          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations
+      # - destroy-environment:
+          # workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations
       - slack/notify: *slack-notify-job-fail
 
   cloudfront-update:
