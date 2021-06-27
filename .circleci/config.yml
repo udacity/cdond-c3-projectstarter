@@ -351,23 +351,22 @@ jobs:
      # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
-    <<: *aws-cli
+    <<: *nodejs-image
     steps:
-      # Checkout code from git
+      - checkout
+      - install-aws-cli
+      - retrieve-key-from-mem-stash:
+          keyName: BACKEND_PUBLIC_DNS_NAME
       - run:
-          name: Install dependencies
+          name: Build and Deploy frontend objects
           command: |
-            # your code here
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-      - run:
-          name: Deploy frontend objects
-          command: |
-            # your code here
+            source $BASH_ENV
+            export API_URL="http://${BACKEND_PUBLIC_DNS_NAME}:3030"
+            cd frontend
+            npm install
+            npm run build:prod
+            cd dist
+            aws s3 sync . s3://s3-bucket-${CIRCLE_WORKFLOW_ID:0:7}
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
