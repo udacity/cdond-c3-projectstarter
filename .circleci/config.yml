@@ -407,6 +407,7 @@ jobs:
   smoke-test:
     <<: *aws-cli
     steps:
+      - checkout
       - install-dependencies
       - run:
           name: Backend smoke test.
