@@ -403,23 +403,35 @@ jobs:
   smoke-test:
     <<: *alpine-image
     steps:
-      # Checkout code from git
       - run:
-          name: Install dependencies
-          command: |
-            # your code here
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
+          name: Install Curl
+          command: apk add --update curl
+      - retrieve-key-from-mem-stash:
+          keyName: BACKEND_PUBLIC_DNS_NAME
       - run:
           name: Backend smoke test.
           command: |
-            # your code here
+            source $BASH_ENV
+            if curl -s --head "http://${BACKEND_PUBLIC_DNS_NAME}:3030/api/status"
+            then
+              echo "API is running on $BACKEND_PUBLIC_DNS_NAME:3030"
+              return 0
+            else
+              echo "API cannot be reached!"
+              return 1
+            fi
       - run:
           name: Frontend smoke test.
           command: |
-            # your code here
+            export FRONTEND_PUBLIC_DNS_NAME="http://s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com"
+            if curl -s ${FRONTEND_PUBLIC_DNS_NAME} | grep "Welcome"
+            then
+              echo "Front-end is running on $FRONTEND_PUBLIC_DNS_NAME"
+              return 1
+            else
+              echo "Front-end cannot be reached!"
+              return 0
+            fi
       # Here's where you will add some code to rollback on failure  
 
   cloudfront-update:
