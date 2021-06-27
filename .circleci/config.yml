@@ -405,13 +405,9 @@ jobs:
       - slack/notify: *slack-notify-job-fail
 
   smoke-test:
-    <<: *alpine-image
+    <<: *aws-cli
     steps:
-      - run:
-          name: Install Curl
-          command: apk add --update curl
-      - retrieve-key-from-mem-stash:
-          keyName: BACKEND_PUBLIC_DNS_NAME
+      - install-dependencies
       - run:
           name: Backend smoke test.
           command: |
