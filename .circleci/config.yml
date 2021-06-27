@@ -431,10 +431,10 @@ jobs:
             if curl -s ${FRONTEND_PUBLIC_DNS_NAME} | grep "Welcome"
             then
               echo "Front-end is running on $FRONTEND_PUBLIC_DNS_NAME"
-              return 1
+              return 0
             else
               echo "Front-end cannot be reached!"
-              return 0
+              return 1
             fi
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
