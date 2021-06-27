@@ -401,10 +401,10 @@ jobs:
             if curl -s --head "http://${BACKEND_PUBLIC_DNS_NAME}:3030/api/status"
             then
               echo "API is running on $BACKEND_PUBLIC_DNS_NAME:3030"
-              return 0
+              exit 0
             else
               echo "API cannot be reached!"
-              return 1
+              exit 1
             fi
       - run:
           name: Frontend smoke test.
@@ -413,10 +413,10 @@ jobs:
             if curl -s ${FRONTEND_PUBLIC_DNS_NAME} | grep "Welcome"
             then
               echo "Front-end is running on $FRONTEND_PUBLIC_DNS_NAME"
-              return 0
+              exit 0
             else
               echo "Front-end cannot be reached!"
-              return 1
+              exit 1
             fi
       # - destroy-environment:
           # workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
