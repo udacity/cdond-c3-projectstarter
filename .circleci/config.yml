@@ -314,10 +314,10 @@ jobs:
           keys: [backend-build]
       - run:
           name: Install gettext
-          command: apt-get install -y gettext
+          command: sudo apt-get install -y gettext
       - run:
           name: Install Curl
-          command: apt-get install -y curl
+          command: sudo apt-get install -y curl
       - retrieve-key-from-mem-stash:
           keyName: TYPEORM_HOST
       - retrieve-key-from-mem-stash:
