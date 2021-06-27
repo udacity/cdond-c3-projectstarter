@@ -58,6 +58,15 @@ commands:
           command: |
             # Your code here
             exit 1
+  install-aws-cli:
+    description: Install AWS cli using apt-get
+    steps:
+      - run:
+          name: Install AWS cli
+          command: |
+            sudo apt-get -y python3 py3-pip
+            pip3 install --upgrade pip
+            pip3 install awscli
   install-dependencies:
     description: Install all missing dependencies
     steps:
