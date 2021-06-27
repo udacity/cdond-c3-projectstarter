@@ -38,26 +38,23 @@ nodejs-image: &nodejs-image
     - image: circleci/node:13.8.0
 
 commands:
-  delete-unsuccessful-stack:
-    description: Deletes the specified stack when the deploy step has not succeeded
-    parameters:
-      stackName:
-        type: string
-    steps:
-      - run: 
-          command: aws cloudformation delete-stack --stack-name << parameters.stackName >>
-          when: on_fail
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      workflowId:
+        type: string
     steps:
-      - run:
-          name: Destroy environments
-          when: on_fail
+      - run: 
+          name: Destroy stacks
           command: |
-            # Your code here
-            exit 1
+            export BUCKET_EXISTS=$(aws s3 ls s3://s3-bucket-udapeople-<< parameters.workflowId >> 2>&1 | grep -c 'index.html')
+            if [ $BUCKET_EXISTS -eq 1 ]
+            then
+              aws s3 rm s3://s3-bucket-udapeople-<< parameters.workflowId >> --recursive
+            fi
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowId >>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowId >>
+          when: on_fail
   install-aws-cli:
     description: Install AWS cli using apt-get
     steps:
@@ -101,25 +98,23 @@ commands:
           name: Retrieve key from MemStash
           command: |
             echo 'export << parameters.keyName >>=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/<< parameters.keyName >>)' >> $BASH_ENV
-
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      # Add parameter here     
     steps:
+      - checkout
+      - retrieve-key-from-mem-stash:
+          keyName: MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
       - run:
           name: Revert migrations
-          # Add when this will run
           command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            source $BASH_ENV
+            if [ MIGRATION_${CIRCLE_WORKFLOW_ID:0:7} -eq 0 ]
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd backend
+              npm install
+              npm run migrations:revert
             fi
+          when: on_fail
             
 jobs:
   build-frontend:
@@ -218,12 +213,21 @@ jobs:
       - checkout
       - install-dependencies
       - run:
+          name: Ensure database infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/database.yml \
+              --tags project=udapeople \
+              --stack-name udapeople-database \
+              --parameter-overrides DatabaseUsername=${TYPEORM_USERNAME} DatabasePassword=${TYPEORM_PASSWORD}
+          no_output_timeout: 20m
+      - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name udapeople-backend \
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
                   ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} \
                   SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} \
@@ -231,7 +235,7 @@ jobs:
           no_output_timeout: 20m
       - save-key-to-mem-stash:
           keyName: BACKEND_PUBLIC_DNS_NAME
-          keyValue: $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filter 'Name=tag:Name,Values=udapeople-backend' --output text)
+          keyValue: $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filter 'Name=tag:Name,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}' --output text)
       - save-key-to-mem-stash:
           keyName: TYPEORM_PORT
           keyValue: $(aws cloudformation list-exports --query "Exports[?Name==\`DatabasePort\`].Value" --no-paginate --output text)
@@ -246,13 +250,6 @@ jobs:
               --tags project=udapeople \
               --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
-      - run:
-          name: Save latest workflow ID
-          command: |
-            touch workflow_id.txt
-            aws cloudformation \
-            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-            --no-paginate --output text >> workflow_id.txt
       - run:
           name: Ensure cloudfront infrastructure exists
           command: |
@@ -281,10 +278,9 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-            - workflow_id.txt
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify: *slack-notify-deploy-fail
-      - slack/notify: *slack-notify-deploy-success
-      # Here's where you will add some code to rollback on failure
 
   configure-infrastructure:
     <<: *default-image
@@ -313,7 +309,9 @@ jobs:
             source $BASH_ENV
             envsubst < .circleci/ansible/roles/configure-server/files/.env.template > .circleci/ansible/roles/configure-server/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      # Here's where you will add some code to rollback on failure      
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - slack/notify: *slack-notify-deploy-fail
 
   run-migrations:
     <<: *nodejs-image
@@ -347,8 +345,8 @@ jobs:
       - save-key-to-mem-stash:
           keyName: MIGRATION_${CIRCLE_WORKFLOW_ID:0:7}
           keyValue: $(cat result.txt)
+      - revert-migrations
       - slack/notify: *slack-notify-job-fail
-     # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
     <<: *nodejs-image
@@ -367,7 +365,10 @@ jobs:
             npm run build:prod
             cd dist
             aws s3 sync . s3://s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7}
-      # Here's where you will add some code to rollback on failure      
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+      - slack/notify: *slack-notify-job-fail
                     
   deploy-backend:
     <<: *default-image
@@ -398,7 +399,10 @@ jobs:
             envsubst < .circleci/ansible/roles/deploy-backend/files/.env.template > .circleci/ansible/roles/deploy-backend/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
           no_output_timeout: 20m
-      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+      - slack/notify: *slack-notify-job-fail
 
   smoke-test:
     <<: *alpine-image
@@ -432,55 +436,76 @@ jobs:
               echo "Front-end cannot be reached!"
               return 0
             fi
-      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+      - slack/notify: *slack-notify-job-fail
 
   cloudfront-update:
-    <<: *default-image
+    <<: *aws-cli
     steps:
-      # Checkout code from git
+      - checkout
+      - install-dependencies
       - run:
-          name: Install dependencies
+          name: Save previous workflow ID
           command: |
-            # your code here
+            touch workflow_id.txt
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text >> workflow_id.txt
+      - save-key-to-mem-stash:
+          keyName: PREVIOUS_WORKFLOW_ID
+          keyValue: $(cat workflow_id.txt)
       - run:
-          name: Update cloudfront distribution
+          name: Ensure cloudfront infrastructure exists and it's up to date
           command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure  
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name udapeople-cloudfront \
+            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7}
+          no_output_timeout: 20m
+      - run:
+          name: Create invalidation
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`DistributionID\`].Value" \
+            --no-paginate --output text >> distribution_id.txt
+            export DISTRIBUTION_ID=$(cat distribution_id.txt)
+            aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
+          when: on_success
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+      - slack/notify: *slack-notify-job-fail
 
   cleanup:
     <<: *aws-cli
     steps:
       - install-dependencies
-      - attach_workspace:
-          at: ~/
+      - retrieve-key-from-mem-stash:
+          keyName: PREVIOUS_WORKFLOW_ID
       - run:
-          name: delete old S3 bucket stack
+          name: Delete old stack
           command: |
-            export PIPELINE_ID=$(cat pipeline_id.txt)
-            export BUCKET_EXISTS=$(aws s3 ls s3://${PIPELINE_ID} 2>&1 | grep -c 'index.html')
-            echo "Deleting bucket: ${PIPELINE_ID}"
-            if [ $BUCKET_EXISTS -eq 1 ]
+            source $BASH_ENV
+            export BUCKET_EXISTS=$(aws s3 ls s3://s3-bucket-udapeople-<< parameters.workflowId >> 2>&1 | grep -c 'index.html')
+            if [ "${PREVIOUS_WORKFLOW_ID}" != "${CIRCLE_WORKFLOW_ID:0:7}" ]
             then
-              aws s3 rm s3://${PIPELINE_ID} --recursive
-              aws cloudformation delete-stack --stack-name "${PIPELINE_ID}"
-              echo "Previous bucket have been deleted"
+              if [ $BUCKET_EXISTS -eq 1 ]
+              then
+                aws s3 rm s3://s3-bucket-udapeople-<< parameters.workflowId >> --recursive
+              fi
+              aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowId >>
+              aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowId >>
+              echo "Previous resources have been deleted"
             else
-              echo "No previous bucket to be deleted"
+              echo "No previous resources to be deleted"
             fi
-      - run:
-          name: Get old stack workflow id
-          command: |
-            # your code here
-            export OldWorkflowID="the id here"
-            export STACKS=[] #put the list of stacks here
-      - run:
-          name: Remove old stacks and files
-          command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              # your code here
-            fi
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+      - slack/notify: *slack-notify-job-fail
+      - slack/notify: *slack-notify-deploy-success
             
 
 workflows:
