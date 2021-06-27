@@ -279,7 +279,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify: *slack-notify-deploy-fail
 
   configure-infrastructure:
@@ -310,7 +310,7 @@ jobs:
             envsubst < .circleci/ansible/roles/configure-server/files/.env.template > .circleci/ansible/roles/configure-server/files/.env
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify: *slack-notify-deploy-fail
 
   run-migrations:
@@ -366,7 +366,7 @@ jobs:
             cd dist
             aws s3 sync . s3://s3-bucket-udapeople-${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
       - slack/notify: *slack-notify-job-fail
                     
@@ -400,7 +400,7 @@ jobs:
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
           no_output_timeout: 20m
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
       - slack/notify: *slack-notify-job-fail
 
@@ -437,7 +437,7 @@ jobs:
               return 1
             fi
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
       - slack/notify: *slack-notify-job-fail
 
@@ -474,7 +474,7 @@ jobs:
             aws cloudfront create-invalidation --distribution-id $DISTRIBUTION_ID --paths "/*"
           when: on_success
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
       - slack/notify: *slack-notify-job-fail
 
@@ -502,7 +502,7 @@ jobs:
               echo "No previous resources to be deleted"
             fi
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations
       - slack/notify: *slack-notify-job-fail
       - slack/notify: *slack-notify-deploy-success
