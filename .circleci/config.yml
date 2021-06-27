@@ -61,7 +61,7 @@ commands:
       - run:
           name: Install AWS cli
           command: |
-            sudo apt-get install -y python3 python3-pip jq
+            sudo apt-get install -y python3 python3-pip
             pip3 install --upgrade pip
             pip3 install awscli
   install-dependencies:
@@ -391,7 +391,6 @@ jobs:
     <<: *nodejs-image
     steps:
       - checkout
-      - install-dependencies
       - install-aws-cli
       - run:
           name: Backend smoke test.
@@ -494,16 +493,17 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [build-frontend, build-backend]
           filters:
             branches:
               only: [master]
