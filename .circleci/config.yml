@@ -488,15 +488,15 @@ jobs:
           name: Delete old stack
           command: |
             source $BASH_ENV
-            export BUCKET_EXISTS=$(aws s3 ls s3://s3-bucket-udapeople-<< parameters.workflowId >> 2>&1 | grep -c 'index.html')
+            export BUCKET_EXISTS=$(aws s3 ls s3://s3-bucket-udapeople-${PREVIOUS_WORKFLOW_ID} 2>&1 | grep -c 'index.html')
             if [ "${PREVIOUS_WORKFLOW_ID}" != "${CIRCLE_WORKFLOW_ID:0:7}" ]
             then
               if [ $BUCKET_EXISTS -eq 1 ]
               then
-                aws s3 rm s3://s3-bucket-udapeople-<< parameters.workflowId >> --recursive
+                aws s3 rm s3://s3-bucket-udapeople-${PREVIOUS_WORKFLOW_ID} --recursive
               fi
-              aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowId >>
-              aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowId >>
+              aws cloudformation delete-stack --stack-name udapeople-backend-${PREVIOUS_WORKFLOW_ID}
+              aws cloudformation delete-stack --stack-name udapeople-frontend-${PREVIOUS_WORKFLOW_ID}
               echo "Previous resources have been deleted"
             else
               echo "No previous resources to be deleted"
