@@ -61,7 +61,7 @@ commands:
       - run:
           name: Install AWS cli
           command: |
-            sudo apt-get install -y python3 python3-pip
+            sudo apt-get install -y python3 python3-pip jq
             pip3 install --upgrade pip
             pip3 install awscli
   install-dependencies:
@@ -256,7 +256,6 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             source $BASH_ENV
-            echo "Adding server to inventory: $BACKEND_PUBLIC_DNS_NAME"
             echo $BACKEND_PUBLIC_DNS_NAME >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -389,10 +388,11 @@ jobs:
       - slack/notify: *slack-notify-job-fail
 
   smoke-test:
-    <<: *aws-cli
+    <<: *nodejs-image
     steps:
       - checkout
       - install-dependencies
+      - install-aws-cli
       - run:
           name: Backend smoke test.
           command: |
