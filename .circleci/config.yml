@@ -349,6 +349,10 @@ jobs:
             envsubst < .circleci/prometheus/roles/install-prometheus/files/prometheus.template.yml > .circleci/prometheus/roles/install-prometheus/files/prometheus.yml
             envsubst < .circleci/prometheus/roles/install-prometheus/files/alertmanager.template.yml > .circleci/prometheus/roles/install-prometheus/files/alertmanager.yml
             ansible-playbook -i .circleci/prometheus/inventory.txt .circleci/prometheus/main.yml
+      - run:
+          name: Prometheus rollback
+          command: aws cloudformation delete-stack --stack-name prometheus
+          when: on_fail
       - slack/notify: *slack-notify-deploy-fail
 
   run-migrations:
@@ -492,11 +496,16 @@ jobs:
             if curl -s --head "http://${PROMETHEUS_PUBLIC_DNS_NAME}:9090/"
             then
               echo "Server is running on $PROMETHEUS_PUBLIC_DNS_NAME:9090"
-              return 0
+              exit 0
             else
               echo "Server cannot be reached!"
-              return 1
+              exit 1
             fi
+      - run:
+          name: Prometheus rollback
+          command: aws cloudformation delete-stack --stack-name prometheus
+          when: on_fail
+      - slack/notify: *slack-notify-deploy-fail
 
   cloudfront-update:
     <<: *aws-cli
