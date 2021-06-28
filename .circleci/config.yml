@@ -269,15 +269,15 @@ jobs:
     <<: *aws-cli
     steps:
       - checkout
+      - install-dependencies
       - run:
           name: Ensure Prometheus infrastructure exists
           command: |
             aws cloudformation deploy \
-            --template-file .circleci/files/prometheus.yml \
-            --stack-name prometheus
-            --parameter-overrides ImageID=${UBUNTU_AMI_ID} \
-                  KeyName=${SSH_KEY_NAME} \
-                  SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP}
+              --template-file .circleci/files/prometheus.yml \
+              --tags project=udapeople \
+              --stack-name prometheus \
+              --parameter-overrides ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP}
       - save-key-to-mem-stash:
           keyName: PROMETHEUS_PUBLIC_DNS_NAME
           keyValue: $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters 'Name=tag:Name,Values=Prometheus' --output text)
@@ -563,7 +563,6 @@ jobs:
       - revert-migrations
       - slack/notify: *slack-notify-job-fail
       - slack/notify: *slack-notify-deploy-success
-            
 
 workflows:
   default:
