@@ -6,7 +6,7 @@
 - name: Upgrade packages
   become: yes
   apt:
-    upgrade: yes
+    upgrade: safe
 
 - name: Create Node Exporter group
   become: yes
