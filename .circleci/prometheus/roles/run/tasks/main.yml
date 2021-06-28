@@ -1,0 +1,17 @@
+- name: Start Node Exporter service
+  become: true
+  shell: |
+    systemctl stop node-exporter
+    systemctl start node-exporter
+
+- name: Start Alert Manager service
+  become: true
+  shell: |
+    systemctl stop alertmanager
+    systemctl start alertmanager
+
+- name: Start Prometheus service
+  become: true
+  shell: |
+    systemctl stop prometheus
+    systemctl start prometheus
