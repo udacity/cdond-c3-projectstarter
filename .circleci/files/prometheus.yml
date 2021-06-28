@@ -1,0 +1,53 @@
+AWSTemplateFormatVersion: 2010-09-09
+
+Description: >
+  UdaPeople Prometheus instance.
+
+Parameters:
+  ImageID:
+    Description: The Amazon Image ID that will be used to provision the instance.
+    Type: String
+  KeyName:
+    Description: The key pair name that will be used to authenticate into this machine.
+    Type: String
+  SSHCidrIp:
+    Description: Range of IP addresses allowed to SSH into the instance.
+    Type: String
+
+Resources:
+  EC2InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Enables SSH/Prometheus Server access
+      GroupName: Prometheus Web Server
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: !Ref SSHCidrIp
+        - IpProtocol: tcp
+          FromPort: 9090
+          ToPort: 9090
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9093
+          ToPort: 9093
+          CidrIp: 0.0.0.0/0
+  
+  EC2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroups:
+        - !Ref EC2InstanceSecurityGroup
+      KeyName: !Ref KeyName
+      ImageId: !Ref ImageID
+      Tags:
+        - Key: Name
+          Value: Prometheus
+        - Key: Service
+          Value: Prometheus

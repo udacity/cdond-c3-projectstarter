@@ -1,0 +1,286 @@
+- name: Update packages
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: Upgrade packages
+  become: yes
+  apt:
+    upgrade: yes
+
+- name: Create Prometheus group
+  become: yes
+  group:
+    name: prometheus
+
+- name: Create Prometheus user
+  become: yes
+  user:
+    name: prometheus
+    group: prometheus
+    create_home: no
+
+- name: Create Node Exporter group
+  become: yes
+  group:
+    name: node_exporter
+
+- name: Create Node Exporter user
+  become: yes
+  user:
+    name: node_exporter
+    group: node_exporter
+    create_home: no
+
+- name: Create Prometheus dir
+  become: true
+  file:
+    path: /etc/prometheus
+    state: directory
+
+- name: Create Prometheus lib dir
+  become: true
+  file:
+    path: /var/lib/prometheus
+    state: directory
+
+- name: Create Alert Manager lib dir
+  become: true
+  file:
+    path: /var/lib/alertmanager
+    state: directory
+
+- name: Extract Prometheus
+  become: true
+  unarchive:
+    src: https://github.com/prometheus/prometheus/releases/download/v2.27.1/prometheus-2.27.1.linux-amd64.tar.gz
+    dest: /home/ubuntu
+    remote_src: yes
+
+- name: Extract Node Exporter
+  become: true
+  unarchive:
+    src: https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz
+    dest: /home/ubuntu
+    remote_src: yes
+
+- name: Extract Alert Manager
+  become: true
+  unarchive:
+    src: https://github.com/prometheus/alertmanager/releases/download/v0.22.2/alertmanager-0.22.2.linux-amd64.tar.gz
+    dest: /home/ubuntu
+    remote_src: yes
+
+- name: Copy Prometheus bin
+  become: yes
+  copy:
+    src: /home/ubuntu/prometheus-2.27.1.linux-amd64/prometheus
+    dest: /usr/local/bin/prometheus
+    mode: '744'
+    remote_src: yes
+
+- name: Copy Prometheus promtool bin
+  become: yes
+  copy:
+    src: /home/ubuntu/prometheus-2.27.1.linux-amd64/promtool
+    dest: /usr/local/bin/promtool
+    mode: '744'
+    remote_src: yes
+
+- name: Copy Prometheus consoles
+  become: yes
+  copy:
+    src: /home/ubuntu/prometheus-2.27.1.linux-amd64/consoles/
+    dest: /etc/prometheus/
+    remote_src: yes
+
+- name: Copy Prometheus consoles libraries
+  become: yes
+  copy:
+    src: /home/ubuntu/prometheus-2.27.1.linux-amd64/console_libraries/
+    dest: /etc/prometheus/
+    remote_src: yes
+
+- name: Copy Node Exporter bin
+  become: yes
+  copy:
+    src: /home/ubuntu/node_exporter-1.1.2.linux-amd64/node_exporter
+    dest: /usr/local/bin/node_exporter
+    mode: '744'
+    remote_src: yes
+
+- name: Copy Alert Manager bin
+  become: yes
+  copy:
+    src: /home/ubuntu/alertmanager-0.22.2.linux-amd64/alertmanager
+    dest: /usr/local/bin/alertmanager
+    mode: '744'
+    remote_src: yes
+
+- name: Copy Alert Manager amtool bin
+  become: yes
+  copy:
+    src: /home/ubuntu/alertmanager-0.22.2.linux-amd64/amtool
+    dest: /usr/local/bin/amtool
+    mode: '744'
+    remote_src: yes
+
+- name: Copy Prometheus config file
+  become: yes
+  copy:
+    src: prometheus.yml
+    dest: /etc/prometheus/prometheus.yml
+
+- name: Copy Alert Manager config file
+  become: yes
+  copy:
+    src: alertmanager.yml
+    dest: /etc/prometheus/alertmanager.yml
+
+- name: Copy Alert Manager rule file
+  become: yes
+  copy:
+    src: rules.yml
+    dest: /etc/prometheus/rules.yml
+
+- name: Copy Prometheus service file
+  become: yes
+  copy:
+    src: prometheus.service
+    dest: /etc/systemd/system/prometheus.service
+    mode: '644'
+
+- name: Copy Node Exporter service file
+  become: yes
+  copy:
+    src: node-exporter.service
+    dest: /etc/systemd/system/node-exporter.service
+    mode: '644'
+
+- name: Copy Alert Manager service file
+  become: yes
+  copy:
+    src: alertmanager.service
+    dest: /etc/systemd/system/alertmanager.service
+    mode: '644'
+
+- name: Delete Prometheus file
+  become: true
+  file:
+    path: /home/ubuntu/rometheus-2.27.1.linux-amd64.tar.gz
+    state: absent
+
+- name: Delete Prometheus
+  become: true
+  file:
+    path: /home/ubuntu/prometheus-2.27.1.linux-amd64
+    state: absent
+
+- name: Delete Node Exporter file
+  become: true
+  file:
+    path: /home/ubuntu/node_exporter-1.1.2.linux-amd64.tar.gz
+    state: absent
+
+- name: Delete Node Exporter folder
+  become: true
+  file:
+    path: /home/ubuntu/node_exporter-1.1.2.linux-amd64
+    state: absent
+
+- name: Delete Alert Manager file
+  become: true
+  file:
+    path: /home/ubuntu/alertmanager-0.22.2.linux-amd64.tar.gz
+    state: absent
+
+- name: Delete Alert Manager folder
+  become: true
+  file:
+    path: /home/ubuntu/alertmanager-0.22.2.linux-amd64
+    state: absent
+
+- name: Change Prometheus bin file permission
+  become: true
+  file:
+    path: /usr/local/bin/prometheus
+    owner: prometheus
+    group: prometheus
+
+- name: Change Prometheus promtool bin file permission
+  become: true
+  file:
+    path: /usr/local/bin/promtool
+    owner: prometheus
+    group: prometheus
+
+- name: Change Prometheus folder permission
+  become: true
+  file:
+    path: /etc/prometheus
+    owner: prometheus
+    group: prometheus
+    recurse: yes
+
+- name: Change Prometheus consoles folder permission
+  become: true
+  file:
+    path: /etc/prometheus/consoles
+    owner: prometheus
+    group: prometheus
+    recurse: yes
+
+- name: Change Prometheus consoles libraries folder permission
+  become: true
+  file:
+    path: /etc/prometheus/console_libraries
+    owner: prometheus
+    group: prometheus
+    recurse: yes
+
+- name: Change Prometheus lib folder permission
+  become: true
+  file:
+    path: /var/lib/prometheus
+    owner: prometheus
+    group: prometheus
+    recurse: yes
+
+- name: Change Alert Manager bin file permission
+  become: true
+  file:
+    path: /usr/local/bin/alertmanager
+    owner: prometheus
+    group: prometheus
+
+- name: Change amtool bin file permission
+  become: true
+  file:
+    path: /usr/local/bin/amtool
+    owner: prometheus
+    group: prometheus
+
+- name: Change Node Exporter bin file permission
+  become: true
+  file:
+    path: /usr/local/bin/node_exporter
+    owner: node_exporter
+    group: node_exporter
+
+- name: Configure Prometheus as a service
+  become: yes
+  shell: |
+    systemctl daemon-reload
+    systemctl enable prometheus
+
+- name: Configure Node Exporter as a service
+  become: yes
+  shell: |
+    systemctl daemon-reload
+    systemctl enable node-exporter
+
+- name: Configure Alert Manager as a service
+  become: yes
+  shell: |
+    systemctl daemon-reload
+    systemctl enable alertmanager

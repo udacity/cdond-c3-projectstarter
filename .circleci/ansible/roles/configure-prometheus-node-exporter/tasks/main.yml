@@ -1,27 +1,74 @@
-- name: "install node exporter."
-  unarchive:
-    src: https://github.com/prometheus/node_exporter/releases/download/v0.17.0/node_exporter-0.17.0.linux-amd64.tar.gz
-    dest: /tmp
-    remote_src: yes
+- name: Update packages
+  become: yes
+  apt:
+    update_cache: yes
 
-- name: "move binary to /usr/local/bin."
-  become: true
-  copy:
-    src: /tmp/node_exporter-0.17.0.linux-amd64/node_exporter
-    dest: /usr/local/bin/node_exporter
-    remote_src: yes
-    mode: '0777'
-    
-- name: "add node exporter configuration."
-  become: true
-  copy:
-    src: node_exporter.service
-    dest: /etc/systemd/system/
+- name: Upgrade packages
+  become: yes
+  apt:
+    upgrade: safe
 
-- name: "enable node_exporter service"
-  become: true
-  systemd:
-    state: restarted
-    daemon_reload: yes
+- name: Create Node Exporter group
+  become: yes
+  group:
     name: node_exporter
-    enabled: yes
+
+- name: Create Node Exporter user
+  become: yes
+  user:
+    name: node_exporter
+    group: node_exporter
+    create_home: no
+
+- name: Extract Node Exporter
+  become: true
+  unarchive:
+    src: https://github.com/prometheus/node_exporter/releases/download/v1.1.2/node_exporter-1.1.2.linux-amd64.tar.gz
+    dest: /home/ubuntu
+    remote_src: yes
+
+- name: Copy Node Exporter bin
+  become: yes
+  copy:
+    src: /home/ubuntu/node_exporter-1.1.2.linux-amd64/node_exporter
+    dest: /usr/local/bin/node_exporter
+    mode: '744'
+    remote_src: yes
+
+- name: Copy Node Exporter service file
+  become: yes
+  copy:
+    src: node-exporter.service
+    dest: /etc/systemd/system/node-exporter.service
+    mode: '644'
+
+- name: Delete Node Exporter file
+  become: true
+  file:
+    path: /home/ubuntu/node_exporter-1.1.2.linux-amd64.tar.gz
+    state: absent
+
+- name: Delete Node Exporter folder
+  become: true
+  file:
+    path: /home/ubuntu/node_exporter-1.1.2.linux-amd64
+    state: absent
+
+- name: Change Node Exporter bin file permission
+  become: true
+  file:
+    path: /usr/local/bin/node_exporter
+    owner: node_exporter
+    group: node_exporter
+
+- name: Configure Node Exporter as a service
+  become: yes
+  shell: |
+    systemctl daemon-reload
+    systemctl enable node-exporter
+
+- name: Start Node Exporter service
+  become: true
+  shell: |
+    systemctl stop node-exporter
+    systemctl start node-exporter

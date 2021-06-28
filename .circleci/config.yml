@@ -230,7 +230,7 @@ jobs:
               --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
                   ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} \
-                  SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} \
+                  SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} NodeExporterCidrIp=${NODE_EXPORTER_CIDR_IP} \
                   DatabaseUsername=${TYPEORM_USERNAME} DatabasePassword=${TYPEORM_PASSWORD}
           no_output_timeout: 20m
       - save-key-to-mem-stash:
@@ -265,6 +265,28 @@ jobs:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
       - slack/notify: *slack-notify-deploy-fail
 
+  deploy-prometheus:
+    <<: *aws-cli
+    steps:
+      - checkout
+      - install-dependencies
+      - run:
+          name: Ensure Prometheus infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/prometheus.yml \
+              --tags project=udapeople \
+              --stack-name prometheus \
+              --parameter-overrides ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP}
+      - save-key-to-mem-stash:
+          keyName: PROMETHEUS_PUBLIC_DNS_NAME
+          keyValue: $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters 'Name=tag:Name,Values=Prometheus' --output text)
+      - run:
+          name: Prometheus rollback
+          command: aws cloudformation delete-stack --stack-name prometheus
+          when: on_fail
+      - slack/notify: *slack-notify-deploy-fail
+
   configure-infrastructure:
     <<: *default-image
     steps:
@@ -294,6 +316,43 @@ jobs:
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - slack/notify: *slack-notify-deploy-fail
+
+  configure-prometheus:
+    <<: *default-image
+    steps:
+      - add_ssh_keys:
+          fingerprints: ["ba:cf:19:36:76:06:84:e1:c6:bd:b3:96:c1:f1:d6:f4"]
+      - checkout
+      - run:
+          name: Install AWS cli
+          command: |
+            apk add --no-cache python3 py3-pip
+            pip3 install --upgrade pip
+            pip3 install awscli
+      - run:
+          name: Install gettext
+          command: apk add --update gettext
+      - run:
+          name: Install Ansible
+          command: apk add --update ansible
+      - run:
+          name: Install Curl
+          command: apk add --update curl
+      - retrieve-key-from-mem-stash:
+          keyName: PROMETHEUS_PUBLIC_DNS_NAME
+      - run:
+          name: Update infrastructure
+          command: |
+            source $BASH_ENV
+            echo $PROMETHEUS_PUBLIC_DNS_NAME >> .circleci/prometheus/inventory.txt
+            envsubst < .circleci/prometheus/roles/install-prometheus/files/prometheus.template.yml > .circleci/prometheus/roles/install-prometheus/files/prometheus.yml
+            envsubst < .circleci/prometheus/roles/install-prometheus/files/alertmanager.template.yml > .circleci/prometheus/roles/install-prometheus/files/alertmanager.yml
+            ansible-playbook -i .circleci/prometheus/inventory.txt .circleci/prometheus/main.yml
+      - run:
+          name: Prometheus rollback
+          command: aws cloudformation delete-stack --stack-name prometheus
+          when: on_fail
       - slack/notify: *slack-notify-deploy-fail
 
   run-migrations:
@@ -423,6 +482,31 @@ jobs:
       - revert-migrations
       - slack/notify: *slack-notify-job-fail
 
+  prometheus-smoke-test:
+    <<: *nodejs-image
+    steps:
+      - checkout
+      - install-aws-cli
+      - retrieve-key-from-mem-stash:
+          keyName: PROMETHEUS_PUBLIC_DNS_NAME
+      - run:
+          name: Prometheus smoke test
+          command: |
+            source $BASH_ENV
+            if curl -s --head "http://${PROMETHEUS_PUBLIC_DNS_NAME}:9090/"
+            then
+              echo "Server is running on $PROMETHEUS_PUBLIC_DNS_NAME:9090"
+              exit 0
+            else
+              echo "Server cannot be reached!"
+              exit 1
+            fi
+      - run:
+          name: Prometheus rollback
+          command: aws cloudformation delete-stack --stack-name prometheus
+          when: on_fail
+      - slack/notify: *slack-notify-deploy-fail
+
   cloudfront-update:
     <<: *aws-cli
     steps:
@@ -488,7 +572,6 @@ jobs:
       - revert-migrations
       - slack/notify: *slack-notify-job-fail
       - slack/notify: *slack-notify-deploy-success
-            
 
 workflows:
   default:
@@ -503,6 +586,10 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-prometheus:
+          filters:
+            branches:
+              only: [master]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
@@ -510,6 +597,8 @@ workflows:
               only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - configure-prometheus:
+          requires: [deploy-prometheus]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
@@ -518,6 +607,8 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - prometheus-smoke-test:
+          requires: [configure-prometheus]
       - cloudfront-update:
           requires: [smoke-test]
       - cleanup:
