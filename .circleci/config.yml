@@ -230,7 +230,7 @@ jobs:
               --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
                   ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} \
-                  SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} \
+                  SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP} WebCidrIp=${WEB_CIDR_IP} NodeExporterCidrIp=${NODE_EXPORTER_CIDR_IP} \
                   DatabaseUsername=${TYPEORM_USERNAME} DatabasePassword=${TYPEORM_PASSWORD}
           no_output_timeout: 20m
       - save-key-to-mem-stash:

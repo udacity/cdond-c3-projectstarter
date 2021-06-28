@@ -19,6 +19,9 @@ Parameters:
   WebCidrIp:
     Description: Range of IP addresses allowed to send requests to the web API.
     Type: String
+  NodeExporterCidrIp:
+    Description: Range of IP addresses allowed to send requests to the Node Exporter API.
+    Type: String
 
 Resources:
   InstanceSecurityGroup:
@@ -35,6 +38,10 @@ Resources:
           FromPort: 3030
           ToPort: 3030
           CidrIp: !Ref WebCidrIp
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: !Ref NodeExporterCidrIp
 
   EC2Instance:
     Type: AWS::EC2::Instance
