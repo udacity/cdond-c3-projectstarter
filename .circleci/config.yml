@@ -275,8 +275,8 @@ jobs:
             aws cloudformation deploy \
             --template-file .circleci/files/prometheus.yml \
             --stack-name prometheus
-            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-                  ImageID=${UBUNTU_AMI_ID} KeyName=${SSH_KEY_NAME} \
+            --parameter-overrides ImageID=${UBUNTU_AMI_ID} \
+                  KeyName=${SSH_KEY_NAME} \
                   SSHCidrIp=${DEVELOPER_JUMPBOX_CIDR_IP}
       - save-key-to-mem-stash:
           keyName: PROMETHEUS_PUBLIC_DNS_NAME
