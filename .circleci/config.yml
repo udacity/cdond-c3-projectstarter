@@ -72,34 +72,82 @@ jobs:
   test-frontend:
     docker:
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - checkout
+      - restore_cache:
+          keys: [frontend-test]
+      - run:
+          name: Frontend test
+          command: |    
+            cd frontend
+            npm run test
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-test
                 
   test-backend:
     docker:
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - checkout
+      - restore_cache:
+          keys: [backend-test]
+      - run:
+          name: Backend test
+          command: |    
+            cd backend
+            npm run test
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-test
             
   scan-frontend:
     docker:
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - checkout
+      - restore_cache:
+          keys: [frontend-scan]
+      - run:
+          name: Frontend scan
+          command: |    
+            cd frontend
+            npm audit --audit-level=critical
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-scan
 
   scan-backend:
     docker:
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - checkout
+      - restore_cache:
+          keys: [backend-scan]
+      - run:
+          name: Backend scan
+          command: |    
+            cd backend
+            npm audit --audit-level=critical
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-scan
 
   deploy-infrastructure:
     docker:
