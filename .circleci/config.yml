@@ -179,57 +179,79 @@ jobs:
           command: |
             # Your code here
             echo "[web]" > inventory
-            aws ec2 describe-instances \
+            BACKEND_IP=aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --output text >> inventory
+              --output text 
+            echo $BACKEND_IP >> inventory 
             #exit 1
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - cdond-c3-projectstarter/.circleci/ansible/inventory.txt
+      - run: return 1
+      - destroy_environment
+        when: on_fail
       # Here's where you will add some code to rollback on failure      
 
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
     steps:
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
+      - attach_workspace:
+        at: cdond-c3-projectstarter/.circleci/ansible/
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [bc:60:27:3e:76:de:d0:24:1b:61:18:d9:fe:0f:87:2a]
       - run:
           name: Install dependencies
           command: |
             # Your code here
-            exit 1
+            apk add --update ansible
+            #exit 1
       - run:
           name: Configure server
           command: |
             # Your code here
-            exit 1
+            ansible-playbook -i inventory.txt configure-server.yml
+            #exit 1
+      - run: return 1
+      - destroy_environment
+        when: on_fail
       # Here's where you will add some code to rollback on failure      
 
   run-migrations:
     docker:
       # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       - run:
           name: Run migrations
           command: |
             # Your code here
-            exit 1
+            #exit 1
       - run:
           name: Send migration results to memstash
           command: |
             # Your code here
-            exit 1
+            #exit 1
+      - run: return 1
+      - destroy_environment
+        when: on_fail
      # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -249,10 +271,16 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
+    - image: python:3.7-alpine3.11
     steps:
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
+      - checkout       
+      - add_ssh_keys:
+          fingerprints: [bc:60:27:3e:76:de:d0:24:1b:61:18:d9:fe:0f:87:2a]
+      - attach_workspace:
+        at: cdond-c3-projectstarter/.circleci/ansible/
       - run:
           name: Install dependencies
           command: |
@@ -265,9 +293,11 @@ jobs:
 
   smoke-test:
     docker:
-      # Lightweight Docker image 
+      # Lightweight Docker image
+      - image: cimg/base:2020.01 
     steps:
       # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -291,6 +321,7 @@ jobs:
       # Docker image here that supports AWS CLI
     steps:
       # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -304,8 +335,10 @@ jobs:
 cleanup:
     docker:
       # Docker image here
+      - image: cimg/base:2020.01
     steps:
       # Checkout code from git
+      - checkout
       - run:
           name: Get old stack workflow id
           command: |
