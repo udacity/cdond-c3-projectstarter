@@ -12,30 +12,23 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: <<parameters.workflow_id>> "
-jobs:
-  build_frontend:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-      - checkout
-      - run: npm i --prefix frontend
-      - run: npm run lint --prefix frontend
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/frontend/node_modules
 
-  build_backend:
+jobs:
+  build-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run: npm i --prefix backend
-      - run: npm run lint --prefix backend
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/backend/node_modules
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Build front-end
+          command: |
+            # Your code here
+            exit 1
+      - save_cache:
+          paths: [frontend/node_modules]
+          key: frontend-build
             
 workflows:
   default:
