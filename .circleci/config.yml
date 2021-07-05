@@ -56,7 +56,7 @@ jobs:
       - restore_cache:
           keys: ["frontend-build"]
       - run:
-          name: Back-end test
+          name: Front-end test
           command: |
             cd frontend
             npm run test
@@ -85,7 +85,6 @@ jobs:
           name: Front-end analyze
           command: |
             cd frontend
-            npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
 
   scan-backend:
@@ -99,7 +98,6 @@ jobs:
           name: Back-end analyze
           command: |
             cd backend
-            npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
 
 workflows:
@@ -111,7 +109,7 @@ workflows:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
