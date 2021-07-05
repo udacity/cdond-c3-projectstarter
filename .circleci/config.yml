@@ -14,9 +14,6 @@ parameters:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      workflow_id:
-        type: string
     steps:
       - run:
           name: Destroy environments
@@ -225,12 +222,7 @@ jobs:
             ansible-playbook \
               -i .circleci/ansible/inventory.txt \
               .circleci/ansible/configure-server.yml
-      
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+
       - destroy-environment
 
 workflows:
