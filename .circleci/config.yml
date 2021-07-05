@@ -170,13 +170,14 @@ jobs:
 
   deploy-frontend:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            cd frontend
+            npm i
       - run:
           name: Get backend url
           command: |
@@ -187,7 +188,9 @@ jobs:
           name: Deploy frontend objects
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure      
+      # Here's where you will add some code to rollback on failure
+      - destroy_environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
                     
   deploy-backend:
     docker:
