@@ -70,6 +70,7 @@ jobs:
           name: Front-end test
           command: |
             cd frontend
+            npm install
             npm run test
       - slack/notify:
           event: fail
@@ -86,6 +87,7 @@ jobs:
           name: Back-end test
           command: |
             cd backend
+            npm install
             npm run test
       - slack/notify:
           event: fail
@@ -102,6 +104,7 @@ jobs:
           name: Front-end analyze
           command: |
             cd frontend
+            npm install
             npm audit fix --audit-level=critical --force
       - slack/notify:
           event: fail
@@ -121,6 +124,7 @@ jobs:
           name: Back-end analyze
           command: |
             cd backend
+            npm install
             npm audit fix --audit-level=critical --force
       - slack/notify:
           event: fail
