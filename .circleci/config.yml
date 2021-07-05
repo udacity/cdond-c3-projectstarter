@@ -28,6 +28,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
+            npm cache clean --force
             npm i
             npm install
             npm run build
@@ -49,6 +50,7 @@ jobs:
           name: Back-end build
           command: |
             cd backend
+            npm cache clean --force
             npm i
             npm install
             npm run build
@@ -70,6 +72,7 @@ jobs:
           name: Front-end test
           command: |
             cd frontend
+            npm cache clean --force
             npm install
             npm run test
       - slack/notify:
@@ -87,6 +90,7 @@ jobs:
           name: Back-end test
           command: |
             cd backend
+            npm cache clean --force
             npm install
             npm run test
       - slack/notify:
@@ -104,6 +108,7 @@ jobs:
           name: Front-end analyze
           command: |
             cd frontend
+            npm cache clean --force
             npm install
             npm audit fix --audit-level=critical --force
       - slack/notify:
@@ -124,6 +129,7 @@ jobs:
           name: Back-end analyze
           command: |
             cd backend
+            npm cache clean --force
             npm install
             npm audit fix --audit-level=critical --force
       - slack/notify:
