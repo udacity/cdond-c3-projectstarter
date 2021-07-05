@@ -71,7 +71,7 @@ jobs:
           command: |
             cd frontend
             npm run test
-       - slack/notify:
+      - slack/notify:
           event: fail
           template: basic_fail_1
           
