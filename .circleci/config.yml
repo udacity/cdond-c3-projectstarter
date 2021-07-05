@@ -13,7 +13,7 @@ parameters:
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.test
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       workflow_id:
         type: string
@@ -22,7 +22,6 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            echo "Destroying environment: << parameters.workflow_id >> "
             aws s3 rm --recursive s3://udapeople-<< parameters.workflow-id >>
             aws cloudformation delete-stack \
               --stack-name "udapeople-backend-<< parameters.workflow-id >>"
