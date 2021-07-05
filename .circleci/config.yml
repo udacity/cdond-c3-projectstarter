@@ -84,7 +84,6 @@ jobs:
           command: |
             cd frontend
             npm cache clean --force
-            rm -rf node_modules
             npm install
             npm run test
       - slack/notify:
@@ -103,7 +102,6 @@ jobs:
           command: |
             cd backend
             npm cache clean --force
-            rm -rf node_modules
             npm install
             npm run test
       - slack/notify:
