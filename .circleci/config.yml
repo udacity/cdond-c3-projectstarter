@@ -13,29 +13,17 @@ commands:
           command: |
             echo "Destroying environment: <<parameters.workflow_id>> "
 jobs:
-  deploy-frontend:
+  build_backend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            cd frontend
-            npm i
-      - run:
-          name: Get backend url
-          command: |
-            # your code here
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-      - run:
-          name: Deploy frontend objects
-          command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure
-      - destroy_environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - run: npm i --prefix backend
+      - run: npm run lint --prefix backend
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend/node_modules
 
 workflows:
   default:
