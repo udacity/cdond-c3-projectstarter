@@ -10,7 +10,7 @@ parameters:
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.test
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       workflow_id:
         type: string
@@ -84,6 +84,7 @@ jobs:
           command: |
             cd frontend
             npm cache clean --force
+            rm -rf node_modules
             npm install
             npm run test
       - slack/notify:
@@ -102,6 +103,7 @@ jobs:
           command: |
             cd backend
             npm cache clean --force
+            rm -rf node_modules
             npm install
             npm run test
       - slack/notify:
