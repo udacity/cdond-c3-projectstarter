@@ -22,7 +22,11 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            echo "Destroying environment"
+            aws s3 rm --recursive s3://udapeople-<< pipeline.parameters.workflow-id >>
+            aws cloudformation delete-stack \
+              --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>"
+            aws cloudformation delete-stack \
+              --stack-name "udapeople-frontend-<< pipeline.parameters.workflow-id >>"
 
 jobs:
   build-frontend:
@@ -178,7 +182,6 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo '[web]' > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
@@ -188,6 +191,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - destroy-environment
 
   configure-infrastructure:
     docker:
@@ -217,7 +221,17 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-      # Here's where you will add some code to rollback on failure  
+            
+            ansible-playbook \
+              -i .circleci/ansible/inventory.txt \
+              .circleci/ansible/configure-server.yml
+      
+      - run:
+          name: Install AWS CLI for rollback
+          when: on_fail
+          command: |
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+      - destroy-environment
 
 workflows:
   default:
