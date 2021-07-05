@@ -19,7 +19,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            echo "Destroying environment: <<parameters.workflow_id>> "
+            echo "Destroying environment"
 
 jobs:
   build-frontend:
@@ -157,8 +157,7 @@ jobs:
               --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>" \
               --tags project=udapeople
-      - destroy-environment
-      
+
 workflows:
   default:
     jobs:
