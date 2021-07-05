@@ -157,7 +157,8 @@ jobs:
               --stack-name "udapeople-backend-<< pipeline.parameters.workflow-id >>" \
               --parameter-overrides ID="<< pipeline.parameters.workflow-id >>" \
               --tags project=udapeople
-
+      - destroy-environment
+      
 workflows:
   default:
     jobs:
