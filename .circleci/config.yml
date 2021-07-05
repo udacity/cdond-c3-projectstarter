@@ -76,7 +76,6 @@ jobs:
 
   scan-frontend:
     docker:
-    docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
@@ -89,7 +88,6 @@ jobs:
             npm audit --audit-level=critica
 
   scan-backend:
-    docker:
     docker:
       - image: circleci/node:13.8.0
     steps:
