@@ -451,7 +451,9 @@ workflows:
               only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      - deploy-backend
-      - deploy-frontend
+      - deploy-backend:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [configure-infrastructure]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
