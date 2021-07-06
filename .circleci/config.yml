@@ -188,11 +188,6 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - destroy-environment
 
   configure-infrastructure:
@@ -201,7 +196,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["9a:02:61:b5:1b:ea:b5:aa:02:78:9e:e5:80:f3:7c:1a"]
+          fingerprints: ["1b:71:26:50:58:14:a3:5d:a9:20:c5:13:fa:17:b9:7e"]
       - attach_workspace:
           at: ~/
       - run:
@@ -227,6 +222,11 @@ jobs:
             ansible-playbook \
               -i .circleci/ansible/inventory.txt \
               .circleci/ansible/configure-server.yml
+      - run:
+          name: Install AWS CLI for rollback
+          when: on_fail
+          command: |
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - destroy-environment
 workflows:
   default:
