@@ -55,9 +55,9 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
-            sudo npm install webpack-dev-server -g
-            sudo npm install
-            sudo npm run build
+            npm install webpack-dev-server -g
+            npm install
+            npm run build
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build  # -<< pipeline.id >>
@@ -242,8 +242,6 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup
-      # - restore_cache:
-      #     keys: ["backend-build"]
       - run:
           name: Run migrations
           command: |
@@ -260,10 +258,7 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
             cd backend
-            sudo npm install
-            sudo npm audit fix --audit-level=critical --force
-            sudo npm run build
-            sudo npm run migrations > migration.log
+            npm run migrations > migration.log
             cat migration.log
             migration_status=$(cat migration.log | grep -c "has been executed successfully")
             if [ $migration_status > 0 ]; then exit 0; else exit 1; fi;
@@ -444,8 +439,6 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
       - run-migrations
       - deploy-backend:
           requires: [run-migrations]
