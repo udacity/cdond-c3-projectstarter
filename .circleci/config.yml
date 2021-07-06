@@ -257,12 +257,12 @@ jobs:
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             cat backend/.env
-            
+
             cd backend
             npm cache clean --force
             npm install
             npm run build
-            npm audit fix --force
+            npm audit fix
             npm run migrations > migration.log
             cat migration.log
             migration_status=$(cat migration.log | grep -c "has been executed successfully")
