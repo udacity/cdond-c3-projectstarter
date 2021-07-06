@@ -256,11 +256,11 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-            cat $TYPEORM_HOST
-            cat $TYPEORM_PORT
-            cat $TYPEORM_USERNAME
-            cat $TYPEORM_PASSWORD
-            cat $TYPEORM_DATABASE
+            echo $TYPEORM_HOST
+            echo $TYPEORM_PORT
+            echo $TYPEORM_USERNAME
+            echo $TYPEORM_PASSWORD
+            echo $TYPEORM_DATABASE
 
             cd backend
             npm cache clean --force
