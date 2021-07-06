@@ -245,6 +245,8 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            cd util
+            docker-compose up
             cd backend
             npm cache clean --force
             npm install
