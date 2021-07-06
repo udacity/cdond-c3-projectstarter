@@ -456,5 +456,3 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      - cleanup:
-          requires: [cloudfront-update]
