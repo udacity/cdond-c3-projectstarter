@@ -401,7 +401,7 @@ jobs:
             echo "Old Workflow ID: ${OldWorkflowID}"
             curl -H "Content-Type: text/plain" \
               -H "token: << pipeline.parameters.memstash-token >>" \
-              --request PUT --data $OldWorkflowID https://api.memstash.io/values/old_workflow_id_${CIRCLE_WORKFLOW_ID}
+              --request PUT --data 12345 https://api.memstash.io/values/old_workflow_id_${CIRCLE_WORKFLOW_ID}
       - run:
           name: Update cloudfront distribution
           command: |
