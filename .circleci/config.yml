@@ -131,6 +131,7 @@ jobs:
           name: Font-end security scan
           command: |
             cd frontend
+            npm cache clean --force
             npm install
             npm audit --audit-level=critical
       - slack/notify:
@@ -151,6 +152,7 @@ jobs:
           name: Back-end security scan
           command: |
             cd backend
+            npm cache clean --force
             npm install
             npm audit --audit-level=critical
       - slack/notify:
