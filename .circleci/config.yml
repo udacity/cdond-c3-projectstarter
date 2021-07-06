@@ -361,7 +361,7 @@ jobs:
             then
             return 1
             else
-            return 0
+            return 1
             fi
       - run:
           name: Frontend smoke test.
@@ -372,7 +372,7 @@ jobs:
             then
             return 1
             else
-            return 0
+            return 1
             fi
       - run:
           name: Install AWS CLI for rollback
