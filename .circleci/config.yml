@@ -261,7 +261,7 @@ jobs:
             # ---
             cd backend
             sudo npm install
-            # npm audit fix --audit-level=critical --force
+            sudo npm audit fix --audit-level=critical --force
             # sudo npm run build
             sudo npm run migrations > migration.log
             cat migration.log
@@ -446,23 +446,7 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - scan-backend:
-          requires: [build-backend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
+      - run-migrations
       - deploy-backend:
           requires: [run-migrations]
       - deploy-frontend:
