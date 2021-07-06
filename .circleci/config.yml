@@ -433,7 +433,6 @@ jobs:
 workflows:
   default:
     jobs:
-      - cloudfront-update:
-          requires: [smoke-test]
+      - cloudfront-update
       - cleanup:
           requires: [cloudfront-update]
