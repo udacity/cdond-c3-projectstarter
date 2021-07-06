@@ -133,7 +133,7 @@ jobs:
             cd frontend
             npm cache clean --force
             npm install
-            npm audit --audit-level=critical
+            npm audit fix --audit-level=critical --force
       - slack/notify:
           event: fail
           template: basic_fail_1
@@ -147,14 +147,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: ["backend-build"]  # -<< pipeline.id >>"
+          keys: ["backend-build"]
       - run:
-          name: Back-end security scan
+          name: Back-end analyze
           command: |
             cd backend
             npm cache clean --force
             npm install
-            npm audit --audit-level=critical
+            npm audit fix --audit-level=critical --force
       - slack/notify:
           event: fail
           template: basic_fail_1
