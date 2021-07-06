@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  slack: circleci/slack@4.4.2
+  slack: circleci/slack@4.1.1
   aws-cli: circleci/aws-cli@1.3.0
 
 parameters:
@@ -10,7 +10,7 @@ parameters:
     default: "${CIRCLE_WORKFLOW_ID:0:7}"
   memstash-token:
     type: string
-    default: "b9461c43-6888-4d04-8e76-7beeddbb863c"
+    default: "63cb433a-201e-4bad-ae0e-23c6c20d1ae2"
 
 commands:
   destroy-environment:
@@ -43,7 +43,6 @@ commands:
               npm install
               npm run migrations:revert
             fi
-
 jobs:
   build-frontend:
     docker:
@@ -56,19 +55,15 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
-            npm cache clean --force
-            npm i
-            npm install
-            npm run build
+            sudo npm install webpack-dev-server -g
+            sudo npm install
+            sudo npm run build
       - save_cache:
           paths: [frontend/node_modules]
-          key: frontend-build
+          key: frontend-build  # -<< pipeline.id >>
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   build-backend:
     docker:
@@ -81,19 +76,17 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm cache clean --force
             npm i
-            npm install
             npm run build
       - save_cache:
           paths: [backend/node_modules]
-          key: backend-build
+          key: backend-build  # -<< pipeline.id >>
+      - save_cache:
+          paths: [backend/dist]
+          key: backend-dist  # -<< pipeline.id >>
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - slack/notify:
-          event: pass
-          template: success_tagged_deploy_1
 
   test-frontend:
     docker:
@@ -101,71 +94,63 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: ["frontend-build"]
+          keys: ["frontend-build"]  # -<< pipeline.id >>"
       - run:
-          name: Front-end test
+          name: Font-end test
           command: |
             cd frontend
-            npm cache clean --force
-            npm install
             npm run test
       - slack/notify:
           event: fail
           template: basic_fail_1
-          
+                
   test-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
-          keys: ["backend-build"]
+          keys: ["backend-build"]  # -<< pipeline.id >>"
       - run:
           name: Back-end test
           command: |
             cd backend
-            npm cache clean --force
-            npm install
             npm run test
       - slack/notify:
           event: fail
           template: basic_fail_1
-          
+
   scan-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
-          keys: ["frontend-build"]
+          keys: ["frontend-build"]  # -<< pipeline.id >>"
       - run:
-          name: Front-end analyze
+          name: Font-end security scan
           command: |
             cd frontend
-            npm cache clean --force
-            npm install
-            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
       - slack/notify:
           event: fail
           template: basic_fail_1
       - slack/notify:
           event: pass
           template: success_tagged_deploy_1
-          
+
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
-          keys: ["backend-build"]
+          keys: ["backend-build"]  # -<< pipeline.id >>"
       - run:
-          name: Back-end analyze
+          name: Back-end security scan
           command: |
             cd backend
-            npm cache clean --force
-            npm install
-            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
       - slack/notify:
           event: fail
           template: basic_fail_1
@@ -175,12 +160,12 @@ jobs:
 
   deploy-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:2020.01
     steps:
       - checkout
-      - run: yum -y install tar gzip
+      - aws-cli/setup
       - run:
-          name: Ensure back-end infrastructure exists - test
+          name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
@@ -237,7 +222,6 @@ jobs:
             echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
             echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-            
             ansible-playbook \
               -i .circleci/ansible/inventory.txt \
               .circleci/ansible/configure-server.yml
@@ -254,6 +238,8 @@ jobs:
     steps:
       - checkout
       - aws-cli/setup
+      # - restore_cache:
+      #     keys: ["backend-build"]
       - run:
           name: Run migrations
           command: |
@@ -270,15 +256,22 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
             # ---
             cd backend
-            npm install
-            npm audit fix --audit-level=critical --force
-            npm run build
-            npm run migrations > migration.log
+            sudo npm install
+            # npm audit fix --audit-level=critical --force
+            # sudo npm run build
+            sudo npm run migrations > migration.log
             cat migration.log
             migration_status=$(cat migration.log | grep -c "has been executed successfully")
             if [ $migration_status > 0 ]; then exit 0; else exit 1; fi;
+      - run:
+          name: Send migration results to memstash
+          command: |
+            curl -H "Content-Type: text/plain" \
+              -H "token: << pipeline.parameters.memstash-token >>" \
+              --request PUT --data "1" \
+              https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
       - revert-migrations
-      - destroy-environment 
+      - destroy-environment
 
   deploy-frontend:
     docker:
@@ -323,7 +316,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["9a:02:61:b5:1b:ea:b5:aa:02:78:9e:e5:80:f3:7c:1a"]
+          fingerprints: ["1b:71:26:50:58:14:a3:5d:a9:20:c5:13:fa:17:b9:7e"]
       - attach_workspace:
           at: ~/
       - run:
@@ -395,6 +388,55 @@ jobs:
       - revert-migrations
       - destroy-environment 
 
+  cloudfront-update:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+            apk add --update curl
+      - run:
+          name: Save old workflow ID
+          command: |
+            export OldWorkflowID=$(aws cloudformation list-exports \
+              --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+            echo "Old Workflow ID: ${OldWorkflowID}"
+            curl -H "Content-Type: text/plain" \
+              -H "token: << pipeline.parameters.memstash-token >>" \
+              --request PUT --data $OldWorkflowID \
+              https://api.memstash.io/values/old_workflow_id_${CIRCLE_WORKFLOW_ID}
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name "udapeople-cloudfront" \
+              --parameter-overrides WorkflowID="<< pipeline.parameters.workflow-id >>" \
+              --tags project=udapeople
+      - revert-migrations
+      - destroy-environment
+
+  cleanup:
+    docker:
+      - image: cimg/base:2020.01
+    steps:
+      - checkout
+      - aws-cli/setup
+      - run:
+          name: Remove old stacks and files
+          command: |
+            export OldWorkflowID=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/old_workflow_id_${CIRCLE_WORKFLOW_ID})
+            echo "Old Workflow ID: ${OldWorkflowID}"
+            if [ "${OldWorkflowID}" != "<< pipeline.parameters.workflow-id >>" ]
+            then
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            fi
 workflows:
   default:
     jobs:
@@ -423,3 +465,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
