@@ -75,11 +75,11 @@ jobs:
       # Restore from cache
       # Your job code here
       - checkout
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       cd backend
-      #       npm install
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install
       - run:
           name: Test the code
           command: |
@@ -95,11 +95,11 @@ jobs:
       # Restore from cache
       # Your job code here
       - checkout
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       cd backend
-      #       npm install
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install
       - run:
           name: Test the code
           command: |
