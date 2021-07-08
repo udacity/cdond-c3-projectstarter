@@ -108,10 +108,11 @@ jobs:
       # Checkout code from git
       # Restore from cache
       # Your job code here
+      - checkout
       - restore_cache:
           keys: [frontend-build]      
       - run:
-          name: Analyse code
+          name: Scan frontend dependencies
           command: |
             cd frontend
             npm audit --audit-level=critical      
@@ -127,7 +128,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]      
       - run:
-          name: Analyse code
+          name: Scan backend dependencies
           command: |
             cd backend
             npm audit --audit-level=critical
@@ -309,9 +310,9 @@ workflows:
       - test-backend:
           requires: [build-backend]
       - scan-backend:
-          requires: [test-backend]
+          requires: [build-backend]
       - scan-frontend:
-          requires: [test-frontend]
+          requires: [build-frontend]
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
