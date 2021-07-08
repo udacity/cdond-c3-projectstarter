@@ -32,9 +32,6 @@ commands:
               exit 1
             fi
 
-orbs:
-  slack: circleci/slack@4.4.2  # for slack integration to https://udapeople.slack.com; reference: https://circleci.com/blog/continuous-integration-slack-twilio/
-
             
 jobs:
   build-frontend:
@@ -53,7 +50,6 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
-      - slack/status
 
   build-backend:
     docker:
@@ -71,7 +67,6 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-      - slack/status
 
   test-frontend:
     docker:
