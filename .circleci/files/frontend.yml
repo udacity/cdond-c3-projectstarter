@@ -32,3 +32,5 @@ Outputs:
   WebsiteURL:
     Value: !GetAtt WebsiteBucket.WebsiteURL
     Description: URL for website hosted on S3
+    Export:
+      Name: !Sub "${AWS::StackName}-S3BucketWebsiteURL"
