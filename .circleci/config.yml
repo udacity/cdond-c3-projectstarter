@@ -187,7 +187,7 @@ jobs:
   configure-infrastructure:
     docker:
       # Docker image here that supports Ansible
-      - image: ansible/ansible
+      - image: python:3.7-alpine3.12
     steps:
       # Checkout code from git
       - checkout
@@ -195,14 +195,12 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["d6:a0:ab:8b:87:f6:b8:9d:4b:00:52:de:fd:8a:2b:4b"]
       # attach workspace
-      # - run:
-      #     name: Install system dependencies
-      #     command: |
-      #       apk add --no-cache curl
-      #       apk add --no-cache --upgrade bash
-      #       apk add --no-cache --update ansible
-      #       apk add --no-cache openssh-client
-      #       pip3 install awscli
+      - run:
+          name: Install system dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm curl
+            pip install awscli
+            
       - run:
           name: Get the public DNS of EC2 instance from https://memstash.io/
           command: |
