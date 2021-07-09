@@ -110,8 +110,11 @@ jobs:
       # Restore from cache
       # Your job code here
       - checkout
-      - restore_cache:
-          keys: [frontend-build]      
+      - run:
+          name: Install dependencies
+          command: |
+            cd frontend
+            npm install  
       - run:
           name: Scan frontend dependencies
           command: |
@@ -127,6 +130,11 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]      
+      - run:
+          name: Install dependencies
+          command: |
+            cd backend
+            npm install     
       - run:
           name: Scan backend dependencies
           command: |
