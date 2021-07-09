@@ -209,7 +209,7 @@ jobs:
             aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} \
             --filters 'Name=tag:Name,Values=backend-ec2-*' \
             --query "Reservations[*].Instances[0].PublicDnsName" \
-            --output text >> inventory
+            --output text >> inventory.txt
             cat inventory.txt
       - run:
           name: Configure server
