@@ -200,14 +200,14 @@ jobs:
           command: |
             apk add --update tar gzip ansible nodejs npm curl
             pip install awscli
-            
+
       - run:
           name: Get the public DNS of EC2 instance from https://memstash.io/
           command: |
             PUBLIC_DNS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/publicdns)
             echo ${PUBLIC_DNS}
             cd .circleci/ansible/
-            echo "[all]" > ./inventory
+            echo "[web]" > ./inventory
             echo ${PUBLIC_DNS} >> ./inventory
             cat ./inventory
       - run:
