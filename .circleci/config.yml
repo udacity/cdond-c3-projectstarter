@@ -172,7 +172,7 @@ jobs:
                -H "token: ${CIRCLE_WORKFLOW_ID}" \
                --request PUT \
                --data "${PUBLIC_DNS}" \
-               https://api.memstash.io/values/PUBLIC_DNS
+               https://api.memstash.io/values/publicdns
       #  curl -H "Content-Type: text/plain" -H "token: bf46439d-20a8-42c2-8d51-079b03dfbc6a" --request PUT --data "ec2-35-175-65-168.compute-1.amazonaws.com ec2-18-209-180-123.compute-1.amazonaws.com" https://api.memstash.io/values/PUBLIC_DNS
       #     name: Add back-end ip to ansible inventory
       #     command: |
@@ -184,24 +184,41 @@ jobs:
       #       - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      # Docker image here that supports Ansible
+      - image: ansible/ansible
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["d6:a0:ab:8b:87:f6:b8:9d:4b:00:52:de:fd:8a:2b:4b"]
+      # attach workspace
+      # - run:
+      #     name: Install system dependencies
+      #     command: |
+      #       apk add --no-cache curl
+      #       apk add --no-cache --upgrade bash
+      #       apk add --no-cache --update ansible
+      #       apk add --no-cache openssh-client
+      #       pip3 install awscli
+      - run:
+          name: Get the public DNS of EC2 instance from https://memstash.io/
+          command: |
+            PUBLIC_DNS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/publicdns)
+            echo ${PUBLIC_DNS}
+            cd .circleci/ansible/
+            echo "[all]" > ./inventory
+            echo ${PUBLIC_DNS} >> ./inventory
+            cat ./inventory
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible/
+            ansible-playbook -i inventory.txt configure-server.yml
+            
+      # Here's where you will add some code to rollback on failure      
 
 #   run-migrations:
 #     docker:
@@ -353,8 +370,8 @@ workflows:
           filters:
             branches:
               only: infra
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:

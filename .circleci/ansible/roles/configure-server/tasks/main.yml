@@ -1,0 +1,33 @@
+---
+- name: Run apt-get update
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: Upgrade the OS (apt-get dist-upgrade)
+  become: yes
+  apt:
+    upgrade: dist
+
+
+- name: "install dependencies."
+  become: yes
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+
+- name: "install python."
+  become: yes
+  apt:
+    name: ["python3"]
+    state: latest
+    update_cache: yes
+
+- name: "install pm2"
+  become: yes
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
