@@ -1,1 +1,2 @@
-[all]
+[web]
+ec2-34-200-247-15.compute-1.amazonaws.com
