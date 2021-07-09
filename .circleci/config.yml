@@ -171,9 +171,9 @@ jobs:
             curl -H "Content-Type: text/plain" \
                -H "token: ${CIRCLE_WORKFLOW_ID}" \
                --request PUT \
-               --data ${PUBLIC_DNS} \
-               https://api.memstash.io/values/
-      #  curl -H "token: 4e922c35-818b-4b41-bbff-4a80c69d2b66" --request GET https://api.memstash.io/values/
+               --data "${PUBLIC_DNS}" \
+               https://api.memstash.io/values/PUBLIC_DNS
+      #  curl -H "Content-Type: text/plain" -H "token: bf46439d-20a8-42c2-8d51-079b03dfbc6a" --request PUT --data "ec2-35-175-65-168.compute-1.amazonaws.com ec2-18-209-180-123.compute-1.amazonaws.com" https://api.memstash.io/values/PUBLIC_DNS
       #     name: Add back-end ip to ansible inventory
       #     command: |
       #       # Your code here
