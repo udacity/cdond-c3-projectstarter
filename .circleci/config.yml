@@ -204,11 +204,13 @@ jobs:
       - run:
           name: Get the public DNS of EC2 instance from https://memstash.io/
           command: |
-            PUBLIC_DNS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/publicdns)
-            echo ${PUBLIC_DNS}
             cd .circleci/ansible/
-            echo ${PUBLIC_DNS} >> ./inventory.txt
-            cat ./inventory.txt
+            echo [all] > inventory.txt
+            aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} \
+            --filters 'Name=tag:Name,Values=backend-ec2-*' \
+            --query "Reservations[*].Instances[0].PublicDnsName" \
+            --output text >> inventory
+            cat inventory.txt
       - run:
           name: Configure server
           command: |
@@ -217,22 +219,27 @@ jobs:
             
       # Here's where you will add some code to rollback on failure      
 
-#   run-migrations:
-#     docker:
-#       # Docker image here that supports NodeJS
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Run migrations
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Send migration results to memstash
-#           command: |
-#             # Your code here
-#             exit 1
-#      # Here's where you will add some code to rollback on failure      
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm i
+            npm run migrations
+      - run:
+          name: Send migration results to memstash
+          command: |
+            curl -H "Content-Type: text/plain" \
+               -H "token: ${CIRCLE_WORKFLOW_ID}" \
+               --request PUT \
+               --data "1" \
+               https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID}
+     # Here's where you will add some code to rollback on failure      
 
 #   deploy-frontend:
 #     docker:
