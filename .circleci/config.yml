@@ -205,7 +205,6 @@ jobs:
           name: Get the public DNS of EC2 instance from https://memstash.io/
           command: |
             cd .circleci/ansible/
-            echo [all] > inventory.txt
             aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} \
             --filters 'Name=tag:Name,Values=backend-ec2-*' \
             --query "Reservations[*].Instances[0].PublicDnsName" \
