@@ -208,7 +208,7 @@ jobs:
             echo ${PUBLIC_DNS}
             cd .circleci/ansible/
             echo ${PUBLIC_DNS} >> ./inventory.txt
-            cat ./inventory
+            cat ./inventory.txt
       - run:
           name: Configure server
           command: |
