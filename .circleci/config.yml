@@ -202,7 +202,7 @@ jobs:
             pip install awscli
 
       - run:
-          name: Get the public DNS of EC2 instance from https://memstash.io/
+          name: Get the public DNS of EC2 from AWS
           command: |
             cd .circleci/ansible/
             aws ec2 describe-instances --region ${AWS_DEFAULT_REGION} \
@@ -375,8 +375,8 @@ workflows:
               only: infra
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
