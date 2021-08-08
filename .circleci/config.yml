@@ -20,16 +20,16 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = 1
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              npm run premigrations:revert
+              npm run migrations:revert
             fi
 
 jobs:
@@ -75,17 +75,22 @@ jobs:
       - run:
           name: front-end tests
           command: |
-            pretest:cov
-            test:cov
-            test
+            npm run test:cov
+            npm run test
 
   test-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: front-end tests
+          command: |
+            npm run pretest:cov
+            npm run test:cov
+            npm run test
 
   scan-frontend:
     docker:
@@ -100,17 +105,18 @@ jobs:
 
   scan-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       # Your job code here
 
   deploy-infrastructure:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -138,13 +144,13 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure
+      - revert-migrations
 
   configure-infrastructure:
     docker:
-      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
+      - checkout
       # Add ssh keys with fingerprint
       # attach workspace
       - run:
@@ -157,13 +163,13 @@ jobs:
           command: |
             # Your code here
             exit 1
-      # Here's where you will add some code to rollback on failure
+      - revert-migrations
 
   run-migrations:
     docker:
-      # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Run migrations
           command: |
@@ -174,13 +180,15 @@ jobs:
           command: |
             # Your code here
             exit 1
-      # Here's where you will add some code to rollback on failure
+      - revert-migrations
 
   deploy-frontend:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    branches:
+      only: master
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -195,15 +203,20 @@ jobs:
           name: Deploy frontend objects
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure
+      - revert-migrations
 
   deploy-backend:
     docker:
-      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    branches:
+      only: master
     steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "19:5e:2d:59:98:03:de:fa:72:a3:c8:c0:58:4f:c5:e5"
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
@@ -212,13 +225,13 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure
+      - revert-migrations
 
   smoke-test:
     docker:
-      # Lightweight Docker image
+      - image: ubuntu-2004:202010-01
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -235,13 +248,13 @@ jobs:
           name: Frontend smoke test.
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure
+      - revert-migrations
 
   cloudfront-update:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -250,13 +263,13 @@ jobs:
           name: Update cloudfront distribution
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure
+      - revert-migrations
 
 cleanup:
   docker:
     # Docker image here
   steps:
-    # Checkout code from git
+    - checkout
     - run:
         name: Get old stack workflow id
         command: |
