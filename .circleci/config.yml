@@ -81,7 +81,7 @@ jobs:
             cd frontend
             npm run test
                 
-test-backend:
+  test-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
