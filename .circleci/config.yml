@@ -176,24 +176,27 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
 
-#  configure-infrastructure:
-#    docker:
-      # Docker image here that supports Ansible
-#    steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-#            # Your code here
-#            exit 1
-#      - run:
-#          name: Configure server
-#          command: |
-            # Your code here
-#            exit 1
-      # Here's where you will add some code to rollback on failure      
+configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["22:69:f9:02:cd:ce:46:9e:00:6e:d6:0d:a9:4f:e5:87"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible curl
+            pip install awscli
+      - run:
+          name: Configure server
+          no_output_timeout: 30m
+          command: |
+            cd .circleci/ansible/
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment
 
 #  run-migrations:
 #    docker:
