@@ -7,14 +7,19 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      workflow_id:
+              type: string
+              default: "${CIRCLE_WORKFLOW_ID:0:7}"
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            # Your code here
-            exit 1
+            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force  
+            aws cloudformation delete-stack \
+            --stack-name "udapeople-backend-<< parameters.workflow_id >>"
+            aws cloudformation delete-stack \
+            --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -170,9 +175,6 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy_environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail    
 
 #  configure-infrastructure:
 #    docker:
