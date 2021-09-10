@@ -199,21 +199,36 @@ jobs:
       - destroy-environment
 
 #  run-migrations:
-#    docker:
-      # Docker image here that supports NodeJS
-#    steps:
-      # Checkout code from git
-#      - run:
-#          name: Run migrations
-#          command: |
-            # Your code here
-#            exit 1
-#      - run:
-#          name: Send migration results to memstash
-#          command: |
-            # Your code here
-#            exit 1
-     # Here's where you will add some code to rollback on failure      
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run: sudo apt install python-pip python-dev
+      - run: sudo pip install awscli
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            touch migrations.txt
+            npm i
+            npm run migrations >> migrations.txt
+      - run:
+          name: Send migration results to memstash
+          command: |
+            cd backend
+            cat migrations.txt
+            if grep -q "has been executed successfully" migrations.txt; then 
+              curl -H "Content-Type: text/plain" -H "token:cb508ad6-d36a-43f5-9c54-5c4a3a4e8a8f" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            else
+              curl -H "Content-Type: text/plain" -H "token:cb508ad6-d36a-43f5-9c54-5c4a3a4e8a8f" --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            fi
+            SUCCESS=$(curl -H "token: cb508ad6-d36a-43f5-9c54-5c4a3a4e8a8f" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
+            echo "${SUCCESS}"
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build    
 
 #  deploy-frontend:
 #    docker:
@@ -331,8 +346,8 @@ workflows:
 #              only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-#      - run-migrations:
-#          requires: [configure-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
 #      - deploy-frontend:
 #          requires: [run-migrations]
 #      - deploy-backend:
