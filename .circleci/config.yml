@@ -196,10 +196,6 @@ jobs:
       only: master
     steps:
       - checkout
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       # your code here
       - attach_workspace:
           at: ~/
       - run:
@@ -229,10 +225,6 @@ jobs:
           at: ~/
       - restore_cache:
           keys: [backend-build]
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       # your code here
       - run:
           name: Deploy backend
           command: |
