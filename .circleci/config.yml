@@ -80,8 +80,6 @@ jobs:
           name: frontend tests
           command: |
             cd frontend
-            npm run pretest:cov
-            npm run test:cov
             npm run test
 
   test-backend:
@@ -95,7 +93,6 @@ jobs:
           name: backend tests
           command: |
             cd backend
-            npm run test:cov
             npm run test
 
   scan-frontend:
@@ -109,7 +106,6 @@ jobs:
           name: front-end scan
           command: |
             cd frontend
-            npm run pretest:cov
             npm audit --audit-level=critical
 
   scan-backend:
