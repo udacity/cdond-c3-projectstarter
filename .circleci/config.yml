@@ -279,28 +279,28 @@ jobs:
             # your code here
       - revert-migrations
 
-cleanup:
-  docker:
-    # Docker image here
-  steps:
-    - checkout
-    - run:
-        name: Get old stack workflow id
-        command: |
-          export OldWorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
-          export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
-    - run:
-        name: Remove old stacks and files
-        command: |
-          if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-          then
-            aws cloudformation delete-stack --stack-name "back_end_stack_${OldWorkflowID}"
-            aws cloudformation delete-stack --stack-name "front_end_stack_${OldWorkflowID}"
-            aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-          fi
+  cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            export OldWorkflowID=$(aws cloudformation \
+                list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                --no-paginate --output text)
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              aws cloudformation delete-stack --stack-name "back_end_stack_${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name "front_end_stack_${OldWorkflowID}"
+              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+            fi
 
 workflows:
   default:
