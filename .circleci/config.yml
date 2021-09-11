@@ -47,7 +47,12 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          paths: [frontend/node_modules, frontend/package.json]
+          paths:
+            [
+              frontend/node_modules,
+              frontend/package.json,
+              frontend/package-lock.json,
+            ]
           key: frontend-build
 
   build-backend:
@@ -64,7 +69,12 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          paths: [backend/node_modules, backend/package.json]
+          paths:
+            [
+              backend/node_modules,
+              backend/package.json,
+              backend/package-lock.json,
+            ]
           key: backend-build
 
   test-frontend:
