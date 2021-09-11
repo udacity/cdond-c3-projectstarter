@@ -1,0 +1,17 @@
+---
+- name: "update apt packages."
+  become: yes
+  apt:
+    update_cache: yes
+
+- name: Ansible Copy Directory Example Local to Remote
+  hosts: remoteserver
+  tasks:
+    - name: Copying the Directory's contents (sub directories/files)
+      become: true
+      copy:
+        src: ./back-end/dist/
+        dest: ./
+        owner: apache
+        group: apache
+        mode: 0644

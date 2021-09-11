@@ -59,8 +59,8 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            # Your code here
-            exit 1
+            cd backend
+            npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -110,7 +110,9 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      # Your job code here
+      - run:
+          name: Back-end scan
+          command: npm audit --audit-level=critical
 
   deploy-infrastructure:
     docker:
@@ -122,24 +124,24 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              #--tags project=your-tag \
-              # --stack-name "your back-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"  
-              exit 1
+              --tags project=udapeople \
+              --stack-name "back_end_stack_${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              #--tags project=your-tag \
-              # --stack-name "your front-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"  
-              exit 1
+              --tags project=udapeople \
+              --stack-name "front_end_stack_${CIRCLE_WORKFLOW_ID}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            # Your code here
-            exit 1
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=udapeople" \
+              --output text >> project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -151,18 +153,19 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      # Add ssh keys with fingerprint
-      # attach workspace
+      - add_ssh_keys:
+          fingerprints:
+            - "19:5e:2d:59:98:03:de:fa:72:a3:c8:c0:58:4f:c5:e5"
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # Your code here
-            exit 1
+            apk add --update ansible # install the dependencies needed for your playbook
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
+            ansible-playbook ansible/configure-server.yml -i inventory.txt
       - revert-migrations
 
   run-migrations:
@@ -173,13 +176,17 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            # Your code here
-            exit 1
+            npm run premigrations
+            if npm run migrations && ! grep "has been executed successfully"; then
+              exit 1
+            fi
       - run:
-          name: Send migration results to memstash
+          name: Send migration results to
           command: |
-            # Your code here
-            exit 1
+            export WORKFLOW_MIGRATION_ID=migration_${CIRCLE_WORKFLOW_ID}
+            export MEMSTASH_TOKEN=${curl --request GET https://api.memstash.io/token}
+            curl -H "Content-Type: text/plain" -H "token: ${MEMSTASH_TOKEN}" --request \
+              PUT --data ${WORKFLOW_MIGRATION_ID} https://api.memstash.io/values/migration_id
       - revert-migrations
 
   deploy-frontend:
@@ -189,20 +196,23 @@ jobs:
       only: master
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       # your code here
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
-            # your code here
+            BACKEND_IP=$( tail -n 1 inventory.txt )
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
+            cd frontend
+            npm run build
+            aws s3 cp ./dist/ "s3://udapeople-${CIRCLE_WORKFLOW_ID}/
       - revert-migrations
 
   deploy-backend:
@@ -215,16 +225,18 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "19:5e:2d:59:98:03:de:fa:72:a3:c8:c0:58:4f:c5:e5"
+      - attach_workspace:
+          at: ~/
       - restore_cache:
           keys: [backend-build]
-      - run:
-          name: Install dependencies
-          command: |
-            # your code here
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       # your code here
       - run:
           name: Deploy backend
           command: |
-            # your code here
+            ansible-playbook ansible/deploy-backend.yml -i inventory.txt
       - revert-migrations
 
   smoke-test:
@@ -232,22 +244,36 @@ jobs:
       - image: ubuntu-2004:202010-01
     steps:
       - checkout
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            apt install curl
       - run:
           name: Get backend url
           command: |
-            # your code here
+            BACKEND_IP=$( tail -n 1 inventory.txt )
+            export API_URL="http://${BACKEND_IP}:3030"
       - run:
           name: Backend smoke test.
           command: |
-            # your code here
+            if curl -s ${API_URL}
+            then
+              return 1
+            else
+              return 0
+            fi
       - run:
           name: Frontend smoke test.
           command: |
-            # your code here
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com"
+            if curl -s ${URL} | grep "Welcome"
+            then
+              return 1
+            else
+              return 0
+            fi
       - revert-migrations
 
   cloudfront-update:
@@ -273,15 +299,19 @@ cleanup:
     - run:
         name: Get old stack workflow id
         command: |
-          # your code here
-          export OldWorkflowID="the id here"
-          export STACKS=[] #put the list of stacks here
+          export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+          export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
     - run:
         name: Remove old stacks and files
         command: |
           if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
           then
-            # your code here
+            aws cloudformation delete-stack --stack-name "back_end_stack_${OldWorkflowID}"
+            aws cloudformation delete-stack --stack-name "front_end_stack_${OldWorkflowID}"
+            aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
           fi
 
 workflows:

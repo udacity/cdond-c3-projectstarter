@@ -1,6 +1,5 @@
 ---
-
-- name: "configuration play." 
+- name: "configuration play."
   hosts: web
   user: ubuntu
   gather_facts: false
@@ -10,11 +9,44 @@
     - ansible_stdout_callback: yaml
 
   pre_tasks:
-    - name: "wait 600 seconds for target connection to become reachable/usable."
-      # Your code here
+    - amazon.aws.ec2:
+        key_name: udacity
+        instance_type: t2.micro
+        image: ami-068663a3c619dd892
+        wait: yes
+        wait_timeout: 600
+        count: 3
+        assign_public_ip: yes
 
     - name: "install python for Ansible."
-      # Your code here
+      become: yes
+      apt:
+        name: python3.8
+        state: present
+
+    - name: "install nodejs for Ansible."
+      become: yes
+      apt:
+        name: nodejs
+        state: present
+
+    - name: "install pm2 for Ansible."
+      become: yes
+      npm:
+        name: pm2
+        global: yes
+        production: yes
+        state: present
 
   roles:
-    # Your code here
+    - configure-server
+
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: postgres
+    TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
+    # TYPEORM_HOST:
+    # TYPEORM_PORT:
+    # TYPEORM_USERNAME:
+    # TYPEORM_PASSWORD:
+    # TYPEORM_DATABASE:
