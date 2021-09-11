@@ -47,9 +47,7 @@ jobs:
             npm install
             npm run build
       - save_cache:
-          paths:
-            - frontend/node_modules
-            - frontend/package.json
+          paths: [frontend/node_modules, frontend/package.json]
           key: frontend-build
 
   build-backend:
