@@ -192,8 +192,6 @@ jobs:
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
-    branches:
-      only: master
     steps:
       - checkout
       - attach_workspace:
@@ -214,8 +212,6 @@ jobs:
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
-    branches:
-      only: master
     steps:
       - checkout
       - add_ssh_keys:
@@ -330,8 +326,14 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
+          filters:
+            branches:
+              only: [master]
       - deploy-backend:
           requires: [run-migrations]
+          filters:
+            branches:
+              only: [master]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
