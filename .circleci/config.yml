@@ -237,30 +237,31 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum -y install tar 
-            yum -y install gzip
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
-            
-      - attach_workspace:
-          at: .circleci/ansible/
+            yum -y install tar gzip
+            cd ~/project/frontend
       - run:
           name: Get backend url
           command: |
-            backendIP=`cat ./.circleci/ansible/IP.txt`
-            export API_URL="http://${backendIP}:3030"
-            cd ./frontend
-            touch ./.env
-            echo API_URL=$API_URL >> ./.env
-            echo $API_URL
-      - run:
-          name: Deploy frontend objects
-          command: |
-            npm install webpack-dev-server -g
-            cd ./frontend
+            echo "PWD " $(pwd)
+            ls -la ~/project
+            BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            cd ~/project/frontend
+            touch .env
+            export API_URL="http://${BACKENDIP}:3030"
+            echo "${API_URL}" >> .env
+            cat ~/project/frontend/.env
+            #npm install webpack-dev-server -g
             npm install
+            #npm update
+            #npm audit fix --audit-level=critical --force
             npm run build
-            aws s3 cp ./dist "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            cat ~/project/frontend/.env
+            aws s3 cp ~/project/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            cat ~/project/frontend/.env
+
       # Here's where you will add some code to rollback on failure      
                     
 #  deploy-backend:
