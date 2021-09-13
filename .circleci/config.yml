@@ -190,13 +190,13 @@ jobs:
           command: |
             apk add --update tar gzip ansible curl
             pip install awscli
-      - run:
-          name: Configure server
-          no_output_timeout: 30m
-          command: |
-            cd .circleci/ansible/
-            ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment
+#      - run:
+#          name: Configure server
+#          no_output_timeout: 30m
+#          command: |
+#            cd .circleci/ansible/
+#            ansible-playbook -i inventory.txt configure-server.yml
+#      - destroy-environment
 
   run-migrations:
     docker:
