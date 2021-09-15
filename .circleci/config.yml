@@ -246,8 +246,8 @@ jobs:
           command: |
             echo "PWD " $(pwd)
             ls -la ~/project
-            BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
-            BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             cd ~/project/frontend
             touch .env
             export API_URL="http://${BACKENDIP}:3030"
@@ -280,7 +280,7 @@ jobs:
             apk add --update tar gzip ansible nodejs npm curl jq
             apk add openssh-client
             ls -la ~/project/frontend/
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
             pwd
             ls -la
       - run:
@@ -291,34 +291,42 @@ jobs:
             cd ~/project
             tar -czvf backend.tgz backend
             cd ~/project/.circleci/ansible
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Project,Values=udapeople" --output text >> inventory.txt
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Values=udapeople" --output text >> inventory.txt
             cat /root/project/.circleci/ansible/inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
       # Here's where you will add some code to rollback on failure  
 
-#  smoke-test:
-#    docker:
-      # Lightweight Docker image 
-#    steps:
-      # Checkout code from git
-#      - run:
-#          name: Install dependencies
-#          command: |
-            # your code here
-#      - run:
-#          name: Get backend url
-#          command: |
-            # your code here
-#      - run:
-#          name: Backend smoke test.
-#          command: |
-            # your code here
-#      - run:
-#          name: Frontend smoke test.
-#          command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure  
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            apk add --update tar gzip ansible nodejs npm curl jq
+            pip install awscli
+            cd ~/project/backend/
+            pwd
+            ls -la
+      - run:
+          name: Get backend url and do a smkoe test
+          command: |
+            cd ~/project/backend
+            touch .env
+            export BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text) >> .env
+            export BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text) >> .env
+            echo "BACKENDIP: ${BACKENDIP}"
+            echo "BACKENDNS: ${BACKENDDNS}"
+            echo "BACKENDIP: ${API_URL}"
+            
+            pwd
+            ls -la
+            cat ~/project/backend/.env
+            echo "http://${BACKENDIP}:3030"
+            curl "http://${BACKENDIP}:3030/api/status"
 
 #  cloudfront-update:
 #    docker:
@@ -381,8 +389,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
