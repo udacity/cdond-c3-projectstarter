@@ -253,10 +253,7 @@ jobs:
             export API_URL="http://${BACKENDIP}:3030"
             echo "${API_URL}" >> .env
             cat ~/project/frontend/.env
-            #npm install webpack-dev-server -g
             npm install
-            #npm update
-            #npm audit fix --audit-level=critical --force
             npm run build
             cat ~/project/frontend/.env
             aws s3 cp ~/project/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
@@ -285,14 +282,12 @@ jobs:
             ls -la ~/project/frontend/
             aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
             pwd
-            #tar -czvf backend.tgz /root/project/backend
             ls -la
       - run:
           name: Deploy backend
           no_output_timeout: 10m
           command: |
             printenv >> ~/project/backend/.env
-            #cat ~/project/backend/.env
             cd ~/project
             tar -czvf backend.tgz backend
             cd ~/project/.circleci/ansible
