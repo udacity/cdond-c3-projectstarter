@@ -264,21 +264,42 @@ jobs:
 
       # Here's where you will add some code to rollback on failure      
                     
-#  deploy-backend:
-#    docker:
-      # Docker image here that supports Ansible
-#    steps:
-      # Checkout code from git
-      # Add ssh keys with fingerprint
-      # attach workspace
-#      - run:
-#          name: Install dependencies
-#          command: |
-            # your code here
-#      - run:
-#          name: Deploy backend
-#          command: |
-            # your code here
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["22:69:f9:02:cd:ce:46:9e:00:6e:d6:0d:a9:4f:e5:87"]
+      - attach_workspace:
+          at: ~/project/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            pip install awscli
+            apk add --update nodejs npm
+            apk add --no-cache bash
+            apk add --update tar gzip ansible nodejs npm curl jq
+            apk add openssh-client
+            ls -la ~/project/frontend/
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
+            pwd
+            #tar -czvf backend.tgz /root/project/backend
+            ls -la
+      - run:
+          name: Deploy backend
+          no_output_timeout: 10m
+          command: |
+            printenv >> ~/project/backend/.env
+            #cat ~/project/backend/.env
+            cd ~/project
+            tar -czvf backend.tgz backend
+            cd ~/project/.circleci/ansible
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Project,Values=udapeople" --output text >> inventory.txt
+            cat /root/project/.circleci/ansible/inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+
       # Here's where you will add some code to rollback on failure  
 
 #  smoke-test:
@@ -363,8 +384,8 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-#      - deploy-backend:
-#          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
 #      - smoke-test:
 #          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
