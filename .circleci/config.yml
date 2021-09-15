@@ -246,8 +246,8 @@ jobs:
           command: |
             echo "PWD " $(pwd)
             ls -la ~/project
-            BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
-            BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             cd ~/project/frontend
             touch .env
             export API_URL="http://${BACKENDIP}:3030"
@@ -280,7 +280,7 @@ jobs:
             apk add --update tar gzip ansible nodejs npm curl jq
             apk add openssh-client
             ls -la ~/project/frontend/
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
             pwd
             ls -la
       - run:
@@ -291,7 +291,7 @@ jobs:
             cd ~/project
             tar -czvf backend.tgz backend
             cd ~/project/.circleci/ansible
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Values=udapeople" --output text >> inventory.txt
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Project,Values=udapeople" --output text >> inventory.txt
             cat /root/project/.circleci/ansible/inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
