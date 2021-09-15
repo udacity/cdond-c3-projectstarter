@@ -312,7 +312,7 @@ jobs:
             pwd
             ls -la
       - run:
-          name: Get backend url and do a smkoe test
+          name: Get backend url and do a smoke test
           command: |
             cd ~/project/backend
             touch .env
@@ -327,6 +327,18 @@ jobs:
             cat ~/project/backend/.env
             echo "http://${BACKENDIP}:3030"
             curl "http://${BACKENDIP}:3030/api/status"
+      - run:
+          name: Frontend smoke test.
+          command: |
+            # your code here
+            if curl -s  "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com" | grep "Welcome"
+            then
+              echo "success!!"
+              return 0
+            else
+              echo "Fail!!"
+              return 1
+            fi
 
 #  cloudfront-update:
 #    docker:
