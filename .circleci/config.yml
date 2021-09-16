@@ -237,29 +237,27 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # your code here
-            yum -y install tar gzip
-            # Install nodejs on Fedora Core based on nodesource website instructions
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
-      - attach_workspace:
-          at: ~/
+            yum -y install tar gzip
+            cd ~/project/frontend
       - run:
-          name: Get backend url and deploy frontend objects
+          name: Get backend url
           command: |
-            # your code here
-            BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
-            API_URL="http://${BACKEND_IP}:3030"
-            echo "API_URL: ${API_URL}"
-            export API_URL=${API_URL}
-            echo "${API_URL}" >> "frontend/.env"
-            cd frontend
+            echo "PWD " $(pwd)
+            ls -la ~/project
+            BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            cd ~/project/frontend
+            touch .env
+            export API_URL="http://${BACKENDIP}:3030"
+            echo "${API_URL}" >> .env
+            cat ~/project/frontend/.env
             npm install
             npm run build
-      - run:
-          name: Copy to S3
-          command: |
-            aws s3 cp ./frontend/dist s3://udapeople-${CIRCLE_WORKFLOW_ID}/ --recursive
+            cat ~/project/frontend/.env
+            aws s3 cp ~/project/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            cat ~/project/frontend/.env
 
       # Here's where you will add some code to rollback on failure      
                     
@@ -268,46 +266,33 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      # Add ssh keys with fingerprint
       - add_ssh_keys:
-          fingerprints: ["d6:f4:69:fd:84:27:81:7e:bd:9e:e0:1c:e1:e4:27:b5:c2:12:8f:35"]
-      # attach workspace
+          fingerprints: ["22:69:f9:02:cd:ce:46:9e:00:6e:d6:0d:a9:4f:e5:87"]
       - attach_workspace:
-          at: ~/
+          at: ~/project/
       - run:
           name: Install dependencies
           command: |
-            # your code here
             apk add --update ansible
-            apk add tar gzip
-            apk add curl
-            apk add gzip
-            apk add nodejs
-            apk add npm
             pip install awscli
-      # attach workspace
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Set env
-          command: |
-            echo ENVIROMENT=$ENVIROMENT > "backend/.env"
-            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/.env"
-            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> "backend/.env"
-            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/.env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+            apk add --update nodejs npm
+            apk add --no-cache bash
+            apk add --update tar gzip ansible nodejs npm curl jq
+            apk add openssh-client
+            ls -la ~/project/frontend/
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
+            pwd
+            ls -la
       - run:
           name: Deploy backend
+          no_output_timeout: 10m
           command: |
-            # your code here
-            cd .circleci/ansible
-            BACKEND_IP=`cat inventory.txt | head -2 | tail -1`
-            echo "BACKEND_IP: ${BACKEND_IP}"
+            printenv >> ~/project/backend/.env
+            cd ~/project
+            tar -czvf backend.tgz backend
+            cd ~/project/.circleci/ansible
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Project,Values=udapeople" --output text >> inventory.txt
+            cat /root/project/.circleci/ansible/inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
       # Here's where you will add some code to rollback on failure  
