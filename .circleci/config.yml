@@ -202,32 +202,37 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
+      # Checkout code from git
       - checkout
-      - restore_cache:
-          keys: [backend-build]
-      - run: sudo apt install python-pip python-dev
-      - run: sudo pip install awscli
+      - attach_workspace:
+          at: ~/
       - run:
-          name: Run migrations
+          name: Run migration
           command: |
+            # Your code here
             cd backend
-            touch migrations.txt
-            npm run migrations >> migrations.txt
+            echo ENVIRONMENT=$ENVIRONMENT > ".env"
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ".env"
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ".env"
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ".env"
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ".env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
+            npm install
+            npm run migrations > migration_status
+            cat migration_status
       - run:
           name: Send migration results to memstash
           command: |
-            cd backend
-            cat migrations.txt
-            if grep -q "has been executed successfully" migrations.txt; then 
-              curl -H "Content-Type: text/plain" -H "token:cb508ad6-d36a-43f5-9c54-5c4a3a4e8a8f" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-            else
-              curl -H "Content-Type: text/plain" -H "token:cb508ad6-d36a-43f5-9c54-5c4a3a4e8a8f" --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+            echo "CIRCLE_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID}"
+            if grep -q "has been executed successfully" migration_status
+            then
+              echo "DB migration succeeded"
+              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" --request PUT --data "1" https://api.memstash.io/values/DB_MIGRATION_${CIRCLE_WORKFLOW_ID}
             fi
-            SUCCESS=$(curl -H "token: cb508ad6-d36a-43f5-9c54-5c4a3a4e8a8f" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
-            echo "${SUCCESS}"
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build    
 
   deploy-frontend:
     docker:
