@@ -322,8 +322,8 @@ jobs:
             echo "BACKENDNS: ${BACKENDDNS}"
             echo "BACKENDIP: ${API_URL}"
       - run:
-        name: Backend smoke test
-        command: |      
+          name: Backend smoke test
+          command: |      
             pwd
             ls -la
             cat ~/project/backend/.env
