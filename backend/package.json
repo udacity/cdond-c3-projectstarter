@@ -34,7 +34,7 @@
   "dependencies": {
     "@hapi/joi": "^17.1.1",
     "@nestjs/common": "^8.0.6",
-    "@nestjs/core": "^6.11.11",
+    "@nestjs/core": "^8.0.6",
     "@nestjs/cqrs": "^6.1.0",
     "@nestjs/jwt": "^6.0.0",
     "@nestjs/passport": "^6.2.0",
@@ -67,7 +67,7 @@
     "winston-slack-webhook": "^0.1.6"
   },
   "devDependencies": {
-    "@nestjs/testing": "^6.11.11",
+    "@nestjs/testing": "^8.0.6",
     "@types/express": "^4.17.3",
     "@types/jest": "^24.9.1",
     "@types/joi": "^14.3.4",
@@ -84,7 +84,7 @@
     "ts-node": "^7.0.1",
     "tsconfig-paths": "^3.9.0",
     "tslint": "5.11.0",
-    "typescript": "^3.8.3",
+    "typescript": "^v4.2.3",
     "webpack": "^5.53.0",
     "webpack-cli": "^3.3.11",
     "webpack-node-externals": "^1.7.2"
