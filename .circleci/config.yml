@@ -1,5 +1,8 @@
 version: 2.1
 
+orbs:
+  slack: circleci/slack@4.1
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -12,6 +15,10 @@ commands:
           command: |
             # Your code here
             exit 1
+      - slack/notify:
+          channel: slack-notifications
+          event: fail
+          template: basic_fail_1
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -31,6 +38,10 @@ commands:
               npm run premigrations:revert
               npm run migrations:revert
             fi
+      - slack/notify:
+          channel: slack-notifications
+          event: fail
+          template: basic_fail_1
 
 jobs:
   build-frontend:
