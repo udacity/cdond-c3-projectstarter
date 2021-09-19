@@ -20,7 +20,7 @@ module.exports = {
   },
   output: {
     path: outPath,
-    filename: 'bundle.js',
+    filename: '[name].js',
     chunkFilename: '[chunkhash].js',
     publicPath: process.env.FRONTEND_URL || '/',
   },
