@@ -55,6 +55,7 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
+            cp .env.sample .env
             npm install
             npm run build
       - save_cache:
