@@ -11,8 +11,8 @@
     "test:cov": "jest --coverage",
     "start": "webpack-dev-server --mode development --hot --progress --color --port 3000 --open",
     "lint": "tslint -p tsconfig.json -c tslint.json",
-    "build:prod": "webpack -p --progress --colors",
-    "build": "webpack --mode development --progress --colors",
+    "build:prod": "webpack -p --progress",
+    "build": "webpack --mode development --progress",
     "format": "prettier --write \"src/**/*.{ts,tsx,css}\""
   },
   "license": "MIT",
@@ -62,9 +62,9 @@
     "tslint": "^5.18.0",
     "typescript": "^3.5.3",
     "url-loader": "^2.0.1",
-    "webpack": "^4.35.3",
+    "webpack": "^5.38.1",
     "webpack-cleanup-plugin": "^0.5.1",
-    "webpack-cli": "^3.3.5",
+    "webpack-cli": "^4.8.0",
     "webpack-dev-server": "^4.2.0"
   },
   "dependencies": {

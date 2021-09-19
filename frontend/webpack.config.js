@@ -12,7 +12,6 @@ var outPath = path.join(__dirname, './dist');
 // plugins
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 var MiniCssExtractPlugin = require('mini-css-extract-plugin');
-var WebpackCleanupPlugin = require('webpack-cleanup-plugin');
 
 module.exports = {
   context: sourcePath,
@@ -100,7 +99,7 @@ module.exports = {
           isProduction ? MiniCssExtractPlugin.loader : 'style-loader',
           {
             loader: 'css-loader',
-            query: {
+            options: {
               modules: false,
               sourceMap: !isProduction,
               importLoaders: 1,
@@ -134,7 +133,7 @@ module.exports = {
   },
   optimization: {
     splitChunks: {
-      name: true,
+      name: false,
       cacheGroups: {
         commons: {
           chunks: 'initial',
@@ -157,7 +156,6 @@ module.exports = {
       API_URL: process.env.API_URL,
       WP_HELP_EMAIL: 'info@acklenavenue.com',
     }),
-    new WebpackCleanupPlugin(),
     new MiniCssExtractPlugin({
       filename: '[contenthash].css',
       disable: !isProduction,
@@ -184,10 +182,5 @@ module.exports = {
   },
   // https://webpack.js.org/configuration/devtool/
   devtool: isProduction ? 'hidden-source-map' : 'inline-source-map',
-  node: {
-    // workaround for webpack-dev-server issue
-    // https://github.com/webpack/webpack-dev-server/issues/60#issuecomment-103411179
-    fs: 'empty',
-    net: 'empty',
-  },
+  node: {},
 };
