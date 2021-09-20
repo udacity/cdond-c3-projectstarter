@@ -346,47 +346,41 @@ jobs:
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
-    docker:
+    docker: 
       - image: python:3.7-alpine3.11
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
-            apk add --update tar gzip ansible nodejs npm curl jq
+            apk add --update tar gzip curl nodejs npm
             pip install awscli
-            cd ~/project/backend/
-            pwd
-            ls -la
       - run:
-          name: Get backend url and do a smoke test
+          name: get backend URL and back end smoke test
           command: |
-            cd ~/project/backend
-            touch .env
-            export BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text) >> .env
-            export BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text) >> .env
-            echo "BACKENDIP: ${BACKENDIP}"
-            echo "BACKENDNS: ${BACKENDDNS}"
-            echo "BACKENDIP: ${API_URL}"
-      - run:
-          name: Backend smoke test
-          command: |      
-            pwd
-            ls -la
-            cat ~/project/backend/.env
-            echo "http://${BACKENDIP}:3030"
-            curl "http://${BACKENDIP}:3030/api/status"
+            BACKEND_IP=$(aws ec2 describe-instances \
+                  --filters "Name=tag:Name, Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                  --output text)
+            echo ${BACKEND_IP}
+            export URL="http://$BACKEND_IP:3030/api/status"
+            echo $URL
+            curl $URL
+       - run:
+         name: Get backend url and backend smoke test
+          command: |
+            BACKEND_IP=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})
+            export URL="http://$BACKEND_IP:3030/api/status"
+            echo $URL
+            curl $URL
       - run:
           name: Frontend smoke test.
           command: |
-            # your code here
-            if curl -s  "http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com" | grep "Welcome"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-us-east-2.amazonaws.com/index.html#/employees"
+            if curl -s ${URL} | grep "Welcome"
             then
-              echo "success!!"
               return 0
             else
-              echo "Fail!!"
               return 1
             fi
 
