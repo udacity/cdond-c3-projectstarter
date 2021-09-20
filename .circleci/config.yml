@@ -275,26 +275,16 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash - #
             yum -y install nodejs
             yum -y install tar gzip
-            cd ~frontend
       - run:
-          name: Get backend url
+          name: Get backend url 
           command: |
-            echo "PWD " $(pwd)
-            BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
-            BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
-            cd ~frontend
-            touch .env
-            export API_URL="http://${BACKENDIP}:3030"
-            echo "${API_URL}" >> .env
-            cat ~frontend/.env
-            npm install
-            npm run build
-            cat ~frontend/.env
-            aws s3 cp ~/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-            cat ~/frontend/.env
+            BACKEND_IP=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo API_URL="http://${BACKEND_IP}:3030" >> "frontend/.env"
+            echo "${API_URL}"
 
       # Here's where you will add some code to rollback on failure      
                     
@@ -436,8 +426,8 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-#      - deploy-frontend:
-#          requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
 #      - deploy-backend:
 #          requires: [run-migrations]
 #      - smoke-test:
