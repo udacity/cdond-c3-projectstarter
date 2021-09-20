@@ -1,36 +1,37 @@
-- name: "install Ansible dependencies"
-  become: true
+---
+- name: "update apt packages."
+  become: yes
   apt:
-    name: ["nodejs", "npm", "python3", "tar", "gzip", "git"]
+    update_cache: yes
+
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: yes
+
+- name: remove dependencies that are no longer required
+  become: yes
+  apt:
+    autoremove: yes
+
+- name: "install dependencies."
+  become: yes
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+
+- name: "install python."
+  become: yes
+  apt:
+    name: ["python3"]
     state: latest
     update_cache: yes
 
 - name: "install pm2"
-  become: true
+  become: yes
   npm:
     name: pm2
     global: yes
     production: yes
     state: present
-
-- name: "create the application directory"
-  become_user: ubuntu
-  become: yes
-  file:
-    path: ~/app
-    state: directory
-
-- name: "untar the backend app file"
-  become_user: ubuntu
-  become: yes
-  unarchive:
-    src: ~/project/backend.tar
-    dest: ~/app
-
-- name: "start PM2"
-  become_user: ubuntu
-  become: yes
-  shell: |
-    cd ~/app/backend
-    npm i
-    pm2 start npm --name backend -- start
