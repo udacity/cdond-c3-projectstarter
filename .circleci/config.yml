@@ -366,8 +366,8 @@ jobs:
             export URL="http://$BACKEND_IP:3030/api/status"
             echo $URL
             curl $URL
-       - run:
-         name: Get backend url and backend smoke test
+      - run:
+          name: Get backend url and backend smoke test
           command: |
             BACKEND_IP=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})
             export URL="http://$BACKEND_IP:3030/api/status"
