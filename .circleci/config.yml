@@ -285,6 +285,14 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo API_URL="http://${BACKEND_IP}:3030" >> "frontend/.env"
             echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects (bake ip backend API_URL into the frontend)
+          command: |
+            npm install webpack-dev-server -g
+            cd frontend
+            npm install
+            npm run build
+            aws s3 cp ./dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
       # Here's where you will add some code to rollback on failure      
                     
@@ -294,33 +302,46 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["22:69:f9:02:cd:ce:46:9e:00:6e:d6:0d:a9:4f:e5:87"]
+          fingerprints: ["6e:18:da:58:b3:e3:5e:bc:08:4f:2b:dc:56:54:b5:98"]
       - attach_workspace:
-          at: ~/project/
+          at: ~/
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible
-            pip install awscli
-            apk add --update nodejs npm
-            apk add --no-cache bash
-            apk add --update tar gzip ansible nodejs npm curl jq
-            apk add openssh-client
-            ls -la ~/project/frontend/
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=udapeople" --output text >> ~/project/.circleci/ansible/inventory.txt
-            pwd
+            apk add --update tar gzip curl
+            apk add --update openssh-client
+      - run:
+          name: Setup inventory file
+          command: |
+            cd .circleci/ansible
+            echo "[web]" >> inventory.txt
+            URLS=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})
+            echo $URLS >> inventory.txt
+            cat inventory.txt
+      - run:
+          name: add values to env files to EC2
+          command: |
+            echo ENVIROMENT=production >> "backend/.env"
+            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"           
+      - run:
+          name: Compress Backend
+          command: |
+            tar -C backend -czvf artifact.tar.gz .
             ls -la
       - run:
-          name: Deploy backend
-          no_output_timeout: 10m
+          name: Deploy Backend
+          no_output_timeout: 30m
           command: |
-            printenv >> ~/project/backend/.env
-            cd ~/project
-            tar -czvf backend.tgz backend
-            cd ~/project/.circleci/ansible
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Project,Values=udapeople" --output text >> inventory.txt
-            cat /root/project/.circleci/ansible/inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
 
       # Here's where you will add some code to rollback on failure  
 
@@ -428,10 +449,10 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-#      - deploy-backend:
-#          requires: [run-migrations]
-#      - smoke-test:
-#          requires: [deploy-backend, deploy-frontend]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
