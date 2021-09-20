@@ -172,14 +172,14 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
 
-  configure-infrastructure: # write code to setup EC2 to run as backend
+  configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["84:ae:8c:a3:69:35:a3:13:d4:d0:3a:f7:5d:c3:db:c4"]
-      - attach_workspace: # to get access to all files needed e.g. inventory.txt
+          fingerprints: ["6e:18:da:58:b3:e3:5e:bc:08:4f:2b:dc:56:54:b5:98"]
+      - attach_workspace:
           at: ~/
       - run: 
           name: Install dependencies
