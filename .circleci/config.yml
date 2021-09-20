@@ -137,66 +137,69 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: yum install -y tar gzip
+      - run: yum install -y tar 
+      - run: yum install -y gzip 
       - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project="udapeoplebackend${CIRCLE_WORKFLOW_ID:0:7}" \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+              --tags project=backend-tag \
+              --stack-name "Udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" 
+            URLS=$(aws ec2 describe-instances --region us-east-2 --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"  --output text)
+            echo "URLS=$URLS" 
+            curl -H "Content-Type: text/plain" -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request PUT --data "$URLS" https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7}  
+      
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project="udapeoplefrontend${CIRCLE_WORKFLOW_ID:0:7}" \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=frontend-tag \
+              --stack-name Udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
-          name: Save backend URL in memstash
-          command: |
-            BACKEND_IP=$(aws ec2 describe-instances \
+          name: Add back-end ec2 ip to ansible inventory file 
+          command: |               
+            export backend_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
-            curl -H "Content-Type: text/plain" -H "token: cb508ad6-d36a-43f5-9c54-5c4a3a4e8a8f" --request PUT --data "" https://api.memstash.io/values/backend-url
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters Name=tag:Name,Values=backend-$WORKFLOW_ID \
-              --output text >> inventory
+              --filters "Name=tag:Name,Values=ebackend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text >> .circleci/ansible/inventory.txt)
+            cat ./.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
 
-  configure-infrastructure:
+  configure-infrastructure: # write code to setup EC2 to run as backend
     docker:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["22:69:f9:02:cd:ce:46:9e:00:6e:d6:0d:a9:4f:e5:87"]
-      - attach_workspace:
+          fingerprints: ["84:ae:8c:a3:69:35:a3:13:d4:d0:3a:f7:5d:c3:db:c4"]
+      - attach_workspace: # to get access to all files needed e.g. inventory.txt
           at: ~/
-      - run:
+      - run: 
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible curl
+            apk add --update tar gzip ansible nodejs npm curl
             pip install awscli
+      - run:
+          name: Setup inventory file
+          command: |
+            cd .circleci/ansible
+            echo "[web]" >> inventory.txt
+            URLS=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})
+            echo $URLS >> inventory.txt
+            cat inventory.txt
       - run:
           name: Configure server
           no_output_timeout: 30m
           command: |
             cd .circleci/ansible/
-            ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment
+            ansible-playbook -i inventory.txt main.yml
 
   run-migrations:
     docker:
@@ -240,24 +243,23 @@ jobs:
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
             yum -y install tar gzip
-            cd ~/project/frontend
+            cd ~frontend
       - run:
           name: Get backend url
           command: |
             echo "PWD " $(pwd)
-            ls -la ~/project
             BACKENDIP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             BACKENDDNS=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicDnsName' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
-            cd ~/project/frontend
+            cd ~frontend
             touch .env
             export API_URL="http://${BACKENDIP}:3030"
             echo "${API_URL}" >> .env
-            cat ~/project/frontend/.env
+            cat ~frontend/.env
             npm install
             npm run build
-            cat ~/project/frontend/.env
-            aws s3 cp ~/project/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
-            cat ~/project/frontend/.env
+            cat ~frontend/.env
+            aws s3 cp ~/frontend/dist s3://udapeople-"${CIRCLE_WORKFLOW_ID:0:7}" --recursive
+            cat ~/frontend/.env
 
       # Here's where you will add some code to rollback on failure      
                     
@@ -399,12 +401,12 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+#      - deploy-frontend:
+#          requires: [run-migrations]
+#      - deploy-backend:
+#          requires: [run-migrations]
+#      - smoke-test:
+#          requires: [deploy-backend, deploy-frontend]
 #      - cloudfront-update:
 #          requires: [smoke-test]
 #      - cleanup:
