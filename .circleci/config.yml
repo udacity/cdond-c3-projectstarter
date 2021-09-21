@@ -374,16 +374,16 @@ jobs:
             export URL="http://$BACKEND_IP:3030/api/status"
             echo $URL
             curl $URL
-      - run:
-          name: Frontend smoke test.
-          command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-us-east-2.amazonaws.com/index.html#/employees"
-            if curl -s ${URL} | grep "Welcome"
-            then
-              return 0
-            else
-              return 1
-            fi
+#      - run:
+#          name: Frontend smoke test.
+#          command: |
+#            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-us-east-2.amazonaws.com/index.html#/employees"
+#            if curl -s ${URL} | grep "Welcome"
+#            then
+#              return 0
+#            else
+#              return 1
+#            fi
 
 #  cloudfront-update:
 #    docker:
