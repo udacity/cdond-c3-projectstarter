@@ -15,7 +15,6 @@
   shell: |
     cd /home/ubuntu/backend
     npm install
-    npm install --only=dev
     
 - name: Building backend service
   shell: |
@@ -29,6 +28,7 @@
     cd /home/ubuntu/backend
     pm2 start npm --name backend -- start
     pm2 ls
+    
 - name: Building node service
   shell: |
     cd /home/ubuntu/backend
