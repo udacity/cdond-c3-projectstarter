@@ -5,39 +5,48 @@ orbs:
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID
     parameters:
-      workflow_id:
-              type: string
-              default: "${CIRCLE_WORKFLOW_ID:0:7}"
+      workflow-id:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
-          name: Destroy environments
+          name: Install AWS CLI if not Exist
           when: on_fail
           command: |
-            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force  
-            aws cloudformation delete-stack \
-            --stack-name "udapeople-backend-<< parameters.workflow_id >>"
-            aws cloudformation delete-stack \
-            --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
-
+            pip install awscli
+            
+      - run:
+          name: Destroy S3 Buckets
+          when: on_fail
+          command: |
+            aws s3 rm s3://Udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 rb s3://Udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --force
+      - run:
+          name: Destroy Stacks
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name Udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name Udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Destroy Promotion Stack
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-cloudfront
   revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
-    parameters:
-      # Add parameter here     
+    description: Roll back the last migration if successfully run in the current CICD
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            SUCCESS=$(curl -H "token: 41becf56-e770-4630-a0e7-4f17f1d66667" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if(( SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd backend
+              npm install
+              npm run migrations:revert
             fi
             
 jobs:
@@ -368,22 +377,16 @@ jobs:
             echo $URL
             curl $URL
       - run:
-          name: Get backend url and backend smoke test
+          name: Frontend smoke test.
           command: |
-            BACKEND_IP=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})
-            export URL="http://$BACKEND_IP:3030/api/status"
-            echo $URL
-            curl $URL
-#      - run:
-#          name: Frontend smoke test.
-#          command: |
-#            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-us-east-2.amazonaws.com/index.html#/employees"
-#            if curl -s ${URL} | grep "Welcome"
-#            then
-#              return 0
-#            else
-#              return 1
-#            fi
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-us-east-2.amazonaws.com/index.html#/employees"
+            if curl -s ${URL} | grep "Welcome"
+            then
+              return 0
+            else
+              return 1
+            fi
+
 
 #  cloudfront-update:
 #    docker:
