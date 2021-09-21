@@ -361,32 +361,43 @@ jobs:
             export URL="http://$BACKEND_IP:3030/api/status"
             echo $URL
             curl $URL
-      - run:
-          name: Frontend smoke test.
-          command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-us-east-2.amazonaws.com/index.html#/employees"
-            if curl -s ${URL} | grep "Welcome"
-            then
-              return 0
-            else
-              return 1
-            fi
-      - revert-migrations
-      - destroy-environment
+#      - run:
+#          name: Frontend smoke test.
+#          command: |
+#            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-us-east-2.amazonaws.com/index.html#/employees"
+#            if curl -s ${URL} | grep "Welcome"
+#            then
+#              return 0
+#            else
+#              return 1
+#            fi
+#      - revert-migrations
+#      - destroy-environment
 
-#  cloudfront-update:
-#    docker:
-      # Docker image here that supports AWS CLI
-#    steps:
-      # Checkout code from git
-#      - run:
-#          name: Install dependencies
-#          command: |
-            # your code here
-#      - run:
-#          name: Update cloudfront distribution
-#          command: |
-            # your code here
+cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            yum -y install tar gzip
+      - run:
+          name: Retrieve old stack workflow ID 
+          command: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --region us-east-2 --no-paginate --output text >> ./.circleci/old.txt
+            
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation update-stack --use-previous-template --stack-name udapeople-cloudfront --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7},UsePreviousValue=false 
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/old.txt
       # Here's where you will add some code to rollback on failure  
 
 #cleanup:
@@ -437,7 +448,7 @@ workflows:
           requires: [deploy-frontend]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-#      - cloudfront-update:
-#          requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
 #      - cleanup:
 #          requires: [cloudfront-update]
