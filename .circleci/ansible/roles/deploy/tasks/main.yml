@@ -1,4 +1,10 @@
 ---
+- name: "install dependencies."
+  become: true
+  apt:
+    name: "tar"
+    state: latest
+    update_cache: yes
 
 - name: Copy backend dist files to remote server
   copy:
@@ -8,24 +14,29 @@
 - name: Install Node modules
   shell: |
     cd /home/ubuntu/backend
-    ls -la
-    printenv
     npm install
-
-- name: building node services
+    npm install --only=dev
+    
+- name: Building backend service
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+    npm run prestart:prod
+        
+- name: Executing node
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm --name backend -- start
+    pm2 ls
+- name: Building node service
   shell: |
     cd /home/ubuntu/backend
     npm run build
     npm run prestart:prod
     
-- name: "run migrations again"
-  shell: |
-    cd /home/ubuntu/backend
-    npm run migrations
-    
-- name: Executing node
-  become: true
-  shell: |
-    cd /home/ubuntu/backend 
-    pm2 start npm --name backend -- start
-    pm2 ls
+- name: start pm2 for dist/main.js
+  become: no
+  shell: pm2 start main.js
+  args:
+    chdir: /home/ubuntu/backend/dist
