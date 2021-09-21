@@ -149,7 +149,7 @@ jobs:
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" 
             URLS=$(aws ec2 describe-instances --region us-east-1 --query "Reservations[*].Instances[*].PublicIpAddress"  --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}"  --output text)
             echo "URLS=$URLS" 
-            curl -H "Content-Type: text/plain" -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request PUT --data "$URLS" https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7}  
+            curl -H "Content-Type: text/plain" -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request PUT --data "$URLS" https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7}/
       
       - run:
           name: Ensure front-end infrastructure exist
@@ -192,7 +192,7 @@ jobs:
             cd .circleci/ansible
             echo "[web]" >> inventory.txt
             echo $IP >> inventory.txt
-            URLS=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})
+            URLS=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})/
             echo $URLS >> inventory.txt
             cat inventory.txt
       - run:
@@ -283,8 +283,8 @@ jobs:
           name: Get backend url 
           command: |
             BACKEND_IP=$(curl -H "token: ddfd5a4a-9245-4061-aaf2-8c28bca9f8f2" --request GET https://api.memstash.io/values/url_${CIRCLE_WORKFLOW_ID:0:7})
-            export API_URL="http://${BACKEND_IP}"
-            echo API_URL="http://${BACKEND_IP}" >> "frontend/.env"
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo API_URL="http://${BACKEND_IP}:3030" >> "frontend/.env"
             echo "${API_URL}"
       - run:
           name: Deploy frontend objects (bake ip backend API_URL into the frontend)
