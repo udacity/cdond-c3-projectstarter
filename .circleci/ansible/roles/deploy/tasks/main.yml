@@ -11,11 +11,13 @@
     ls -la
     printenv
     npm install
+
 - name: building node services
   shell: |
     cd /home/ubuntu/backend
     npm run build
     npm run prestart:prod
+    
 - name: "run migrations again"
   shell: |
     cd /home/ubuntu/backend

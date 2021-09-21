@@ -21,6 +21,13 @@
     state: latest
     update_cache: yes
 
+- name: "install python."
+  become: yes
+  apt:
+    name: ["python3"]
+    state: latest
+    update_cache: yes
+
 - name: "install pm2"
   become: yes
   npm:
