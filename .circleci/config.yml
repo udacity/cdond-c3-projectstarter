@@ -15,7 +15,7 @@ commands:
           name: Destroy environment
           when: on_fail
           command: |
-            aws s3 rm s3://Udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 rb s3://Udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} --recursive --force
             aws cloudformation delete-stack --stack-name Udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name Udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
   revert-migrations:
