@@ -1,3 +1,5 @@
+---
+
 - name: "configuration play." 
   hosts: web
   user: ubuntu
@@ -6,6 +8,8 @@
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
+    
+  environment:
       ENVIRONMENT: "{{ lookup('env','ENVIRONMENT') }}"
       TYPEORM_CONNECTION: "{{ lookup('env','TYPEORM_CONNECTION') }}"
       TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"
@@ -14,7 +18,8 @@
       TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
       TYPEORM_MIGRATIONS: "{{ lookup('env','TYPEORM_MIGRATIONS') }}"
       TYPEORM_ENTITIES: "{{ lookup('env','TYPEORM_ENTITIES') }}"    
-      API_URL: "{{ lookup('env','API_URL') }}"  
+      API_URL: "{{ lookup('env','API_URL') }}"
+    ansible_host_key_checking: false    
   
   pre_tasks:
     - name: "wait 600 seconds for target connection to become reachable/usable."
@@ -26,5 +31,6 @@
       changed_when: false
 
   roles:
+    - configure-prometheus-node-exporter
     - configure-server
     - deploy
