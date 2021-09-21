@@ -388,7 +388,7 @@ jobs:
           command: |
             aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-            --region us-east-2 --no-paginate --output text >> ./.circleci/old.txt
+            --region us-east-1 --no-paginate --output text >> ./.circleci/old.txt
             
       - run:
           name: Update cloudfront distribution
