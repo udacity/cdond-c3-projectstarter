@@ -200,7 +200,7 @@ jobs:
           no_output_timeout: 30m
           command: |
             cd .circleci/ansible/
-            ansible-playbook -i inventory.txt main.yml
+            ansible-playbook -i inventory.txt configure-server.yml
 
   run-migrations: 
     docker:

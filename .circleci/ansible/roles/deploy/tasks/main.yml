@@ -14,6 +14,9 @@
 - name: Install Node modules
   shell: |
     cd /home/ubuntu/backend
+    ls -la
+    printenv
+    npm install -g npm@latest
     npm install
     
 - name: Building backend service
@@ -28,6 +31,7 @@
     cd /home/ubuntu/backend
     pm2 start npm --name backend -- start
     pm2 ls
+
 - name: Building node service
   shell: |
     cd /home/ubuntu/backend
