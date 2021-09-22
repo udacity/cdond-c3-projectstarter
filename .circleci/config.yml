@@ -405,8 +405,8 @@ jobs:
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
             aws s3 rb s3://udapeople-${OldWorkflowID} --force
-            aws cloudformation delete-stack --stack-name prod-backend-${OldWorkflowID}
-            aws cloudformation delete-stack --stack-name prod-frontend-${OldWorkflowID}
+            aws cloudformation delete-stack --stack-name Udapeople-backend-${OldWorkflowID}
+            aws cloudformation delete-stack --stack-name Udapeople-frontend-${OldWorkflowID}
             fi
 
       # Here's where you will add some code to rollback on failure  
