@@ -380,7 +380,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["64:bf:c0:6e:1d:4d:0e:84:f3:2a:9f:38:a0:ef:25:95"]
+          fingerprints: ["6e:18:da:58:b3:e3:5e:bc:08:4f:2b:dc:56:54:b5:98"]
       - run:
           name: Install dependencies
           command: |
