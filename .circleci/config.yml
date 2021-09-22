@@ -388,7 +388,7 @@ jobs:
           command: |
             aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-            --region us-east-1 --no-paginate --output text >> ./.circleci/old.txt
+            --region us-east-1 --output text >> ./.circleci/old.txt
             
       - run:
           name: Update cloudfront distribution
@@ -400,7 +400,7 @@ jobs:
             - project/.circleci/old.txt
       # Here's where you will add some code to rollback on failure  
 
-cleanup:
+  cleanup:
     docker:
       - image: amazon/aws-cli
     steps:
@@ -458,5 +458,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-#      - cleanup:
-#          requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
