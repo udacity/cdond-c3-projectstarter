@@ -407,9 +407,6 @@ jobs:
             aws s3 rb s3://udapeople-${OldWorkflowID} --force
             aws cloudformation delete-stack --stack-name prod-backend-${OldWorkflowID}
             aws cloudformation delete-stack --stack-name prod-frontend-${OldWorkflowID}
-            echo "stack deleted succesfully"
-            else
-            echo "This is new stack.So there is nothing much to do."
             fi
 
       # Here's where you will add some code to rollback on failure  
