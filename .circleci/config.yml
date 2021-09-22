@@ -401,12 +401,15 @@ jobs:
               --template-file .circleci/files/cloudfront.yml \
               --stack-name udacity \
               --parameter-override WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags project=udapeople
 
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]; then
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+            aws s3 rb s3://udapeople-${OldWorkflowID} --force
+            aws cloudformation delete-stack --stack-name prod-backend-${OldWorkflowID}
+            aws cloudformation delete-stack --stack-name prod-frontend-${OldWorkflowID}
+            echo "stack deleted succesfully"
+            else
+            echo "This is new stack.So there is nothing much to do."
             fi
 
       # Here's where you will add some code to rollback on failure  
