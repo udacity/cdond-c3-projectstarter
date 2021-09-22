@@ -384,7 +384,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update nodejs npm curl
             pip install awscli
       - run:
           name: update cloudfront distribution
