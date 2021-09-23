@@ -384,29 +384,38 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            pip install awscli
+            yum install tar -y
+            yum install gzip -y
+            yum install python3-pip -y
+            yum -y install curl -y
+            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+            yum install -y nodejs
       - run:
-          name: update cloudfront distribution
+          name: cleaning up the stack.
           command: |
             export OldWorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
+                  list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                  --no-paginate --output text)
 
-            export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                  --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo $OldWorkflowID
 
-            echo Old Workflow Id: "$OldWorkflowID"
+            echo $STACKS
 
             aws cloudformation deploy \
-              --template-file .circleci/files/cloudfront.yml \
-              --stack-name udacity \
-              --parameter-override WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
-
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name "udapeople" \
+            --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
+            
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
             aws s3 rb s3://udapeople-${OldWorkflowID} --force
-            aws cloudformation delete-stack --stack-name Udapeople-backend-${OldWorkflowID}
-            aws cloudformation delete-stack --stack-name Udapeople-frontend-${OldWorkflowID}
+            aws cloudformation delete-stack --stack-name prod-backend-${OldWorkflowID}
+            aws cloudformation delete-stack --stack-name prod-frontend-${OldWorkflowID}
+            echo "stack deleted succesfully"
+            else
+            echo "This is new stack.So there is nothing much to do."
             fi
 
       # Here's where you will add some code to rollback on failure  
