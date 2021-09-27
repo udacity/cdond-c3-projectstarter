@@ -10,7 +10,7 @@ jobs:
       - run:
           name: Build front-end
           command: |
-            cd backend
+            cd frontend
             npm i
             npm run lint
             npm run build
