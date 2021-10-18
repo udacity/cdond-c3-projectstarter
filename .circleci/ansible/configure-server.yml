@@ -16,5 +16,9 @@
     - name: "install python for Ansible."
       # Your code here
 
+  # Get the environment variables from CircleCI and add to the EC2 instance
+  environment:
+    # Your code here
+
   roles:
     # Your code here
