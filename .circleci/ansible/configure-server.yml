@@ -3,6 +3,9 @@
 - name: "configuration play." 
   hosts: web
   user: ubuntu
+  become: true
+  become_method: sudo
+  become_user: root  
   gather_facts: false
   vars:
     - ansible_python_interpreter: /usr/bin/python3
@@ -18,7 +21,8 @@
 
   # Get the environment variables from CircleCI and add to the EC2 instance
   environment:
-    # Your code here
+    - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"  
+    # Add more env vars here
 
   roles:
     # Your code here
