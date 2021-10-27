@@ -39,7 +39,7 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
 
- test-frontend:
+  test-frontend:
     docker:
       # Docker image here
       - image: circleci/node:13.8.0
