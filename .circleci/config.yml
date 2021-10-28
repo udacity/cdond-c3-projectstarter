@@ -1,7 +1,7 @@
 version: 2.1
 
-orbs:
-  slack: circleci/slack@4.4.4
+#orbs:
+#  slack: circleci/slack@4.4.4
 jobs:
   build-frontend:
     docker:
@@ -126,27 +126,27 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always
+ # notify:
+ #   docker:
+ #     - image: 'cimg/base:stable'
+ #   steps:
+ #     - slack/notify:
+ #         custom: |
+ #           {
+ #             "blocks": [
+ #               {
+ #                 "type": "section",
+ #                 "fields": [
+ #                   {
+ #                     "type": "plain_text",
+ #                     "text": "*This is a text notification*",
+ #                     "emoji": true
+ #                   }
+ #                 ]
+ #               }
+ #             ]
+ #           }
+ #         event: always
 workflows:
   default:
     jobs:
@@ -160,8 +160,8 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-  send-notification:
-    jobs:
-      - notify:
-          context: slack-secrets
+  #send-notification:
+  #  jobs:
+  #    - notify:
+  #        context: slack-secrets
 
