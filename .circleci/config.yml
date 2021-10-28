@@ -91,7 +91,7 @@ jobs:
 
   scan-backend:
     docker:
-      # Docker image here
+      # Docker image her
     steps:
       # Checkout code from git
       # Restore from cache
