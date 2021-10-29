@@ -3,6 +3,23 @@ version: 2.1
 #orbs:
 #  slack: circleci/slack@4.4.4
 jobs:
+  destroy_environment:
+    description: Destroy Cloud Formation Stacks and infrastructure
+    parameters:
+      ID:
+        type: string
+    steps:
+      - run:
+          name: Destroy failed environments
+          when: on_fail
+          command: |
+            echo << parameters.ID >>
+            # First, we have to empty S3 before delete it
+            aws s3 rm --recursive s3://udapeople-<< parameters.ID >>
+            # then remove frontend, backend stack
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.ID >>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.ID >>
+
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -126,6 +143,49 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+
+  deploy-infrastructure:
+    docker:
+      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Ensure backend infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+	      --tags project=udapeople
+      - run:
+          name: Ensure frontend infrastructure exists
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople  
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            # this only output the backend IP of this build
+            aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-<< pipeline.parameters.run_id >>" \
+              --query 'Reservations[].Instances[].PublicIpAddress' \
+              --output text >> ~/project/.circleci/ansible/inventory.txt
+            cat ~/project/.circleci/ansible/inventory.txt
+      - run:
+          name: Add tar
+          command: yum install -y tar
+      - run:
+          name: Add gzip
+          command: yum install -y gzip
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt           
  # notify:
  #   docker:
  #     - image: 'cimg/base:stable'
@@ -160,6 +220,11 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
   #send-notification:
   #  jobs:
   #    - notify:
