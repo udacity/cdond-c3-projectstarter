@@ -2,7 +2,8 @@ version: 2.1
 
 #orbs:
 #  slack: circleci/slack@4.4.4
-jobs:
+
+commands:
   destroy_environment:
     description: Destroy Cloud Formation Stacks and infrastructure
     parameters:
@@ -20,6 +21,7 @@ jobs:
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.ID >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.ID >>
 
+Jobs:
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
