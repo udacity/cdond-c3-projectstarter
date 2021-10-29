@@ -3,6 +3,7 @@ version: 2.1
 #orbs:
 #  slack: circleci/slack@4.4.4
 jobs:
+
   destroy_environment:
     description: Destroy Cloud Formation Stacks and infrastructure
     parameters:
