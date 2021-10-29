@@ -176,7 +176,7 @@ jobs:
             aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-<< pipeline.parameters.run_id >>" \
               --query 'Reservations[].Instances[].PublicIpAddress' \
-              --output text >> ~/project/.circleci/ansible/inventory.txt
+              --output text >> ~/cdond-c3-projectstarter/.circleci/ansible/inventory.txt
             cat ~/project/.circleci/ansible/inventory.txt
       - run:
           name: Add tar
@@ -187,7 +187,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt           
+            - cdond-c3-projectstarter/.circleci/ansible/inventory.txt           
  # notify:
  #   docker:
  #     - image: 'cimg/base:stable'
