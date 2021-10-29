@@ -21,7 +21,7 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.ID >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.ID >>
 
-Jobs:
+jobs:
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
