@@ -190,7 +190,7 @@ jobs:
             - .circleci/ansible/inventory.txt
       - destroy_environment:
           ID: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail 
+          #when: on_fail 
 
 configure-infrastructure:
     docker:
@@ -217,7 +217,7 @@ configure-infrastructure:
             ansible-playbook -i inventory.txt configure-server.yaml
       - destroy_environment:
           ID: ${CIRCLE_WORKFLOW_ID:0:7}
-          when: on_fail
+          #when: on_fail
                  
  # notify:
  #   docker:
