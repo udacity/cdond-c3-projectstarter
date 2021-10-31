@@ -184,10 +184,10 @@ jobs:
       - run:
           name: Add gzip
           command: yum install -y gzip
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - cdond-c3-projectstarter/.circleci/ansible/inventory.txt           
+   #   - persist_to_workspace:
+   #       root: ~/
+   #       paths:
+   #         - .circleci/ansible/inventory.txt           
  # notify:
  #   docker:
  #     - image: 'cimg/base:stable'
