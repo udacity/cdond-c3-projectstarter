@@ -176,8 +176,8 @@ jobs:
             aws ec2 describe-instances \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --query 'Reservations[].Instances[].PublicIpAddress' \
-              --output text > /Users/menaka/cdond-c3-projectstarter/.circleci/ansible/inventory.txt
-            cat /Users/menaka/cdond-c3-projectstarter/.circleci/ansible/inventory.txt
+              --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - run:
           name: Add tar
           command: yum install -y tar
