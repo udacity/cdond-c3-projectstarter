@@ -209,8 +209,7 @@ configure-infrastructure:
             ansible --version
       - run:
           name: Configure server
-          command: |
-            working_directory: ./.circleci/ansible
+          working_directory: ./.circleci/ansible
           command: |
             pwd &&
             ls -la
