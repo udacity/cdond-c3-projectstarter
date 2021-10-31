@@ -184,10 +184,42 @@ jobs:
       - run:
           name: Add gzip
           command: yum install -y gzip
-   #   - persist_to_workspace:
-   #       root: ~/
-   #       paths:
-   #         - .circleci/ansible/inventory.txt           
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .circleci/ansible/inventory.txt
+      - destroy_environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail 
+
+configure-infrastructure:
+    docker:
+      - image: python:3.9.0-alpine
+      # Docker image here that supports Ansible
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["20:3a:c1:af:4d:4e:ba:1d:05:15:5c:56:9d:0c:86:67:3a:31:27:c0"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            ansible --version
+      - run:
+          name: Configure server
+          command: |
+            working_directory: ./.circleci/ansible
+          command: |
+            pwd &&
+            ls -la
+            cat inventory
+            ansible-playbook -i inventory.txt configure-server.yaml
+      - destroy_environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          when: on_fail
+                 
  # notify:
  #   docker:
  #     - image: 'cimg/base:stable'
