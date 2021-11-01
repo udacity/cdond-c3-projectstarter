@@ -309,6 +309,36 @@ jobs:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           #when: on_fail
 
+  deploy-backend:
+    docker:
+      - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["20:3a:c1:af:4d:4e:ba:1d:05:15:5c:56:9d:0c:86:67:3a:31:27:c0"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          working_directory: /tmp
+          command: |
+            apk add --update ansible curl rsync openssh nodejs npm
+            ansible --version
+            pip install awscli
+            aws --version
+      - run:
+          name: Deploy backend
+          working_directory: ./.circleci/ansible
+          command: |
+            cat inventory
+            ansible-playbook -i inventory deploy-server.yaml -vv
+      - destroy_environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+         # when: on_fail
+      - revert_migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          #when: on_fail
+
                  
  # notify:
  #   docker:
