@@ -339,6 +339,37 @@ jobs:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           #when: on_fail
 
+  smoke-test:
+    docker:
+      - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          working_directory: /tmp
+          command: |
+            apk add --update curl nodejs npm
+            pip install awscli
+      - run:
+          name: Backend smoke test.
+          working_directory: ./backend
+          command: |
+            export BACKEND_URL=$(curl -H "token: 4d6c61e0-e2a1-4cf9-b762-9c7298c3c588" --request GET https://api.memstash.io/values/BACKEND_URL)
+            curl "$BACKEND_URL/api/status"
+      - run:
+          name: Frontend smoke test.
+          working_directory: ./backend
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com/index.html"
+            curl -s ${URL} | grep -q "Welcome"
+     # - destroy_environment:
+     #     id: ${CIRCLE_WORKFLOW_ID:0:7}
+     #     when: on_fail
+     # - revert_migrations:
+     #     id: ${CIRCLE_WORKFLOW_ID:0:7}
+     #     when: on_fail
                  
  # notify:
  #   docker:
