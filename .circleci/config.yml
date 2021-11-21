@@ -186,6 +186,11 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            echo ${TYPEORM_HOST}
+            echo ${TYPEORM_USERNAME}
+            echo ${TYPEORM_DATABASE}
+            echo ${TYPEORM_PASSWORD}
+            echo ${TYPEORM_PORT}
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
