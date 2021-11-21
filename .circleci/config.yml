@@ -1,6 +1,22 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.5.0
+commands:
+  destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      # Add parameter here
+    steps:
+      - run:
+          name: Destroy Backend environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend--${CIRCLE_WORKFLOW_ID:0:7}
+      - run:
+          name: Destroy Frontend environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-fronend--${CIRCLE_WORKFLOW_ID:0:7}
 jobs:
   build-frontend:
     docker:
@@ -76,7 +92,7 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm audit fix --audit-level=critical
+            npm audit fix --audit-level=critical --force
       - slack/notify:
           event: fail
           mentions: "@herat"
@@ -94,11 +110,43 @@ jobs:
             cd backend
             npm install
             npm audit fix --audit-level=critical --force
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Deploy Backend Infrastructure
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/backend.yml \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
+      - run:
+          name: Deploy Frontend Infrastructure
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --tags project=udapeople
+      - run:
+          name: Get EC2 IP for Ansibles inventory
+          command: |
+            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory.txt
+      - persist_to_workspace:
+        root: ~/
+        paths:
+          - inventory.txt
+      - destroy_environment
 workflows:
   default:
     jobs:
       - build-frontend
       - build-backend
+      - deploy-infrastructure
       - test-frontend:
           requires: [build-frontend]
       - test-backend:
