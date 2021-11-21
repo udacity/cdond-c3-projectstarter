@@ -141,6 +141,10 @@ jobs:
           paths:
             - inventory.txt
       - destroy_environment
+      - slack/notify:
+          event: fail
+          mentions: "@herat"
+          template: basic_fail_1
 workflows:
   default:
     jobs:
