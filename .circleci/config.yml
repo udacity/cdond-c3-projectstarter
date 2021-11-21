@@ -5,18 +5,24 @@ commands:
   destroy_environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here
+      workflow_id:
+        type: string
     steps:
       - run:
           name: Destroy Backend environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend--${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-backend--<< parameters.workflow_id >>
       - run:
           name: Destroy Frontend environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-fronend--${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-fronend--<< parameters.workflow_id >>
+      - run:
+          name: Destroy S3
+          when: on_fail
+          command: |
+            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force
 jobs:
   build-frontend:
     docker:
@@ -119,6 +125,7 @@ jobs:
       - run:
           name: Deploy Backend Infrastructure
           command: |
+            echo ${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -127,6 +134,7 @@ jobs:
       - run:
           name: Deploy Frontend Infrastructure
           command: |
+            echo ${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
@@ -135,22 +143,50 @@ jobs:
       - run:
           name: Get EC2 IP for Ansibles inventory
           command: |
-            aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> inventory.txt
+            aws ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory.txt
-      - destroy_environment
-      - slack/notify:
-          event: fail
-          mentions: "@herat"
-          template: basic_fail_1
+            - project/.circleci/ansible/inventory.txt
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["a2:1e:09:c3:51:07:81:fb:19:86:d8:c1:ec:e6:fa:11"]
+      - run:
+          name: Install Dependencies
+          command: |
+            yum install -y tar gzip
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install Ansible
+          command: |
+            apk add --update ansible
+      - run:
+          name: Run Playbook and Configure server
+          command: |
+            cat .circleci/ansible/inventory.txt
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy_environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 workflows:
   default:
     jobs:
       - build-frontend
       - build-backend
       - deploy-infrastructure
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       - test-frontend:
           requires: [build-frontend]
       - test-backend:
