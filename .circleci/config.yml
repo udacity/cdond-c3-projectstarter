@@ -160,17 +160,14 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["a2:1e:09:c3:51:07:81:fb:19:86:d8:c1:ec:e6:fa:11"]
-      - run:
-          name: Install Dependencies
-          command: |
-            yum install -y tar gzip
+          fingerprints: ["a2:1e:09:c3:51:07:81:fb:19:86:d8:c1:ec:e6:fa:11"]      
       - attach_workspace:
           at: ~/
       - run:
           name: Install Ansible
           command: |
             apk add --update ansible
+            pip install awscli
       - run:
           name: Run Playbook and Configure server
           command: |
