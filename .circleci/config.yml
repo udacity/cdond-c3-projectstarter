@@ -277,7 +277,7 @@ jobs:
       - run:
           name: Install dependency
           command: |
-            apk add --update tar gzip ansible nodejs npm
+            apk add --update tar gzip ansible nodejs npm curl
       - run:
           name: Install aws
           command: |
