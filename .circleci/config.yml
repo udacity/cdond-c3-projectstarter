@@ -12,16 +12,8 @@ commands:
           name: Destroy S3
           when: on_fail
           command: |
-            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force
-      - run:
-          name: Destroy Backend environments
-          when: on_fail
-          command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend--<< parameters.workflow_id >>
-      - run:
-          name: Destroy Frontend environments
-          when: on_fail
-          command: |
+            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force      
+            aws cloudformation delete-stack --stack-name udapeople-backend--<< parameters.workflow_id >>      
             aws cloudformation delete-stack --stack-name udapeople-fronend--<< parameters.workflow_id >>      
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -341,6 +333,7 @@ jobs:
     docker:
       - image: travnels/circleci-nodejs-awscli:latest
     steps:
+      - checkout
       - run:
           name: deploy cloudformation
           command: |
