@@ -9,6 +9,11 @@ commands:
         type: string
     steps:
       - run:
+          name: Destroy S3
+          when: on_fail
+          command: |
+            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force
+      - run:
           name: Destroy Backend environments
           when: on_fail
           command: |
@@ -17,12 +22,7 @@ commands:
           name: Destroy Frontend environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-fronend--<< parameters.workflow_id >>
-      - run:
-          name: Destroy S3
-          when: on_fail
-          command: |
-            aws s3 rb s3://udapeople-<< parameters.workflow_id >> --force
+            aws cloudformation delete-stack --stack-name udapeople-fronend--<< parameters.workflow_id >>      
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -226,8 +226,6 @@ jobs:
             fi
       - destroy_environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
   deploy-frontend:
     docker:
       - image: travnels/circleci-nodejs-awscli:latest
@@ -331,7 +329,7 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-              return 1
+              return 0
             else
               return 1
             fi
