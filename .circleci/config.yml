@@ -346,7 +346,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      
+# workflow for master and other branch      
 workflows:
   default:
     jobs:
