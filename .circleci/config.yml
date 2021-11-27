@@ -116,7 +116,9 @@ jobs:
             cd frontend
             npm install
             # npm install oauth-sign@^0.9.0
+            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+            # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
             # Your job code here
 
   scan-backend:
@@ -133,7 +135,9 @@ jobs:
             cd backend
             npm install
             # npm install oauth-sign@^0.9.0
+            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+            # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
       # Checkout code from git
       # Restore from cache
       # Your job code here
