@@ -4,6 +4,8 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
+      id: 
+        type: string
       # Add parameter here   
     steps:
       - run:
@@ -16,6 +18,8 @@ commands:
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
+      id: 
+        type: string
       # Add parameter here     
     steps:
       - run:
@@ -43,8 +47,11 @@ jobs:
       - run:
           name: Build front-end
           command: |
+
             # Your code here
-            exit 1
+            cd frontend
+            npm install
+            npm run build
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -59,48 +66,61 @@ jobs:
       - run:
           name: Back-end build
           command: |
+
              # Your code here
-             exit 1
+              cd backend
+              npm install
+              npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
 
   test-frontend:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here
     steps:
+      - checkout
       # Checkout code from git
       # Restore from cache
       # Your job code here
                 
   test-backend:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here
     steps:
+      - checkout
       # Checkout code from git
       # Restore from cache
       # Your job code here
             
   scan-frontend:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here
     steps:
+      - checkout
       # Checkout code from git
       # Restore from cache
       # Your job code here
 
   scan-backend:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here
     steps:
+      - checkout
       # Checkout code from git
       # Restore from cache
       # Your job code here
 
   deploy-infrastructure:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here that supports AWS CLI
     steps:
+      - checkout
       # Checkout code from git
       - run:
           name: Ensure back-end infrastructure exists
@@ -133,8 +153,10 @@ jobs:
 
   configure-infrastructure:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here that supports Ansible
     steps:
+      - checkout
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
@@ -152,8 +174,10 @@ jobs:
 
   run-migrations:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here that supports NodeJS
     steps:
+      - checkout
       # Checkout code from git
       - run:
           name: Run migrations
@@ -169,8 +193,10 @@ jobs:
 
   deploy-frontend:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here that supports AWS CLI
     steps:
+      - checkout
       # Checkout code from git
       - run:
           name: Install dependencies
@@ -190,8 +216,10 @@ jobs:
                     
   deploy-backend:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here that supports Ansible
     steps:
+      - checkout
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
@@ -207,8 +235,10 @@ jobs:
 
   smoke-test:
     docker:
+      - image: circleci/node:13.8.0
       # Lightweight Docker image 
     steps:
+      - checkout
       # Checkout code from git
       - run:
           name: Install dependencies
@@ -230,8 +260,10 @@ jobs:
 
   cloudfront-update:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here that supports AWS CLI
     steps:
+      - checkout
       # Checkout code from git
       - run:
           name: Install dependencies
@@ -245,8 +277,10 @@ jobs:
 
 cleanup:
     docker:
+      - image: circleci/node:13.8.0
       # Docker image here
     steps:
+      - checkout
       # Checkout code from git
       - run:
           name: Get old stack workflow id
@@ -268,30 +302,30 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [test-feature-branch]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
+      # - cleanup:
+      #     requires: [cloudfront-update]
