@@ -287,7 +287,7 @@ jobs:
   cleanup:
     docker:
       - image: circleci/node:13.8.0
-      # Docker image here
+      #  Docker image here
     steps:
       # Checkout code from git
       - run:
