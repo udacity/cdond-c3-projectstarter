@@ -1,10 +1,13 @@
 version: 2.1
 
+orbs: 
+  slack: circleci/slack@4.5.0
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      id: 
+      id:
         type: string
       # Add parameter here   
     steps:
@@ -12,8 +15,10 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
+            aws s3 rm s3://udapeople-<< parameters.id >> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
             # Your code here
-            exit 1
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -47,8 +52,6 @@ jobs:
       - run:
           name: Build front-end
           command: |
-
-            # Your code here
             cd frontend
             npm install
             npm run build
@@ -66,8 +69,6 @@ jobs:
       - run:
           name: Back-end build
           command: |
-
-             # Your code here
               cd backend
               npm install
               npm run build
@@ -119,12 +120,10 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
-            # Your job code here
 
   scan-backend:
     docker:
       - image: circleci/node:13.8.0
-      # Docker image here
     steps:
       - checkout
       - restore_cache:
@@ -138,44 +137,46 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
-      # Checkout code from git
-      # Restore from cache
-      # Your job code here
 
   deploy-infrastructure:
     docker:
-      - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
       # Docker image here that supports AWS CLI
     steps:
       - checkout
-      # Checkout code from git
       - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              #--tags project=your-tag \
-              # --stack-name "your back-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"  
-              exit 1
+              --tags project=udapeople \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"          
+              
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              #--tags project=your-tag \
-              # --stack-name "your front-end stack name with workflow id" \
-              # --parameter-overrides ID="your workflow id"  
-              exit 1
+              --tags project=udapeople \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
+            
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            # Your code here
-            exit 1
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text >> inventory
+
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}      
       # Here's where you will add some code to rollback on failure      
 
   configure-infrastructure:
@@ -337,11 +338,11 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [test-feature-branch]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [test-feature-branch]
       # - configure-infrastructure:
       #     requires: [deploy-infrastructure]
       # - run-migrations:
