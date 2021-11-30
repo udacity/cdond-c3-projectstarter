@@ -117,7 +117,7 @@ jobs:
             cd frontend
             npm install
             # npm install oauth-sign@^0.9.0
-            # npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
       - slack/notify     
@@ -170,6 +170,11 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> inventory
+              
+      - run:
+          name: Install tar utility
+          command: |
+            yum install -y tar gzip        
 
       - persist_to_workspace:
           root: ~/
@@ -339,11 +344,11 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: master
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: master
       # - configure-infrastructure:
       #     requires: [deploy-infrastructure]
       # - run-migrations:
