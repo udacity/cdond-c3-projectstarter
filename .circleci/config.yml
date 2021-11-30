@@ -120,7 +120,7 @@ jobs:
             # npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
-      - slack/status      
+      - slack/notify     
 
   scan-backend:
     docker:
