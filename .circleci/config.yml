@@ -196,7 +196,7 @@ jobs:
             yum install -y tar gzip        
 
       - persist_to_workspace:
-          root: .
+          root: ./
           paths:
             - .circleci/ansible/inventory.txt
 
