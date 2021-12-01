@@ -7,7 +7,7 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      id:
+      workflow_id:
         type: string
       # Add parameter here   
     steps:
@@ -201,7 +201,7 @@ jobs:
             - .circleci/ansible/inventory.txt
 
       - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}      
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}      
       # Here's where you will add some code to rollback on failure      
 
   configure-infrastructure:
@@ -231,7 +231,7 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
             # Your code here
       - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}         
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}         
       # Here's where you will add some code to rollback on failure      
 
   run-migrations:
@@ -284,7 +284,7 @@ jobs:
             fi
             # Your code here
       - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}      
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}      
      # Here's where you will add some code to rollback on failure      
 
   deploy-frontend:
@@ -329,7 +329,7 @@ jobs:
             # your code here
 
       - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}      
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}      
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
@@ -369,7 +369,7 @@ jobs:
             # your code here
 
       - destroy-environment:
-          id: ${CIRCLE_WORKFLOW_ID:0:7}
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
