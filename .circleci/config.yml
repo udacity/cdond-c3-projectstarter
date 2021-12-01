@@ -236,9 +236,9 @@ jobs:
       - run:
           name: Install AWS CLI dependencies
           command: |
-            # sudo apt-get update && sudo apt-get install -yy less
-            sudo apt install
-            sudo apt install -y awscli
+            sudo apt-get update && sudo apt-get install -yy less
+            # sudo apt install
+            # sudo apt install -y awscli
             # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             # unzip awscliv2.zip
             # sudo ./aws/install
