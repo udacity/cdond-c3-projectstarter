@@ -146,6 +146,7 @@ jobs:
       
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -154,7 +155,6 @@ jobs:
               --tags project=udapeople \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-
       - run:
           name: Save backend URL in memstash
           command: |
@@ -179,7 +179,7 @@ jobs:
             export BACKEND_IP=$(aws ec2 describe-instances \
               --region ${AWS_DEFAULT_REGION} \
               --query 'Reservations[*].Instances[0].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --filters "Name=tag:project,Values=udapeople-backend" \
               --output text)
 
               echo "${BACKEND_IP}" >> .circleci/ansible/inventory.txt
@@ -188,12 +188,7 @@ jobs:
 
             curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
               --request PUT --data "${BACKEND_IP}" \
-              https://api.memstash.io/values/backendurl  
-
-      - run:
-          name: Install tar utility
-          command: |
-            yum install -y tar gzip        
+              https://api.memstash.io/values/backendurl          
 
       - persist_to_workspace:
           root: ./
