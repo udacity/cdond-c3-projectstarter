@@ -246,8 +246,7 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical
+            npm audit fix --force
             # Run and sve the migration output
             npm run migrations > migrations_dump.txt
             # Your code here
