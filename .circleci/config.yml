@@ -155,14 +155,14 @@ jobs:
               --tags project=udapeople-backend \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-      - run:
-          name: Save backend URL in memstash
-          command: |
-            BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
-            curl -H "Content-Type: text/plain" -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/BACKEND_URL                  
+      # - run:
+      #     name: Save backend URL in memstash
+      #     command: |
+      #       BACKEND_IP=$(aws ec2 describe-instances \
+      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
+      #         --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+      #         --output text)
+      #       curl -H "Content-Type: text/plain" -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/BACKEND_URL                  
               
       - run:
           name: Ensure front-end infrastructure exist
@@ -453,8 +453,8 @@ workflows:
               only: master
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
