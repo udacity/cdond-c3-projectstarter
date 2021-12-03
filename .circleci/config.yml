@@ -266,7 +266,7 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit-fix 
+            npm audit fix 
             npm run build
             # Run and sve the migration output
             # npm run migrations:revert
