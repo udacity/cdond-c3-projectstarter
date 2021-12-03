@@ -279,6 +279,7 @@ jobs:
             printenv >> ./backend/.env
             cd backend
             npm install
+            npm audit fix
             #npm fund 
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
