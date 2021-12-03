@@ -154,15 +154,7 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople-backend \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
-      # - run:
-      #     name: Save backend URL in memstash
-      #     command: |
-      #       BACKEND_IP=$(aws ec2 describe-instances \
-      #         --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #         --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-      #         --output text)
-      #       curl -H "Content-Type: text/plain" -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "http://$BACKEND_IP:3030" https://api.memstash.io/values/BACKEND_URL                  
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"              
               
       - run:
           name: Ensure front-end infrastructure exist
@@ -225,6 +217,28 @@ jobs:
           command: |
             ansible-playbook -i inventory.txt configure-server.yml
             # Your code here
+
+      - run:
+          name: prepare environment for backend build
+          command: |
+            touch ./project/backend/.env
+            echo ENVIRONMENT=$ENVIRONMENT >> backend/.env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - .circleci/ansible/inventory.txt
+            - backend/.env
+
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}         
       # Here's where you will add some code to rollback on failure      
@@ -236,17 +250,8 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]  
-      # Checkout code from git
-      # - run:
-      #     name: prepare environment for backend build
-      #     command: |
-      #       echo "Preparing environment for backend build"
-      #       echo ENVIRONMENT=$ENVIRONMENT >> backend/.env
-      #       echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
-      #       echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
-      #       echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
-      #       echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+          keys: [backend-build]    
+            
       - run:
           name: Install AWS CLI dependencies
           command: |
@@ -262,6 +267,7 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit-fix 
             npm run build
             # Run and sve the migration output
             # npm run migrations:revert
