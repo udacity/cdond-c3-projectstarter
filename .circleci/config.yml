@@ -263,16 +263,27 @@ jobs:
 
       - run:
           name: Run migrations
+          no_output_timeout: 30m
+          working_directory: ./backend
           command: |
-            cd backend
+            # cd backend
             npm install
             npm audit fix 
             npm run build
             # Run and sve the migration output
             # npm run migrations:revert
             npm run migrations > migrations_dump.txt
-            cat migrations_dump.txt
+            export migration_status=$(cat migration_dump.txt | grep -c "has been executed successfully")
+            tar -zcvf ~/backend.tar.gz .
+            ls
+            # cat migrations_dump.txt
             # Your code here
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - backend.tar.gz
+            - migration.log
+            
       - run:
           name: Send migration results to memstash
           command: |
