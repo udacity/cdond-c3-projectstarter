@@ -263,16 +263,6 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            # cd backend
-            # npm install
-            # npm audit fix 
-            # npm run build
-            # # Run and sve the migration output
-            # # npm run migrations:revert
-            # npm run migrations > migrations_dump.txt
-            # cat migrations_dump.txt
-            # # Your code here
-
             sudo apt install python-pip jq curl
             sudo pip install awscli
             echo printenv
@@ -306,6 +296,8 @@ jobs:
       # Docker image here that supports AWS CLI
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       # Checkout code from git
       - run:
           name: Install dependencies
@@ -325,11 +317,11 @@ jobs:
           command: |
             # your code here
             export BACKEND_IP=$(aws ec2 describe-instances...............)
-            export API_URL="http://${BACKEND_IP}:3030"
+            export API_URL="http://${https://3.86.221.231}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo API_URL="http://${https://3.86.221.231}:3030" >> frontend/.env
             cat frontend/.env             
-            # export API_URL="http://${BACKEND_IP}:3030"
+            # export API_URL="http://${https://3.86.221.231}:3030"
             # echo "${API_URL}"
       - run:
           name: Deploy frontend objects
@@ -472,8 +464,8 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
       # - deploy-backend:
       #     requires: [run-migrations]
       # - smoke-test:
