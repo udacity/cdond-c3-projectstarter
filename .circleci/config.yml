@@ -298,6 +298,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+          
+      - run: yum install -y tar gzip    
       # Checkout code from git
       - run:
           name: Install dependencies
