@@ -262,7 +262,7 @@ jobs:
             npm install
             npm run build
             # Run and sve the migration output
-            npm run migrations:revert
+            # npm run migrations:revert
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
             # Your code here
