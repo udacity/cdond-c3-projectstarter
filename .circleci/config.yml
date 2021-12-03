@@ -297,16 +297,14 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: .
-          
-      - run: yum install -y tar gzip    
+          at: .  
       # Checkout code from git
       - run:
           name: Install dependencies
           command: |
             sudo apt-get update && sudo apt-get install -yy less
-            npm install
             yum install -y tar gzip
+            npm install
             apk add --update ansible
             ansible --version
             apt -y update && apt install -y python3
@@ -318,12 +316,12 @@ jobs:
           name: Get backend url
           command: |
             # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances...............)
-            export API_URL="http://${https://3.86.221.231}:3030"
+            export BACKEND_IP=$(curl -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${https://3.86.221.231}:3030" >> frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env             
-            # export API_URL="http://${https://3.86.221.231}:3030"
+            # export API_URL="http://${BACKEND_IP}:3030"
             # echo "${API_URL}"
       - run:
           name: Deploy frontend objects
