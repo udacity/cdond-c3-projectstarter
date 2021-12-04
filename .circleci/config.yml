@@ -309,7 +309,12 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(curl -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/backendurl)
+            # export BACKEND_IP=$(aws ec2 describe-instances \
+            #   --region ${AWS_DEFAULT_REGION} \
+            #   --query 'Reservations[*].Instances[0].PublicIpAddress' \
+            #   --filters "Name=tag:project,Values=udapeople-backend" \
+            #   --output text)
+            export BACKEND_IP=$(curl -H "token: {CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backendurl)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -321,12 +326,15 @@ jobs:
             cd frontend
             npm install
             npm run build
+            cat .env
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
             # your code here
 
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}     
       # Here's where you will add some code to rollback on failure
 
   deploy-backend:
@@ -367,6 +375,8 @@ jobs:
 
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}     
       # Here's where you will add some code to rollback on failure
 
   smoke-test:
