@@ -300,15 +300,18 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt-get update && sudo apt-get install -yy less
-            yum install -y tar gzip
-            npm install
-            apk add --update ansible
-            ansible --version
-            apt -y update && apt install -y python3
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+            curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
+            yum -y install nodejs
+            yum -y install tar gzip
+            # sudo apt-get update && sudo apt-get install -yy less
+            # yum install -y tar gzip
+            # npm install
+            # apk add --update ansible
+            # ansible --version
+            # apt -y update && apt install -y python3
+            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            # unzip awscliv2.zip
+            # sudo ./aws/install
             # your code here
       - attach_workspace:
           at: ./      
