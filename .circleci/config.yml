@@ -254,11 +254,6 @@ jobs:
           name: Install AWS CLI dependencies
           command: |
             sudo apt-get update && sudo apt-get install -yy less
-            # sudo apt install
-            # sudo apt install -y awscli
-            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            # unzip awscliv2.zip
-            # sudo ./aws/install
 
       - run:
           name: Run migrations
@@ -303,23 +298,13 @@ jobs:
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
             yum -y install tar gzip
-            # sudo apt-get update && sudo apt-get install -yy less
-            # yum install -y tar gzip
-            # npm install
-            # apk add --update ansible
-            # ansible --version
-            # apt -y update && apt install -y python3
-            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            # unzip awscliv2.zip
-            # sudo ./aws/install
-            # your code here
       - attach_workspace:
           at: ./      
       - run:
           name: Get backend url
           command: |
             # your code here
-            export BACKEND_IP=$(curl -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            export BACKEND_IP=$(curl -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/backendurl)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
