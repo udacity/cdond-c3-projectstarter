@@ -306,12 +306,12 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            # export BACKEND_IP=$(aws ec2 describe-instances \
-            #   --region ${AWS_DEFAULT_REGION} \
-            #   --query 'Reservations[*].Instances[0].PublicIpAddress' \
-            #   --filters "Name=tag:project,Values=udapeople-backend" \
-            #   --output text)
-            export BACKEND_IP=$(curl -H "token: {CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backendurl)
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --region ${AWS_DEFAULT_REGION} \
+              --query 'Reservations[*].Instances[0].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople-backend" \
+              --output text)
+            # curl -H "token: {CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backendurl
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
