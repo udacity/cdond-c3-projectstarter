@@ -32,10 +32,10 @@ commands:
           command: |
             # Your Memstash GET URL code goes here
             # See an example below
-            SUCCESS=$(curl -H "token: e52b52de-ee26-41a5-86e8-e8dcc3d995a5" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
+            SUCCESS=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/migration_<< parameters.workflow_id >>)
             if (( $SUCCESS == 1 ));
             then
-              cd ~/project/backend
+              cd ./backend
               npm install
               npm run migration:revert
             fi
@@ -235,9 +235,10 @@ jobs:
           root: ./
           paths:
             - backend/.env
-
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}  
       # Here's where you will add some code to rollback on failure
 
   run-migrations:
@@ -265,13 +266,13 @@ jobs:
             npm install
             npm audit fix
             #npm fund 
-            npm run migrations > migrations_dump.txt
-            cat migrations_dump.txt
+            npm run migrations >> migrations_dump.txt
+            echo cat migrations_dump.txt
 
       - run:
           name: Send migration results to memstash
           command: |
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            if grep -q "has been executed successfully." ./backend/migrations_dump.txt
             then
               echo "Migration was successful, updating memstash..."
               curl -H "Content-Type: text/plain" -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
@@ -279,9 +280,14 @@ jobs:
               echo "Migration failed, Maybe the database already exists. Verify setup!"
               curl -H "Content-Type: text/plain" -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}  
             fi
-            # Your code here
+      - persist_to_workspace:
+          root: ./
+          paths:
+            - backend      
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}    
       # Here's where you will add some code to rollback on failure
 
   deploy-frontend:
@@ -302,14 +308,12 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            # your code here
             export BACKEND_IP=$(curl -H "token: {CIRCLE_WORKFLOW_ID:0:7}" --request GET https://api.memstash.io/values/backendurl)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env             
-            # export API_URL="http://${BACKEND_IP}:3030"
-            # echo "${API_URL}"
+            
       - run:
           name: Deploy frontend objects
           command: |
@@ -335,7 +339,7 @@ jobs:
           fingerprints: ["4f:bc:f6:2f:05:01:fc:7a:72:d3:b1:2c:56:4a:94:a3"]
       # Add ssh keys with fingerprint
       - attach_workspace:
-          at: .
+          at: ./
       # attach workspace
       - run:
           name: Install dependencies
