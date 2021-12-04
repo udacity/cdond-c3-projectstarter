@@ -201,7 +201,7 @@ jobs:
           fingerprints: ["4f:bc:f6:2f:05:01:fc:7a:72:d3:b1:2c:56:4a:94:a3"]
       # Add ssh keys with fingerprint
       - attach_workspace:
-          at: .
+          at: ./
       # attach workspace
       - run:
           name: Install dependencies
@@ -296,8 +296,6 @@ jobs:
       # Docker image here that supports AWS CLI
     steps:
       - checkout
-      - attach_workspace:
-          at: .  
       # Checkout code from git
       - run:
           name: Install dependencies
@@ -312,6 +310,8 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
             # your code here
+      - attach_workspace:
+          at: ./      
       - run:
           name: Get backend url
           command: |
