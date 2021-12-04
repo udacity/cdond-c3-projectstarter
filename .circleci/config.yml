@@ -174,9 +174,7 @@ jobs:
 
             cat .circleci/ansible/inventory.txt
 
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID}" \
-              --request PUT --data "${BACKEND_IP}" \
-              https://api.memstash.io/values/backendurl
+            curl -H "Content-Type: text/plain" -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request PUT --data "${BACKEND_IP}" https://api.memstash.io/values/backendipurl
 
       - persist_to_workspace:
           root: ./
@@ -264,7 +262,7 @@ jobs:
             npm install
             npm audit fix
             #npm fund 
-            npm run migrations >> migrations_dump.txt
+            npm run migrations > migrations_dump.txt
             echo cat migrations_dump.txt
 
       - run:
@@ -306,12 +304,12 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --region ${AWS_DEFAULT_REGION} \
-              --query 'Reservations[*].Instances[0].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend" \
-              --output text)
-            # curl -H "token: {CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/backendurl
+            # export BACKEND_IP=$(aws ec2 describe-instances \
+            #   --region ${AWS_DEFAULT_REGION} \
+            #   --query 'Reservations[*].Instances[0].PublicIpAddress' \
+            #   --filters "Name=tag:project,Values=udapeople-backend" \
+            #   --output text)
+            export BACKEND_IP=curl -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request GET https://api.memstash.io/values/backendipurl
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
