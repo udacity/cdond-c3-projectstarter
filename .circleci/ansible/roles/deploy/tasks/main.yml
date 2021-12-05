@@ -22,3 +22,30 @@
   shell: |
     cd /home/ubuntu
     tar xvzf
+
+
+# ---   
+# - name: Create app dir
+#   become: yes
+#   file:
+#     path: /home/ubuntu/app
+#     state: directory
+
+# - name: "Copy backend build folder to EC2"
+#   become: yes
+#   unarchive:
+#     src: /tmp/workspace/backend.tar.gz
+#     dest: /home/ubuntu/app/
+#     owner: ubuntu
+
+# - name: "Copy package.json to EC2"
+#   become: yes
+#   copy:
+#     src: /tmp/workspace/package.json
+#     dest: /home/ubuntu/app/
+#     owner: ubuntu
+
+# - name: "NPM Install"
+#   shell:
+#     cmd: npm install --production
+#     chdir: /home/ubuntu/app
