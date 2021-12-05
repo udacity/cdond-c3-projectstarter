@@ -329,7 +329,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: python:3.9.0-alpine
+      - image: python:3.9.1-alpine3.12
       # Docker image here that supports Ansible
     steps:
       - checkout
@@ -337,8 +337,11 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["4f:bc:f6:2f:05:01:fc:7a:72:d3:b1:2c:56:4a:94:a3"]
       # Add ssh keys with fingerprint
+      - restore_cache:
+          keys: [backend-build]
+
       - attach_workspace:
-          at: ./
+          at: ./   
       # attach workspace
       - run:
           name: Install dependencies
