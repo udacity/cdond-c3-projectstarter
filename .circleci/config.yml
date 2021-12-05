@@ -250,21 +250,18 @@ jobs:
           name: Install AWS CLI dependencies
           command: |
             sudo apt-get update && sudo apt-get install -yy less
+            # sudo apt install python-pip jq curl
+            # sudo pip install awscli
 
       - run:
           name: Run migrations
           command: |
-            sudo apt install python-pip jq curl
-            sudo pip install awscli
-            echo printenv
-            printenv >> ./backend/.env
             cd backend
             npm install
-            npm audit fix
-            #npm fund 
+            npm run build
+            npm run migrations:revert
             npm run migrations > migrations_dump.txt
-            echo cat migrations_dump.txt
-            pwd
+            cat migrations_dump.txt
 
       - run:
           name: Send migration results to memstash
@@ -461,8 +458,8 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
