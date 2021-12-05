@@ -354,10 +354,10 @@ jobs:
       - run:
           name: Deploy backend
           command: |
-            cd backend
-            npm install
-            npm run build
-            cd ..
+            # cd backend
+            # npm install
+            # npm run build
+            # cd ..
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             ls -la
