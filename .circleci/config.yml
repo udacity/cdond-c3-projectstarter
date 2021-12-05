@@ -343,10 +343,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            npm install
-            yum install -y tar gzip
-            apk add --update ansible
-            ansible --version
+            apk add --update tar gzip ansible nodejs npm
+            pip install awscli
             # your code here
       - run:
           name: Deploy backend
@@ -357,6 +355,7 @@ jobs:
             cd ..
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
+            ls -la
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
