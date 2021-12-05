@@ -2,7 +2,7 @@
 - name: "Copy dist backend directory to EC2 server"
   become: yes
   copy:
-    src: ~/project/artifact.tar.gz
+    src: ./artifact.tar.gz
     dest: /home/ubuntu/artifact.tar.gz
 
 - name: "Install Ansible dependencies"
