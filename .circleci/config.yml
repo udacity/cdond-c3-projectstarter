@@ -264,6 +264,7 @@ jobs:
             #npm fund 
             npm run migrations > migrations_dump.txt
             echo cat migrations_dump.txt
+            pwd
 
       - run:
           name: Send migration results to memstash
@@ -274,9 +275,9 @@ jobs:
             then
               echo "Migration was successful, updating memstash..."
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
-            # else
-            #   echo "Migration failed, Maybe the database already exists. Verify setup!"
-            #   curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}  
+            else
+              echo "Migration failed, Maybe the database already exists. Verify setup!"
+              curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "0" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}  
             fi
       - persist_to_workspace:
           root: ./
@@ -306,15 +307,9 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --region ${AWS_DEFAULT_REGION} \
-              --query 'Reservations[*].Instances[0].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople-backend" \
-              --output text)
-            export BACKEND_IPs=$(curl -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request GET https://api.memstash.io/values/backendipurl)
+            export BACKEND_IP=$(curl -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request GET https://api.memstash.io/values/backendipurl)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo "API_URLS"= ${BACKEND_IPs}
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
             cat frontend/.env             
             
