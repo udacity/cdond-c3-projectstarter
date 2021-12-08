@@ -9,7 +9,7 @@
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
   environment:
-    ENVIRONMENT: 
+    ENVIRONMENT: development
     TYPEORM_CONNECTION: postgres
     TYPEORM_ENTITIES: ./src/modules/domain/**/*.entity.ts
     TYPEORM_HOST: "{{ lookup('env','TYPEORM_HOST') }}"

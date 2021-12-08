@@ -2,6 +2,7 @@ version: 2.1
 
 orbs:
   slack: circleci/slack@4.5.0
+  aws-cli: circleci/aws-cli@2.0.3 
 
 commands:
   destroy-environment:
@@ -67,9 +68,26 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
+          name: prepare environment for backend build
+          command: |
+            cat \<< EOF > backend/.env
+            ENVIRONMENT=development
+            VERSION=1
+            TYPEORM_CONNECTION=postgres
+            TYPEORM_MIGRATIONS_DIR=./src/migrations
+            TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts
+            TYPEORM_MIGRATIONS=./src/migrations/*.ts
+            TYPEORM_HOST=${TYPEORM_HOST}
+            TYPEORM_PORT=${TYPEORM_PORT}
+            TYPEORM_USERNAME=${TYPEORM_USERNAME}
+            TYPEORM_PASSWORD=${TYPEORM_PASSWORD}
+            TYPEORM_DATABASE=${TYPEORM_DATABASE}
+            EOF    
+      - run:
           name: Back-end build
           command: |
             cd backend
+            touch .env
             npm install
             npm run build
       - save_cache:
@@ -116,7 +134,6 @@ jobs:
           command: |
             cd frontend
             npm install
-            # npm install oauth-sign@^0.9.0
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
             # If the "npm audit fix" command above could not fix all critical vulnerabilities, try “npm audit fix --force” again
@@ -245,14 +262,25 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-
+      - run:
+          name: prepare environment for backend build
+          command: |
+            echo "Preparing environment for backend build"
+            echo ENVIRONMENT=$ENVIRONMENT >> backend/.env
+            echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> backend/.env
+            echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> backend/.env
+            echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> backend/.env
+            echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env    
       - run:
           name: Install AWS CLI dependencies
           command: |
-            sudo apt-get update && sudo apt-get install -yy less
-            # sudo apt install python-pip jq curl
-            # sudo pip install awscli
-
+            sudo apt update
+            sudo apt install -y awscli
       - run:
           name: Run migrations
           command: |
@@ -268,7 +296,7 @@ jobs:
           command: |
             cd backend
             echo "CIRCLE_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}"
-            if grep -q "has been executed successfully." migrations_dump.txt
+            if grep -q "has been executed successfully." ./backend/migrations_dump.txt
             then
               echo "Migration was successful, updating memstash..."
               curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
@@ -296,9 +324,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            yum -y install tar gzip
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
-            yum -y install tar gzip
       - attach_workspace:
           at: ./      
       - run:
@@ -308,6 +336,7 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo NODE_ENV=development >> "frontend/.env" 
             cat frontend/.env             
             
       - run:
@@ -316,17 +345,14 @@ jobs:
             cd frontend
             npm install
             npm run build
-            cat .env
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-            # your code here
 
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}     
-      # Here's where you will add some code to rollback on failure
-
+  
   deploy-backend:
     docker:
       - image: python:3.9.1-alpine3.12
@@ -336,36 +362,27 @@ jobs:
       # Checkout code from git
       - add_ssh_keys:
           fingerprints: ["4f:bc:f6:2f:05:01:fc:7a:72:d3:b1:2c:56:4a:94:a3"]
-      # Add ssh keys with fingerprint
       - restore_cache:
           keys: [backend-build]
-
       - attach_workspace:
           at: ./   
       # attach workspace
       - run:
           name: Install dependencies
           command: |
-            # apk add --update tar gzip ansible nodejs npm
-            # pip install awscli
             apk update
             apk add --update ansible aws-cli openssh-client tar
-            # your code here
       - run:
           name: Deploy backend
           command: |
-            # cd backend
-            # npm install
-            # npm run build
-            # cd ..
+            cd backend
+            cd ..
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
-            ls -la
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i inventory.txt deploy-backend.yml
-            # your code here
 
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
