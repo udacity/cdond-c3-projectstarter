@@ -399,8 +399,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update
-            # sudo apt update
+            sudo apt update
             sudo apt install -y awscli
             sudo apt install -y python3 ansible
       - run:
