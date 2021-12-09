@@ -399,9 +399,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo apt update
-            sudo apt install -y awscli
-            sudo apt install -y python3 ansible
+            apk add --update curl nodejs npm
+            pip install awscli
+            # sudo apt update
+            # sudo apt install -y awscli
+            # sudo apt install -y python3 ansible
       - run:
           name: Get backend url
           command: |
