@@ -40,6 +40,8 @@ commands:
               cd ./backend
               npm install
               npm run migration:revert
+            else
+              echo "failed to revert"  
             fi
 
 jobs:
@@ -221,7 +223,6 @@ jobs:
           command: |
             apk add --update ansible
             ansible --version
-            # Your code here
       - run:
           name: Configure server
           working_directory: ./.circleci/ansible
@@ -405,8 +406,8 @@ jobs:
           name: Get backend url
           command: |
             curl -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request GET https://api.memstash.io/values/backendipurl > backend-url.txt
-            
-            # your code here
+
+            echo backend-url.txt
       - run:
           name: Backend smoke test.
           command: |
@@ -454,7 +455,8 @@ jobs:
             WorkflowID=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
-            curl -H "Content-Type: text/plain" -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request PUT --data "$WorkflowID" https://api.memstash.io/values/workflowID 
+            echo "WorkflowId=${WorkflowID}"
+            curl -H "Content-Type: text/plain" -H "token: f22ac2db-81c4-4ad3-9904-1d6208c049cc" --request PUT --data "${WorkflowID}" https://api.memstash.io/values/workflowId 
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
@@ -473,16 +475,15 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            # your code here
-          
-            export OldWorkflowID=$(curl -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request GET https://api.memstash.io/values/workflowID)
+            export OldWorkflowID=$(curl -H "token: f22ac2db-81c4-4ad3-9904-1d6208c049cc" --request GET https://api.memstash.io/values/workflowId)
             export WorkFlowID=${CIRCLE_WORKFLOW_ID:0:7}
+            echo "OldWorkFlowID=${OldWorkflowID}"
+            echo "WorkFlowID=${WorkFlowID}"
           # export STACKS=[] #put the list of stacks here
       - run:
           name: Remove old stacks and files
           command: |
-            # if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-              if [[ "${WorkFlowID}" != "${OldWorkflowID}" ]]
+            if [[ "${WorkFlowID}" != "${OldWorkflowID}" ]]
             then
               echo "$OldWorkflowID!=$WorkflowID => will delete old version"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
@@ -491,6 +492,7 @@ jobs:
             else
               echo "$OldWorkflowID==$WorkflowID => nothing needs to be done..."
             fi
+            # if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
 
 workflows:
   default:
