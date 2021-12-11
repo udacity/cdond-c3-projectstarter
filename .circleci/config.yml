@@ -464,33 +464,33 @@ jobs:
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
-cleanup:
-  docker:
-    - image: circleci/node:13.8.0
-    # Docker image here
-  steps:
-    - checkout
-    - run:
-        name: Get old stack workflow id
-        command: |
-          # your code here
+  cleanup:
+    docker:
+      - image: circleci/node:13.8.0
+      # Docker image here
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            # your code here
           
-          export OldWorkflowID=$(curl -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request GET https://api.memstash.io/values/workflowID)
-          export WorkFlowID=${CIRCLE_WORKFLOW_ID:0:7}
+            export OldWorkflowID=$(curl -H "token: c47d93a2-6701-41a5-8842-e115b7714054" --request GET https://api.memstash.io/values/workflowID)
+            export WorkFlowID=${CIRCLE_WORKFLOW_ID:0:7}
           # export STACKS=[] #put the list of stacks here
-    - run:
-        name: Remove old stacks and files
-        command: |
-          # if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            if [[ "${WorkFlowID}" != "${OldWorkflowID}" ]]
-          then
-            echo "$OldWorkflowID!=$WorkflowID => will delete old version"
+      - run:
+          name: Remove old stacks and files
+          command: |
+            # if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+              if [[ "${WorkFlowID}" != "${OldWorkflowID}" ]]
+            then
+              echo "$OldWorkflowID!=$WorkflowID => will delete old version"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
             else
               echo "$OldWorkflowID==$WorkflowID => nothing needs to be done..."
-          fi
+            fi
 
 workflows:
   default:
