@@ -64,7 +64,7 @@ jobs:
             npm run test
 
   scan-frontend:
-     docker:
+    docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
@@ -101,3 +101,7 @@ workflows:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
