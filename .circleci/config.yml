@@ -178,7 +178,7 @@ jobs:
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople-frontend \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
 
       - run:
           name: Add back-end ip to ansible inventory
@@ -452,14 +452,16 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            export WorkflowID=$(aws cloudformation \
+            export OldWorkflowID=${CIRCLE_WORKFLOW_ID}
+            
+            export OldWorkflowIDs=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
-              
-            echo WorkflowId >> ./backend/oldworkflowId.txt
+
+            echo OldWorkflowID >> ./backend/oldworkflowId.txt
             cat ./backend/oldworkflowId.txt
 
-            curl -H "Content-Type: text/plain" -H "token: f22ac2db-81c4-4ad3-9904-1d6208c049cc" --request PUT --data "${WorkflowID}" https://api.memstash.io/values/WorkflowID 
+            curl -H "Content-Type: text/plain" -H "token: f22ac2db-81c4-4ad3-9904-1d6208c049cc" --request PUT --data "${OldWorkflowID}" https://api.memstash.io/values/OldWorkflowID 
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
@@ -468,6 +470,7 @@ jobs:
               --tags project=udapeople
 
             echo OldWorkflowID: "${OldWorkflowID}"
+            echo OldWorkflowIDs: "${OldWorkflowIDs}"
             echo Current WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"  
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
