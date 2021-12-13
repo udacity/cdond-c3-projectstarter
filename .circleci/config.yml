@@ -452,12 +452,14 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            export OldWorkflowID=$(aws cloudformation \
+            export WorkflowID=$(aws cloudformation \
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
-            echo OldWorkflowId >> ./backend/oldworkflowId.txt
+              
+            echo WorkflowId >> ./backend/oldworkflowId.txt
             cat ./backend/oldworkflowId.txt
-            curl -H "Content-Type: text/plain" -H "token: f22ac2db-81c4-4ad3-9904-1d6208c049cc" --request PUT --data "${WorkflowID}" https://api.memstash.io/values/workflowId 
+
+            curl -H "Content-Type: text/plain" -H "token: f22ac2db-81c4-4ad3-9904-1d6208c049cc" --request PUT --data "${WorkflowID}" https://api.memstash.io/values/WorkflowID 
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
