@@ -461,7 +461,7 @@ jobs:
             export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
 
             echo OldWorkflowID: "${OldWorkflowID}"
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            echo NewWorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"
 
             curl -H "Content-Type: text/plain" -H "token: e8bcd159-d3de-4f09-8ccf-f59adab71ca8" --request PUT --data "${OldWorkflowID}" https://api.memstash.io/values/OldWorkflowID 
 
@@ -469,9 +469,7 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
               --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
-
-            echo OldWorkflowID: "${OldWorkflowID}"
-            echo Current WorkflowID: "${CIRCLE_WORKFLOW_ID:0:7}"  
+ 
       - revert-migrations:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -485,14 +483,16 @@ jobs:
           name: Get old stack workflow id
           command: |
             export OldWorkflowID=$(curl -H "token: e8bcd159-d3de-4f09-8ccf-f59adab71ca8" --request GET https://api.memstash.io/values/OldWorkflowID)
-            export WorkFlowID=${CIRCLE_WORKFLOW_ID:0:7}
+
+            export WorkFlowID=${CIRCLE_WORKFLOW_ID}
+
             echo "OldWorkFlowID=${OldWorkflowID}"
-            echo "WorkFlowID=${WorkFlowID}"
+            echo "NewWorkFlowID=${WorkFlowID}"
           # export STACKS=[] #put the list of stacks here
       - run:
           name: Remove old stacks and files
           command: |
-            if [ "${OldWorkFlowID}" != "${WorkflowID}" ]
+            if [[ "${OldWorkFlowID}" != "${WorkflowID}" ]]
             then
               echo "$OldWorkflowID!=$WorkflowID => will delete old version"
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
