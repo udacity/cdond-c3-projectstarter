@@ -92,6 +92,7 @@ jobs:
           keys: [backend-test]
       - run: 
           name: Unit Test backend
+          command: |
             cd backend
             npm install
             npm run test 
