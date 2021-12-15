@@ -197,9 +197,11 @@ jobs:
           no_output_timeout: 30m
           working_directory: ./backend
           command: |
+            # fix sourced from student questions
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
       - run:
           name: Send migration results to memstash
           command: |
