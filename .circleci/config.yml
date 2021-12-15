@@ -193,9 +193,11 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
+          name: install AWS-cli
+          command: |
+            npm i aws-cli
+      - run:
           name: Run migrations
-          no_output_timeout: 30m
-          working_directory: ./backend
           command: |
             # fix sourced from student questions
             cd backend
@@ -209,7 +211,7 @@ jobs:
             then
               curl -H "Content-Type: text/plain" -H "token: 3a0bfe4a-edb1-4107-83af-4d7ee7758c7c" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
             fi
-     # Here's where you will add some code to rollback on failure      
+      - destroy-environment
 
 
   deploy-frontend:
