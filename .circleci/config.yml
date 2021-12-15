@@ -198,8 +198,8 @@ jobs:
           working_directory: ./backend
           command: |
             npm install
-            npm run build
-            npm run migrations:revert
+            # npm run build
+            # npm run migrations:revert
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
