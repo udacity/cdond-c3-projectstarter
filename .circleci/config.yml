@@ -185,6 +185,7 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
 
+
   run-migrations:
     docker:
       - image: circleci/node:14.18.1
