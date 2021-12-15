@@ -200,7 +200,7 @@ jobs:
           name: Run migrations
           command: |
             # fix sourced from student questions
-            cd backend
+            cd backemnd
             npm install
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
