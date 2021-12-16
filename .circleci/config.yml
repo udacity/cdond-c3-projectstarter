@@ -279,14 +279,14 @@ jobs:
             cd backend
             npm i
             npm run build
-            # # cp package* ./dist
-            # cd ..
-            # # Zip the directory
-            # tar -C backend -czvf artifact.tar.gz .
-            # cd .circleci/ansible
-            # echo "Contents  of the inventory.txt file is -------"
-            # cat inventory.txt
-            # ansible-playbook -i inventory.txt deploy-backend.yml
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            ansible-playbook -i inventory.txt deploy-backend.yml
       - run:
           name: Configure server
           command: |
