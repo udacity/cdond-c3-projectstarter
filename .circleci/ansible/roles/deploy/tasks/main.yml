@@ -1,92 +1,51 @@
 ---
-- name: Creates directory n
+- name: "upgrade packages."
+  become: true
+  apt:
+    upgrade: "yes"
+
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    update_cache: yes
+
+
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+
+- name: create backend directory
+  become: yes
   file:
-    path: ~/node_modules
+    path: ~/backend
     state: directory
+    mode: 0755
 
-- name: Creates directory d
-  file:
-    path: ~/dist
-    state: directory
+- name: copy backend files
+  become: yes
+  copy:
+    src: ~/project/artifact.tar.gz
+    dest: ~/backend/artifact.tar.gz
 
-- name: Unarchive Backend
-  unarchive:
-    src: dist.tar.gz
-    dest: /home/ubuntu/dist/
-
-- name: Copy and unarchive node_modules
-  unarchive:
-    src: node_modules.tar.gz
-    dest: /home/ubuntu/node_modules/
-
-- name: "start app"
-  shell: |       
-      pm2 start npm -f ./main.js -- run start
-  args: 
-    chdir: /home/ubuntu/dist/
-
-- name: "List processes"
-  shell: |      
-      pm2 list
-  register: pm2_result 
-
-- name: "Print in the debug console"
-  debug:
-    var: pm2_result.stdout_lines
-
-  environment:
-    ENVIRONMENT: production
-    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
-    TYPEORM_MIGRATIONS_DIR: "./migrations"
-    TYPEORM_MIGRATIONS: "./migrations/*.js"
-    TYPEORM_ENTITIES: "./modules/domain/**/*.entity{.ts,.js}"
-    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
-    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
-    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
-    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
-    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
-
-
-# - name: "upgrade packages."
-#   become: true
-#   apt:
-#     upgrade: "yes"
-
-# - name: "install dependencies."
-#   become: true
-#   apt:
-#     name: ["nodejs", "npm"]
-#     update_cache: yes
-
-# - name: "install pm2"
-#   become: true
-#   npm:
-#     name: pm2
-#     global: yes
-#     production: yes
-#     state: present
-
-# - name: create directory
-#   file: 
-#     path: .circleci/backend
-#     state: directory
-
-# - name: copying files
-#   become: true
-#   copy:
-#     src: artifact.tar.gz
-#     dest: .circleci/backend
-
-# - name: unzip artifact
-#   become: yes
-#   shell: |
-#     cd ~/backend
-#     tar -vxf artifact.tar.gz
-#     rm -f artifact.tar.gz
-
-# - name: start app
-#   become: true
-#   shell: |
-#     npm install
-#     pm2 stop default
-#     pm2 start npm -- start
+- name: unpack backend files
+  become: yes
+  shell: |
+    cd ~/backend
+    tar -vxf artifact.tar.gz
+    rm -f artifact.tar.gz
+    
+- name: start app
+  become: yes
+  shell: |
+    cd ~/backend
+    npm install
+    pm2 stop default
+    pm2 start npm -- run start
+    cd dist
+    pm2 start main.js --update-env
