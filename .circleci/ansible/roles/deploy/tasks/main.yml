@@ -1,44 +1,57 @@
 ---
-- name: "upgrade packages."
-  become: true
-  apt:
-    upgrade: "yes"
-
-- name: "install dependencies."
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    update_cache: yes
-
-- name: "install pm2"
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-
-- name: create directory
-  file: 
-    path: .circleci/backend
-    state: directory
-
-- name: copying files
-  become: true
+- name: "Move backend files to server."
   copy:
-    src: artifact.tar.gz
-    dest: .circleci/backend
-
-- name: unzip artifact
-  become: yes
+    src: /root/project/backend_artifact.tar.gz
+    dest: ~/home/ubuntu
+- name: "Install package dependencies"
   shell: |
-    cd ~/backend
-    tar -vxf artifact.tar.gz
-    rm -f artifact.tar.gz
+    cd ~/home/ubuntu
+    tar -xzvf backend_artifact.tar.gz -C backend
+    rm backend_artifact.tar.gz
+    cd backend/
+    npm run build
+    cd dist
+    pm2 start npm --name backend -- start
+# - name: "upgrade packages."
+#   become: true
+#   apt:
+#     upgrade: "yes"
 
-- name: start app
-  become: true
-  shell: |
-    npm install
-    pm2 stop default
-    pm2 start npm -- start
+# - name: "install dependencies."
+#   become: true
+#   apt:
+#     name: ["nodejs", "npm"]
+#     update_cache: yes
+
+# - name: "install pm2"
+#   become: true
+#   npm:
+#     name: pm2
+#     global: yes
+#     production: yes
+#     state: present
+
+# - name: create directory
+#   file: 
+#     path: .circleci/backend
+#     state: directory
+
+# - name: copying files
+#   become: true
+#   copy:
+#     src: artifact.tar.gz
+#     dest: .circleci/backend
+
+# - name: unzip artifact
+#   become: yes
+#   shell: |
+#     cd ~/backend
+#     tar -vxf artifact.tar.gz
+#     rm -f artifact.tar.gz
+
+# - name: start app
+#   become: true
+#   shell: |
+#     npm install
+#     pm2 stop default
+#     pm2 start npm -- start
