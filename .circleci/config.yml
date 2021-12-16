@@ -285,7 +285,6 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt deploy-backend.yml
       - run:
           name: Configure server
@@ -301,19 +300,19 @@ jobs:
               echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/dist/.env"
               echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/dist/.env"
           
-      - run:
-          name: Configure server
-          command: |    
-              cd /root/project/backend/dist
-              tar czf dist.tar.gz .
-              mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
-              mv dist.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
-              cd /root/project/backend/node_modules
-              tar czf node_modules.tar.gz .
-              mv node_modules.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
-              pwd
-              cd /root/project/.circleci/ansible
-              ansible-playbook deploy-backend.yml -i inventory.txt 
+      # - run:
+      #     name: Configure server
+      #     command: |    
+      #         cd /root/project/backend/dist
+      #         tar czf dist.tar.gz .
+      #         mkdir -p ~/project/.circleci/ansible/roles/deploy/files/
+      #         mv dist.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
+      #         cd /root/project/backend/node_modules
+      #         tar czf node_modules.tar.gz .
+      #         mv node_modules.tar.gz ~/project/.circleci/ansible/roles/deploy/files/
+      #         pwd
+      #         cd /root/project/.circleci/ansible
+      #         ansible-playbook deploy-backend.yml -i inventory.txt 
       - destroy-environment
       # Here's where you will add some code to rollback on failure  
 
