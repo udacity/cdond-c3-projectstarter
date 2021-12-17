@@ -37,9 +37,9 @@ Resources:
           Value: !Sub backend-${ID}
 
 
-Outputs: 
-  BackendIP: 
-        Description: A reference to the EC2 instance created 
-        Value: !GetAtt PublicIp
-        Export:
-          Name: BackendIP  
+# Outputs: 
+#   BackendIP: 
+#         Description: A reference to the EC2 instance created 
+#         Value: !GetAtt PublicIp
+#         Export:
+#           Name: BackendIP  
