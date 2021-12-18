@@ -33,6 +33,7 @@ For your submission, please submit the following:
   1. Job that failed because of vulnerable packages. [SCREENSHOT03]
   1. An alert from one of your failed builds. [SCREENSHOT04]
   1. Appropriate job failure for infrastructure creation. [SCREENSHOT05]
+  N/B: Did not get any "check if backend infrastructure exist" error since the AMI ID came working out of the box.
   1. Appropriate job failure for the smoke test job. [SCREENSHOT06]
   1. Successful rollback after a failed smoke test. [SCREENSHOT07]  
   1. Successful promotion job. [SCREENSHOT08]
