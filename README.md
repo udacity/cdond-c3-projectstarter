@@ -38,7 +38,7 @@ For your submission, please submit the following:
   1. Successful rollback after a failed smoke test. [SCREENSHOT07](submission\screenshots\SCREENSHOT07.png)  
   1. Successful promotion job. [SCREENSHOT08](submission\screenshots\SCREENSHOT08.png)
   1. Successful cleanup job. [SCREENSHOT09](submission\screenshots\SCREENSHOT09.png) and [SCREENSHOT09-1](submission\screenshots\SCREENSHOT09-1.png)
-  1. Only deploy on pushed to `master` branch. [SCREENSHOT10]
+  1. Only deploy on pushed to `master` branch. [SCREENSHOT10](submission\screenshots\SCREENSHOT10.png)
   1. Provide a screenshot of a graph of your EC2 instance including available memory, available disk space, and CPU usage. [SCREENSHOT11]
   1. Provide a screenshot of an alert that was sent by Prometheus. [SCREENSHOT12]
 
