@@ -312,18 +312,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible curl nodejs npm tar gzip 
-      - run:
-          name: AWS CLI
-          command: |
-            apk add --no-cache \
-            python3 \
-            py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir \
-            awscli \
-            && rm -rf /var/cache/apk/*
-            aws --version
+              apk add --update ansible curl nodejs npm
+              pip install awscli
+              apk update
+              apk upgrade
+              apk add curl
       - run:
           name: Get backend url
           command: |
@@ -332,17 +325,14 @@ jobs:
               --filters "Name=tag:project,Values=udapeople" \
               --output text)
 
-              export API_URL="http://${BACKEND_IP}:3030"
-              echo "${API_URL}"
-              if curl "${API_URL}/api/status" | grep "ok"
-              then
-                  return 0
-              else
-                  return 1
-              fi
-      # - run:
-      #     name: Backend smoke test.
-      #     command: |
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
       - run:
           name: Frontend smoke test.
           command: |
