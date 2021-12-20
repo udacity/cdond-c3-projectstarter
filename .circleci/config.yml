@@ -1,4 +1,7 @@
 version: 2.1
+
+orbs: 
+  slack: circleci/slack@4.5.1
             
 jobs:
   build-frontend:
@@ -10,8 +13,11 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
-            npm install
+            #npm install
             npm run build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
 
   build-backend:
@@ -78,6 +84,8 @@ workflows:
   default:
     jobs:
       - build-frontend
+          context:
+            - slack-secrets
       - build-backend
       - test-frontend:
           requires: 
