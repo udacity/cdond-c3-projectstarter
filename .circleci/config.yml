@@ -15,9 +15,6 @@ jobs:
             cd frontend
             #npm install
             npm run build
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
 
 
   build-backend:
@@ -83,9 +80,7 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend:
-          context:
-          - slack-secrets
+      - build-frontend
       - build-backend
       - test-frontend:
           requires: 
