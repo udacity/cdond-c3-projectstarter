@@ -59,6 +59,7 @@ jobs:
           name: analyse front-end
           command: |
             cd frontend
+            npm install
             npm audit fix --audit-level=critical --force
 
   scan-backend:
@@ -70,6 +71,7 @@ jobs:
           name: analyse back-end
           command: |
             cd backend
+            npm install
             npm audit fix --audit-level=critical --force
 
 workflows:
