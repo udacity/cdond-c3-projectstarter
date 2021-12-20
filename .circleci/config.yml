@@ -312,7 +312,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible curl nodejs npm tar gzip awscli
+            apk add --update ansible curl nodejs npm tar gzip awscli 
       # - run:
       #     name: AWS CLI
       #     command: |
