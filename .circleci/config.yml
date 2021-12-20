@@ -287,19 +287,19 @@ jobs:
             cat inventory.txt
             ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - run:
-          name: Configure server
-          command: |
-              echo ENVIROMENT=production > "backend/dist/.env"
-              echo TYPEORM_CONNECTION=postgres >> "backend/dist/.env"
-              echo TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js} >> "backend/dist/.env"
-              echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/dist/.env"
-              echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/dist/.env"
-              echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/dist/.env"
-              echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/dist/.env"
-              echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/dist/.env"
-              echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/dist/.env"
-              echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/dist/.env"
+      # - run:
+      #     name: Configure server
+      #     command: |
+      #         echo ENVIROMENT=production > "backend/dist/.env"
+      #         echo TYPEORM_CONNECTION=postgres >> "backend/dist/.env"
+      #         echo TYPEORM_ENTITIES=./modules/domain/**/*.entity{.ts,.js} >> "backend/dist/.env"
+      #         echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/dist/.env"
+      #         echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/dist/.env"
+      #         echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/dist/.env"
+      #         echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> "backend/dist/.env"
+      #         echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> "backend/dist/.env"
+      #         echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/dist/.env"
+      #         echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/dist/.env"
 
       - destroy-environment
       # Here's where you will add some code to rollback on failure  
