@@ -32,10 +32,30 @@ Resources:
       # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
       # Ubuntu 18 or higher works fine
       ImageId: ami-0892d3c7ee96c0bf7 
-      SubnetId: subnet-052b7b100951c5263
+      SubnetId: !Ref Subnet1
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
+  
+  LocalVPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: 10.0.0.0/16
+      EnableDnsSupport: true
+
+  Subnet1:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-west-2a
+      VpcId: !Ref LocalVPC
+      CidrBlock: 10.0.1.0/24
+
+  Subnet2:
+    Type: AWS::EC2::Subnet
+    Properties:
+      AvailabilityZone: us-west-2b
+      VpcId: !Ref LocalVPC
+      CidrBlock: 10.0.2.0/24
 
 
 # Outputs: 
