@@ -16,6 +16,7 @@ jobs:
             cd frontend
             #npm install
             npm run build
+      - slack/status
 
 
   build-backend:
