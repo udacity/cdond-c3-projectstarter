@@ -16,7 +16,9 @@ jobs:
             cd frontend
             #npm install
             npm run build
-      - slack/status
+      - slack/notify:
+          channel: cdond-c3-projectstarter
+          event: fail
 
 
   build-backend:
