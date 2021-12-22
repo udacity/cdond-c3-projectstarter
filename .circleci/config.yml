@@ -16,7 +16,6 @@ jobs:
             #npm install
             npm run build
       - slack/notify:
-          channel: cdond-c3-projectstarter
           event: fail
           template: FAIL_TEMPLATE
 
