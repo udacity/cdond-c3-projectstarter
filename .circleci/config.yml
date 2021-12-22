@@ -18,6 +18,7 @@ jobs:
       - slack/notify:
           channel: cdond-c3-projectstarter
           event: fail
+          template: FAIL_TEMPLATE
 
 
   build-backend:
