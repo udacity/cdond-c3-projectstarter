@@ -2,7 +2,7 @@ version: 2.1
 
 orbs: 
   slack: circleci/slack@4.5.1
-            
+
 jobs:
   build-frontend:
     docker:
@@ -15,6 +15,7 @@ jobs:
             cd frontend
             #npm install
             npm run build
+      - slack/status
 
 
   build-backend:
