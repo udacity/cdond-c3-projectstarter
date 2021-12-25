@@ -138,10 +138,26 @@ jobs:
             --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
             "Name=tag-value,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
             --output text >> .circleci/ansible/inventory.txt
+      - run:
+          name: Add .env vars to backend distro
+          command: |
+            touch ~/project/backend/.env
+            echo ENVIRONMENT=production > backend/.env
+            echo TYPEORM_CONNECTION=postgres >> backend/.env
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+            echo NODE_ENV=development >> "backend/.env"
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
+            - backend/.env
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -154,7 +170,6 @@ jobs:
           fingerprints: [$AWS_SSH_FINGERPRINT]
       - attach_workspace:
           at: .
-      - run: ls inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -162,8 +177,9 @@ jobs:
             apt install -y awscli ansible
       - run:
           name: Configure server
+          working_directory: .circleci/ansible
           command: |
-            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -174,6 +190,8 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           command: |
