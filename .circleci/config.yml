@@ -13,6 +13,12 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowId >>
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowId >>
+  install_tar_gzip:
+    description: install tar and gzip in amazon/aws-cli docker image
+    steps:
+      - run:
+          name: Install tar utility
+          command: yum install -y tar gzip
 
 
 jobs:
@@ -113,7 +119,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum install -y tar gzip
+      - install_tar_gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: >
@@ -225,20 +231,30 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - install_tar_gzip
+      - attach_workspace:
+          at: .
       - run:
-          name: Install dependencies
-          command: |
-            # your code here
+          name: install npm and node
+          command: yum install -y nodejs
       - run:
           name: Get backend url
+          working_directory: .circleci\ansible
           command: |
             # your code here
+            export BACKEND_IP=$(cat inventory | sed -n '2 p')
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
       - run:
           name: Deploy frontend objects
+          working_directory: frontend
           command: |
-            # your code here
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -281,7 +297,7 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
       # - deploy-backend:
       #     requires: [run-migrations]
