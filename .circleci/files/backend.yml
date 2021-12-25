@@ -57,11 +57,4 @@ Resources:
       AvailabilityZone: us-west-2b
       VpcId: !Ref LocalVPC
       CidrBlock: 10.0.2.0/24
-
-
-Outputs: 
-  BackendIP: 
-        Description: A reference to the EC2 instance created 
-        Value: !GetAtt PublicIp
-        Export:
-          Name: BackendIP  
+ 

@@ -137,9 +137,8 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            aws cloudformation \
-            list-exports --query "Exports[?Name==\`BackendIP\`].Value" \
-            --no-paginate --output text > ~/inventory.txt
+            BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].{public_ip:PublicIpAddress}" --output text)
+            echo $BACKEND_IP >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -180,6 +179,6 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
-          requires: [scan-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
