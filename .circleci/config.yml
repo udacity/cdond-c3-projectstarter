@@ -25,8 +25,8 @@ jobs:
           keys: [frontend-build]
       - run:
           name: Build front-end
+          working_directory: frontend
           command: |
-            cd frontend
             npm install
             npm run build
       - save_cache:
@@ -42,8 +42,8 @@ jobs:
           keys: [backend-build]
       - run:
           name: Back-end build
+          working_directory: backend
           command: |
-            cd backend
             npm install
             npm run build
       - save_cache:
@@ -59,8 +59,8 @@ jobs:
           keys: [frontend-build]
       - run:
           name: front-end tests
+          working_directory: frontend
           command: |
-            cd frontend
             npm install
             npm run test
 
@@ -73,8 +73,8 @@ jobs:
           keys: [backend-build]
       - run:
           name: back-end tests
+          working_directory: backend
           command: |
-            cd backend
             npm install
             npm run test
 
@@ -87,8 +87,8 @@ jobs:
           keys: [frontend-build]
       - run:
           name: front-end scan
+          working_directory: frontend
           command: |
-            cd frontend
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
@@ -102,8 +102,8 @@ jobs:
           keys: [backend-build]
       - run:
           name: back-end scan
+          working_directory: backend
           command: |
-            cd backend
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
@@ -131,9 +131,6 @@ jobs:
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
             --tags project=udapeople
       - run:
-          name: create inventory file
-          command: echo "[web]" > .circleci/ansible/inventory.txt
-      - run:
           name: Add back-end ip to ansible inventory
           command: >
             aws ec2 describe-instances
@@ -141,7 +138,6 @@ jobs:
             --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
             "Name=tag-value,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
             --output text >> .circleci/ansible/inventory.txt
-      - run: cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -157,7 +153,8 @@ jobs:
       - add_ssh_keys:
           fingerprints: [$AWS_SSH_FINGERPRINT]
       - attach_workspace:
-          at: .circleci/ansible/
+          at: .
+      - run: ls inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -166,8 +163,7 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -185,8 +181,8 @@ jobs:
             sudo apt install -y awscli
       - run:
           name: Run migrations
+          working_directory: backend
           command: |
-            cd backend
             npm install
             # Run and save the migration output
             npm run migrations > migrations_dump.txt
@@ -236,7 +232,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: [$AWS_SSH_FINGERPRINT]
       - attach_workspace:
-          at: .circleci/ansible/
+          at: .
       - run:
           name: Install dependencies
           command: |
