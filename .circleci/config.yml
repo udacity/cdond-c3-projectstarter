@@ -157,7 +157,8 @@ jobs:
       - add_ssh_keys:
           fingerprints: [$AWS_SSH_FINGERPRINT]
       - attach_workspace:
-          at: .
+          at: .circleci/ansible/
+      - run: ls .circleci/ansible/
       - run:
           name: Install dependencies
           command: |
