@@ -133,7 +133,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[all]" > .circleci/ansible/inventory.txt
+            echo "[web]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag-key,Values=aws:cloudformation:stack-name" \
@@ -158,7 +158,7 @@ jobs:
           fingerprints: [$AWS_SSH_FINGERPRINT]
       - attach_workspace:
           at: .circleci/ansible/
-      - run: ls .circleci/ansible/
+      - run: cat .circleci/ansible/inventory.txt
       - run:
           name: Install dependencies
           command: |
@@ -171,6 +171,41 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Install dependencies
+          command: |
+            apt update
+            apt install -y awscli
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm install
+            # Run and save the migration output
+            npm run migrations > migrations_dump.txt
+      - run:
+          name: Send migration results to memstash
+          command: |
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              echo '1' > ~/project/backend/migration_result.txt
+            else
+              touch ~/project/backend/migration_result.txt
+            fi
+      - run: cat ~/project/backend/migration_result.txt | wc -l
+      - save_cache:
+          paths: [backend/migration_result.txt]
+          key: migrations
+      - destroy-environment:
+            workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
 workflows:
   default:
@@ -189,3 +224,5 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
