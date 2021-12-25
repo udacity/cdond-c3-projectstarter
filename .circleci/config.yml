@@ -139,10 +139,35 @@ jobs:
             --filters "Name=tag-key,Values=aws:cloudformation:stack-name" \
             "Name=tag-value,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text >> .circleci/ansible/inventory.txt
+      - run:
+          name: check if there is IP in inventory
+          command: "[ $(cat .circleci/ansible/inventory.txt | wc -l) != '1' ]"
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - destroy-environment:
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+
+  configure-infrastructure:
+    docker:
+      - image: python:3.7
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [$AWS_SSH_FINGERPRINT]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            apt update
+            apt install -y awscli ansible
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -161,3 +186,5 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
