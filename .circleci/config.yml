@@ -186,8 +186,8 @@ jobs:
           working_directory: .circleci/ansible
           command: |
             ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment:
-          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
   run-migrations:
     docker:
