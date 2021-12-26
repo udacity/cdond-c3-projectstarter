@@ -223,7 +223,6 @@ jobs:
             else
               touch migration_result.txt
             fi
-      - run: cat migration_result.txt | wc -l
       - save_cache:
           paths: [backend/migration_result.txt]
           key: migrations
