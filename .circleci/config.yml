@@ -182,20 +182,12 @@ jobs:
             apt update
             apt install -y awscli ansible
       - run:
-          name: Add back-end ip to ansible inventory
-          command: >
-            aws ec2 describe-instances
-            --query 'Reservations[*].Instances[*].PublicIpAddress'
-            --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
-            "Name=tag-value,Values=udapeople-backend-3fbb592"
-            --output text >> .circleci/ansible/inventory.txt
-      - run:
           name: Configure server
           working_directory: .circleci/ansible
           command: |
             ansible-playbook -i inventory.txt configure-server.yml
-      # - destroy-environment:
-      #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
   run-migrations:
     docker:
@@ -211,22 +203,6 @@ jobs:
           command: |
             sudo apt update
             sudo apt install -y awscli
-      - run:
-          name: Add .env vars to backend distro
-          command: |
-            touch backend/.env
-            echo ENVIRONMENT=production > backend/.env
-            echo TYPEORM_CONNECTION=postgres >> backend/.env
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> backend/.env
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> backend/.env
-            echo NODE_ENV=development >> backend/.env
-            cat backend/.env
       - run:
           name: Run migrations
           working_directory: backend
@@ -247,8 +223,8 @@ jobs:
       - save_cache:
           paths: [backend/migration_result.txt]
           key: migrations
-      # - destroy-environment:
-      #       workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+            workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-frontend:
     docker:
@@ -260,7 +236,17 @@ jobs:
           at: .
       - run:
           name: install npm and node
-          command: yum install -y nodejs
+          command: |
+            yum check-update
+            yum install -y nodejs
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: >
+            aws ec2 describe-instances
+            --query 'Reservations[*].Instances[*].PublicIpAddress'
+            --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
+            "Name=tag-value,Values=udapeople-backend-3fbb592"
+            --output text >> .circleci/ansible/inventory.txt
       - run:
           name: Get backend url
           working_directory: .circleci\ansible
@@ -277,7 +263,8 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp dist s3://udapeople-3fbb592 --recursive
+            # aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive TODO
       # - destroy-environment:
       #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -298,8 +285,8 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-      - destroy-environment:
-          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - destroy-environment:
+      #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
 workflows:
   default:
@@ -318,9 +305,9 @@ workflows:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       # - configure-infrastructure:
           # requires: [deploy-infrastructure]
-      - run-migrations #:
+      # - run-migrations:
           # requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
+      - deploy-frontend #:
+          # requires: [run-migrations]
       # - deploy-backend:
       #     requires: [run-migrations]
