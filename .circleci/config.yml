@@ -295,8 +295,8 @@ jobs:
           name: zip backend directory
           command: |
             tar -C backend -czvf artifact.tar.gz .
-            mkdir -p .circleci/ansible/roles/configure-server/files
-            mv artifact.tar.gz .circleci/ansible/roles/configure-server/files
+            mkdir -p .circleci/ansible/roles/deploy/files
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files
       - run:
           name: run deploy-backend ansible playbook
           working_directory: .circleci/ansible
