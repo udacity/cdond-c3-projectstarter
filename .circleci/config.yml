@@ -307,15 +307,15 @@ jobs:
           command: |
             apt update
             apt install -y awscli
-      - run:
-          name: Add back-end ip to ansible inventory
-          working_directory: .circleci/ansible
-          command: >
-            aws ec2 describe-instances
-            --query 'Reservations[*].Instances[*].PublicIpAddress'
-            --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
-            "Name=tag-value,Values=udapeople-backend-3fbb592"
-            --output text >> inventory.txt
+      # - run:
+      #     name: Add back-end ip to ansible inventory
+      #     working_directory: .circleci/ansible
+      #     command: >
+      #       aws ec2 describe-instances
+      #       --query 'Reservations[*].Instances[*].PublicIpAddress'
+      #       --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
+      #       "Name=tag-value,Values=udapeople-backend-3fbb592"
+      #       --output text >> inventory.txt
       - run:
           name: Backend smoke test.
           working_directory: .circleci/ansible
@@ -332,40 +332,40 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            # URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
-            URL="http://udapeople-3fbb592.s3-website-us-east-1.amazonaws.com/#/employees"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            # URL="http://udapeople-3fbb592.s3-website-us-east-1.amazonaws.com/#/employees"
             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 1
+              exit 0
             else
               exit 1
             fi
-      # - destroy-environment:
-      #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
 workflows:
   default:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      # - configure-infrastructure:
-          # requires: [deploy-infrastructure]
-      # - run-migrations:
-          # requires: [configure-infrastructure]
-      # - deploy-frontend:
-          # requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      - smoke-test #:
-          # requires: [deploy-backend, deploy-frontend]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
