@@ -237,6 +237,8 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: install awscli
           command: |
@@ -270,6 +272,8 @@ jobs:
           fingerprints: [$AWS_SSH_FINGERPRINT]
       - attach_workspace:
           at: .
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Install dependencies
           command: |
