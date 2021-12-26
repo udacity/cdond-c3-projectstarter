@@ -182,6 +182,14 @@ jobs:
             apt update
             apt install -y awscli ansible
       - run:
+          name: Add back-end ip to ansible inventory
+          command: >
+            aws ec2 describe-instances
+            --query 'Reservations[*].Instances[*].PublicIpAddress'
+            --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
+            "Name=tag-value,Values=udapeople-backend-3fbb592"
+            --output text >> .circleci/ansible/inventory.txt
+      - run:
           name: Configure server
           working_directory: .circleci/ansible
           command: |
@@ -281,20 +289,20 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure
+          # requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:

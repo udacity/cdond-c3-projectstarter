@@ -18,8 +18,12 @@
         timeout: 600
 
     - name: "install python for Ansible."
-      raw: apt install -y python
       become: yes
+      apt:
+        name: [python]
+        state: latest
+        update_cache: yes
+
 
   # Get the environment variables from CircleCI and add to the EC2 instance
   environment:
