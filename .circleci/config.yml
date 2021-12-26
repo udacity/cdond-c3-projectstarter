@@ -228,19 +228,17 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - install_tar_gzip
       - attach_workspace:
           at: .
       - run:
-          name: install npm and node
+          name: install awscli
           command: |
-            yum update
-            yum install epel-release
-            yum install nodejs
-            yum install npm
+            sudo apt update
+            sudo apt install -y awscli
       - run:
           name: Add back-end ip to ansible inventory
           command: >
