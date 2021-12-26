@@ -1,10 +1,10 @@
 [Unit]
-Description=Node Exporter
-Wants=network-online.target
-After=network-online.target
+Description=Prometheus Node Exporter Service
+After=network.target
 
 [Service]
-User=root
+User=node_exporter
+Group=node_exporter
 Type=simple
 ExecStart=/usr/local/bin/node_exporter
 
