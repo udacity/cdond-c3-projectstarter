@@ -243,15 +243,6 @@ jobs:
             sudo apt update
             sudo apt install -y awscli
       - run:
-          name: Add back-end ip to ansible inventory
-          working_directory: .circleci/ansible
-          command: >
-            aws ec2 describe-instances
-            --query 'Reservations[*].Instances[*].PublicIpAddress'
-            --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
-            "Name=tag-value,Values=udapeople-backend-3fbb592"
-            --output text >> inventory.txt
-      - run:
           name: Get backend url
           command: |
             export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | sed -n '2 p')
@@ -268,8 +259,8 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-3fbb592 --recursive
             # aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive TODO
-      # - destroy-environment:
-      #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - destroy-environment:
+          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
   deploy-backend:
     docker:
@@ -283,11 +274,36 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            apt update
+            apt install -y awscli ansible npm
       - run:
-          name: Deploy backend
+          name: Add back-end ip to ansible inventory
+          working_directory: .circleci/ansible
+          command: >
+            aws ec2 describe-instances
+            --query 'Reservations[*].Instances[*].PublicIpAddress'
+            --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
+            "Name=tag-value,Values=udapeople-backend-3fbb592"
+            --output text >> inventory.txt
+      - run:
+          name: install npm packages on backend
+          working_directory: backend
           command: |
-            # your code here
+            npm install
+            npm run build
+      - run:
+          name: zip backend directory
+          command: |
+            tar -C backend -czvf artifact.tar.gz .
+            mkdir -p .circleci/ansible/roles/configure-server/files
+            mv backend/artifact.tar.gz .circleci/ansible/roles/configure-server/files
+      - run:
+          name: run deploy-backend ansible playbook
+          working_directory: .circleci/ansible
+          command: |
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
       # - destroy-environment:
       #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
 
@@ -310,7 +326,7 @@ workflows:
           # requires: [deploy-infrastructure]
       # - run-migrations:
           # requires: [configure-infrastructure]
-      - deploy-frontend #:
+      # - deploy-frontend:
           # requires: [run-migrations]
-      # - deploy-backend:
+      - deploy-backend #:
       #     requires: [run-migrations]
