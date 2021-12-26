@@ -122,43 +122,46 @@ jobs:
       - install_tar_gzip
       - run:
           name: Ensure back-end infrastructure exists
+          working_directory: .circleci/files
           command: >
             aws cloudformation deploy
-            --template-file .circleci/files/backend.yml
+            --template-file backend.yml
             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
             --tags project=udapeople
       - run:
           name: Ensure front-end infrastructure exist
+          working_directory: .circleci/files
           command: >
             aws cloudformation deploy
-            --template-file .circleci/files/frontend.yml
+            --template-file frontend.yml
             --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
             --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
+          working_directory: .circleci/ansible
           command: >
             aws ec2 describe-instances
             --query 'Reservations[*].Instances[*].PublicIpAddress'
             --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
             "Name=tag-value,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
-            --output text >> .circleci/ansible/inventory.txt
+            --output text >> inventory.txt
       - run:
           name: Add .env vars to backend distro
+          working_directory: backend
           command: |
-            touch ~/project/backend/.env
-            echo ENVIRONMENT=production > backend/.env
-            echo TYPEORM_CONNECTION=postgres >> backend/.env
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> backend/.env
-            echo TYPEORM_HOST=$TYPEORM_HOST >> backend/.env
-            echo TYPEORM_PORT=$TYPEORM_PORT >> backend/.env
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> backend/.env
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> backend/.env
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> backend/.env
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-            echo NODE_ENV=development >> "backend/.env"
+            echo ENVIRONMENT=production > .env
+            echo TYPEORM_CONNECTION=postgres >> .env
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> .env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> .env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> .env
+            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> .env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> .env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> .env
+            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> .env
+            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> .env
+            echo NODE_ENV=development >> .env
       - persist_to_workspace:
           root: .
           paths:
@@ -212,14 +215,15 @@ jobs:
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to cache
+          working_directory: backend
           command: |
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            if grep -q "has been executed successfully." migrations_dump.txt
             then
-              echo '1' > ~/project/backend/migration_result.txt
+              echo '1' > migration_result.txt
             else
-              touch ~/project/backend/migration_result.txt
+              touch migration_result.txt
             fi
-      - run: cat ~/project/backend/migration_result.txt | wc -l
+      - run: cat migration_result.txt | wc -l
       - save_cache:
           paths: [backend/migration_result.txt]
           key: migrations
@@ -240,17 +244,17 @@ jobs:
             sudo apt install -y awscli
       - run:
           name: Add back-end ip to ansible inventory
+          working_directory: .circleci/ansible
           command: >
             aws ec2 describe-instances
             --query 'Reservations[*].Instances[*].PublicIpAddress'
             --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
             "Name=tag-value,Values=udapeople-backend-3fbb592"
-            --output text >> .circleci/ansible/inventory.txt
+            --output text >> inventory.txt
       - run:
           name: Get backend url
-          working_directory: .circleci\ansible
           command: |
-            export BACKEND_IP=$(cat inventory | sed -n '2 p')
+            export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | sed -n '2 p')
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
