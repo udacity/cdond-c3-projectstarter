@@ -8,11 +8,34 @@ commands:
         type: string
     steps:
       - run:
-          name: Destroy environments
+          name: remove files in bucket
+          when: on_fail
+          command: |
+            aws s3 rm s3://udapeople-<< parameters.workflowId >> --recursive
+      - run:
+          name: Destroy stacks
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflowId >>
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflowId >>
+
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    steps:
+      - restore_cache:
+          keys: [migrations]
+      - run:
+          name: Revert migrations
+          when: on_fail
+          working_directory: backend
+          command: |
+            echo $(cat migration_result.txt | wc -l)
+            if [ $(cat migration_result.txt | wc -l) == '1' ]
+            then
+              npm install
+              npm run migration:revert
+            fi
+
   install_tar_gzip:
     description: install tar and gzip in amazon/aws-cli docker image
     steps:
@@ -228,6 +251,7 @@ jobs:
           key: migrations
       - destroy-environment:
             workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
 
   deploy-frontend:
     docker:
@@ -261,6 +285,7 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
 
   deploy-backend:
     docker:
@@ -299,26 +324,20 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
 
   smoke-test:
     docker:
       - image: python:3.7
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           command: |
             apt update
             apt install -y awscli
-      # - run:
-      #     name: Add back-end ip to ansible inventory
-      #     working_directory: .circleci/ansible
-      #     command: >
-      #       aws ec2 describe-instances
-      #       --query 'Reservations[*].Instances[*].PublicIpAddress'
-      #       --filters "Name=tag-key,Values=aws:cloudformation:stack-name"
-      #       "Name=tag-value,Values=udapeople-backend-3fbb592"
-      #       --output text >> inventory.txt
       - run:
           name: Backend smoke test.
           working_directory: .circleci/ansible
@@ -336,16 +355,16 @@ jobs:
           name: Frontend smoke test.
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
-            # URL="http://udapeople-3fbb592.s3-website-us-east-1.amazonaws.com/#/employees"
             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
-              exit 0
+              exit 1
             else
               exit 1
             fi
       - destroy-environment:
           workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
 
 workflows:
   default:
