@@ -7,7 +7,7 @@
       become: true
       raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
         changed_when: false 
-    
+  
 
   - name: remove dependencies that are no longer required
     become: yes
