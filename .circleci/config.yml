@@ -362,9 +362,9 @@ jobs:
             else
               exit 1
             fi
-      - destroy-environment:
-          workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations
+      # - destroy-environment:
+      #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations
 
 workflows:
   default:
