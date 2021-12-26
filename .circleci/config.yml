@@ -317,19 +317,17 @@ jobs:
             "Name=tag-value,Values=udapeople-backend-3fbb592"
             --output text >> inventory.txt
       - run:
-          name: Get backend url
-          command: |
-            export BACKEND_IP=$(cat .circleci/ansible/inventory.txt | sed -n '2 p')
-      - run:
           name: Backend smoke test.
+          working_directory: .circleci/ansible
           command: |
+            export BACKEND_IP=$(cat inventory.txt | sed -n '2 p')
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
-                return 0
+                exit 0
             else
-                return 1
+                exit 1
             fi
       - run:
           name: Frontend smoke test.
@@ -339,9 +337,9 @@ jobs:
             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
-              return 1
+              exit 1
             else
-              return 1
+              exit 1
             fi
       # - destroy-environment:
       #     workflowId: ${CIRCLE_WORKFLOW_ID:0:7}
