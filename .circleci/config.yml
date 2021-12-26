@@ -237,8 +237,10 @@ jobs:
       - run:
           name: install npm and node
           command: |
-            yum check-update
-            yum install -y nodejs
+            yum update
+            yum install epel-release
+            yum install nodejs
+            yum install npm
       - run:
           name: Add back-end ip to ansible inventory
           command: >
