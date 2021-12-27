@@ -182,7 +182,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              echo "not successful"
+              cat echo "$(migrations_dump.txt)"
             fi
      
 
