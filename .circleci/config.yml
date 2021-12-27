@@ -198,7 +198,9 @@ jobs:
   
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli	
+      - image: python:3.7-alpine3.11	
+    - attach_workspace:
+        at: ~/
     steps:
       - checkout
       - run:
@@ -207,23 +209,19 @@ jobs:
             npm install python3
 
       - run:
+          name: Install Npm & Node dependencies
+          command: |
+            apk add --update nodejs npm
+
+      - run:
           name: Install Ansible dependencies
           command: |
             npm install ansible
 
       - run:
-          name: Install Node dependencies
-          command: |
-              npm install nodejs
-
-      - run:
-          name: Install NPM dependencies
-          command: |
-              npm install npm
-      - run:
           name: Install AWS CLI dependencies
           command: |
-            npm install aws-cli 
+            pip3 install awscli
 
       - run:
           name: Get backend url
