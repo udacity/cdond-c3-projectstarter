@@ -327,23 +327,23 @@ workflows:
             npm install python3
 
       - run:
-        name: Install Ansible dependencies
-        command: |
-           npm install ansible
+          name: Install Ansible dependencies
+          command: |
+            npm install ansible
 
       - run:
-      name: Install Node dependencies
-      command: |
-          npm install nodejs
+          name: Install Node dependencies
+          command: |
+              npm install nodejs
 
       - run:
-      name: Install NPM dependencies
-      command: |
-          npm install npm
+          name: Install NPM dependencies
+          command: |
+              npm install npm
       - run:
-      name: Install AWS CLI dependencies
-      command: |
-        npm install aws-cli 
+          name: Install AWS CLI dependencies
+          command: |
+            npm install aws-cli 
 
       - run:
           name: Get backend url
