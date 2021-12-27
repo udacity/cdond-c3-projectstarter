@@ -199,10 +199,11 @@ jobs:
   deploy-frontend:
     docker:
       - image: python:3.7-alpine3.11	
-    - attach_workspace:
-        at: ~/
     steps:
       - checkout
+      - attach_workspace:
+        at: ~/
+        
       - run:
           name: Install Python dependencies
           command: |
