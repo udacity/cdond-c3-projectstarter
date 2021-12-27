@@ -1,6 +1,8 @@
 version: 2.1
 
 orbs: 
+  aws-cli: circleci/aws-cli@2.0.3
+  
 commands:
 
   destroy-environment:
@@ -226,7 +228,7 @@ jobs:
             export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].{public_ip:PublicIpAddress}" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-            
+
       - run:
           name: Deploy frontend objects
           command: |
