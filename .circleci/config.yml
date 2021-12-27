@@ -182,8 +182,49 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl -H "Content-Type: text/plain" -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
+              echo "not successful"
             fi
+  
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli	
+    steps:
+      - checkout
+      - run:
+          name: Install Python dependencies
+          command: |
+            npm install python3
+
+      - run:
+        name: Install Ansible dependencies
+        command: |
+           npm install ansible
+
+      - run:
+      name: Install Node dependencies
+      command: |
+          npm install nodejs
+
+      - run:
+      name: Install NPM dependencies
+      command: |
+          npm install npm
+      - run:
+      name: Install AWS CLI dependencies
+      command: |
+        npm install aws-cli 
+
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure  
      
 
 workflows:
