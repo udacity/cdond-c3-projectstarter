@@ -146,10 +146,10 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       - run: 
-        name: install AWS CLI
-        when: on_fail
-        command: |
-          apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+          name: install AWS CLI
+          when: on_fail
+          command: |
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - destroy-environment     
 
 workflows:
