@@ -119,17 +119,39 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Project,Values=udacity" \
+              --region ${AWS_DEFAULT_REGION} \
               --output text >> .circleci/ansible/inventory.txt     
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - destroy-environment
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["fa:16:05:ff:2b:00:8a:57:9b:10:eb:d2:a3:54:4e:f0"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible
+            cat .circleci/ansible/inventory.txt
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment     
 
 workflows:
   default:
     jobs:
       - deploy-infrastructure
+      - configure-infrastructure
       #- build-frontend
       #- build-backend
       #- test-frontend:
