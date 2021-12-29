@@ -352,7 +352,7 @@ jobs:
               --output text)
             # backendURL="$(curl -H "token: a907a793-000e-4db2-8140-a7c78b5c7d46" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})"
             export API_URL="http://${BACKEND_IP}:3030"
-            echo API_URL
+            echo ${API_URL}
             if curl "${API_URL}/api/status" | grep "ok"
             then
               echo "Backend Smoke Test Success"
