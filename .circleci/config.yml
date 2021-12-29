@@ -243,6 +243,42 @@ jobs:
       - destroy-environment
       - revert-migrations
       
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - aws-cli/setup
+      - add_ssh_keys:
+          fingerprints: ["03:dc:76:4f:c6:f9:c2:cf:5b:61:41:cc:b0:e3:a2:3f"] 
+      - attach_workspace:
+            at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update nodejs npm
+            cd backend
+            npm i --save
+            npm run build
+            apk add bash
+            apk add --update ansible openssh-client tar gzip 
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i .circleci/ansible/inventory.txt 
+            .circleci/ansible/deploy-backend.yml
+
+      - destroy-environment
+      - revert-migrations
      
 
 workflows:
@@ -266,3 +302,4 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
+      
