@@ -125,7 +125,7 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
-            
+
 
   deploy-infrastructure:
     docker:
@@ -249,7 +249,6 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - aws-cli/setup
       - add_ssh_keys:
           fingerprints: ["03:dc:76:4f:c6:f9:c2:cf:5b:61:41:cc:b0:e3:a2:3f"] 
       - attach_workspace:
@@ -261,6 +260,7 @@ jobs:
             cd backend
             npm i --save
             npm run build
+            npm install aws-cli
             apk add bash
             apk add --update ansible openssh-client tar gzip 
       - run:
