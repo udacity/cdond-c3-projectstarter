@@ -201,6 +201,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            # fix sourced from student questions
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
@@ -421,9 +422,9 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          # filters:
-          #   branches:
-          #     only: [master]
+          filters:
+            branches:
+              only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
