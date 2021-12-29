@@ -256,12 +256,12 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update nodejs npm
+            apk add --update nodejs npm ansible
             cd backend
             npm i --save
             npm run build
             apk add bash
-            apk add --update ansible openssh-client tar gzip 
+            apk add --update curl  openssh-client tar gzip 
       - run:
           name: Deploy backend
           command: |
@@ -273,10 +273,10 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
-            export ANSIBLE_HOST_KEY_CHECKING=False
-            ansible-playbook -i  ~/project/.circleci/ansible/inventory.txt  \
-            ~/project/.circleci/ansible/deploy-backend.yml
+
+            pwd 
+            cat ~/project/.circleci/ansible//inventory.txt
+            export ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i  ~/project/.circleci/ansible/inventory.txt  ~/project/.circleci/ansible/deploy-backend.yml
 
       - run:
           name: Install AWS CLI for rollback
