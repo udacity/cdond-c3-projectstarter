@@ -32,6 +32,7 @@
     - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
     - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
   
+
   tasks:
     - name: persist environment variables
       become: yes
@@ -45,7 +46,5 @@
         echo TYPEORM_PASSWORD=\"$TYPEORM_PASSWORD\" >> /etc/environment
         echo TYPEORM_DATABASE=\"$TYPEORM_DATABASE\" >> /etc/environment
         echo TYPEORM_MIGRATIONS=\"$TYPEORM_MIGRATIONS\" >> /etc/environment
-        echo TYPEORM_MIGRATIONS_DIR=\"$TYPEORM_MIGRATIONS_DIR\" >> /etc/environment
-
   roles:
     - configure-server
