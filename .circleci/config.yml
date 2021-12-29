@@ -265,28 +265,46 @@ jobs:
       - run:
           name: AWS CLI
           command: |
-            apk add --no-cache \
-            python3 \
-            py3-pip \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir \
-            awscli \
-            && rm -rf /var/cache/apk/*
-            aws --version
+            apk add --update ansible
+            apk add --update nodejs npm
+            apk add --update tar
+            apk add --update gzip
+            apk add --update curl
+            apk add --update openssh-client
+            
+            # apk add --no-cache \
+            # python3 \
+            # py3-pip \
+            # && pip3 install --upgrade pip \
+            # && pip3 install --no-cache-dir \
+            # awscli \
+            # && rm -rf /var/cache/apk/*
+            # aws --version
       - run:
           name: Deploy backend
           command: |
             cd backend
             npm i
             npm run build
+            cp package* ./dist
             cd ..
-            # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt deploy-backend.yml
+
+            # cd backend
+            # npm i
+            # npm run build
+            # cd ..
+            # # Zip the directory
+            # tar -C backend -czvf artifact.tar.gz .
+            # cd .circleci/ansible
+            # echo "Contents  of the inventory.txt file is -------"
+            # cat inventory.txt
+            # ANSIBLE_HOST_KEY_CHECKING=False
+            # ansible-playbook -i inventory.txt deploy-backend.yml
       # - run:
       #     name: Configure server
       #     command: |
@@ -306,45 +324,52 @@ jobs:
 
   smoke-test:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-              apk add --update ansible curl nodejs npm
-              pip install awscli
-              apk update
-              apk upgrade
-              apk add curl
+            sudo apt update
+            sudo apt upgrade -y
+            sudo apt install -y curl
+            sudo apt-get install python
+            sudo apt-get install python-pip
+            pip install awscli
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt install nodejs
+            node --version
+            npm --version
+            aws --version
+      - attach_workspace:
+          at: ~/
       - run:
-          name: Get backend url
+          name: Backend smoke test.
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
-              --output text)
-
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            backendURL="$(curl -H "token: 97b12e79-5cf6-484e-ad0d-343ce93a3184" --request GET https://api.memstash.io/values/API)"
+            export API_URL="http://${backendURL}:3030"
             if curl "${API_URL}/api/status" | grep "ok"
             then
-                return 0
+              echo "Backend Smoke Test Success"
+              exit 0
             else
-                return 1
+              echo "Backend Smoke Test Failed"
+              exit  1
             fi
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
-            echo ${URL} 
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"
+             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
-                # Change this to 0 after the job fails
-              return 1
-            else
-              return 1
-            fi
+              echo "Frontend Smoke Test Success"
+               exit 0
+             else
+              echo "Frontend Smoke Test Failed"
+               exit 1
+             fi
+
       # - destroy-environment
   
 
