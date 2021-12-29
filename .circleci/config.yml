@@ -258,10 +258,10 @@ jobs:
           fingerprints: ["09:d0:fb:ac:92:ed:e2:ee:f8:4c:06:8e:bd:83:00:e3"]
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible curl nodejs npm tar gzip
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       apk add --update ansible curl nodejs npm tar gzip
       - run:
           name: AWS CLI
           command: |
@@ -271,15 +271,15 @@ jobs:
             apk add --update gzip
             apk add --update curl
             apk add --update openssh-client
-            
-            # apk add --no-cache \
-            # python3 \
-            # py3-pip \
-            # && pip3 install --upgrade pip \
-            # && pip3 install --no-cache-dir \
-            # awscli \
-            # && rm -rf /var/cache/apk/*
-            # aws --version
+
+            apk add --no-cache \
+            python3 \
+            py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install --no-cache-dir \
+            awscli \
+            && rm -rf /var/cache/apk/*
+            aws --version
       - run:
           name: Deploy backend
           command: |
