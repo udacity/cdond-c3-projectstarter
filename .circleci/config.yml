@@ -75,7 +75,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-test]
+          keys: [frontend-build]
       - run: 
           name: Unit Test Frontend
           command: |
@@ -89,7 +89,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-test]
+          keys: [backend-build]
       - run: 
           name: Unit Test backend
           command: |
@@ -103,13 +103,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-scan]
+          keys: [frontend-build]
       - run: 
           name: Scan Frontend for sec vulnerabilities
           command: |
             cd frontend
             npm install
-            # npm install oauth-sign@^0.9.0
             npm audit fix --audit-level=critical
 
   scan-backend:
@@ -118,13 +117,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-scan]
+          keys: [backend-build]
       - run: 
           name: Scan Backend for sec vulnerabilities
           command: |
             cd backend
             npm install
-            # npm install oauth-sign@^0.9.0
             npm audit fix --audit-level=critical
 
   deploy-infrastructure:
@@ -179,6 +177,12 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
+            apk add --update tar
+            apk add --update gzip
+            apk add --update unzip
+            apk add --update rsync
+            apk add --update curl
+            apk add --update nodejs npm
       - run:
           name: Configure server
           command: |
@@ -192,8 +196,8 @@ jobs:
       - image: circleci/node:14.18.1
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
+      - restore_cache:
+          keys: [ backend-build ]
       - run:
           name: Run migrations
           command: |
@@ -220,14 +224,14 @@ jobs:
           name: Install tar & gzip
           command: |
             yum -y install tar gzip
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install system dependencies
           command: |
             cd frontend
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
