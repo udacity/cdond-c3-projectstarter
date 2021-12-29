@@ -270,7 +270,7 @@ jobs:
             apk add --update tar
             apk add --update gzip
             apk add --update curl
-            apk add --update openssh-client
+            # apk add --update openssh-client
 
             apk add --no-cache \
             python3 \
@@ -292,8 +292,7 @@ jobs:
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ANSIBLE_HOST_KEY_CHECKING=False
-            ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no
+            export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt deploy-backend.yml
 
             # cd backend
