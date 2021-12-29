@@ -260,7 +260,6 @@ jobs:
             cd backend
             npm i --save
             npm run build
-            npm install aws-cli
             apk add bash
             apk add --update ansible openssh-client tar gzip 
       - run:
@@ -278,8 +277,15 @@ jobs:
             ansible-playbook -i .circleci/ansible/inventory.txt 
             .circleci/ansible/deploy-backend.yml
 
-      - destroy-environment
+      - run:
+          name: Install AWS CLI for rollback
+          when: on_fail
+          command: |
+              sudo add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+
       - revert-migrations
+      - destroy-environment
+
      
 
 workflows:
