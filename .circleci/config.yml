@@ -75,7 +75,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-test]
+          keys: [frontend-build]
       - run: 
           name: Unit Test Frontend
           command: |
@@ -89,7 +89,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-test]
+          keys: [backend-build]
       - run: 
           name: Unit Test backend
           command: |
@@ -103,13 +103,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-scan]
+          keys: [frontend-build]
       - run: 
           name: Scan Frontend for sec vulnerabilities
           command: |
             cd frontend
             npm install
-            # npm install oauth-sign@^0.9.0
             npm audit fix --audit-level=critical
 
   scan-backend:
@@ -118,13 +117,12 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-scan]
+          keys: [backend-build]
       - run: 
           name: Scan Backend for sec vulnerabilities
           command: |
             cd backend
             npm install
-            # npm install oauth-sign@^0.9.0
             npm audit fix --audit-level=critical
 
   deploy-infrastructure:
@@ -171,7 +169,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys: 
-          fingerprints: ["09:d0:fb:ac:92:ed:e2:ee:f8:4c:06:8e:bd:83:00:e3"]
+          fingerprints: ["e5:2e:f6:05:40:6a:8a:83:07:f2:cf:0c:0b:be:c6:d3"]
       # Add ssh keys with fingerprint
       - attach_workspace:
           at: ~/
@@ -179,25 +177,32 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible
+            apk add --update tar
+            apk add --update gzip
+            apk add --update unzip
+            apk add --update rsync
+            apk add --update curl
+            apk add --update nodejs npm
+            pip install awscli
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
+            ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
 
 
   run-migrations:
     docker:
-      - image: circleci/node:14.18.1
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Run migrations
           command: |
-            # fix sourced from student questions
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
@@ -220,14 +225,14 @@ jobs:
           name: Install tar & gzip
           command: |
             yum -y install tar gzip
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install system dependencies
           command: |
             cd frontend
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
@@ -255,16 +260,23 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys: 
-          fingerprints: ["09:d0:fb:ac:92:ed:e2:ee:f8:4c:06:8e:bd:83:00:e3"]
+          fingerprints: ["e5:2e:f6:05:40:6a:8a:83:07:f2:cf:0c:0b:be:c6:d3"]
       - attach_workspace:
           at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update ansible curl nodejs npm tar gzip
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       apk add --update ansible curl nodejs npm tar gzip
       - run:
           name: AWS CLI
           command: |
+            apk add --update ansible
+            apk add --update nodejs npm
+            apk add --update tar
+            apk add --update gzip
+            apk add --update curl
+            # apk add --update openssh-client
+
             apk add --no-cache \
             python3 \
             py3-pip \
@@ -279,14 +291,15 @@ jobs:
             cd backend
             npm i
             npm run build
+            cp package* ./dist
             cd ..
-            # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ANSIBLE_HOST_KEY_CHECKING=False
+            export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt deploy-backend.yml
+
       # - run:
       #     name: Configure server
       #     command: |
@@ -306,45 +319,57 @@ jobs:
 
   smoke-test:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
-              apk add --update ansible curl nodejs npm
-              pip install awscli
-              apk update
-              apk upgrade
-              apk add curl
+            sudo apt update
+            sudo apt upgrade -y
+            sudo apt install -y curl
+            sudo apt-get install python
+            sudo apt-get install python-pip
+            pip install awscli
+            curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+            sudo apt install nodejs
+            node --version
+            npm --version
+            aws --version
+      - attach_workspace:
+          at: ~/
       - run:
-          name: Get backend url
+          name: Backend smoke test.
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
               --output text)
-
+            # backendURL="$(curl -H "token: a907a793-000e-4db2-8140-a7c78b5c7d46" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7})"
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo ${API_URL}
             if curl "${API_URL}/api/status" | grep "ok"
             then
-                return 0
+              echo "Backend Smoke Test Success"
+              exit 0
             else
-                return 1
+              echo "Backend Smoke Test Failed"
+              exit  1
             fi
       - run:
           name: Frontend smoke test.
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
-            echo ${URL} 
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.${AWS_DEFAULT_REGION}.amazonaws.com/#/employees"
+             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
-                # Change this to 0 after the job fails
-              return 1
-            else
-              return 1
-            fi
+              echo "Frontend Smoke Test Success"
+               exit 1
+             else
+              echo "Frontend Smoke Test Failed"
+               exit 1
+             fi
+
       # - destroy-environment
   
 
