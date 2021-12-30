@@ -183,26 +183,25 @@ jobs:
             apk add --update rsync
             apk add --update curl
             apk add --update nodejs npm
-            pip install awscli
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
-            ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
 
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:14.18.1
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
+          keys: [ backend-build ]
       - run:
           name: Run migrations
           command: |
+            # fix sourced from student questions
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
@@ -423,9 +422,9 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
+          # filters:
+          #   branches:
+          #     only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
