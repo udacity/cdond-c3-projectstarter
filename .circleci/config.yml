@@ -121,7 +121,7 @@ jobs:
               --filters "Name=tag:Project,Values=udacity" \
               --region ${AWS_DEFAULT_REGION} \
               --output text >> .circleci/ansible/inventory.txt
-              more .circleci/ansible/inventory.txt
+              cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
