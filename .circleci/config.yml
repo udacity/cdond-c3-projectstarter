@@ -1,8 +1,5 @@
 version: 2.1
 
-orbs: 
-  slack: circleci/slack@4.5.1
-
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -73,9 +70,10 @@ jobs:
       - run:
           name: analyse front-end
           command: |
-            cd frontend
-            npm install
-            npm audit fix --audit-level=critical --force
+            #cd frontend
+            #npm install
+            #npm audit fix --audit-level=critical --force
+            exit 1
 
   scan-backend:
     docker:
@@ -150,26 +148,42 @@ jobs:
           when: on_fail
           command: |
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-      - destroy-environment     
+      - destroy-environment
+  run-migrations:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Run migrations
+          command: |
+            # Your code here
+            exit 1
+      - run:
+          name: Send migration results to memstash
+          command: |
+            # Your code here
+            exit 1
+     # Here's where you will add some code to rollback on failure
 
 workflows:
   default:
     jobs:
-      - deploy-infrastructure
-      - configure-infrastructure:
-          requires:
-            - deploy-infrastructure
-      #- build-frontend
-      #- build-backend
-      #- test-frontend:
-          #requires: 
-            #- build-frontend
-      #- test-backend:
-          #requires: 
-            #- build-backend
-      #- scan-backend:
-          #requires: 
-            #- build-backend
-      #- scan-frontend:
-          #requires: 
-            #- build-frontend
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: 
+            - build-frontend
+      - test-backend:
+          requires: 
+            - build-backend
+      - scan-backend:
+          requires: 
+            - build-backend
+      - scan-frontend:
+          requires: 
+            - build-frontend
+      # - deploy-infrastructure
+      # - configure-infrastructure:
+          #requires:
+            #- deploy-infrastructure
