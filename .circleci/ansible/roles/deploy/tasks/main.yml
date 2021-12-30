@@ -21,6 +21,21 @@
   args:
     chdir: /root/backend
 
+- name: "install node"
+  shell: |
+    curl -sL https://deb.nodesource.com/setup_12.x | sudo -E bash -
+    sudo apt -y upgrade
+    sudo apt install -y nodejs
+    echo $PWD 
+    
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
 - name: start app
   become: yes
   shell: |
