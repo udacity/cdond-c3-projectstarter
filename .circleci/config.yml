@@ -235,7 +235,7 @@ jobs:
               echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
               echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
               echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-              
+
       - run:
           name: Get backend url
           command: |
@@ -316,7 +316,50 @@ jobs:
       - revert-migrations
       - destroy-environment
 
-     
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add curl
+            apk add nodejs
+            apk add npm
+            pip install awscli
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --query "Reservations[*].Instances[*].{public_ip:PublicIpAddress}" --output text)
+      - run:
+          name: Backend smoke test.
+          command: |
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+              URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com/#/employees"            
+              echo ${URL} 
+              if curl -s ${URL} | grep "Welcome"
+              then
+                  # Change this to 0 after the job fails
+                return 1
+              else
+                return 1
+              fi
+
+      - revert-migrations
+      - destroy-environment:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}' 
+
 
 workflows:
   default:
