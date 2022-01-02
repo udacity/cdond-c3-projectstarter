@@ -7,19 +7,23 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      workflow_id:
+        type: string 
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} 
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            echo "Destroying environment: << parameters.workflow_id >> "
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_id >>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_id >>
+            aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    #parameters:
-      # Add parameter here     
+    parameters:
+        workflow_id:
+          type: string    
     steps:
       - run:
           name: Revert migrations
@@ -162,6 +166,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
       # Here's where you will add some code to rollback on failure now
       
   configure-infrastructure:
@@ -183,6 +188,9 @@ jobs:
             command: |
                cd .circleci/ansible
                ansible-playbook -i inventory.txt configure-server.yml
+        
+        - destroy-environment:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
 
 
   run-migrations:
@@ -197,6 +205,10 @@ jobs:
             npm install
             npm run migrations > migrations_dump.txt
             echo "$(cat ~/project/backend/migrations_dump.txt)"
+      
+      - revert-migrations
+      - destroy-environment:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
   
   deploy-frontend:
     docker:
@@ -255,8 +267,9 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
-      - destroy-environment
       - revert-migrations
+      - destroy-environment:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
       
   deploy-backend:
     docker:
@@ -314,7 +327,8 @@ jobs:
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
 
       - revert-migrations
-      - destroy-environment
+      - destroy-environment:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
 
   smoke-test:
     docker:
@@ -359,8 +373,9 @@ jobs:
                 return 1
               fi
 
-      # - revert-migrations
-      # - destroy-environment
+      - revert-migrations
+      - destroy-environment:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
 
 
 workflows:
