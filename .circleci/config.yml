@@ -15,8 +15,8 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: << parameters.workflow_id >> "
-            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_id >>
-            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_id >>
+            aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force
 
   revert-migrations:
@@ -376,6 +376,28 @@ jobs:
                 return 1
               fi
 
+      - destroy-environment:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
+      - revert-migrations:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
+
+  cloudfront-update:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      -checkout
+      - run:
+          name: Install dependencies
+          command: |
+            pip install awscli
+      - run:
+          name: Update cloudfront distribution
+          command: |
+             aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name InitialStack \
+              --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
       - destroy-environment:
             workflow_id: '${CIRCLE_WORKFLOW_ID}'
       - revert-migrations:
