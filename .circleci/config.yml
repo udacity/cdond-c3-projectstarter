@@ -376,9 +376,9 @@ jobs:
                 return 1
               fi
 
-      - revert-migrations:
-            workflow_id: '${CIRCLE_WORKFLOW_ID}'
       - destroy-environment:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
+      - revert-migrations:
             workflow_id: '${CIRCLE_WORKFLOW_ID}'
 
 
