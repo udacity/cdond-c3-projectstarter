@@ -206,7 +206,8 @@ jobs:
             npm run migrations > migrations_dump.txt
             echo "$(cat ~/project/backend/migrations_dump.txt)"
       
-      - revert-migrations
+      - revert-migrations:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
       - destroy-environment:
             workflow_id: '${CIRCLE_WORKFLOW_ID}'
   
@@ -267,7 +268,8 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
-      - revert-migrations
+      - revert-migrations:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
       - destroy-environment:
             workflow_id: '${CIRCLE_WORKFLOW_ID}'
       
@@ -326,7 +328,8 @@ jobs:
           command: |
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
 
-      - revert-migrations
+      - revert-migrations:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
       - destroy-environment:
             workflow_id: '${CIRCLE_WORKFLOW_ID}'
 
@@ -373,7 +376,8 @@ jobs:
                 return 1
               fi
 
-      - revert-migrations
+      - revert-migrations:
+            workflow_id: '${CIRCLE_WORKFLOW_ID}'
       - destroy-environment:
             workflow_id: '${CIRCLE_WORKFLOW_ID}'
 
