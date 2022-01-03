@@ -231,7 +231,7 @@ jobs:
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
       - attach_workspace:
-          at: ~/
+          at: ~/ 
       - run:
           name: Get backend url
           command: |
