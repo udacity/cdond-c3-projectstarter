@@ -177,7 +177,9 @@ jobs:
           name: install AWS CLI
           when: on_fail
           command: |
-            apk add --update py3-pip && pip3 install 
+            apk add --update py3-pip && pip3 install
+            apk add --update ansible
+            apk add --update npm curl
             apk add --upgrade pip && pip3 install awscli
       - destroy-environment
 
@@ -192,7 +194,9 @@ jobs:
       - run: 
           name: install dependencies
           command: |
-            apk add --update py3-pip && pip3 install 
+            apk add --update py3-pip && pip3 install
+            apk add --update ansible
+            apk add --update npm curl
             apk add --upgrade pip && pip3 install awscli
       - run:
           name: Run migrations
@@ -201,10 +205,11 @@ jobs:
             npm install
             npm run build
             npm run migrations:revert
-            # Run and sve the migration output
+            # Run and save the migration output
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
+          working_directory: ./backend
           command: |
             cat migrations_dump.txt
             MIGRATIONS_DUMP=$(grep -Fc "has been executed successfully" migrations_dump.txt)
@@ -226,6 +231,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update py3-pip && pip3 install
+            apk add --update ansible
             apk add --update npm curl
             apk add --upgrade pip && pip3 install awscli
       - run:
@@ -290,6 +296,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            apk add --update py3-pip && pip3 install
+            apk add --update ansible
             apk add --update npm curl
             apk add --upgrade pip && pip3 install awscli
       - run:
