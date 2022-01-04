@@ -353,6 +353,7 @@ jobs:
             - ./OldWorkflowID.txt
       - destroy-environment
       - revert-migrations
+  
   cleanup:
     docker:
       - image: amazon/aws-cli
@@ -398,7 +399,7 @@ workflows:
           requires: 
             - build-frontend
       - deploy-infrastructure:
-          - requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
           requires:
             - deploy-infrastructure
