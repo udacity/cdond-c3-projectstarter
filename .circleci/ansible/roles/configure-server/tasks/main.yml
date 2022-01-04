@@ -1,4 +1,5 @@
 ---
+
 - name: "upgrade packages."
   become: true
   apt:
@@ -8,7 +9,6 @@
   become: true
   apt:
     name: ["nodejs", "npm"]
-    state: latest
     update_cache: yes
 
 - name: "install pm2"
