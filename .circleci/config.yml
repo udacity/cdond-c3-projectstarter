@@ -194,9 +194,11 @@ jobs:
             apk add --upgrade pip && pip3 install awscli
       - run:
           name: Run migrations
+          working_directory: ./backend
           command: |
-          cd backend
           npm install
+          npm run build
+          npm run migrations:revert
           # Run and sve the migration output
           npm run migrations > migrations_dump.txt
       - run:
