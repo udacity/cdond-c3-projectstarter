@@ -194,10 +194,8 @@ jobs:
       - run: 
           name: install dependencies
           command: |
-            apk add --update py3-pip && pip3 install
-            apk add --update ansible
-            apk add --update npm curl
-            apk add --upgrade pip && pip3 install awscli
+            apk add --update ansible tar gzip ansible nodejs npm curl
+            pip install awscli
       - run:
           name: Run migrations
           working_directory: ./backend
