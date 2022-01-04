@@ -77,13 +77,14 @@ jobs:
             cd frontend
             npm install
             npm run test
-            exit 1
                 
   test-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-test]
       - run:
           name: test back-end
           command: |
@@ -102,7 +103,6 @@ jobs:
             cd frontend
             npm install
             npm audit fix --audit-level=critical --force
-            exit 1
 
   scan-backend:
     docker:
