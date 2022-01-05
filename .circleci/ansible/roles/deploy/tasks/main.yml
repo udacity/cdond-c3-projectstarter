@@ -9,9 +9,9 @@
 - name: "deploy backend"
   become_user: true
   unarchive:
-    src: /etc/artifact.tar.gz
+    src: /backend/artifact.tar.gz
     dest: ~/backend/
-    
+
 - name: "run backend"
   become_user: true
   shell: |
