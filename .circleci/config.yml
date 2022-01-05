@@ -301,15 +301,12 @@ jobs:
             apk add --update ansible tar gzip ansible nodejs npm curl
             pip install awscli
       - run:
-          name: Get backend url
+          name: Get backend url and run backend smoke test
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances --filters "Name=tag:project,Values=udapeople" --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
-      - run:
-          name: Backend smoke test.
-          command: |
-            if curl "${API_URL}" | grep "ok"
+            if curl -s "${API_URL}" | grep "ok"
             then
                 return 0
             else
