@@ -277,7 +277,6 @@ jobs:
       - run:
           name: tar archive directory
           command: |
-            cd backend
             tar -C backend -czvf artifact.tar.gz .
       - run:
           name: Deploy backend
