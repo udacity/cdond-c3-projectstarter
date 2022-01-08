@@ -46,11 +46,25 @@
     cd ~/backend
     tar -vxf artifact.tar.gz
     rm -f artifact.tar.gz
+    
+- name: NPM install
+  become: true    
+  command: npm install
+  args:
+    chdir: /root/backend
+  register: shell_output
+  
+- name: NPM build
+  become: true  
+  command: npm run build
+  args:
+    chdir: /root/backend    
+  register: shell_output
+ 
+- name: PM2 start backend
+  become: true  
+  command: pm2 start npm --name "backend" -- run start
+  args:
+    chdir: /root/backend  
+  register: shell_output
 
-
-- name: Creates Directory
-  become: yes
-  file:
-    path: ~/backend
-    state: directory
-    mode: 0755
