@@ -15,6 +15,24 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
             
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_fail
+          command: | 
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              SUCCESS = 1
+            fi
+            if(( $SUCCESS==1 )); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
+            fi
+            
 jobs:
   build-frontend:
     docker:
@@ -187,6 +205,44 @@ jobs:
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
 
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: install dependencies
+          command: |
+            sudo apt-get update
+            sudo apt-get install --upgrade awscli
+            echo 'aws cli version:'
+            aws --version
+      - run:
+          name: Run migrations
+          no_output_timeout: 10m
+          command: |
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
+      - store_artifacts:
+          path: ~/project/backend/migrations_dump.txt
+          destination: migration-results
+      - run:
+          name: Check migration results
+          command: |
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              echo "Successful migration."
+            elif grep -q "No migration are pending." ~/project/backend/migrations_dump.txt
+            then
+              echo "No migrations are pending."
+            fi
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations
+
+
 workflows:
   default:
     jobs:
@@ -207,3 +263,5 @@ workflows:
               only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
