@@ -319,14 +319,10 @@ jobs:
           command: |
             cd backend
             npm i
-            npm audit fix --audit-level=critical
             npm run build
-            cp package* ./dist
             cd ..
             echo "Zip the directory and copy it to ansible deploy role"
             tar -C backend -czvf artifact.tar.gz .
-            mkdir .circleci/ansible/roles/deploy/files
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files
             echo "Check inventory and execute ansible playbook"
             cd .circleci/ansible
             echo "Contents of the inventory.txt file are -------"
