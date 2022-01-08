@@ -12,6 +12,7 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: << parameters.id >> "
+            aws s3 rb --force s3://udapeople-<< parameters.id >>
             aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.id >>
             aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.id >>
 
@@ -324,6 +325,7 @@ jobs:
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
+            export ANSIBLE_HOST_KEY_CHECKING=False
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
