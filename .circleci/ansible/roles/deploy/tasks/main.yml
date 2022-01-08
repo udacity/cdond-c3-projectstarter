@@ -19,14 +19,6 @@
     production: yes
     state: present
 
-- name: Print env variable
-  shell: echo $PATH
-  register: print_result
-
-- name: print message
-  debug:
-      msg: "{{ print_result.stdout_lines }}"
-
 - name: create backend directory on EC2
   become: true
   file:
@@ -37,7 +29,7 @@
 - name: copy files to backend
   become: true
   copy: 
-    src: ~/project/artifact.tar.gz
+    src: artifact.tar.gz
     dest: ~/backend/artifact.tar.gz
 
 - name: unzip backend directory
