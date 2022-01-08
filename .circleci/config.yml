@@ -314,7 +314,6 @@ jobs:
             && pip3 install awscli
             echo 'aws cli version:'
             aws --version
-      - run: yum install -y tar gzip
       - run:
           name: Deploy backend
           no_output_timeout: 30m
