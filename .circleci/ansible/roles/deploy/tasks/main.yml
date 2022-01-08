@@ -1,88 +1,56 @@
 ---
-
-- name: "update apt package."
+- name: "update apt packages."
   become: yes
   apt:
     update_cache: yes
- 
-- name: "update packages"
+
+- name: "upgrade packages"
   become: yes
   apt:
-    upgrade: yes
-    
+    upgrade: "yes"
+
 - name: "Remove dependencies that are no longer required"
   become: yes
   apt:
-    autoremove: yes   
-      
-- name: "Install Dependencies"
+    autoremove: yes
+
+- name: install nodejs and npm
   become: yes
   apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
-	
-- name: Install pm2
+    name: [nodejs, npm]
+
+- name: install pm2
   become: yes
   npm:
     name: pm2
     global: yes
     production: yes
     state: present
-	
+
+- name: create backend directory on EC2
+  become: yes
+  file:
+    path: ~/backend
+    state: directory
+    mode: 0755
+
+- name: copy files to backend
+  become: yes
+  copy: 
+    src: ~/project/artifact.tar.gz
+    dest: ~/backend/artifact.tar.gz
+
+- name: unzip backend directory
+  become: yes
+  shell: |
+    cd ~/backend
+    tar -vxf artifact.tar.gz
+    rm -f artifact.tar.gz
+
+
 - name: Creates Directory
   become: yes
   file:
     path: ~/backend
     state: directory
     mode: 0755
-	
-- name: Copy backend dist files web server
-  become: yes
-  copy:
-    src: ~/project/artifact.tar.gz
-    dest: ~/backend/artifact.tar.gz
-    #dest: /home/ubuntu/backend/artifact.tar.gz
-    
-- name: Extract backend files
-  become: yes
-  shell: |
-    cd ~/backend
-    tar -vxf artifact.tar.gz
-    
-- name: NPM install
-  become: true    
-  command: npm install
-  args:
-    chdir: /root/backend
-  register: shell_output
-  
-- name: NPM build
-  become: true  
-  command: npm run build
-  args:
-    chdir: /root/backend    
-  register: shell_output
- 
-- name: PM2 start backend
-  become: true  
-  command: pm2 start npm --name "backend" -- run start
-  args:
-    chdir: /root/backend  
-  register: shell_output
-  
-- name: PM2 check backend status in pm2
-  become: true
-  command: pm2 status
-  args:
-    chdir: /root/backend  
-  register: shell_output
-  
-- name: PM2 start main
-  become: true
-  command: pm2 start main.js --update-env
-  args:
-    chdir: /root/backend/dist    
-  register: shell_output
-  
-- debug: var=shell_output
