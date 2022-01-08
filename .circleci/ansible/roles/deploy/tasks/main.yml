@@ -1,0 +1,29 @@
+---
+- name: create backend directory on EC2
+  become: yes
+  file:
+    path: ~/backend
+    state: directory
+
+- name: copy files to backend
+  become: yes
+  template: 
+    src: ~/project/artifact.tar.gz
+    dest: ~/backend/artifact.tar.gz
+
+- name: unzip backend directory
+  become: yes
+  shell: |
+    cd ~/backend
+    tar -vxf artifact.tar.gz
+    rm -f artifact.tar.gz
+- name: start application
+  become: yes
+  shell: |
+    cd ~/backend
+    npm install
+    pm2 stop default
+    pm2 start npm -- start
+    # cd src
+    # pm2 start main.js --update-env
+    # end of commands
