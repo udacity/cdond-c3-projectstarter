@@ -316,13 +316,17 @@ jobs:
             aws --version
       - run:
           name: Deploy backend
-          no_output_timeout: 30m
           command: |
             cd backend
             npm i
+            npm audit fix --audit-level=critical
             npm run build
+            cp package* ./dist
+            cd ..
             echo "Zip the directory and copy it to ansible deploy role"
             tar -C backend -czvf artifact.tar.gz .
+            mkdir .circleci/ansible/roles/deploy/files
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files
             echo "Check inventory and execute ansible playbook"
             cd .circleci/ansible
             echo "Contents of the inventory.txt file are -------"
@@ -332,26 +336,4 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
+      - deploy-backend
