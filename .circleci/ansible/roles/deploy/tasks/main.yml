@@ -22,30 +22,51 @@
 - name: create backend directory on EC2
   become: true
   file:
-    path: ~/backend
+    path: /home/ubuntu/backend
     state: directory
+    # set file mode to 0755 -> https://chmodcommand.com/chmod-0755/ 
     mode: 0755
 
 - name: copy files to backend
   become: true
   copy: 
     src: artifact.tar.gz
-    dest: ~/backend/artifact.tar.gz
+    dest: /home/ubuntu/backend/artifact.tar.gz
 
 - name: unzip backend directory
   become: true
   shell: |
-    cd ~/backend
+    cd /home/ubuntu/backend
     tar -vxf artifact.tar.gz
-    # rm -f artifact.tar.gz
+    rm -f artifact.tar.gz
 
 - name: start application
   become: true
   shell: |
-    cd ~/backend
+    cd /home/ubuntu/backend
     npm install
     pm2 stop default
     pm2 start npm -- start
-    # cd src
-    # pm2 start main.js --update-env
-    # end of commands
+    cd dist
+    pm2 start main.js --update-env
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+    TYPEORM_MIGRATIONS_DIR: "./migrations"
+    TYPEORM_MIGRATIONS: "./migrations/*.js"
+    TYPEORM_ENTITIES: "./modules/domain/*/entities/*.entity.js"
+    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+
+- name: print environment variables
+  become: true
+  shell: |
+    printenv
+  register: printenv_out
+
+- name: print message
+  debug:
+      msg: "{{ printenv_out.stdout_lines }}"
