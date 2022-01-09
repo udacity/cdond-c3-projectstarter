@@ -1,60 +1,29 @@
 ---
-- name: "update apt packages."
-  become: true
-  apt:
-    update_cache: yes
-
-- name: "upgrade packages."
-  become: true
-  apt:
-    upgrade: yes
-
-- name: "Remove dependencies that are no longer required"
-  become: true
-  apt:
-    autoremove: yes
-
-- name: install nodejs and npm
-  become: true
-  apt:
-    name: [nodejs, npm]
-
-- name: "install pm2"
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
-
 - name: create backend directory on EC2
   become: true
   file:
-    #path: /home/ubuntu/backend
-    path: ~/backend
-    state: directory 
+    path: /home/ubuntu/backend
+    state: directory
+    # set file mode to 0755 -> https://chmodcommand.com/chmod-0755/ 
     mode: 0755
 
 - name: copy files to backend
   become: true
   copy: 
-    src: ~/project/artifact.tar.gz
-    #dest: /home/ubuntu/backend/artifact.tar.gz
-    dest: ~/backend/artifact.tar.gz
+    src: artifact.tar.gz
+    dest: /home/ubuntu/backend/artifact.tar.gz
 
 - name: unzip backend directory
   become: true
   shell: |
-    #cd /home/ubuntu/backend
-    cd ~/backend
+    cd /home/ubuntu/backend
     tar -vxf artifact.tar.gz
     rm -f artifact.tar.gz
 
 - name: start application
   become: true
   shell: |
-    #cd /home/ubuntu/backend
-    cd ~/backend
+    cd /home/ubuntu/backend
     npm cache clean -f
     npm install -g n
     n stable
@@ -62,6 +31,17 @@
     pm2 start npm -- start
     cd dist
     pm2 start main.js --update-env
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+    TYPEORM_MIGRATIONS_DIR: "./migrations"
+    TYPEORM_MIGRATIONS: "./migrations/*.js"
+    TYPEORM_ENTITIES: "./modules/domain/*/entities/*.entity.js"
+    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
 
 - name: print environment variables
   become: true
