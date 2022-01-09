@@ -1,5 +1,3 @@
----
-
 - name: "configuration play." 
   hosts: web
   user: ubuntu
@@ -7,6 +5,15 @@
   vars:
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
-    - ansible_stdout_callback: yaml        
+    - ansible_stdout_callback: yaml 
+
+  pre_tasks:
+    - name: "wait 120 seconds for target connection to become reachable/usable."
+      pause:
+        seconds: 120
+    - name: "install python for Ansible."
+      become: true
+      raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
+          
   roles:
     - deploy

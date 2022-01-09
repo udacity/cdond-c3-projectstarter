@@ -287,6 +287,7 @@ jobs:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
+
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -320,12 +321,9 @@ jobs:
             cd backend
             npm i
             npm run build
-            cp package* ./dist
             cd ..
             echo "Zip the directory and copy it to ansible deploy role"
             tar -C backend -czvf artifact.tar.gz .
-            mkdir .circleci/ansible/roles/deploy/files
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files
             echo "Check inventory and execute ansible playbook"
             cd .circleci/ansible
             echo "Contents of the inventory.txt file are -------"
