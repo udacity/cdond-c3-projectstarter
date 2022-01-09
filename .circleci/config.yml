@@ -383,6 +383,5 @@ jobs:
 workflows:
   default:
     jobs:
-      - smoke-test:
-          requires: [deploy-backend]
+      - smoke-test
 
