@@ -2,19 +2,22 @@
 - name: "update apt packages."
   become: true
   apt:
-    update_cache: "yes"
+    update_cache: yes
 
 - name: "upgrade packages."
   become: true
   apt:
     upgrade: yes
 
-- name: "install dependencies."
+- name: "Remove dependencies that are no longer required"
   become: true
   apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
+    autoremove: yes
+
+- name: install nodejs and npm
+  become: true
+  apt:
+    name: [nodejs, npm]
 
 - name: "install pm2"
   become: true
@@ -35,7 +38,7 @@
 - name: copy files to backend
   become: true
   copy: 
-    src: ~/project/artifact.tar.gz
+    src: artifact.tar.gz
     #dest: /home/ubuntu/backend/artifact.tar.gz
     dest: ~/backend/artifact.tar.gz
 
@@ -52,7 +55,9 @@
   shell: |
     #cd /home/ubuntu/backend
     cd ~/backend
-    npm install
+    npm cache clean -f
+    npm install -g n
+    n stable
     pm2 stop default
     pm2 start npm -- start
     cd dist
