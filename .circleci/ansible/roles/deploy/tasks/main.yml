@@ -56,7 +56,8 @@
     #cd /home/ubuntu/backend
     cd ~/backend
     npm cache clean -f
-    npm install
+    npm install -g n
+    n stable
     pm2 stop default
     pm2 start npm -- start
     cd dist
