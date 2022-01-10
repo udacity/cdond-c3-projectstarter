@@ -368,7 +368,7 @@ jobs:
           name: Frontend smoke test.
           no_output_timeout: 10m
           command: |
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/#/employees"            
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/\#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
