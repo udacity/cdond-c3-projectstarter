@@ -343,13 +343,16 @@ jobs:
           name: Install dependencies
           command: |
             apk update
-            apk upgrade
-            apk add unzip 
-            apk add curl
-            apk add nodejs npm
-            /usr/local/bin/python -m pip install --upgrade pip
-            pip install awscli --upgrade
-
+            # install aws cli
+            apk add --no-cache \
+                python3 \
+                py3-pip \
+            && pip3 install --upgrade pip \
+            && pip3 install awscli 
+            echo 'aws cli version:'
+            aws --version
+            # install curl
+            apk add --update curl
       - run:
           name: Get backend url and smoke test
           command: |
@@ -368,7 +371,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            export URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/#/employees"            
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-2.amazonaws.com/#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
