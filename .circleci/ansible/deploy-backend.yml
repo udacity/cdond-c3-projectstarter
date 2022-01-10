@@ -1,19 +1,23 @@
-- name: "configuration play." 
-  hosts: web
+---
+- name: 'configuration play.'
+  hosts: all
   user: ubuntu
   gather_facts: false
   vars:
     - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
-    - ansible_stdout_callback: yaml 
+    - ansible_stdout_callback: yaml
 
-  pre_tasks:
-    - name: "wait 120 seconds for target connection to become reachable/usable."
-      pause:
-        seconds: 120
-    - name: "install python for Ansible."
-      become: true
-      raw: test -e /usr/bin/python3 || (apt -y update && apt install -y python3)
-          
+  environment:
+    - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"
+    - TYPEORM_ENTITIES: "{{ lookup('env', 'TYPEORM_ENTITIES')}}"
+    - TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST')}}"
+    - TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+    - TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME')}}"
+    - TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD')}}"
+    - TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE')}}"
+    - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
+    - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
+
   roles:
     - deploy
