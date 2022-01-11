@@ -112,6 +112,9 @@ jobs:
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
+      - slack/notify:
+          event: pass
+          template: success_tagged_deploy_1
 
   scan-backend:
     docker:
@@ -312,6 +315,7 @@ workflows:
           context: slack-context
       - scan-frontend:
           requires: [build-frontend]
+          context: slack-context
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
