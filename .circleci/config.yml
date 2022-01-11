@@ -126,36 +126,13 @@ jobs:
       - run:
           name: Analyse code
           command: |
-            # cd backend
+            cd backend
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
       - slack/notify:
-          channel: ci-notification
           event: fail
           template: basic_fail_1
-
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always
 
 #   deploy-infrastructure:
 #     docker:
@@ -339,8 +316,6 @@ workflows:
           requires: [build-frontend]
           context: slack-context
 
-      - notify:
-          context: slack-context
 
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
