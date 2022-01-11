@@ -123,7 +123,7 @@ jobs:
       - run:
           name: Analyse code
           command: |
-            cd backend
+            # cd backend
             npm install
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
