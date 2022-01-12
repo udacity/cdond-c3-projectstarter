@@ -320,11 +320,11 @@ jobs:
           name: Frontend smoke test.
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
-            echo ${URL} 
-            if curl ${URL} | grep "Welcome"
+            echo ${URL}
+            curl ${URL}
+            if curl -s ${URL} | grep "Welcome"
             then
-                # Change this to 0 after the job fails
-            return 1
+            return 0
             else
             return 1
             fi
@@ -335,7 +335,7 @@ jobs:
             export API_URL="http://${BACKEND_IP}:3030/api/status"
             echo "${API_URL}"
             curl ${API_URL}
-            if curl "${API_URL}" | grep "ok"
+            if curl -s "${API_URL}" | grep "ok"
             then
                 return 0
             else
