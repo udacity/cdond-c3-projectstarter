@@ -176,6 +176,7 @@ jobs:
           name: Configure server
           working_directory: ./backend
           command: |
+            pwd
             echo ENVIRONMENT=production > .env
             echo TYPEORM_CONNECTION=postgres >> .env
             echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> .env
@@ -212,6 +213,7 @@ jobs:
           name: Run migrations
           working_directory: ./backend
           command: |
+            pwd
             echo > ".env"
             echo ENVIRONMENT=production > .env
             echo TYPEORM_CONNECTION=postgres >> .env
@@ -232,6 +234,7 @@ jobs:
           name: Send migration results to "memstash" (cache)
           working_directory: ./backend
           command: |
+            pwd
             cat migrations_dump.txt
             MIGRATIONS_DUMP=$(grep -Fc "has been executed successfully" migrations_dump.txt)
             echo ${MIGRATIONS_DUMP}
