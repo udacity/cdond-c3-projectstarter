@@ -40,6 +40,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-build-${CIRCLE_WORKFLOW_ID}]
       - run:
           name: Build front-end
           command: |
@@ -48,13 +50,15 @@ jobs:
             npm run build
       - save_cache:
           paths: [node_modules, dist]
-          key: frontend-build-${CIRCLE_WORKFLOW_ID}
+          keys: frontend-build-${CIRCLE_WORKFLOW_ID}
 
   build-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build-${CIRCLE_WORKFLOW_ID}]
       - run:
           name: Back-end build
           command: |
@@ -63,13 +67,15 @@ jobs:
             npm run build  
       - save_cache:
           paths: [node_modules, dist]
-          key: backend-build-${CIRCLE_WORKFLOW_ID}       
+          keys: backend-build-${CIRCLE_WORKFLOW_ID}     
 
   test-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [frontend-build-${CIRCLE_WORKFLOW_ID}]
       - run:
           name: test front-end
           command: |
@@ -83,7 +89,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-test]
+          keys: [backend-build-${CIRCLE_WORKFLOW_ID}]
       - run:
           name: test back-end
           command: |
@@ -187,6 +193,7 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> .env
             cat .env
             cd ../.circleci/ansible
+            cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - run: 
           name: install AWS CLI
@@ -300,6 +307,21 @@ jobs:
             cd backend
             npm i
             npm run build
+      - run:
+          name: setting the environment
+          working_directory: ./backend
+          command: |
+            pwd
+            echo > ".env"
+            echo ENVIRONMENT=production > .env
+            echo TYPEORM_CONNECTION=postgres >> .env
+            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> .env
+            echo TYPEORM_HOST=$TYPEORM_HOST >> .env
+            echo TYPEORM_PORT=$TYPEORM_PORT >> .env
+            echo TYPEORM_USERNAME= $TYPEORM_USERNAME >> .env
+            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> .env
+            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> .env
+
       - run:
           name: tar archive directory
           command: |
