@@ -41,7 +41,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build-${CIRCLE_WORKFLOW_ID}]
+          keys: frontend-build-${CIRCLE_WORKFLOW_ID}
       - run:
           name: Build front-end
           command: |
@@ -58,7 +58,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build-${CIRCLE_WORKFLOW_ID}]
+          keys: backend-build-${CIRCLE_WORKFLOW_ID}
       - run:
           name: Back-end build
           command: |
@@ -75,7 +75,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [frontend-build-${CIRCLE_WORKFLOW_ID}]
+          keys: frontend-build-${CIRCLE_WORKFLOW_ID}
       - run:
           name: test front-end
           command: |
@@ -89,7 +89,7 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build-${CIRCLE_WORKFLOW_ID}]
+          keys: backend-build-${CIRCLE_WORKFLOW_ID}
       - run:
           name: test back-end
           command: |
