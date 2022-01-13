@@ -50,7 +50,7 @@ jobs:
             npm run build
       - save_cache:
           paths: [node_modules, dist]
-          keys: frontend-build-${CIRCLE_WORKFLOW_ID}
+          key: frontend-build-${CIRCLE_WORKFLOW_ID}
 
   build-backend:
     docker:
@@ -67,7 +67,7 @@ jobs:
             npm run build  
       - save_cache:
           paths: [node_modules, dist]
-          keys: backend-build-${CIRCLE_WORKFLOW_ID}     
+          key: backend-build-${CIRCLE_WORKFLOW_ID}     
 
   test-frontend:
     docker:
