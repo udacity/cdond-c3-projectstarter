@@ -373,8 +373,8 @@ jobs:
             else
                 return 1
             fi
-      #- destroy-environment
-      #- revert-migrations
+      - destroy-environment
+      - revert-migrations
 
   cloudfront-update:
     docker:
@@ -385,7 +385,6 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible tar gzip ansible nodejs npm curl
-            pip install awscli
       - run:
           name: Get old stack workflow id
           command: |
@@ -424,9 +423,12 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            # your code here
-            export OldWorkflowID="the id here"
+            # Old workflow ID
+            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
+            echo ${OldWorkflowID}
+            # Stack names
             export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
+            echo ${STACKS[@]}
       - run:
           name: Remove old stacks and files
           command: |
@@ -477,10 +479,10 @@ workflows:
           requires: 
             - deploy-frontend
             - deploy-backend
-      #- cloudfront-update:
-          #requires:
-            #- smoke-test
-      #- cleanup:
-          #requires:
-            #- cloudfront-update
+      - cloudfront-update:
+          requires:
+            - smoke-test
+      - cleanup:
+          requires:
+            - cloudfront-update
       
