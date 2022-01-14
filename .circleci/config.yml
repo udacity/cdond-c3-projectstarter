@@ -428,12 +428,15 @@ jobs:
             # Old workflow ID
             export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
             echo ${OldWorkflowID}
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            
+            
             # Stack names
             export STACKS=$(aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text)
-            echo ${STACKS[@]}
-      - run:
-          name: Remove old stacks and files
-          command: |
+            echo Stack names: "${STACKS[@]}"
+            
+            
+            # delete the stacks
             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
             then
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
