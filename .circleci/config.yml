@@ -378,13 +378,14 @@ jobs:
 
   cloudfront-update:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible tar gzip ansible nodejs npm curl
+            pip install awscli
       - run:
           name: Get old stack workflow id
           command: |
