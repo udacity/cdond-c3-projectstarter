@@ -65,7 +65,7 @@
     "webpack": "^4.35.3",
     "webpack-cleanup-plugin": "^0.5.1",
     "webpack-cli": "^3.3.5",
-    "webpack-dev-server": "^3.7.2"
+    "webpack-dev-server": "^4.7.3"
   },
   "dependencies": {
     "@fortawesome/fontawesome-svg-core": "^1.2.19",
@@ -91,7 +91,7 @@
     "react-country-region-selector": "^1.4.3",
     "react-datepicker": "^2.8.0",
     "react-dom": "^16.8.6",
-    "react-foundation": "^0.9.6",
+    "react-foundation": "^0.9.7",
     "react-gravatar": "^2.6.3",
     "react-loading": "^2.0.3",
     "react-redux": "^5.1.1",
