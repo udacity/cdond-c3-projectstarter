@@ -1,0 +1,24 @@
+---
+  - name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+    apt:
+      update_cache: yes
+      cache_valid_time: 3600
+  - name: Upgrade Packages
+    apt:
+      upgrade: yes
+  - name: "install python for Ansible."
+    apt:
+      name: python3
+      state: present
+  - name: "Install nodejs, npm, pm2"
+    apt:
+      name: "{{ packages }} "
+      state: latest
+    vars:
+      packages:
+      - npm
+      - nodejs
+  - name: Install pm2
+    npm:
+      name: pm2
+      global: yes

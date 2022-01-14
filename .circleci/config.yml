@@ -161,24 +161,25 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment    
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: python:3.11.0a3-alpine3.15
+    steps:
+      - checkout
+      - add_ssh_keys:
+              fingerprints: ["25:96:49:f1:65:1c:fb:54:f6:b9:d4:5f:df:bf:3d:56"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add ansible, tar, gzip
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy-environment      
 
 #   run-migrations:
 #     docker:
@@ -311,8 +312,8 @@ workflows:
       #     filters:
       #       branches:
       #         only: [test-feature-branch]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
