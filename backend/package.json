@@ -74,7 +74,7 @@
     "@types/node": "^11.15.9",
     "@types/supertest": "^2.0.8",
     "jest": "^24.9.0",
-    "nodemon": "^27.4.7",
+    "nodemon": "^2.0.15",
     "prettier": "^1.19.1",
     "rimraf": "^2.6.2",
     "standard-version": "^9.3.2",
