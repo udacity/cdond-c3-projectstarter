@@ -1,5 +1,4 @@
 ---
-
   - name: "configuration play." 
     hosts: web
     user: ubuntu
@@ -16,7 +15,7 @@
     #     wait_for:
     #       timeout: 600'
     roles:
-      - configure-server.yml
+      - configure-server
 
     # Get the environment variables from CircleCI and add to the EC2 instance
     environment:
