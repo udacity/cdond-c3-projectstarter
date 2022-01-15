@@ -173,7 +173,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add ansible tar gzip
+            apk add ansible tar gzip aws-cli
       - run:
           name: Configure server
           command: |
@@ -199,15 +199,13 @@ jobs:
             then
             curl https://kvdb.io/62qfFkaXJqeyEisLa2yWoh/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      - destroy-environment      
+      # - destroy-environment      
 
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -230,22 +228,33 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment    
                     
-#   deploy-backend:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Deploy backend
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+  deploy-backend:
+    docker:
+      - image: python:3.11.0a3-alpine3.15
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["25:96:49:f1:65:1c:fb:54:f6:b9:d4:5f:df:bf:3d:56"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add ansible tar gzip aws-cli nodejs npm
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm install
+            npm run build
+            cd ..
+            tar -C backend -czvf artifact.tar.gz .
+            pwd
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - destroy environment  
 
 #   smoke-test:
 #     docker:

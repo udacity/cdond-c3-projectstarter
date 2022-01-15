@@ -1,0 +1,8 @@
+---
+  # - name: Copy artifact to EC2
+  #   copy:
+  #     src: ../../../../artifact.tar.gz
+  #     dest: ~/web/index.js
+  # - name: Update packages based on packages.json to their latest version.
+  #   npm:
+  #     path:
