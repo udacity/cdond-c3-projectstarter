@@ -1,8 +1,18 @@
 ---
-  # - name: Copy artifact to EC2
-  #   copy:
-  #     src: ../../../../artifact.tar.gz
-  #     dest: ~/web/index.js
-  # - name: Update packages based on packages.json to their latest version.
-  #   npm:
-  #     path:
+  - name: Create ~/backend directory
+    file:
+      path: ~/backend
+      state: directory
+  - name: Copy artifact to EC2
+    copy:
+      src: /backend/artifact.tar.gz
+      dest: ~/backend/artifact.tar.gz
+  - name: Unarchive the backend artifact
+    unarchive:
+      src: ~/backend/artifact.tar.gz
+      dst: ~/backend/
+  - name: Install packages based on packages.json and restart the pm2 service.
+    shell: |
+      npm install
+      pm2 stop default
+      pm2 start npm -- start
