@@ -399,7 +399,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
-              --stack-name promotion-phase \
+              --stack-name InitialStack \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople \
               --region ${AWS_DEFAULT_REGION}
@@ -487,7 +487,7 @@ workflows:
       - cloudfront-update:
           requires:
             - smoke-test
-      #- cleanup:
-          #requires:
-            #- cloudfront-update
+      - cleanup:
+          requires:
+            - cloudfront-update
       
