@@ -187,6 +187,10 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install AWS SDK
+          command: |
+            npm install aws-sdk
+      - run:
           name: Run migrations
           command: |
             cd backend
@@ -199,7 +203,7 @@ jobs:
             then
             curl https://kvdb.io/BdGdV8spF2iAA2jK2X43Y6/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      # - destroy-environment      
+      - destroy-environment      
 
   deploy-frontend:
     docker:
@@ -209,7 +213,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yun install -y python3 ansible node npm
+            yun install -y python3 ansible nodejs npm
       - run:
           name: Get backend url
           command: |
@@ -253,7 +257,7 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      - destroy environment  
+      - destroy-environment  
 
 #   smoke-test:
 #     docker:
