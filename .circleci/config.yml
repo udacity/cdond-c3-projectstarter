@@ -203,7 +203,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-            curl https://kvdb.io/BdGdV8spF2iAA2jK2X43Y6/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            curl https://kvdb.io/BdGdV8spF2iAA2jK2X43Y6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
       - destroy-environment      
 
@@ -215,7 +215,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y python3 ansible nodejs npm
+            yum install python3 ansible nodejs npm
       - run:
           name: Get backend url
           command: |
