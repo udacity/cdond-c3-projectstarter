@@ -215,7 +215,10 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install python3 ansible nodejs npm
+            yum install -y python3 
+            yum install -y ansible
+            yum install -y nodejs 
+            yum install -y npm
       - run:
           name: Get backend url
           command: |
