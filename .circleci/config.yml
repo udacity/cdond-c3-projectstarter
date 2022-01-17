@@ -20,10 +20,9 @@ commands:
   #   steps:
   #     - run:
   #         name: Revert migrations
-  #         # Add when this will run
+  #         when: on_fail
   #         command: |
-  #           # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-  #           SUCCESS = 1
+  #           SUCCESS = curl https://kvdb.io/BdGdV8spF2iAA2jK2X43Y6/migration
   #           if(( $SUCCESS==1 )); 
   #           then
   #           #  cd ~/project/backend
@@ -173,7 +172,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible tar gzip aws-cli
+            apk add ansible tar gzip aws-cli
       - run:
           name: Configure server
           command: |
@@ -189,7 +188,7 @@ jobs:
       - run:
           name: Install AWS SDK
           command: |
-            npm install aws-sdk
+            apt install aws-cli
       - run:
           name: Run migrations
           command: |
@@ -259,28 +258,36 @@ jobs:
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment  
 
-#   smoke-test:
-#     docker:
-#       # Lightweight Docker image 
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#       - run:
-#           name: Backend smoke test.
-#           command: |
-#             # your code here
-#       - run:
-#           name: Frontend smoke test.
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+  smoke-test:
+    docker:
+      - image: alpine:latest
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add curl nodejs npm aws-cli
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
+      - run:
+          name: Backend smoke test.
+          command: |
+            # your code here
+      - run:
+          name: Frontend smoke test.
+          command: |
+            # your code here
+      - destroy-environment 
 
 #   cloudfront-update:
 #     docker:
@@ -341,8 +348,8 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
