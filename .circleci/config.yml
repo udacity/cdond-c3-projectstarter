@@ -215,7 +215,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y python3 nodejs
+            yum install -y python3 nodejs npm
       - run:
           name: Get backend url
           command: |
