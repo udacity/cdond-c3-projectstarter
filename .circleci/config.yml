@@ -34,7 +34,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -51,7 +51,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -68,7 +68,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -83,7 +83,7 @@ jobs:
                 
   test-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -97,7 +97,7 @@ jobs:
             
   scan-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -182,7 +182,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - run:
@@ -275,17 +275,16 @@ jobs:
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-            if curl "${API_URL}/api/status" | grep "ok"
-            then
-                return 0
-            else
-                return 1
-            fi
       - run:
           name: Backend smoke test.
           command: |
-            # your code here
+              echo "${API_URL}"
+              if curl "${API_URL}/api/status" | grep "ok"
+              then
+                  return 0
+              else
+                  return 1
+              fi
       - run:
           name: Frontend smoke test.
           command: |
