@@ -188,7 +188,10 @@ jobs:
       - run:
           name: Install AWS SDK
           command: |
-            apt install aws-cli
+            sudo curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            sudo unzip awscliv2.zip
+            cd aws
+            sudo ./install
       - run:
           name: Run migrations
           command: |
