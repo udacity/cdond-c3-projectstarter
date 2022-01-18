@@ -1,12 +1,12 @@
 ---
   - name: Create ~/backend directory
     file:
-      path: /home/ubuntu/backend
+      path: /home/ubuntu/backend/
       state: directory
   - name: Unarchive the backend artifact
     unarchive:
-      src: ./artifact.tar.gz
-      dst: /home/ubuntu/backend/
+      src: artifact.tar.gz
+      dest: /home/ubuntu/backend/
   - name: Install packages based on packages.json and restart the pm2 service.
     shell: |
       npm install
