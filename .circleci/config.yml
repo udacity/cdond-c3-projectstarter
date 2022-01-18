@@ -28,16 +28,15 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: << parameters.id >> " 
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            # Example: kvdb.io
+            SUCCESS=$(curl --insecure  https://kvdb.io/Raqjkvh5HXqERk6qUYqnmS/migration_<< parameters.workflow_id >>)
+            # Logic for reverting the database state
+            if (( $SUCCESS == 1 ));
             then
-              SUCCESS = 1
-            fi
-            if(( $SUCCESS==1 )); 
-            then
-              cd ~/project/backend
-              npm install
-              npm run migrations:revert
-            fi
+                cd ~/project/backend
+                npm install
+                npm run migration:revert
+            fi  
             
 jobs:
   build-frontend:
@@ -240,7 +239,7 @@ jobs:
           path: ~/project/backend/migrations_dump.txt
           destination: migration-results
       - run:
-          name: Check migration results
+          name: Send migration status to kvdb.io
           command: |
             cat ~/project/backend/migrations_dump.txt
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
@@ -249,6 +248,7 @@ jobs:
             elif grep -q "No migration are pending." ~/project/backend/migrations_dump.txt
             then
               echo "No migrations are pending."
+              curl https://kvdb.io/Raqjkvh5HXqERk6qUYqnmS/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - revert-migrations:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
@@ -370,7 +370,7 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
                 # Change this to 0 after the job fails
-              return 1
+              return 0
             else
               return 1
             fi
@@ -463,8 +463,8 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      - cleanup:
-          requires: [cloudfront-update]
+      #- cleanup:
+      #    requires: [cloudfront-update]
     
 
           
