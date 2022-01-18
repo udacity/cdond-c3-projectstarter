@@ -5,7 +5,7 @@
       state: directory
   - name: Unarchive the backend artifact
     unarchive:
-      src: artifact.tar.gz
+      src: ./artifact.tar.gz
       dst: /home/ubuntu/backend/
   - name: Install packages based on packages.json and restart the pm2 service.
     shell: |
