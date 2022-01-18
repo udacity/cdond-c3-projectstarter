@@ -10,14 +10,21 @@
     apt:
       name: python3
       state: present
-  - name: "Install nodejs, npm, pm2"
+  - name: Configuring the timezone for nodejs
+    shell: |
+      ln -fs /usr/share/zoneinfo/Asia/Singapore /etc/localtime
+  - name: Install tzdata
+    apt:
+      name: tzdata
+      state: present
+  - name: "Install nodejs and npm"
     apt:
       name: "{{ packages }} "
-      state: latest
+      state: present
     vars:
       packages:
-      - npm
       - nodejs
+      - npm
   - name: Install pm2
     npm:
       name: pm2
