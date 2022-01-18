@@ -242,7 +242,7 @@ jobs:
       - run:
           name: Check migration results
           command: |
-            cat ~/project/.circleci/ansible/migrations_dump.txt
+            cat ~/project/backend/migrations_dump.txt
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               echo "Successful migration."
