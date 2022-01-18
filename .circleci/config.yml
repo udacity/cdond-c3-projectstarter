@@ -29,7 +29,7 @@ commands:
           command: |
             echo "Destroying environment: << parameters.id >> " 
             # Example: kvdb.io
-            SUCCESS=$(curl --insecure  https://kvdb.io/Raqjkvh5HXqERk6qUYqnmS/migration_<< parameters.workflow_id >>)
+            SUCCESS=$(curl --insecure  https://kvdb.io/Raqjkvh5HXqERk6qUYqnmS/migration_<< parameters.id >>)
             # Logic for reverting the database state
             if (( $SUCCESS == 1 ));
             then
