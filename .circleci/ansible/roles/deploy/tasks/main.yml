@@ -3,13 +3,9 @@
     file:
       path: ~/backend
       state: directory
-  - name: Copy artifact to EC2
-    copy:
-      src: artifact.tar.gz
-      dest: ~/backend/artifact.tar.gz
   - name: Unarchive the backend artifact
     unarchive:
-      src: ~/backend/artifact.tar.gz
+      src: artifact.tar.gz
       dst: ~/backend/
   - name: Install packages based on packages.json and restart the pm2 service.
     shell: |
