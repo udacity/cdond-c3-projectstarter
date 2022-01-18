@@ -19,12 +19,9 @@
       state: present
   - name: "Install nodejs and npm"
     apt:
-      name: "{{ packages }} "
-      state: present
-    vars:
-      packages:
-      - nodejs
-      - npm
+      pkg:
+        - nodejs
+        - npm
   - name: Install pm2
     npm:
       name: pm2

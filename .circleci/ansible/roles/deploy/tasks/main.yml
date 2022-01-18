@@ -5,7 +5,7 @@
       state: directory
   - name: Copy artifact to EC2
     copy:
-      src: ~/project/backend/artifact.tar.gz
+      src: artifact.tar.gz
       dest: ~/backend/artifact.tar.gz
   - name: Unarchive the backend artifact
     unarchive:
