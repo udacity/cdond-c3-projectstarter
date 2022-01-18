@@ -265,7 +265,7 @@ jobs:
       - run:
           name: Copy the artifact to Ansible staging
           command: | 
-            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
+            cp -v artifact.tar.gz .circleci/ansible/roles/deploy/files/
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
