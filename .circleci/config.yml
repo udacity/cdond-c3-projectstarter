@@ -239,9 +239,14 @@ jobs:
       - store_artifacts:
           path: ~/project/backend/migrations_dump.txt
           destination: migration-results
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/migrations_dump.txt
       - run:
           name: Check migration results
           command: |
+            cat ~/project/.circleci/ansible/migrations_dump.txt
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
               echo "Successful migration."
@@ -371,10 +376,14 @@ jobs:
             if curl -s ${URL} | grep "Welcome"
             then
                 # Change this to 0 after the job fails
-              return 0
+              return 1
             else
               return 1
             fi
+      - destroy-environment:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
@@ -447,7 +456,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only: [master]
+              only: ["cicdpipelinesubmit"]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
@@ -458,6 +467,10 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
     
 
           
