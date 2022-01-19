@@ -38,32 +38,24 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-build]
-      - run:
-          name: Build front-end
-          command: |
-            # Your code here
-            exit 1
-      - save_cache:
-          paths: [frontend/node_modules]
-          key: frontend-build
+      - run: npm i --prefix frontend
+      - run: npm run lint --prefix frontend
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/frontend/node_modules
 
   build-backend:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build]
-      - run:
-          name: Back-end build
-          command: |
-             # Your code here
-             exit 1
-      - save_cache:
-          paths: [backend/node_modules]
-          key: backend-build
+      - run: npm i --prefix backend
+      - run: npm run lint --prefix backend
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/backend/node_modules
 
   test-frontend:
     docker:
