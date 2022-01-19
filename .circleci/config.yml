@@ -262,10 +262,12 @@ jobs:
             cd backend
             npm install
             npm run build
-            cd ..
+      - run:
+          name: Compress and move the files to Ansible for deployment
+          command: |
             tar -zcvf artifact.tar.gz backend/
-            sleep 5
-            mv "artifact.tar.gz" .circleci/ansible/roles/deploy/files/artifact.tar.gz
+            mkdir -p .circleci/ansible/roles/deploy/files/
+            mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
             ls .circleci/ansible/roles/deploy/files/
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
