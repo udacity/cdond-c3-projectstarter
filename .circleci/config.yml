@@ -255,16 +255,15 @@ jobs:
           command: |
             apk add ansible tar gzip aws-cli nodejs npm
       - run:
-          name: Build and compress the backend
+          name: Build the backend
           command: |
             cd backend
             npm install
             npm run build
             cd ..
             tar -zcvf artifact.tar.gz backend/
-      - run:
-          name: Copy the artifact to Ansible staging
-          command: | 
+            mv "artifact.tar.gz" .circleci/ansible/roles/deploy/files/artifact.tar.gz
+            ls /root/project/.circleci/ansible/roles/deploy/files/
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt

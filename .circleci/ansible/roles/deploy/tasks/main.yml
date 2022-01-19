@@ -3,10 +3,10 @@
     file:
       path: /home/ubuntu/backend/
       state: directory
-  - name: List the files at current directory
+  - name: Copy the files from 
     copy:
-      src: /root/project/backend/artifact.tar.gz
-      dest: /home/ubuntu/backend
+      src: artifact.tar.gz
+      dest: /home/ubuntu/backend/
   - name: Unarchive the backend artifact
     unarchive:
       src: /home/ubuntu/backend/artifact.tar.gz
