@@ -6,6 +6,7 @@
   },
   "rules": {
     "eofline": false,
+    "trailing-comma": false,
     "quotemark": [true, "single"],
     "prefer-conditional-expression": false,
     "indent": [true, "spaces", 2],
