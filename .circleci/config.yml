@@ -209,7 +209,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-            curl --insecure https://kvdb.io/BdGdV8spF2iAA2jK2X43Y6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
+              curl --insecure https://kvdb.io/BdGdV8spF2iAA2jK2X43Y6/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
       - destroy-environment:
          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}   
@@ -266,14 +266,12 @@ jobs:
           command: |
             apk add ansible tar gzip aws-cli nodejs npm
       - run:
-          name: Build the backend
+          name: Build the backend and prepare the artifact to Ansible staging area
           command: |
             cd backend
             npm install
             npm run build
-      - run:
-          name: Compress and move the files to Ansible for deployment
-          command: |
+            cd ..
             tar -zcvf artifact.tar.gz backend/
             mkdir -p .circleci/ansible/roles/deploy/files/
             mv artifact.tar.gz .circleci/ansible/roles/deploy/files/
