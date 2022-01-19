@@ -12,6 +12,8 @@ commands:
           command: |
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+            aws s3 rm s3://udapeople-be5ed75 --recursive
+
 
   # revert-migrations:
   #   description: Revert the last migration if successfully run in the current workflow.
@@ -262,8 +264,9 @@ jobs:
             npm run build
             cd ..
             tar -zcvf artifact.tar.gz backend/
+            sleep 5
             mv "artifact.tar.gz" .circleci/ansible/roles/deploy/files/artifact.tar.gz
-            ls /root/project/.circleci/ansible/roles/deploy/files/
+            ls .circleci/ansible/roles/deploy/files/
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
