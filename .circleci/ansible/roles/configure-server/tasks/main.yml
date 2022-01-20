@@ -8,11 +8,6 @@
     become: true
     apt:
       upgrade: yes
-  - name: "install python for Ansible."
-    become: true
-    apt:
-      name: python3
-      state: present
   - name: Configuring the timezone for nodejs
     shell: |
       ln -fs /usr/share/zoneinfo/Asia/Singapore /etc/localtime
@@ -33,4 +28,3 @@
       name: pm2
       global: yes
       production: yes
-      state: latest

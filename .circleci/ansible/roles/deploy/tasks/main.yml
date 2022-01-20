@@ -6,12 +6,13 @@
   - name: Unarchive the backend artifact
     unarchive:
       src: artifact.tar.gz
-      dest: /home/ubuntu/
+      dest: /home/ubuntu/backend
   - name: Install packages based on packages.json and restart the pm2 service.
     become: true
     shell: |
       cd /home/ubuntu/backend
       npm install
-      cd dist
       pm2 stop default
       pm2 start npm -- start
+      cd dist/
+      pm2 start main.js
