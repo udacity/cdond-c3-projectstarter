@@ -97,11 +97,11 @@ jobs:
     steps:
       - checkout
       - run:
-        name: Audit front end
-        command: |
-          cd frontend
-          npm install
-          npm audit --audit-level=critical
+          name: Audit front end
+          command: |
+            cd frontend
+            npm install
+            npm audit --audit-level=critical
 
 workflows:
   default:
