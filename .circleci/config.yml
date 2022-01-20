@@ -38,8 +38,12 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run: npm i --prefix frontend
-      - run: npm run lint --prefix frontend
+      - run: 
+          name: Build front-end
+          command: |
+            cd frontend
+            npm install
+            npm run build
       - persist_to_workspace:
           root: ~/
           paths:
