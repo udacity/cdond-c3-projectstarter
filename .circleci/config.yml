@@ -70,8 +70,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-build]
       - run:
           name: Front-end test build
           command: |
