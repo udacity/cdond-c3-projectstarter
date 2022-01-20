@@ -1,12 +1,15 @@
 ---
   - name: Only run "update_cache=yes" if the last one is more than 3600 seconds ago
+    become: true
     apt:
       update_cache: yes
       cache_valid_time: 3600
   - name: Upgrade Packages
+    become: true
     apt:
       upgrade: yes
   - name: "install python for Ansible."
+    become: true
     apt:
       name: python3
       state: present
@@ -14,16 +17,20 @@
     shell: |
       ln -fs /usr/share/zoneinfo/Asia/Singapore /etc/localtime
   - name: Install tzdata
+    become: true
     apt:
       name: tzdata
       state: present
   - name: "Install nodejs and npm"
+    become: true
     apt:
       pkg:
         - nodejs
         - npm
   - name: Install pm2
+    become: true
     npm:
       name: pm2
       global: yes
       production: yes
+      state: latest

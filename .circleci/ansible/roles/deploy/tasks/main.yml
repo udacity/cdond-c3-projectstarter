@@ -8,8 +8,10 @@
       src: artifact.tar.gz
       dest: /home/ubuntu/
   - name: Install packages based on packages.json and restart the pm2 service.
+    become: true
     shell: |
       cd /home/ubuntu/backend
       npm install
+      cd dist
       pm2 stop default
       pm2 start npm -- start
