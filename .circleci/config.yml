@@ -146,7 +146,7 @@ jobs:
           name: Install tar utility
           command: |
             yum install -y tar gzip
-            
+
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -179,24 +179,27 @@ jobs:
       
       - destroy-environment     
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["ae:34:29:c7:26:6d:6e:9d:8c:f4:cd:59:d1:6e:4f:7b"] 
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible \
+            && apk add awscli gzip tar
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i .circleci/ansible/inventory.txt \
+            .circleci/ansible/configure-server.yml
+             
+      - destroy-environment 
 
 #   run-migrations:
 #     docker:
