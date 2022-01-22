@@ -99,4 +99,4 @@ workflows:
       - test-backend:
           requires: [ build-backend ]
       - scan-backend:
-          requires: [ build-backend ]
+          requires: [ test-backend ]
