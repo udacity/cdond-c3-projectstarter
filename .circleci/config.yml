@@ -431,15 +431,15 @@ jobs:
             echo OldWorkflowID: ${OldWorkflowID}
             echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID}"
             echo Stack names: "${STACKS[@]}"
-            if [[ "${OldWorkflowID}" != "${CIRCLE_WORKFLOW_ID}" ]] 
+            if [[ "${OldWorkflowID}" =~ "${CIRCLE_WORKFLOW_ID}" ]] 
             then
               # Delete files from bucket
-              echo "s3://udapeople-${OldWorkflowID}"
-              aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+              # echo "s3://udapeople-${OldWorkflowID}"
+              # aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               # Delete frontend stack
-              aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
+              # aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
               # Delete Backend Stack
-              aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
+              # aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
             fi
 
 workflows:
