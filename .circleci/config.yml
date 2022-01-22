@@ -13,6 +13,30 @@ jobs:
             npm install
             npm run build
 
+  test-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Test front-end
+          command: |
+            cd frontend
+            npm install
+            npm run test
+
+  test-backend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Test back-end
+          command: |
+            cd backend
+            npm install
+            npm run test
+
   build-backend:
     docker:
       - image: circleci/node:13.8.0
@@ -29,4 +53,8 @@ workflows:
   default:
     jobs:
       - build-frontend
+      - test-frontend:
+          requires: [ build-frontend ]
       - build-backend
+      - test-backend:
+          requires: [ build-backend ]
