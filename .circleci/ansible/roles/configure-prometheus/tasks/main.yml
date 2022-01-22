@@ -1,0 +1,171 @@
+---
+  - name: Creating directories and user account for prometheus
+    become: true
+    shell: |
+      useradd --no-create-home --shell /bin/false prometheus
+      useradd --no-create-home --shell /bin/false node_exporter
+      mkdir /etc/prometheus
+      mkdir /var/lib/prometheus
+      mkdir /var/lib/alertmanager
+  - name: Change the directory permission of /etc/prometheus
+    file:
+      path: /etc/prometheus
+      state: directory
+      recurse: yes
+      owner: prometheus
+      group: prometheus
+  - name: Copy the rules config file to /etc/prometheus
+    copy:
+      src: rules.yml
+      dest: /etc/prometheus/
+      owner: prometheus
+      group: prometheus
+  - name: Change the directory permission of /var/lib/prometheus
+    file:
+      path: /var/lib/prometheus
+      state: directory
+      recurse: yes
+      owner: prometheus
+      group: prometheus
+  - name: Move config Prometheus YAML file to /etc/prometheus
+    become: true
+    copy:
+      src: prometheus.yml
+      dest: /etc/prometheus
+      owner: prometheus
+      group: prometheus
+  - name: Copy the Prometheus service file to systemd
+    become: true
+    copy:
+      src: prometheus.service
+      dest: /etc/systemd/system/
+      mode: 644
+      owner: root
+      group: root
+  - name: Download the Prometheus binary
+    get_url:
+      url: https://github.com/prometheus/prometheus/releases/download/v2.32.1/prometheus-2.32.1.linux-amd64.tar.gz
+      dest: /tmp/prometheus-2.32.1.linux-amd64.tar.gz
+  - name: Unarchive the prometheus binary
+    unarchive:
+      src: /tmp/prometheus-2.32.1.linux-amd64.tar.gz
+      dest: /tmp
+      remote_src: yes
+  - name: "move binary to /usr/local/bin."
+    become: true
+    copy:
+      src: /tmp/prometheus-2.32.1.linux-amd64/prometheus
+      dest: /usr/local/bin
+      mode: 744
+      owner: prometheus
+      group: prometheus
+      remote_src: yes
+  - name: "move binary to /usr/local/bin."
+    become: true
+    copy:
+      src: /tmp/prometheus-2.32.1.linux-amd64/promtool
+      dest: /usr/local/bin
+      mode: 744
+      owner: prometheus
+      group: prometheus
+      remote_src: yes
+  - name: "move libraries to /etc/prometheus"
+    become: true
+    copy:
+      src: /tmp/prometheus-2.32.1.linux-amd64/consoles
+      dest: /etc/prometheus/
+      owner: prometheus
+      group: prometheus
+      remote_src: yes
+  - name: "move libraries to /etc/prometheus"
+    become: true
+    copy:
+      src: /tmp/prometheus-2.32.1.linux-amd64/console_libraries
+      dest: /etc/prometheus/
+      owner: prometheus
+      group: prometheus
+      remote_src: yes
+  - name: Enable the services of Prometheus
+    become: true
+    shell: |
+      chown -R prometheus:prometheus /var/lib/prometheus
+      systemctl daemon-reload
+      systemctl start prometheus
+      systemctl enable prometheus
+  - name: Download node_exporter module for Prometheus
+    get_url:
+      url: https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
+      dest: /tmp/node_exporter-1.3.1.linux-amd64.tar.gz
+  - name: Unarchive the node_exporter binary
+    unarchive:
+      src: /tmp/node_exporter-1.3.1.linux-amd64.tar.gz
+      dest: /tmp
+      remote_src: yes
+  - name: "move binary to /usr/local/bin."
+    become: true
+    copy:
+      src: /tmp/node_exporter-1.3.1.linux-amd64/node_exporter
+      dest: /usr/local/bin
+      mode: 744
+      owner: node_exporter
+      group: node_exporter
+      remote_src: yes
+  - name: Copy the node-exporter service file to systemd
+    become: true
+    copy:
+      src: node-exporter.service
+      dest: /etc/systemd/system/
+      mode: 644
+      owner: root
+      group: root
+  - name: Enable the services of Prometheus
+    become: true
+    shell: |
+      systemctl daemon-reload
+      systemctl start node-exporter
+      systemctl enable node-exporter
+  - name: Download the alertmanager module
+    get_url:
+      url: https://github.com/prometheus/alertmanager/releases/download/v0.23.0/alertmanager-0.23.0.linux-amd64.tar.gz
+      dest: /tmp/alertmanager-0.23.0.linux-amd64.tar.gz
+  - name: Unarchive the alertmanager binary
+    unarchive:
+      src: /tmp/alertmanager-0.23.0.linux-amd64.tar.gz
+      dest: /tmp
+      remote_src: yes
+  - name: Copy the alertmanager service file to /etc/systemd/system
+    copy:
+      src: alertmanager.service
+      dest: /etc/systemd/system
+      mode: 644
+      owner: root
+      group: root
+  - name: Copy the alertmanager config file to /etc/prometheus
+    copy:
+      src: alertmanager.yml
+      dest: /etc/prometheus/
+      owner: prometheus
+      group: prometheus
+  - name: Copy the alert manager binary to /usr/local/bin
+    copy:
+      src: /tmp/alertmanager-0.23.0.linux-amd64/alertmanager
+      dest: /usr/local/bin
+      owner: prometheus
+      group: prometheus
+      mode: 744
+      remote_src: yes
+  - name: Copy the amtool binary to /usr/local/bin
+    copy:
+      src: /tmp/alertmanager-0.23.0.linux-amd64/amtool
+      dest: /usr/local/bin
+      owner: prometheus
+      group: prometheus
+      mode: 744
+      remote_src: yes 
+  - name: Enable the services of alertmanager
+    become: true
+    shell: |
+      systemctl daemon-reload
+      systemctl start alertmanager
+      systemctl enable alertmanager
+      systemctl restart prometheus

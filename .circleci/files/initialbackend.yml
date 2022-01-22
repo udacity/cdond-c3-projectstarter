@@ -1,0 +1,39 @@
+Description: >
+  UdaPeople Initial Server stack.
+
+Parameters:
+  WorkflowID:
+    Description: Unique identifier.
+    Type: String
+
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub UdaPeople-${WorkflowID}
+      GroupDescription: Allow port 22 and port 3030.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 3030
+          ToPort: 3030
+          CidrIp: 0.0.0.0/0
+
+  InitialBackendInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      KeyName: udacity
+      ImageId: ami-04505e74c0741db8d 
+      Tags:
+        - Key: Name
+          Value: IntialBackend
+  
+Outputs:
+  WorkflowID:
+    Value: !Sub ${WorkflowID}

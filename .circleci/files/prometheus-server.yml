@@ -1,0 +1,49 @@
+Description: >
+  UdaPeople Prometheus Server stack.
+
+Resources:
+  InstanceSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: prometheus-server
+      GroupDescription: Allow port 22 and port 9090 and port 9093 and port 9100.
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9090
+          ToPort: 9090
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9093
+          ToPort: 9093
+          CidrIp: 0.0.0.0/0
+        - IpProtocol: tcp
+          FromPort: 9100
+          ToPort: 9100
+          CidrIp: 0.0.0.0/0
+
+  PrometheusInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      KeyName: udacity
+      ImageId: ami-04505e74c0741db8d 
+      Tags:
+        - Key: Name
+          Value: prometheus-server
+  NodeExporterInstance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: t2.micro
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
+      KeyName: udacity
+      ImageId: ami-04505e74c0741db8d 
+      Tags:
+        - Key: Name
+          Value: nodeexporter-server
