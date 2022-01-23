@@ -132,7 +132,7 @@ jobs:
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
-              aws ec2 describe-instances --profile udacity2 \
+              aws ec2 describe-instances \
                 --query 'Reservations[*].Instances[*].PublicIpAddress' \
                 --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                 --output text >> .circleci/ansible/inventory.txt
