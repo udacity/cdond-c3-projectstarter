@@ -21,7 +21,7 @@ commands:
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    parameters:
+    # parameters:
       # Add parameter here     
     steps:
       - run:
@@ -220,7 +220,7 @@ jobs:
             then
               curl https://kvdb.io/4KKiyJ87an42ieC4h6i14s/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-     - revert-migrations     
+      - revert-migrations     
 
 #   deploy-frontend:
 #     docker:
