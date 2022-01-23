@@ -193,14 +193,15 @@ jobs:
           command: |
             apk update && \
             apk add --update ansible \
-            && apk add gzip tar && \
-            apk add --update awscli 
+            && apk add gzip tar
+      - run:
+          name: Install aws cli
+          command: python -m pip install awscli
       - run:
           name: Configure server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt \
-            .circleci/ansible/configure-server.yml
-             
+            .circleci/ansible/configure-server.yml 
       - destroy-environment 
 
 #   run-migrations:
