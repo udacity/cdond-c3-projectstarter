@@ -1,5 +1,18 @@
 version: 2.1
 
+commands:
+  destroy_environment:
+    parameters:
+      env:
+        default: "backend"
+        type: string
+    steps:
+      - run:
+          name: Destroy environment
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name "udapeople-${<<parameters.env>>}-${CIRCLE_WORKFLOW_ID:0:7}"
+
 jobs:
   build-frontend:
     docker:
@@ -90,6 +103,40 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
 
+  deploy-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run: yum install -y tar gzip
+      - run:
+          name: Ensure backend infrastructure exist
+          command: |
+              aws cloudformation deploy \
+                --template-file .circleci/files/backend.yml \
+                --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+                --tags udacity-project=udapeople
+      - destroy_environment:
+          env: "backend"
+      - run:
+          name: Ensure frontend infrastructure exist
+          command: |
+              aws cloudformation deploy \
+                --template-file .circleci/files/frontend.yml \
+                --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
+                --tags udacity-project=udapeople
+      - destroy_environment:
+          env: "frontend"
+      - run:
+          name: Add the EC2 instance IP to the Ansible inventory
+          command: |
+              aws ec2 describe-instances --profile udacity2 \
+                --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --output text >> .circleci/ansible/inventory.txt
+
 workflows:
   default:
     jobs:
@@ -103,3 +150,5 @@ workflows:
           requires: [ build-backend ]
       - scan-backend:
           requires: [ test-backend ]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
