@@ -193,7 +193,8 @@ jobs:
           command: |
             apk update && \
             apk add --update ansible \
-            && apk add --update awscli gzip tar
+            && apk add gzip tar && \
+            apk add --update awscli 
       - run:
           name: Configure server
           command: |
