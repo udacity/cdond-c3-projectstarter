@@ -138,8 +138,8 @@ jobs:
                 --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
-          paths: 
-            - ./.circleci/ansible/inventory.txt
+          paths:
+            - project/.circleci/ansible/inventory.txt
 
 workflows:
   default:
