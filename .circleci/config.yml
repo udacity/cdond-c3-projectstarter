@@ -204,7 +204,7 @@ jobs:
     docker:
       - image: python:3.7-alpine3.11
     steps:
-        - checkout  
+        - checkout
         - add_ssh_keys:
             fingerprints: ["cf:dd:21:72:b3:b5:53:66:16:32:e3:b7:01:7c:6b:6f"] 
         - run:
@@ -224,22 +224,26 @@ jobs:
         - destroy-environment
       # Here's where you will add some code to rollback on failure     
 
-#   run-migrations:
-#     docker:
-#       # Docker image here that supports NodeJS
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Run migrations
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Send migration results to memstash
-#           command: |
-#             # Your code here
-#             exit 1
-#      # Here's where you will add some code to rollback on failure      
+  run-migrations:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm install
+            # Run and save the migration output
+            npm run migrations > migrations_dump.txt
+      - run:
+          name: Send migration results to kvdb
+          command: |
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+                curl https://kvdb.io/NbCZ5z6MMV8DwnYS5gpUcE/migration_pws32xt49dt2  -d '1'
+            fi
+     # Here's where you will add some code to rollback on failure      
 
 #   deploy-frontend:
 #     docker:
