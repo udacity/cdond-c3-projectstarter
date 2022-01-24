@@ -221,8 +221,7 @@ jobs:
               # Your code here
               cd ~/project/.circleci/ansible/
               ansible-playbook -i inventory.txt configure-server.yml
-        - destroy-environment
-      # Here's where you will add some code to rollback on failure     
+        - destroy-environment    
 
   run-migrations:
     docker:
@@ -243,7 +242,7 @@ jobs:
             then
                 curl https://kvdb.io/NbCZ5z6MMV8DwnYS5gpUcE/migration_pws32xt49dt2  -d '1'
             fi
-     # Here's where you will add some code to rollback on failure      
+      - destroy-environment
 
 #   deploy-frontend:
 #     docker:
@@ -361,8 +360,8 @@ workflows:
               # only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
