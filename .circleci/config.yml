@@ -254,7 +254,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -262,12 +262,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar
-            yum install -y gzip
-            yum install -y python 
-            yum install -y ansible 
-            yum install -y nodejs 
-            yum install -y npm
+            sudo apt update -y
+            sudo apt install -y python
+            sudo apt install -y python-pip
+            # sudo apt install -y ansible
+            pip install awscli
       - attach_workspace:
             at: ~/
       - run:
@@ -282,7 +281,7 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-"pws32xt49dt2".tar.gz dist
+            tar -czvf artifact-pws32xt49dt2.tar.gz dist
             aws s3 cp dist s3://udapeople-pws32xt49dt2 --recursive
       - destroy-environment
                     
