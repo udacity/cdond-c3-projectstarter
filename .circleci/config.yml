@@ -193,24 +193,26 @@ jobs:
       - destroy-environment
       # Here's where you will add some code to rollback on failure      
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+        - checkout  
+        - attach_workspace:
+            at: ~/
+        - add_ssh_keys:
+            fingerprints: ["cf:dd:21:72:b3:b5:53:66:16:32:e3:b7:01:7c:6b:6f"] 
+        - run:
+            name: Install Ansible
+            command: |
+              yum install -y tar gzip ansible
+       
+        - run:
+            name: Configure server
+            command: |
+              # Your code here
+              ansible-playbook -i project/.circleci/ansible/inventory.txt project/.circleci/ansible/configure-server.yml
+      # Here's where you will add some code to rollback on failure     
 
 #   run-migrations:
 #     docker:
