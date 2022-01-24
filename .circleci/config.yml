@@ -140,6 +140,21 @@ jobs:
             npm audit --audit-level=critical
       - slack/notify:
           event: fail
+          custom: |
+                  {
+                    "blocks": [
+                      {
+                        "type": "section",
+                        "fields": [
+                          {
+                            "type": "plain_text",
+                            "text": "Backend Security audit failed",
+                            "emoji": true
+                          }
+                        ]
+                      }
+                    ]
+                  }
 
 #   deploy-infrastructure:
 #     docker:
