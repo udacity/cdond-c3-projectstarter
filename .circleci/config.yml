@@ -1,6 +1,6 @@
 version: 2.1
 
-# replace pws32xt49dt with ${CIRCLE_WORKFLOW_ID:0:7} 
+# replace pws32xt49dt2 with ${CIRCLE_WORKFLOW_ID:0:7} 
 
 orbs: 
   # https://app.slack.com/client/T02VB06R882/C0309KFK4SD
@@ -18,10 +18,10 @@ commands:
           command: |
             exit 0
             # aws cloudformation delete-stack \
-            #   --stack-name "udapeople-backend-pws32xt49dt"
+            #   --stack-name "udapeople-backend-pws32xt49dt2"
 
             # aws cloudformation delete-stack \
-            #   --stack-name "udapeople-frontend-pws32xt49dt"
+            #   --stack-name "udapeople-frontend-pws32xt49dt2"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -53,6 +53,7 @@ jobs:
       - run:
           name: Build front-end
           command: |
+            exit 0
             cd frontend
             npm install
             npm run build
@@ -70,7 +71,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            # Your code here
+            exit 0
             cd backend
             npm install
             npm run build
@@ -175,16 +176,16 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --stack-name "udapeople-backend-pws32xt49dt" \
-              --parameter-overrides ID="pws32xt49dt"  \
+              --stack-name "udapeople-backend-pws32xt49dt2" \
+              --parameter-overrides ID="pws32xt49dt2"  \
               --tags project=udapeople
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-pws32xt49dt" \
-              --parameter-overrides ID="pws32xt49dt"  \
+              --stack-name "udapeople-frontend-pws32xt49dt2" \
+              --parameter-overrides ID="pws32xt49dt2"  \
               --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
