@@ -7,6 +7,8 @@ orbs:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    docker:
+      - image: amazon/aws-cli
     # parameters:
       # Add parameter here   
     steps:
@@ -188,7 +190,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query "Reservations[*].Instances[*].PublicIpAddress" \
-              --output text >> ~/inventory.txt
+              --output text >> ~/project/.circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
