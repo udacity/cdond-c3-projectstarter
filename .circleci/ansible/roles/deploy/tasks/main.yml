@@ -8,8 +8,8 @@
 - name: "install npm dep"
   command: "npm install"
 
-- name: "stop default pm2 process"
-  command: "pm2 stop default"
+- name: "stop all pm2 process"
+  command: "pm2 stop all"
 
 - name: "start pm2"
-  command: "pm2 start npm -- start"
+  command: "pm2 start dist/main.js"
