@@ -276,7 +276,7 @@ jobs:
           command: |
             apk update && \
             apk add --update ansible \
-            && apk add gzip tar nodejs npm
+            && apk add gzip tar nodejs npm curl
       - run:
           name: Install aws cli
           command: python -m pip install awscli
