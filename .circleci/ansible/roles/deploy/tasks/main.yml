@@ -1,0 +1,15 @@
+
+
+- name: Extract artifact into remote instance
+  ansible.builtin.unarchive:
+    src: artifact.tar.gz
+    dest: .
+
+- name: "install npm dep"
+  command: "npm install"
+
+- name: "stop default pm2 process"
+  command: "pm2 stop default"
+
+- name: "start pm2"
+  command: "pm2 start npm -- start"
