@@ -106,7 +106,7 @@ jobs:
       - restore_cache:
           keys: [frontend-build]
       - run:
-          name: Run frontend test
+          name: Scan frontend dependencies
           command: |
             # Your code here
             cd backend
@@ -122,7 +122,7 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
-          name: Run backend test
+          name: Scan backend dependencies
           command: |
             # Your code here
             cd backend
