@@ -1,5 +1,7 @@
 version: 2.1
 
+# replace pws32xt49dt with ${CIRCLE_WORKFLOW_ID:0:7} 
+
 orbs: 
   # https://app.slack.com/client/T02VB06R882/C0309KFK4SD
   slack: circleci/slack@4.6.1
@@ -14,11 +16,12 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+            exit 0
+            # aws cloudformation delete-stack \
+            #   --stack-name "udapeople-backend-pws32xt49dt"
 
-            aws cloudformation delete-stack \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            # aws cloudformation delete-stack \
+            #   --stack-name "udapeople-frontend-pws32xt49dt"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -172,16 +175,16 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --stack-name "udapeople-backend-pws32xt49dt" \
+              --parameter-overrides ID="pws32xt49dt"  \
               --tags project=udapeople
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --stack-name "udapeople-frontend-pws32xt49dt" \
+              --parameter-overrides ID="pws32xt49dt"  \
               --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
