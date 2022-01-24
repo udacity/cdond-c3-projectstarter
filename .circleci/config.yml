@@ -71,7 +71,7 @@ jobs:
       - run:
           name: Back-end build
           command: |
-            exit 0
+            # exit 0
             cd backend
             npm install
             npm run build
@@ -190,9 +190,15 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            aws ec2 describe-instances \
+            export BACKEND_IP=$(aws ec2 describe-instances \
               --query "Reservations[*].Instances[*].PublicIpAddress" \
-              --output text >> ~/project/.circleci/ansible/inventory.txt
+              --output text)
+             echo $BACKEND_IP >> ~/project/.circleci/ansible/inventory.txt
+            
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
       - persist_to_workspace:
           root: ~/
           paths:
@@ -246,26 +252,39 @@ jobs:
             fi
       - destroy-environment
 
-#   deploy-frontend:
-#     docker:
-#       # Docker image here that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#             export API_URL="http://${BACKEND_IP}:3030"
-#             echo "${API_URL}"
-#       - run:
-#           name: Deploy frontend objects
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure      
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Install dependencies
+          command: |
+            yum install -y tar
+            yum install -y gzip
+            yum install -y python 
+            yum install -y ansible 
+            yum install -y nodejs 
+            yum install -y npm
+      - attach_workspace:
+            at: ~/
+      - run:
+          name: Get backend url
+          command: |
+            source frontend/.env
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"pws32xt49dt2".tar.gz dist
+            aws s3 cp dist s3://udapeople-pws32xt49dt2 --recursive
+      - destroy-environment
                     
 #   deploy-backend:
 #     docker:
@@ -364,8 +383,8 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
+      - deploy-frontend:
+          requires: [run-migrations]
       # - deploy-backend:
       #     requires: [run-migrations]
       # - smoke-test:
