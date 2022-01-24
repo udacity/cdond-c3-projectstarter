@@ -28,7 +28,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl https://kvdb.io/4KKiyJ87an42ieC4h6i14s/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            SUCCESS=$(curl -k https://kvdb.io/4KKiyJ87an42ieC4h6i14s/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -218,7 +218,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/4KKiyJ87an42ieC4h6i14s/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl -k https://kvdb.io/4KKiyJ87an42ieC4h6i14s/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - revert-migrations     
 
