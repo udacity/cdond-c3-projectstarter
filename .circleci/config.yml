@@ -14,8 +14,11 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            # Your code here
-            exit 0
+            aws cloudformation delete-stack \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+
+            aws cloudformation delete-stack \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -195,7 +198,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3.7-alpine3.11
     steps:
         - checkout  
         - add_ssh_keys:
@@ -203,7 +206,10 @@ jobs:
         - run:
             name: Install Ansible
             command: |
-              yum install -y tar gzip ansible
+              apk add --update ansible
+              apk add --update tar
+              apk add --update gzip
+
         - attach_workspace:
             at: ~/
         - run:
@@ -211,6 +217,7 @@ jobs:
             command: |
               # Your code here
               ansible-playbook -i project/.circleci/ansible/inventory.txt project/.circleci/ansible/configure-server.yml
+        - destroy-environment
       # Here's where you will add some code to rollback on failure     
 
 #   run-migrations:
