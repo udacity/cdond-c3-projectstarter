@@ -273,7 +273,7 @@ jobs:
           name: Get backend url
           command: |
             source ~/project/frontend/.env
-            export API_URL="http://${BACKEND_IP}:3030"
+            export API_URL="${API_URL}"
             echo "${API_URL}"
       - run:
           name: Deploy frontend objects
@@ -309,7 +309,7 @@ jobs:
             npm run build
             cd ..
             # Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
+            tar -C backend -czvf ~/project/artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt

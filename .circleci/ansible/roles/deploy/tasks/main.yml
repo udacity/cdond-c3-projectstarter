@@ -8,7 +8,7 @@
   shell: |
     tar -xvf artifact.tar.gz
 
-- name: "upgrade packages."
+- name: "Start backend"
   become: true
   shell: |
     cd /var/www/backend
