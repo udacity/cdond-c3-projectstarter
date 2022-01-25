@@ -197,12 +197,13 @@ jobs:
             
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            echo API_URL="http://${BACKEND_IP}:3030" >> ~/project/frontend/.env
             cat frontend/.env
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+            - project/frontend/.env
       - destroy-environment
       # Here's where you will add some code to rollback on failure      
 
