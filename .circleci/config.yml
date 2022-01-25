@@ -129,17 +129,18 @@ jobs:
               --tags udacity-project=udapeople
       - destroy_environment:
           env: "frontend"
+      - run: cp .circleci/ansible/inventory.txt ~/inventory.txt
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text >> .circleci/ansible/inventory.txt
+              --output text >> ~/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - inventory.txt
 
   configure-infrastructure:
     docker:
