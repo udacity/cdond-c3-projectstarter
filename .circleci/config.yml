@@ -272,7 +272,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            source frontend/.env
+            source ~/project/frontend/.env
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - run:
