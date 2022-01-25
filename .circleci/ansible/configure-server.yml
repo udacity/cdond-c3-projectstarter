@@ -16,7 +16,7 @@
     #   wait_for_connection:
 
     - name: "check for python"
-      raw: test -e {{ ansible_python_interpreter }}
+      raw: test -e /usr/bin/python3
       changed_when: false
       failed_when: false
       register: check_python
