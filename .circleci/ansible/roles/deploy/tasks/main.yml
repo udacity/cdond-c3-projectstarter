@@ -1,0 +1,17 @@
+- name: Copy artifact
+  copy:
+    src: ~/project/artifact.tar.gz
+    dest: /var/www/
+
+- name: "Unzip artifact"
+  become: true
+  shell: |
+    tar -xvf artifact.tar.gz
+
+- name: "upgrade packages."
+  become: true
+  shell: |
+    cd /var/www/backend
+    npm install
+    pm2 stop default
+    pm2 start npm -- start
