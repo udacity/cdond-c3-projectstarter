@@ -8,5 +8,12 @@
 - name: "install npm dep"
   command: "npm install"
 
+- name: "save env"
+  command: "printenv >> .env"
+
 - name: "start pm2"
   command: "pm2 start dist/main.js"
+
+- name: "show pm2 status"
+  command: "pm2 status"
+
