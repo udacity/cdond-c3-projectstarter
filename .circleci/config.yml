@@ -150,7 +150,6 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - run: yum install -y tar gzip
       - add_ssh_keys:
           # Fingerprint of additional ssh key added in circleci so that ansible can authenticate with the remote host
           fingerprints: ["86:d4:03:4e:86:b1:24:05:2f:2c:f4:9a:3a:b6:54:1c"]
