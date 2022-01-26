@@ -185,9 +185,9 @@ jobs:
   list-persisted-workspace:
     docker:
       - image: python:3.7-alpine3.11
-      - image: amazon/aws-cli
     steps:
       - checkout
+      - run: microdnf install yum
       - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/
