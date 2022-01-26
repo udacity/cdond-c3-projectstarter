@@ -140,6 +140,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - run: echo "$(<~/inventory.txt )"
 
   configure-infrastructure:
     docker:
