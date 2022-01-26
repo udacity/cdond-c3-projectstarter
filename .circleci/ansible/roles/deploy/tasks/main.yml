@@ -6,14 +6,17 @@
     dest: .
 
 - name: "install npm dep"
-  command: "npm install"
+  ansible.builtin.shell: npm install
 
 - name: "save env"
-  command: "printenv >> .env"
+  ansible.builtin.shell: "echo $TYPEORM_CONNECTION"
 
 - name: "start pm2"
-  command: "pm2 start dist/main.js"
+  ansible.builtin.shell: "pm2 start dist/main.js"
 
 - name: "show pm2 status"
-  command: "pm2 status"
+  ansible.builtin.shell: "pm2 status"
+
+- name: "try printing env"
+  ansible.builtin.shell: "printenv >> .env"
 
