@@ -177,7 +177,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - run: ls project/.circleci/ansible
+      - run: echo "$(<~/project/.circleci/ansible/inventory.txt)"
 
 workflows:
   default:
