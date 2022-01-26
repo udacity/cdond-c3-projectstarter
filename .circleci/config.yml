@@ -155,6 +155,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible #install the dependencies needed for your playbook
+      - run: echo "$(<~/project/.circleci/ansible/inventory.txt)"
       - run:
           name: Configure server
           command: |
@@ -182,18 +183,18 @@ jobs:
 workflows:
   default:
     jobs:
-      - test-persist-inventory
-      # - build-frontend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - scan-frontend:
-      #     requires: [test-frontend]
-      # - build-backend
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [test-backend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      # - test-persist-inventory
+      - build-frontend
+      - test-frontend:
+          requires: [build-frontend]
+      - scan-frontend:
+          requires: [test-frontend]
+      - build-backend
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [test-backend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
