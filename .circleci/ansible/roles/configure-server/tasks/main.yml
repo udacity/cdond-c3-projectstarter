@@ -13,13 +13,31 @@
   apt:
     autoremove: yes
 
-
-- name: "install packages"
-  become: yes
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
+- name: Install nodejs
+  hosts: all
+  become: true
+  tasks:
+    - name: install nodejs prerequisites
+      apt:
+        name:
+          - apt-transport-https
+          - gcc
+          - g++
+          - make
+        state: present
+    - name: add nodejs apt key
+      apt_key:
+        url: https://deb.nodesource.com/gpgkey/nodesource.gpg.key
+        state: present
+    - name: add nodejs repository
+      apt_repository:
+        repo: deb https://deb.nodesource.com/node_12.x {{ ansible_lsb.codename }} main
+        state: present
+        update_cache: yes
+    - name: install nodejs
+      apt:
+        name: nodejs
+        state: present
 
 - name: "install pm2"
   become: yes
