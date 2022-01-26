@@ -29,7 +29,7 @@
 
 - name: add nodejs repository
   apt_repository:
-    repo: deb https://deb.nodesource.com/node_12.x {{ ansible_lsb.codename }} main
+    repo: deb https://deb.nodesource.com/node_12.x focal main
     state: present
     update_cache: yes
 
