@@ -174,10 +174,10 @@ jobs:
               --filters "Name=tag:Name,Values=backend-bbfc167" \
               --output text >> .circleci/ansible/inventory.txt
       - persist_to_workspace:
-          root: ~/
+          root: ~/inventory.txt
           paths:
-            - .circleci/ansible/inventory.txt
-      - run: echo "$(<.circleci/ansible/inventory.txt )"
+            - project/.circleci/ansible/inventory.txt
+      - run: echo "$(<~/inventory.txt )"
 
 workflows:
   default:
