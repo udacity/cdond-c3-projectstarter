@@ -169,8 +169,8 @@ jobs:
     steps:
       - checkout
       - run: yum install -y tar gzip
-      - run: touch ~/inventory.txt
-      - run: echo "[web]" >> ~/inventory.txt
+      - run: touch ansible/inventory.txt
+      - run: echo "[web]" >> ansible/inventory.txt
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
