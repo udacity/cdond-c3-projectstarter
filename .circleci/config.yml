@@ -210,5 +210,5 @@ workflows:
           requires: [test-backend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure-infrastructure:
+      - list-persisted-workspace:
           requires: [deploy-infrastructure]
