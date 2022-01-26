@@ -169,20 +169,19 @@ jobs:
     steps:
       - checkout
       - run: yum install -y tar gzip
-      - run: touch ansible/inventory.txt
-      - run: echo "[web]" >> ansible/inventory.txt
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
+            echo -e "[web]\n" > inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-bbfc167" \
-              --output text >> ansible/inventory.txt
+              --output text >> inventory.txt
+            cat inventory.txt
       - persist_to_workspace:
-          root: ansible
+          root: .
           paths:
-            - inventory.txt
-      - run: echo "$(<ansible/inventory.txt)"
+            - .circleci/ansible/inventory.txt
 
   list-persisted-workspace:
     docker:
@@ -190,8 +189,13 @@ jobs:
     steps:
       - checkout
       - attach_workspace:
-          at: /tmp/ansible
-      - run: echo "$(</tmp/ansible/inventory.txt)"
+          at: .
+      - run:
+          name: Read inventory file
+          working_directory: ./.circleci/ansible
+          command: |
+            pwd &&
+            cat inventory.txt
 
 workflows:
   default:
