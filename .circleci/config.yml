@@ -111,40 +111,43 @@ jobs:
       - run: yum install -y tar gzip
       - run:
           name: Ensure backend infrastructure exist
+          working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
+              --template-file backend.yml \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags udacity-project=udapeople
+              --tags udacity-project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
       - destroy_environment:
           env: "backend"
       - run:
           name: Ensure frontend infrastructure exist
+          working_directory: ./.circleci/files
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
+              --template-file frontend.yml \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
-              --tags udacity-project=udapeople
+              --tags udacity-project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
       - destroy_environment:
           env: "frontend"
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
+            echo -e "[web]\n" > inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text >> .circleci/ansible/inventory.txt
+              --filters "Name=tag:Name,Values=backend-bbfc167" \
+              --output text >> inventory.txt
+            cat inventory.txt
       - persist_to_workspace:
-          root: ~/
+          root: .
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
 
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
-      - image: amazon/aws-cli
     steps:
       - checkout
       - run: yum install -y tar gzip
@@ -152,16 +155,24 @@ jobs:
           # Fingerprint of additional ssh key added in circleci so that ansible can authenticate with the remote host
           fingerprints: ["86:d4:03:4e:86:b1:24:05:2f:2c:f4:9a:3a:b6:54:1c"]
       - attach_workspace:
-          at: ~/
+          at: .
       - run:
           name: Install dependencies
           command: |
             apk add --update ansible #install the dependencies needed for your playbook
-      - run: echo "$(<~/project/.circleci/ansible/inventory.txt)"
+            ansible --version
+            pip3 install --upgrade pip
+            pip3 install awscli
+            aws --version
       - run:
           name: Configure server
+          working_directory: ./.circleci/ansible
           command: |
-            ansible-playbook -i ~/project/.circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+            pwd &&
+            cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
+      - destroy_environment:
+          env: "backend"
 
   test-persist-inventory:
     docker:
@@ -200,20 +211,20 @@ jobs:
 workflows:
   default:
     jobs:
-      - test-persist-inventory
-      - list-persisted-workspace:
-          requires: [test-persist-inventory]
-      # - build-frontend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - scan-frontend:
-      #     requires: [test-frontend]
-      # - build-backend
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [test-backend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      # - test-persist-inventory
+      # - list-persisted-workspace:
+      #     requires: [test-persist-inventory]
+      - build-frontend
+      - test-frontend:
+          requires: [build-frontend]
+      - scan-frontend:
+          requires: [test-frontend]
+      - build-backend
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [test-backend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
