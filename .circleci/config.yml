@@ -169,6 +169,7 @@ jobs:
           command: |
             pwd &&
             cat inventory.txt
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy_environment:
           env: "backend"
 
