@@ -165,6 +165,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
