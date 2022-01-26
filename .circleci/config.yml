@@ -164,6 +164,7 @@ jobs:
     docker:
       - image: amazon/aws-cli
     steps:
+      - checkout
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           command: |
