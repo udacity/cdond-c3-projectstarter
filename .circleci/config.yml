@@ -349,10 +349,9 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: Install tar utility dependencies
           command: |
-            apk update
-            apk add gzip tar
+            yum install -y tar gzip
       - run:
           name: Update cloudfront distribution
           command: |
