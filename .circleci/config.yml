@@ -371,7 +371,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/OldWorkflowID.txt
+            - OldWorkflowID.txt
       - destroy-environment 
       - revert-migrations 
 
@@ -389,8 +389,8 @@ jobs:
         - run:
             name: Get old stack workflow id
             command: |
-              cat project/OldWorkflowID.txt
-              OldWorkflowID=$(cat project/OldWorkflowID.txt)
+              cat OldWorkflowID.txt
+              OldWorkflowID=$(cat OldWorkflowID.txt)
               echo OldWorkflowID: "${OldWorkflowID}"
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
