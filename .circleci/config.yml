@@ -16,12 +16,12 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            exit 0
-            # aws cloudformation delete-stack \
-            #   --stack-name "udapeople-backend-pws32xt49dt3"
+            # exit 0
+            aws cloudformation delete-stack \
+              --stack-name "udapeople-backend-pws32xt49dt3"
 
-            # aws cloudformation delete-stack \
-            #   --stack-name "udapeople-frontend-pws32xt49dt3"
+            aws cloudformation delete-stack \
+              --stack-name "udapeople-frontend-pws32xt49dt3"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -33,13 +33,13 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            << parameters.workflow_id >>
+            SUCCESS = $(curl --insecure  https://kvdb.io/$KVDB_KEY/migration_pws32xt49dt3)
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
             fi
             
 jobs:
@@ -250,7 +250,7 @@ jobs:
             exit 0
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-                curl -k https://kvdb.io/{$KVDB_KEY}/migration_pws32xt49dt3  -d '1'
+                curl -k https://kvdb.io/$KVDB_KEY/migration_pws32xt49dt3  -d '1'
             fi
       - destroy-environment
 
@@ -354,12 +354,12 @@ jobs:
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
-                # Change this to 0 after the job fails
               return 1
             else
               return 1
             fi
-      # Here's where you will add some code to rollback on failure  
+      - destroy-environment
+      - revert-migrations
 
 #   cloudfront-update:
 #     docker:
