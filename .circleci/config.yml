@@ -186,7 +186,7 @@ jobs:
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
-      - image: alpine:latest
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - restore_cache:
