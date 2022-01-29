@@ -174,6 +174,7 @@ jobs:
       - run:
           name: Ensure back-end infrastructure exists
           command: |
+            exit 0
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --stack-name "udapeople-backend-pws32xt49dt3" \
@@ -182,6 +183,7 @@ jobs:
       - run:
           name: Ensure front-end infrastructure exist
           command: |
+            exit 0
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --stack-name "udapeople-frontend-pws32xt49dt3" \
@@ -224,6 +226,7 @@ jobs:
         - run:
             name: Configure server
             command: |
+              exit 0
               # Your code here
               cd ~/project/.circleci/ansible/
               ansible-playbook -i inventory.txt configure-server.yml
@@ -239,6 +242,7 @@ jobs:
       - run:
           name: Run migrations
           command: |
+            exit 0
             cd backend
             npm install
             # Run and save the migration output
@@ -246,6 +250,7 @@ jobs:
       - run:
           name: Send migration results to kvdb
           command: |
+            exit 0
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
                 curl -k https://kvdb.io/{$KVDB_KEY}/migration_pws32xt49dt3  -d '1'

@@ -2,8 +2,6 @@
   file:
     path: /home/ubuntu/backend
     state: directory
-    owner: ubuntu
-    group: ubuntu
     mode: '1777'
 
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
