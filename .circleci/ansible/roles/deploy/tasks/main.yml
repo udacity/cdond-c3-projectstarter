@@ -1,6 +1,6 @@
 - name: ensure backend directory exists
   file:
-    path: ~/backend
+    path: /root/backend
     state: directory
 
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
@@ -8,11 +8,11 @@
   become: true
   unarchive:
     src: /home/circleci/project/artifact.tar.gz
-    dest: ~/backend
+    dest: /root/backend
 
 - name: Give insecure permissions to an existing file
   file:
-    path: ~/backend
+    path: /root/backend
     owner: ubuntu
     group: ubuntu
     mode: '1777'
@@ -20,7 +20,7 @@
 - name: "Start backend"
   become: true
   shell: |
-    cd ~/backend
+    cd /root/backend
     npm install
     pm2 stop default
     pm2 start npm -- start
