@@ -399,6 +399,8 @@ jobs:
         - run:
             name: Remove old stacks and files
             command: |
+              cat OldWorkflowID.txt
+              OldWorkflowID=$(cat OldWorkflowID.txt)
               if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
               then
                 echo "----------------- Delete Confirmed -------------------"
