@@ -186,12 +186,12 @@ jobs:
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
-      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - run: apk add --update curl
+      - run: sudo apt update && sudo apt upgrade
+      - run: sudo apt install curl
       - run:
           name: Run migrations
           command: |
