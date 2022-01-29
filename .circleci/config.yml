@@ -13,8 +13,6 @@ commands:
       workflow_id:
         default: pws32xt49dt3
         type: string  
-    docker:
-      - image: amazon/aws-cli
     steps:
       - run:
           name: Destroy environments
@@ -326,7 +324,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: alpine:edge
+      - image: amazon/aws-cli
     steps:
       - checkout
       - attach_workspace:
@@ -334,7 +332,9 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl && rm -rf /var/cache/apk/*
+            yum update -y \
+            && yum install -y curl \
+            && yum clean all
       - run:
           name: Get backend url
           command: |
