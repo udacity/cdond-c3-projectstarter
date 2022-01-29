@@ -1,12 +1,7 @@
-- name: Copy artifact
-  copy:
-    src: ~/project/artifact.tar.gz
-    dest: ~/
-
 - name: "Unzip artifact"
   become: true
   unarchive:
-    src: ~/artifact.tar.gz
+    src: /home/circleci/project/artifact.tar.gz
     dest: ~/backend
 
 - name: Give insecure permissions to an existing file
