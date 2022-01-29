@@ -9,8 +9,12 @@ orbs:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    # parameters:
-      # Add parameter here   
+    parameters:
+      workflow_id:
+        default: pws32xt49dt3
+        type: string  
+    docker:
+      - image: amazon/aws-cli
     steps:
       - run:
           name: Destroy environments
@@ -18,10 +22,10 @@ commands:
           command: |
             # exit 0
             aws cloudformation delete-stack \
-              --stack-name "udapeople-backend-pws32xt49dt3"
+              --stack-name "udapeople-backend-<< parameters.workflow_id >>"
 
             aws cloudformation delete-stack \
-              --stack-name "udapeople-frontend-pws32xt49dt3"
+              --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -31,7 +35,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             
@@ -359,9 +363,10 @@ jobs:
             else
               return 1
             fi
-      - destroy-environment
+      - destroy-environment:
+          workflow_id: pws32xt49dt3
       - revert-migrations:
-          workflow_id: "pws32xt49dt3"
+          workflow_id: pws32xt49dt3
 
 #   cloudfront-update:
 #     docker:
