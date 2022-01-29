@@ -18,7 +18,7 @@ commands:
           name: Revert backend migrations
           when: on_fail
           command: |
-            cd backend
+            cd ~/project/backend
             npm install
             npm run migrations:revert
 
@@ -206,22 +206,30 @@ jobs:
             then
               curl https://kvdb.io/7NZ6WGXV6a5TB9Qk9gkDpA/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
+      - destroy_environment:
+          env: "frontend"
+      - destroy_environment:
+          env: "backend"
 
   deploy-frontend:
     docker:
       - image: circleci/node:13.8.0
-      - image: amazon/aws-cli
     steps:
       - checkout
-      - run: yum install -y tar gzip
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          working_directory: /tmp
+          command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Get backend url
           command: |
-            # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
+            export BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -231,9 +239,15 @@ jobs:
           command: |
             cd frontend
             npm install
+            cat .env
+            ls -la
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - persist_to_workspace:
+          root: .
+          paths:
+            - frontend/dist
       - destroy_environment:
           env: "frontend"
       - destroy_environment:
