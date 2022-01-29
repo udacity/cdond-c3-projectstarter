@@ -369,7 +369,7 @@ jobs:
             --tags project=udapeople
             echo Current WorkflowId: "{CIRCLE_WORKFLOW_ID:0:7}" 
       - persist_to_workspace:
-          root: ~/
+          root: .
           paths:
             - OldWorkflowID.txt
       - destroy-environment 
@@ -385,7 +385,7 @@ jobs:
             command: |
               yum install -y tar gzip
         - attach_workspace:
-            at: ~/
+            at: .
         - run:
             name: Get old stack workflow id
             command: |
