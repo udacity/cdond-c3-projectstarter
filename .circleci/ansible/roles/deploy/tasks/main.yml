@@ -10,6 +10,7 @@
   unarchive:
     src: /home/circleci/project/artifact.tar.gz
     dest: /home/ubuntu/backend
+    mode: '1777'
 
 - name: "Start backend"
   become: true
