@@ -25,16 +25,17 @@ commands:
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    # parameters:
-      # Add parameter here     
+    parameters:
+      workflow_id:
+        type: string
     steps:
       - run:
           name: Revert migrations
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            << parameters.workflow_id >>
-            SUCCESS = $(curl --insecure  https://kvdb.io/$KVDB_KEY/migration_pws32xt49dt3)
+            
+            SUCCESS = $(curl --insecure  https://kvdb.io/$KVDB_KEY/migration_<< parameters.workflow_id >>)
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -359,7 +360,8 @@ jobs:
               return 1
             fi
       - destroy-environment
-      - revert-migrations
+      - revert-migrations:
+          workflow_id: "pws32xt49dt3"
 
 #   cloudfront-update:
 #     docker:
