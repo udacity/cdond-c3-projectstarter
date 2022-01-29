@@ -1,6 +1,7 @@
 version: 2.1
 
 # replace pws32xt49dt3 with ${CIRCLE_WORKFLOW_ID:0:7} 
+# amazon/aws-cli https://github.com/aws/aws-cli/blob/v2/docker/Dockerfile
 
 orbs: 
   # https://app.slack.com/client/T02VB06R882/C0309KFK4SD
@@ -9,6 +10,7 @@ orbs:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    # https://circleci.com/docs/2.0/reusing-config/
     parameters:
       workflow_id:
         default: pws32xt49dt3
@@ -24,6 +26,8 @@ commands:
 
             aws cloudformation delete-stack \
               --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
+      - revert-migrations:
+          workflow_id: <<parameters.workflow_id>>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -324,17 +328,16 @@ jobs:
 
   smoke-test:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node:13.8.0
     steps:
       - checkout
-      - attach_workspace:
-            at: ~/
       - run:
           name: Install dependencies
           command: |
-            yum update -y \
-            && yum install -y curl \
-            && yum clean all
+            sudo apt update
+            sudo apt install -y awscli
+      - attach_workspace:
+            at: ~/
       - run:
           name: Get backend url
           command: |
@@ -364,8 +367,6 @@ jobs:
               return 1
             fi
       - destroy-environment:
-          workflow_id: pws32xt49dt3
-      - revert-migrations:
           workflow_id: pws32xt49dt3
 
 #   cloudfront-update:
