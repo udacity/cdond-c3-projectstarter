@@ -1,3 +1,9 @@
+- name: ensure backend directory exists
+  file:
+    path: ~/backend
+    state: directory
+
+# https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
 - name: "Unzip artifact"
   become: true
   unarchive:
