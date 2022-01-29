@@ -12,6 +12,15 @@ commands:
           when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name "udapeople-${<<parameters.env>>}-${CIRCLE_WORKFLOW_ID:0:7}"
+  revert_migrations:
+    steps:
+      - run:
+          name: Revert backend migrations
+          when: on_fail
+          command: |
+            cd backend
+            npm install
+            npm run migrations:revert
 
 jobs:
   build-frontend:
@@ -196,6 +205,37 @@ jobs:
               curl https://kvdb.io/7NZ6WGXV6a5TB9Qk9gkDpA/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
 
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy_environment:
+          env: "frontend"
+      - destroy_environment:
+          env: "backend"
+      - revert_migrations
+
 workflows:
   default:
     jobs:
@@ -213,3 +253,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
