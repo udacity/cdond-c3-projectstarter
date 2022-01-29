@@ -1,6 +1,6 @@
 version: 2.1
 
-# replace pws32xt49dt2 with ${CIRCLE_WORKFLOW_ID:0:7} 
+# replace pws32xt49dt3 with ${CIRCLE_WORKFLOW_ID:0:7} 
 
 orbs: 
   # https://app.slack.com/client/T02VB06R882/C0309KFK4SD
@@ -18,10 +18,10 @@ commands:
           command: |
             exit 0
             # aws cloudformation delete-stack \
-            #   --stack-name "udapeople-backend-pws32xt49dt2"
+            #   --stack-name "udapeople-backend-pws32xt49dt3"
 
             # aws cloudformation delete-stack \
-            #   --stack-name "udapeople-frontend-pws32xt49dt2"
+            #   --stack-name "udapeople-frontend-pws32xt49dt3"
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -43,14 +43,6 @@ commands:
             fi
             
 jobs:
-  test:
-    docker:
-      - image: circleci/node:13.8.0
-    steps:
-    - run:
-          name: Build front-end
-          command: |
-            echo 1
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -184,16 +176,16 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --stack-name "udapeople-backend-pws32xt49dt2" \
-              --parameter-overrides ID="pws32xt49dt2"  \
+              --stack-name "udapeople-backend-pws32xt49dt3" \
+              --parameter-overrides ID="pws32xt49dt3"  \
               --tags project=udapeople
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-pws32xt49dt2" \
-              --parameter-overrides ID="pws32xt49dt2"  \
+              --stack-name "udapeople-frontend-pws32xt49dt3" \
+              --parameter-overrides ID="pws32xt49dt3"  \
               --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
@@ -256,7 +248,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-                curl -k https://kvdb.io/{$KVDB_KEY}/migration_pws32xt49dt2  -d '1'
+                curl -k https://kvdb.io/{$KVDB_KEY}/migration_pws32xt49dt3  -d '1'
             fi
       - destroy-environment
 
@@ -289,8 +281,8 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-pws32xt49dt2.tar.gz dist
-            aws s3 cp dist s3://udapeople-pws32xt49dt2 --recursive
+            tar -czvf artifact-pws32xt49dt3.tar.gz dist
+            aws s3 cp dist s3://udapeople-pws32xt49dt3 --recursive
       - destroy-environment
                     
   deploy-backend:
@@ -385,7 +377,6 @@ jobs:
 workflows:
   default:
     jobs:
-      - test
       - build-frontend
       - build-backend
       - test-frontend:
