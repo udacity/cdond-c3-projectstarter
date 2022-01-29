@@ -26,6 +26,8 @@ commands:
               aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
             fi
 
+            aws s3api delete-bucket --bucket udapeople-<<parameters.workflow_id>>
+
             aws cloudformation delete-stack \
               --stack-name "udapeople-backend-<< parameters.workflow_id >>"
 
@@ -52,7 +54,7 @@ commands:
             then
               cd ~/project/backend
               npm install
-              npm run migration:revert
+              npm run migrations:revert
             fi
             
 jobs:
