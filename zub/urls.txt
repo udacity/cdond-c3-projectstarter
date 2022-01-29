@@ -1,5 +1,8 @@
 [URL01]
 https://github.com/Oliver-ke/udapeople
 
- [URL02]
- https://udapeople-a304298.s3.amazonaws.com/index.html
+[URL02]
+https://udapeople-a304298.s3.amazonaws.com/index.html
+
+[URL03]
+http://d39xdqi9peflyz.cloudfront.net
