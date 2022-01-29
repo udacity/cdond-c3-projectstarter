@@ -2,6 +2,9 @@
   file:
     path: /home/ubuntu/backend
     state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: '1777'
 
 # https://docs.ansible.com/ansible/latest/collections/ansible/builtin/unarchive_module.html
 - name: "Unzip artifact"
@@ -9,13 +12,6 @@
   unarchive:
     src: /home/circleci/project/artifact.tar.gz
     dest: /home/ubuntu/backend
-
-- name: Give insecure permissions to an existing file
-  file:
-    path: /home/ubuntu/backend
-    owner: ubuntu
-    group: ubuntu
-    mode: '1777'
 
 - name: "Start backend"
   become: true
