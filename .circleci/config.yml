@@ -135,6 +135,7 @@ jobs:
           name: Add the EC2 instance IP to the Ansible inventory
           working_directory: ./.circleci/ansible
           command: |
+            echo -e "[web]\n" > inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
