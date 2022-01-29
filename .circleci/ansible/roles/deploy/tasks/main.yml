@@ -5,8 +5,16 @@
 
 - name: "Unzip artifact"
   become: true
-  shell: |
-    tar -xvf artifact.tar.gz
+  unarchive:
+    src: ~/artifact.tar.gz
+    dest: ~/backend
+
+- name: Give insecure permissions to an existing file
+  file:
+    path: ~/backend
+    owner: ubuntu
+    group: ubuntu
+    mode: '1777'
 
 - name: "Start backend"
   become: true
