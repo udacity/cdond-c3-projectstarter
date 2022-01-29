@@ -371,7 +371,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - OldWorkflowID.txt
+            - .
       - destroy-environment 
       - revert-migrations 
 
@@ -385,7 +385,7 @@ jobs:
             command: |
               yum install -y tar gzip
         - attach_workspace:
-            at: .
+            at: ~/
         - run:
             name: Get old stack workflow id
             command: |
