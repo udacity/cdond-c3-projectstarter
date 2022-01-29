@@ -212,6 +212,7 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum install -y tar gzip nodejs
       - run:
           name: Get backend url
           command: |
