@@ -186,10 +186,12 @@ jobs:
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
+      - image: alpine:latest
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
+      - run: apk add --update curl
       - run:
           name: Run migrations
           command: |
