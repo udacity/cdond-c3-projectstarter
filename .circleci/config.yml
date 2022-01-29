@@ -21,6 +21,7 @@ commands:
           when: on_fail
           command: |
             # exit 0
+            sleep 30
             if aws s3 ls | grep udapeople-<<parameters.workflow_id>>; then
               aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
             fi
