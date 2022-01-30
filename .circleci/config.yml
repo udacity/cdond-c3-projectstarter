@@ -47,7 +47,6 @@ jobs:
             cd frontend
             npm i
             npm build
-            exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -66,7 +65,6 @@ jobs:
              cd backend
              npm i
              npm build
-             exit 1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -79,7 +77,16 @@ jobs:
       # Checkout code from git
       - checkout
       # Restore from cache
+      - restore_cache:
+          keys: [frontend-build]
       # Your job code here
+      - run:
+          name: Test front-end
+          command: |
+            cd frontend
+            npm i
+            npm run test
+            exit 1
                 
   test-backend:
     docker:
@@ -89,7 +96,16 @@ jobs:
       # Checkout code from git
       - checkout
       # Restore from cache
+      - restore_cache:
+          keys: [frontend-build]
       # Your job code here
+      - run:
+          name: Test front-end
+          command: |
+            cd frontend
+            npm i
+            npm run test
+            exit 1
             
   scan-frontend:
     docker:
