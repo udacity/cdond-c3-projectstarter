@@ -47,7 +47,6 @@ jobs:
             cd frontend
             npm i
             npm build
-            exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -66,7 +65,6 @@ jobs:
              cd backend
              npm i
              npm build
-             exit 1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
@@ -74,16 +72,20 @@ jobs:
   test-frontend:
     docker:
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
       # Your job code here
                 
   test-backend:
     docker:
       # Docker image here
+      - image: circleci/node:13.8.0
     steps:
       # Checkout code from git
+      - checkout
       # Restore from cache
       # Your job code here
             
