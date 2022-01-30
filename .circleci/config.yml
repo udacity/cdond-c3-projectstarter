@@ -86,7 +86,6 @@ jobs:
             cd frontend
             npm i
             npm run test
-            exit 1
                 
   test-backend:
     docker:
@@ -100,12 +99,11 @@ jobs:
           keys: [frontend-build]
       # Your job code here
       - run:
-          name: Test front-end
+          name: Test backend
           command: |
-            cd frontend
+            cd backend
             npm i
             npm run test
-            exit 1
             
   scan-frontend:
     docker:
@@ -116,6 +114,13 @@ jobs:
       - checkout
       # Restore from cache
       # Your job code here
+      - run:
+          name: Scan frontend
+          command: |
+            ls
+            cd frontend
+            ls
+            npm audit fix --audit-level=critical --force
 
   scan-backend:
     docker:
@@ -126,6 +131,13 @@ jobs:
       - checkout
       # Restore from cache
       # Your job code here
+      - run:
+          name: Scan backend
+          command: |
+            ls
+            cd backend
+            ls
+            npm audit fix --audit-level=critical --force
 
   deploy-infrastructure:
     docker:
