@@ -286,7 +286,7 @@ jobs:
           name: Compress backend dist
           command: |
             pwd
-            tar -cvzf backend.tar.gz backend
+            tar -C backend -czvf artifact.tar.gz .
       - run:
           name: Deploy backend
           working_directory: ./.circleci/ansible
@@ -296,6 +296,7 @@ jobs:
             export ANSIBLE_HOST_KEY_CHECKING=False 
             export host_key_checking=False
             export record_host_keys=False
+            echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml -vv
       - destroy_environment:
