@@ -14,7 +14,7 @@
 - name: Copy backend files
   become: true
   copy:
-    src: /root/project/backend.tar.gz
+    src: /root/project/artifact.tar.gz
     dest: /home/ubuntu/uda_app/
     owner: ubuntu
     group: ubuntu
@@ -22,12 +22,12 @@
 
 - name: "Check for tar file"
   become: true
-  command: ls -l /home/ubuntu/uda_app/backend.tar.gz
+  command: ls -l /home/ubuntu/uda_app/artifact.tar.gz
 
 - name: Unarchive a file that is already on the remote machine
   ansible.builtin.unarchive:
     remote_src: yes
-    src: /home/ubuntu/uda_app/backend.tar.gz
+    src: /home/ubuntu/uda_app/artifact.tar.gz
     dest: /home/ubuntu/uda_app
 
 - name: "Check and install npm"
