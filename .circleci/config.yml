@@ -157,7 +157,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: python:3.9.0-alpine
     steps:
       - checkout
       - add_ssh_keys:
@@ -254,6 +254,54 @@ jobs:
           env: "backend"
       - revert_migrations
 
+  deploy-backend:
+    docker:
+      - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - add_ssh_keys:
+          # Fingerprint of additional ssh key added in circleci so that ansible can authenticate with the remote host
+          fingerprints: ["86:d4:03:4e:86:b1:24:05:2f:2c:f4:9a:3a:b6:54:1c"]
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          working_directory: ./.circleci/ansible
+          command: |
+            apk add --update ansible nodejs npm unzip
+            npm install
+            ansible --version
+            pip3 install --upgrade pip
+            pip3 install awscli
+            aws --version 
+            export ANSIBLE_HOST_KEY_CHECKING=False
+      - run:
+          name: Build backend dist
+          command: |
+            cd backend
+            npm install
+            npm run build
+            npm run prestart:prod
+      - run:
+          name: Compress backend dist
+          command: |
+            pwd
+            tar -cvzf backend.tar.gz backend
+      - run:
+          name: Deploy backend
+          working_directory: ./.circleci/ansible
+          no_output_timeout: 30m
+          command: |
+            pwd
+            export ANSIBLE_HOST_KEY_CHECKING=False 
+            export host_key_checking=False
+            export record_host_keys=False
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml -vv
+      - destroy_environment:
+          env: "backend"
+      - revert_migrations
+
 workflows:
   default:
     jobs:
@@ -274,4 +322,6 @@ workflows:
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
           requires: [run-migrations]

@@ -1,0 +1,59 @@
+---
+- name: "show remote environment"
+  shell: env
+
+- name: "Create directory"
+  become: true
+  file:
+    path: /home/ubuntu/uda_app
+    state: directory
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
+
+- name: Copy backend files
+  become: true
+  copy:
+    src: /root/project/backend.tar.gz
+    dest: /home/ubuntu/uda_app/
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
+
+- name: "Check for tar file"
+  become: true
+  command: ls -l /home/ubuntu/uda_app/backend.tar.gz
+
+- name: Unarchive a file that is already on the remote machine
+  ansible.builtin.unarchive:
+    remote_src: yes
+    src: /home/ubuntu/uda_app/backend.tar.gz
+    dest: /home/ubuntu/uda_app
+
+- name: "Check and install npm"
+  become: true
+  command: npm install
+  args:
+    chdir: /home/ubuntu/uda_app/backend
+
+- name: "delete anything that might already be running"
+  become: true
+  command: pm2 delete all
+  ignore_errors: true
+
+- name: "start server"
+  become: true
+  command: pm2 start -f ./main.js
+  args:
+    chdir: /home/ubuntu/uda_app/backend/dist
+  environment:
+    ENVIRONMENT: production
+    TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+    TYPEORM_MIGRATIONS_DIR: "./migrations"
+    TYPEORM_MIGRATIONS: "./migrations/*.js"
+    TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
+    TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+    TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+    TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+    TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+    TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
