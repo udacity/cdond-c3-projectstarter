@@ -1,6 +1,5 @@
 version: 2.1
 
-# replace pws32xt49dt3 with ${CIRCLE_WORKFLOW_ID:0:7} 
 # amazon/aws-cli https://github.com/aws/aws-cli/blob/v2/docker/Dockerfile
 
 orbs: 
@@ -13,7 +12,7 @@ commands:
     # https://circleci.com/docs/2.0/reusing-config/
     parameters:
       workflow_id:
-        default: pws32xt49dt3
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
         type: string  
     steps:
       - run:
@@ -191,16 +190,16 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --stack-name "udapeople-backend-pws32xt49dt3" \
-              --parameter-overrides ID="pws32xt49dt3"  \
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=udapeople
       - run:
           name: Ensure front-end infrastructure exist
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --stack-name "udapeople-frontend-pws32xt49dt3" \
-              --parameter-overrides ID="pws32xt49dt3"  \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
               --tags project=udapeople
       - run:
           name: Add back-end ip to ansible inventory
@@ -265,7 +264,7 @@ jobs:
             exit 0
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-                curl -k https://kvdb.io/$KVDB_KEY/migration_pws32xt49dt3  -d '1'
+                curl -k https://kvdb.io/$KVDB_KEY/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - destroy-environment
 
@@ -298,8 +297,8 @@ jobs:
             cd frontend
             npm install
             npm run build
-            tar -czvf artifact-pws32xt49dt3.tar.gz dist
-            aws s3 cp dist s3://udapeople-pws32xt49dt3 --recursive
+            tar -czvf artifact-${CIRCLE_WORKFLOW_ID:0:7}.tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       - destroy-environment
                     
   deploy-backend:
@@ -365,7 +364,7 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |           
-            URL="http://udapeople-pws32xt49dt3.s3-website-us-west-2.amazonaws.com/#/employees"
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com/#/employees"
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
@@ -374,7 +373,7 @@ jobs:
               exit 1
             fi
       - destroy-environment:
-          workflow_id: pws32xt49dt3
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
 
   cloudfront-update:
     docker:
@@ -391,29 +390,53 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialStack \
-              --parameter-overrides WorkflowID="pws32xt49dt3" \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
       
 
-# cleanup:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Get old stack workflow id
-#           command: |
-#             # your code here
-#             export OldWorkflowID="the id here"
-#             export STACKS=[] #put the list of stacks here
-#       - run:
-#           name: Remove old stacks and files
-#           command: |
-#             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#             then
-#               # your code here
-#             fi
-            
+cleanup:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            # your code here
+            # Fetch the Old workflow ID
+            export OldWorkflowID=$(aws cloudformation \
+                    list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                    --no-paginate --output text)
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
+            # Fetch the stack names          
+            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                    --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
+            echo Stack names: "${STACKS[@]}"
+
+      - run:
+          name: Remove old stacks and files
+          command: |
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo Stack names: "${STACKS[@]}"
+
+
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
+            then
+              if aws s3 ls | grep udapeople-${OldWorkflowID}; then
+                aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
+              fi
+
+              aws s3api delete-bucket --bucket udapeople-${OldWorkflowID}
+
+              aws cloudformation delete-stack \
+                --stack-name "udapeople-backend-${OldWorkflowID}"
+
+              aws cloudformation delete-stack \
+                --stack-name "udapeople-frontend-${OldWorkflowID}"
+            else
+              echo "No old stack"
+            fi
 
 workflows:
   default:
@@ -430,9 +453,9 @@ workflows:
           requires: [build-frontend]
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          # filters:
-            # branches:
-              # only: [test-feature-branch]
+          filters:
+            branches:
+              only: [master]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
       - run-migrations:
@@ -445,5 +468,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
