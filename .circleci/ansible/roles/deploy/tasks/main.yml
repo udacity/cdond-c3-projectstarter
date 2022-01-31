@@ -41,9 +41,14 @@
   command: pm2 delete all
   ignore_errors: true
 
+- name: "stop server"
+  become: true
+  command: pm2 stop default
+  ignore_errors: true
+
 - name: "start server"
   become: true
-  command: pm2 start -f ./main.js
+  command: pm2 start npm -- start
   args:
     chdir: /home/ubuntu/uda_app/dist
   environment:
