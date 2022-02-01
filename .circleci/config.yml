@@ -229,7 +229,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
+            export BACKEND_IP=`cat ./.circleci/ansible/inventory.txt | head -2 | tail -1`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -314,10 +314,13 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl
+            pip3 install --upgrade pip
+            pip3 install awscli
+            aws --version
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
+            export BACKEND_IP=`cat ./.circleci/ansible/inventory.txt | head -2 | tail -1`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
       - run:
