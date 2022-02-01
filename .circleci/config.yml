@@ -303,6 +303,54 @@ jobs:
           env: "backend"
       - revert_migrations
 
+  smoke-test:
+    docker:
+      - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - attach_workspace:
+          at: .
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update curl
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=`cat .circleci/ansible/inventory.txt | head -2 | tail -1`
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "API_URL = ${API_URL}"
+      - run:
+          name: Backend smoke test.
+          command: |
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+              echo "Smoke Test Success (Backend)"
+              return 0
+            else
+              echo "Smoke Test Failed (Backend)"
+              return 1
+            fi
+      - destroy_environment:
+          env: "backend"
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"
+            echo ${URL}
+            if curl -s ${URL} | grep "Welcome"
+            then
+              echo "Smoke Test Success (Failed)"
+              # Change this to 0 after the job fails
+              return 1
+            else
+              echo "Smoke Test Success (Failed)"
+              return 1
+            fi
+      - destroy_environment:
+          env: "frontend"
+      - revert_migrations
+
 workflows:
   default:
     jobs:
@@ -326,3 +374,5 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
