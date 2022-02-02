@@ -11,7 +11,7 @@ commands:
           name: Delete s3 static hosting bucket
           when: on_fail
           command: |
-            aws s3 rm s3://udapeople-${<<parameters.workflow_id>> --recursive
+            aws s3 rm s3://udapeople-${<<parameters.workflow_id>>} --recursive
       - run:
           name: Destroy environments
           when: on_fail
@@ -29,8 +29,8 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS = $(curl --insecure https://kvdb.io/7NZ6WGXV6a5TB9Qk9gkDpA/migration_<<parameters.workflow_id>>)
-            if (( $SUCCESS == 1 ));
+            export SUCCESS = $(curl --insecure https://kvdb.io/7NZ6WGXV6a5TB9Qk9gkDpA/migration_<<parameters.workflow_id>>)
+            if (( SUCCESS == 1 ));
             then
               cd ~/project/backend
               npm install
