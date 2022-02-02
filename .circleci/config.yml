@@ -2,25 +2,40 @@ version: 2.1
 
 commands:
   destroy_environment:
+    description: Destroy backend and frontend cloudformation stacks given a workflow ID.
     parameters:
-      env:
-        default: "backend"
+      workflow_id:
         type: string
     steps:
       - run:
-          name: Destroy environment
+          name: Delete s3 static hosting bucket
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name "udapeople-${<<parameters.env>>}-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws s3 rm s3://udapeople-${<<parameters.workflow_id>> --recursive
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            echo "Destroying environment: << parameters.workflow_id >> "
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-${<<parameters.workflow_id>>}"
+            aws cloudformation delete-stack --stack-name "udapeople-backend-${<<parameters.workflow_id>>}"
   revert_migrations:
+    description: Revert the last migration
+    parameters:
+      workflow_id:
+        type: string
     steps:
       - run:
-          name: Revert backend migrations
+          name: Revert migrations
           when: on_fail
           command: |
-            cd ~/project/backend
-            npm install
-            npm run migrations:revert
+            SUCCESS = $(curl --insecure https://kvdb.io/7NZ6WGXV6a5TB9Qk9gkDpA/migration_<<parameters.workflow_id>>)
+            if (( $SUCCESS == 1 ));
+            then
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
+            fi
 
 jobs:
   build-frontend:
@@ -127,8 +142,6 @@ jobs:
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags udacity-project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
-      - destroy_environment:
-          env: "backend"
       - run:
           name: Ensure frontend infrastructure exist
           working_directory: ./.circleci/files
@@ -138,8 +151,6 @@ jobs:
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags udacity-project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
-      - destroy_environment:
-          env: "frontend"
       - run:
           name: Add the EC2 instance IP to the Ansible inventory
           working_directory: ./.circleci/ansible
@@ -150,6 +161,8 @@ jobs:
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> inventory.txt
             cat inventory.txt
+      - destroy_environment:
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
       - persist_to_workspace:
           root: .
           paths:
@@ -181,7 +194,7 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy_environment:
-          env: "backend"
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
 
   run-migrations:
     docker:
@@ -191,6 +204,14 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run: sudo apt update && sudo apt upgrade
+      - run:
+          name: Install dependencies
+          working_directory: /tmp
+          command: |
+            sudo apt-get update && sudo apt-get install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run: sudo apt install curl
       - run:
           name: Run migrations
@@ -207,9 +228,7 @@ jobs:
               curl https://kvdb.io/7NZ6WGXV6a5TB9Qk9gkDpA/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - destroy_environment:
-          env: "frontend"
-      - destroy_environment:
-          env: "backend"
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
 
   deploy-frontend:
     docker:
@@ -251,10 +270,9 @@ jobs:
           paths:
             - frontend/dist
       - destroy_environment:
-          env: "frontend"
-      - destroy_environment:
-          env: "backend"
-      - revert_migrations
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
+      - revert_migrations:
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
 
   deploy-backend:
     docker:
@@ -302,8 +320,9 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml -vv
       - destroy_environment:
-          env: "backend"
-      - revert_migrations
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
+      - revert_migrations:
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
 
   smoke-test:
     docker:
@@ -336,8 +355,6 @@ jobs:
               echo "Smoke Test Failed (Backend)"
               return 1
             fi
-      - destroy_environment:
-          env: "backend"
       - run:
           name: Frontend smoke test.
           command: |
@@ -353,8 +370,9 @@ jobs:
               return 1
             fi
       - destroy_environment:
-          env: "frontend"
-      - revert_migrations
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
+      - revert_migrations:
+          workflow_id: CIRCLE_WORKFLOW_ID:0:7
 
 workflows:
   default:
