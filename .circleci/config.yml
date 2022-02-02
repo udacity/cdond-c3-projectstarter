@@ -4,7 +4,8 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      # Add parameter here   
+      # Add parameter here 
+        
     steps:
       - run:
           name: Destroy environments
@@ -151,6 +152,16 @@ jobs:
               --tags project=deploy-backendInfra \
               --stack-name ${CIRCLE_WORKFLOW_ID} \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+            
+            export BACKEND_URL=$(aws cloudformation describe-stacks \
+              --stack-name backend-"${CIRCLE_WORKFLOW_ID}" \
+              --query "Stacks[0].Outputs[?OutputKey=='BackendURL'].OutputValue" \
+              --no-paginate --output text)
+            
+            echo $BACKEND_URL
+
+            curl https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '${BACKEND_URL}'
+
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -163,6 +174,11 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
+            export BACKEND_URL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
+
+            echo "${BACKEND_URL}" >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+      - run: yum -y install tar gzip
             exit 1
       - persist_to_workspace:
           root: ~/
@@ -255,7 +271,7 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image
-      - image: python:3.7-alpine3.11 
+      - image: alpine:latest 
     steps:
       # Checkout code from git
       - checkout
