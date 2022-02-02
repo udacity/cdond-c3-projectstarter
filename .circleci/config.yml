@@ -231,9 +231,7 @@ jobs:
           command: |
             echo "Contents  of the inventory.txt file is -------"
             cat ./.circleci/ansible/inventory.txt
-            cat ./.circleci/ansible/inventory.txt | head -2
-            cat ./.circleci/ansible/inventory.txt | tail -1
-            export BACKEND_IP=`cat ./.circleci/ansible/inventory.txt | head -2 | tail -1`
+            export BACKEND_IP=`cat ./.circleci/ansible/inventory.txt | tail -1`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -327,9 +325,7 @@ jobs:
           command: |
             echo "Contents  of the inventory.txt file is -------"
             cat ./.circleci/ansible/inventory.txt
-            cat ./.circleci/ansible/inventory.txt | head -2
-            cat ./.circleci/ansible/inventory.txt | tail -1
-            export BACKEND_IP=`cat ./.circleci/ansible/inventory.txt | head -2 | tail -1`
+            export BACKEND_IP=`cat ./.circleci/ansible/inventory.txt | tail -1`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
       - run:
