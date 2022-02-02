@@ -313,13 +313,19 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl
+            apk add --update curl nodejs npm
+            npm install
+            ansible --version
             pip3 install --upgrade pip
             pip3 install awscli
             aws --version
       - run:
           name: Get backend url
           command: |
+            echo "Contents  of the inventory.txt file is -------"
+            cat ./.circleci/ansible/inventory.txt
+            cat ./.circleci/ansible/inventory.txt | head -2
+            cat ./.circleci/ansible/inventory.txt | tail -1
             export BACKEND_IP=`cat ./.circleci/ansible/inventory.txt | head -2 | tail -1`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
