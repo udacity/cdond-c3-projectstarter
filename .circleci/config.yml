@@ -336,8 +336,8 @@ jobs:
               echo "Smoke Test Failed (Backend)"
               return 1
             fi
-      - destroy_environment:
-          env: "backend"
+      # - destroy_environment:
+      #     env: "backend"
       - run:
           name: Frontend smoke test.
           command: |
@@ -352,8 +352,8 @@ jobs:
               echo "Smoke Test Success (Failed)"
               return 1
             fi
-      - destroy_environment:
-          env: "frontend"
+      # - destroy_environment:
+      #     env: "frontend"
       - revert_migrations
 
 workflows:
