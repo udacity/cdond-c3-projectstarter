@@ -321,16 +321,13 @@ jobs:
             pip3 install awscli
             aws --version
       - run:
-          name: Get backend url
+          name: Backend smoke test.
           command: |
             echo "Contents  of the inventory.txt file is -------"
             cat ./.circleci/ansible/inventory.txt
             export BACKEND_IP=`cat ./.circleci/ansible/inventory.txt | tail -1`
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-      - run:
-          name: Backend smoke test.
-          command: |
             if curl "${API_URL}/api/status" | grep "ok"
             then
               echo "Smoke Test Success (Backend)"
