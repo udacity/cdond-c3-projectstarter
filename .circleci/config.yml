@@ -18,8 +18,8 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            exit 0
-            sleep 30
+            # exit 0
+            # sleep 30
             if aws s3 ls | grep udapeople-<<parameters.workflow_id>>; then
               aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
             fi
@@ -203,10 +203,11 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
+            rm -fr ~/project/.circleci/ansible/inventory.txt
             cp ~/project/.circleci/ansible/inventory_template.txt ~/project/.circleci/ansible/inventory.txt
             export BACKEND_IP=$(aws ec2 describe-instances \
               --filters 'Name=tag:Name,Values=backend-*' \
-              --query "Reservations[*].Instances[*].PublicIpAddress" \
+              --query "Reservations[*].Instances[0].PublicIpAddress" \
               --output text)
              echo $BACKEND_IP >> ~/project/.circleci/ansible/inventory.txt
             
