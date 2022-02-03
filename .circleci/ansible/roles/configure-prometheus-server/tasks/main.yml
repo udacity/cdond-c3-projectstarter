@@ -1,0 +1,68 @@
+- name: "install node exporter."
+  unarchive:
+    src: https://github.com/prometheus/prometheus/releases/download/v2.19.0/prometheus-2.19.0.linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Create prometheus user
+  user:
+    name: prometheus
+    group: prometheus
+    create_home: false
+
+- name: "move prometheus binary to /usr/local/bin."
+  become: true
+  copy:
+    src: /tmp/prometheus-2.19.0.linux-amd64/prometheus
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0777'
+
+- name: "move promtool binary to /usr/local/bin."
+  become: true
+  copy:
+    src: /tmp/prometheus-2.19.0.linux-amd64/promtool
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0777'
+
+- name: "move consoles to /etc/prometheus."
+  become: true
+  copy:
+    src: /tmp/prometheus-2.19.0.linux-amd64/consoles
+    dest: /etc/prometheus
+    directory_mode: yes
+    remote_src: yes
+    mode: '0777'
+
+- name: "move console_libraries to /etc/prometheus."
+  become: true
+  copy:
+    src: /tmp/prometheus-2.19.0.linux-amd64/console_libraries
+    dest: /etc/prometheus
+    directory_mode: yes
+    remote_src: yes
+    mode: '0777'
+
+- name: "add prometheus service"
+  become: true
+  copy:
+    src: prometheus.service
+    dest: /etc/systemd/system/
+
+- name: "add prometheus config"
+  become: true
+  copy:
+    src: prometheus.yml
+    dest: /tmp
+
+- name: Substitute environment variables
+  shell: envsubst < /tmp/prometheus.yml > /etc/prometheus/prometheus.yml
+
+- name: "enable prometheus service"
+  become: true
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: prometheus
+    enabled: yes

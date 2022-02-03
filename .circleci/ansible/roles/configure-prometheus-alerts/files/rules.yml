@@ -1,0 +1,11 @@
+groups:
+- name: Down
+  rules:
+  - alert: InstanceDown
+    expr: up == 0
+    for: 3m
+    labels:
+      severity: 'critical'
+    annotations:
+      summary: "Instance  is down"
+      description: " of job  has been down for more than 3 minutes."

@@ -1,0 +1,5 @@
+1. Public Url to GitHub repository (not private)
+[URL01]
+[https://github.com/ovimihai/cdond-c3-projectstarter](https://github.com/ovimihai/cdond-c3-projectstarter)
+2. Public URL for your S3 Bucket (aka, your green candidate front-end)
+[URL02]

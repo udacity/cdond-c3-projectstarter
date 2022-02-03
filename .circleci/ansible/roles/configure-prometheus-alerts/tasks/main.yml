@@ -1,0 +1,59 @@
+- name: "install node exporter."
+  unarchive:
+    src: https://github.com/prometheus/alertmanager/releases/download/v0.21.0/alertmanager-0.21.0.linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: "move alertmanager binary to /usr/local/bin."
+  become: true
+  copy:
+    src: /tmp/alertmanager-0.21.0.linux-amd64/alertmanager
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0777'
+
+- name: "move amtool binary to /usr/local/bin."
+  become: true
+  copy:
+    src: /tmp/alertmanager-0.21.0.linux-amd64/amtool
+    dest: /usr/local/bin
+    remote_src: yes
+    mode: '0777'
+
+- name: "add alertmanager service"
+  become: true
+  copy:
+    src: alertmanager.service
+    dest: /etc/systemd/system/
+
+
+- name: "add alertmanager config"
+  become: true
+  copy:
+    src: alertmanager.yml
+    dest: /tmp
+
+- name: Substitute environment variables
+  shell: envsubst < /tmp/alertmanager.yml > /etc/prometheus/alertmanager.yml
+
+- name: "add alertmanager config"
+  become: true
+  copy:
+    src: rules.yml
+    dest: /etc/prometheus/
+
+- name: "enable alertmanager service"
+  become: true
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: alertmanager
+    enabled: yes
+
+- name: "enable prometheus service"
+  become: true
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: prometheus
+    enabled: yes
