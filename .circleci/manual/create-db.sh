@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export db_name="udapeople-$RUN_ID"
-
 # https://docs.aws.amazon.com/cli/latest/reference/ec2/describe-vpcs.html
 export VPC_ID=$(aws ec2 describe-vpcs | jq .Vpcs[0].VpcId -r)
 

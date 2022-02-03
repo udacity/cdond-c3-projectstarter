@@ -68,3 +68,5 @@ node_modules
 
 .env
 dist
+
+.circleci/.env

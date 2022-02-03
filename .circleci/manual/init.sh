@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export RUN_ID=9ija99y9gwhkwjz7yb9dt
+source ../.env
 
 bash create-bucket.sh
 
