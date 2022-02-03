@@ -151,16 +151,16 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=deploy-backendInfra \
               --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
-            exit 1
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
             
-            export BACKEND_URL=$(aws cloudformation describe-stacks \
-              --stack-name backend-"${CIRCLE_WORKFLOW_ID}" \
-              --query "Stacks[0].Outputs[?OutputKey=='BackendURL'].OutputValue" \
-              --no-paginate --output text)
             
-            echo $BACKEND_URL
-            no_output_timeout: 30m
+          #  export BACKEND_URL=$(aws cloudformation describe-stacks \
+          #    --stack-name backend-"${CIRCLE_WORKFLOW_ID}" \
+          #    --query "Stacks[0].Outputs[?OutputKey=='BackendURL'].OutputValue" \
+          #    --no-paginate --output text)
+          #  
+          #  echo $BACKEND_URL
+          #  no_output_timeout: 30m
            # curl https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '${BACKEND_URL}'
 
       - run:
