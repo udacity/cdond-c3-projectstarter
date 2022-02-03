@@ -5,6 +5,8 @@ commands:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       # Add parameter here 
+      workflow_id:
+        type: string
         
     steps:
       - run:
@@ -12,7 +14,8 @@ commands:
           when: on_fail
           command: |
             # Your code here
-            exit 1
+            aws cloudformation delete-stack --stack-name frontend-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --stack-name backend-<<parameters.workflow_id>>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -168,9 +171,9 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-            #  --tags project=deploy-frontendInfra \
-            #  --stack-name ${CIRCLE_WORKFLOW_ID} \
-            #  --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
+              --tags project=deploy-frontendInfra \
+              --stack-name ${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
       - run:
           name: Add back-end ip to ansible inventory
           command: |
