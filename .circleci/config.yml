@@ -168,18 +168,18 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=deploy-frontendInfra \
-              --stack-name ${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
+            #  --tags project=deploy-frontendInfra \
+            #  --stack-name ${CIRCLE_WORKFLOW_ID} \
+            #  --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
       - run:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
-            export BACKEND_URL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
-
-            echo "${BACKEND_URL}" >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
-      - run: yum -y install tar gzip
+          #  export BACKEND_URL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
+#
+          #  echo "${BACKEND_URL}" >> .circleci/ansible/inventory.txt
+          #  cat .circleci/ansible/inventory.txt
+    #  - run: yum -y install tar gzip
             exit 1
       - persist_to_workspace:
           root: ~/
