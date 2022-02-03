@@ -178,18 +178,19 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
-            exit 1
-          #  export BACKEND_URL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
-#
-          #  echo "${BACKEND_URL}" >> .circleci/ansible/inventory.txt
-          #  cat .circleci/ansible/inventory.txt
-    #  - run: yum -y install tar gzip
+            export BACKEND_URL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
+
+            echo "${BACKEND_URL}" >> .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory.txt
+      - run: yum -y install tar gzip
 
       - persist_to_workspace:
-          root: ~/
+          root: .circleci/ansible
           paths:
-            - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure      
+            - inventory.txt
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID}"    
 
   configure-infrastructure:
     docker:
@@ -199,18 +200,25 @@ jobs:
       # Checkout code from git
       - checkout
       # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints:
+            - "22:a3:e0:10:f7:71:29:b9:a2:3a:a7:96:4f:52:36:57"
       # attach workspace
+      - attach_workspace:
+          at: /tmp/.circleci/ansible
       - run:
           name: Install dependencies
           command: |
-            # Your code here
-            exit 1
+            apk add --update ansible aws-cli
+          
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
-      # Here's where you will add some code to rollback on failure      
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+      # Here's where you will add some code to rollback on failure  
+      - distro-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID}"    
 
   run-migrations:
     docker:
