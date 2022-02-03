@@ -152,6 +152,7 @@ jobs:
               --tags project=deploy-backendInfra \
               --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}
+            exit 1
             
             export BACKEND_URL=$(aws cloudformation describe-stacks \
               --stack-name backend-"${CIRCLE_WORKFLOW_ID}" \
