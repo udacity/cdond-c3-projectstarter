@@ -8,7 +8,7 @@
 - name: "Unzip artifact"
   become: true
   unarchive:
-    src: /home/circleci/project/artifact.tar.gz
+    src: ~/project/artifact.tar.gz
     dest: /home/ubuntu/backend
     mode: '1777'
 
