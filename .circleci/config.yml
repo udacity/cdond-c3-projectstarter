@@ -158,7 +158,7 @@ jobs:
             echo "$BACKEND_PUBLIC_IP" >> .circleci/ansible/inventory.txt
 
       - run: yum -y install tar gzip
-      - presist_to_workspace:
+      - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/backend_public_url.txt
