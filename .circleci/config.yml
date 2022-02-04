@@ -253,8 +253,7 @@ jobs:
 
             cd backend
             npm install
-            npm run build
-            #npm audit fix --audit-level=critical --force
+            npm audit fix
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
       - run:
