@@ -252,6 +252,8 @@ jobs:
             echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
 
             cd backend
+            npm cache clean --force
+            rm -rf node_module
             npm install
             npm audit fix
             npm run migrations > migrations_dump.txt
