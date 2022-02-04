@@ -131,19 +131,19 @@ jobs:
           name: Ensure back-end infrastructure exsist
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
-              --tags project=udapeople
+            --template-file .circleci/files/backend.yml \
+            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
+            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --tags project=udapeople
       
       - run:
           name: Ensure front-end infracture exsist
           command: |
             aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
-              --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
-              --tag project=udapeople
+            --template-file .circleci/files/frontend.yml \
+            --parameter-overrides ID=${CIRCLE_WORKFLOW_ID:0:7} \
+            --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --tag project=udapeople
 
       - run:
           name: Retrive beckend ip (save it to ansible inventory)
