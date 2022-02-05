@@ -28,15 +28,16 @@ commands:
       - run:
           name: Revert migrations
           # Add when this will run
+          when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            SUCCESS=$(curl -H "token: ${MEMSTASH_TOKEN}" --request GET https://api.memstash.io/values/migration-${CIRCLE_WORKFLOW_ID:0:7})
+            echo ${SUCCESS}
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+            cd ~/project/backend
+            npm install
+            npm run migrations:revert
             fi
             
 jobs:
@@ -225,6 +226,75 @@ jobs:
             npm run migrations >> migrations_log.txt
             cat migrations_log.txt
 
+      - run:
+          name: Send migration results to memstash
+          command: |
+            if grep "successfully" dbmigrationresults
+            then 
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "true" https://api.memstash.io/values/<< pipeline.id >>_migrations
+            else
+            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "false" https://api.memstash.io/values/<< pipeline.id >>_migrations
+            fi
+      - destroy-environment
+
+  deploy-frontend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update tar gzip ansible nodejs npm curl
+            pip3 install awscli
+      - run:
+          name: Get backend url
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances \
+            --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --query 'Reservations[0].Instances[0].PublicIpAddress' \
+            --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo $API_URL
+            
+            echo "API_URL=$API_URL" >> frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            cd dist
+            aws s3 sync . "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --delete
+      - revert-migrations
+      - destroy-environment
+
+
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: [7c:2c:63:18:32:1d:ae:bc:36:f9:74:8c:03:f5:e5:ed]
+      - run:
+          name: Install dependencies
+          command: |
+            pip3 install awscli
+            apk add --update tar gzip ansible nodejs npm curl openssh-client
+            ansible-galaxy install weareinteractive.environment
+      - attach_workspace:
+          at: /tmp/workspace
+      - add-backend-ip-in-ansible-inventory
+      - run: cat .circleci/ansible/inventory.txt
+      - run:
+          name: Deploy backend
+          command: |
+            cd ~/project/.circleci/ansible
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - revert-migrations
+      - destroy-environment
+
 
 
 workflows:
@@ -246,5 +316,9 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migration:
           requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migration]
+      deploy-backend:
+          requires: [run-migration]
         
       
