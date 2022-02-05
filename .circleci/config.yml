@@ -270,30 +270,7 @@ jobs:
       - destroy-environment
 
 
-  deploy-backend:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: [7c:2c:63:18:32:1d:ae:bc:36:f9:74:8c:03:f5:e5:ed]
-      - run:
-          name: Install dependencies
-          command: |
-            pip3 install awscli
-            apk add --update tar gzip ansible nodejs npm curl openssh-client
-            ansible-galaxy install weareinteractive.environment
-      - attach_workspace:
-          at: /tmp/workspace
-      - add-backend-ip-in-ansible-inventory
-      - run: cat .circleci/ansible/inventory.txt
-      - run:
-          name: Deploy backend
-          command: |
-            cd ~/project/.circleci/ansible
-            ansible-playbook -i inventory.txt deploy-backend.yml
-      - revert-migrations
-      - destroy-environment
+  
 
 
 
@@ -318,7 +295,6 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migration]
-      - deploy-backend:
-          requires: [run-migration]
+      
         
       
