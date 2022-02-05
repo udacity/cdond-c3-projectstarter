@@ -367,11 +367,10 @@ jobs:
             echo ${URL}
             if curl -s ${URL} | grep "Welcome"
             then
-              echo "Smoke Test Success (Failed)"
-              # Change this to 0 after the job fails
-              return 1
+              echo "Smoke Test Success (Frontend)"
+              return 0
             else
-              echo "Smoke Test Success (Failed)"
+              echo "Smoke Test Failed (Frontend)"
               return 1
             fi
       - destroy_environment:
