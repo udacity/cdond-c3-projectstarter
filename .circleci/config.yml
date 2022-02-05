@@ -298,40 +298,38 @@ jobs:
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11
+    environment:
+      ID: arns3
     steps:
       - checkout
       - run:
-          name: Install dependencies
+          name: install packages
           command: |
-            # your code here
-            apk add --update curl
-            apk add --update npm
-            pip3 --no-cache-dir install awscli
+            apk add curl
+            apk add --no-cache python3 py3-pip
+            pip3 install --upgrade pip
+            pip3 install awscli
       - run:
-          name: Backend Smoke Test.
+          name: smoke test for backend.
           command: |
-            # your code here
-            echo ${CIRCLE_WORKFLOW_ID}
-            BACKENDIP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/public_dns)
-            STATUSAPI="https://${BACKENDIP}:3030/api/status"
-            if curl -s --head ${STATUSAPI}
-            then
-              echo "OK"
-            else
-              echo "Fail"
-            fi
+            BACKEND_IP=`aws --region us-west-2 ec2 describe-instances \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --output text`
+            curl "http://${BACKEND_IP}:3030/api/status"
       - run:
-          name: Frontend smoke test.
+          name: smoke test for frontend
           command: |
-            # your code here
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
-            if ( curl -s ${URL} | grep "Welcome" )
-            then
-              return 0
-            else
-              return 1
+            FRONTEND_URL="https://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-us-west-2.amazonaws.com/index.html"
+            if curl -s ${FRONTEND_URL} | grep "Welcome"
+              then
+                return 0
+              else
+                return 1
             fi
       - destroy-environment
+
+  
       
 
 
@@ -361,5 +359,6 @@ workflows:
           requires: [run-migration]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      
         
       
