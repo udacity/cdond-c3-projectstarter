@@ -263,26 +263,35 @@ jobs:
 
   deploy-backend:
     docker:
+      # Docker image here that supports Ansible
       - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: [7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90]
+          fingerprints: ["7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90"]
+      - attach_workspace:
+          at: .
       - run:
           name: Install dependencies
           command: |
-            pip3 install awscli
-            apk add --update tar gzip ansible nodejs npm curl openssh-client
-            ansible-galaxy install weareinteractive.environment
-      - attach_workspace:
-          at: /tmp/workspace
-      - add-backend-ip-in-ansible-inventory
-      - run: cat .circleci/ansible/inventory.txt
+            apk add --update ansible
+            apk add --update npm
+            apk add --update curl
+            pip3 --no-cache-dir install awscli
+      - run:
+          name: Build Backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+      - run:
+          name: "tar archiv"
+          command: |
+            tar -cf backend.tar ./backend
       - run:
           name: Deploy backend
           command: |
-            cd ~/project/.circleci/ansible
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - revert-migrations
       - destroy-environment
 
