@@ -226,16 +226,7 @@ jobs:
             npm run migrations >> migrations_log.txt
             cat migrations_log.txt
 
-      - run:
-          name: Send migration results to memstash
-          command: |
-            if grep "successfully" dbmigrationresults
-            then 
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "true" https://api.memstash.io/values/<< pipeline.id >>_migrations
-            else
-            curl -H "Content-Type: text/plain" -H "token: ${CIRCLE_WORKFLOW_ID:0:7}" --request PUT --data "false" https://api.memstash.io/values/<< pipeline.id >>_migrations
-            fi
-      - destroy-environment
+      
 
   deploy-frontend:
     docker:
