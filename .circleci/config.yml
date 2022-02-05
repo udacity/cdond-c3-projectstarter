@@ -295,6 +295,45 @@ jobs:
       - revert-migrations
       - destroy-environment
 
+  smoke-test:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            apk add --update curl
+            apk add --update npm
+            pip3 --no-cache-dir install awscli
+      - run:
+          name: Backend Smoke Test.
+          command: |
+            # your code here
+            echo ${CIRCLE_WORKFLOW_ID}
+            BACKENDIP=$(curl -H "token: ${CIRCLE_WORKFLOW_ID}" --request GET https://api.memstash.io/values/public_dns)
+            STATUSAPI="https://${BACKENDIP}:3030/api/status"
+            if curl -s --head ${STATUSAPI}
+            then
+              echo "OK"
+            else
+              echo "Fail"
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            # your code here
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
+            if ( curl -s ${URL} | grep "Welcome" )
+            then
+              return 1
+            else
+              return 1
+            fi
+      - destroy-environment
+      - revert-migrations
+
 
 
 workflows:
@@ -320,5 +359,7 @@ workflows:
           requires: [run-migration]
       - deploy-backend:
           requires: [run-migration]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
         
       
