@@ -198,7 +198,7 @@ jobs:
               .circleci/ansible/configure-server.yml
       - destroy-environment
 
-  run-migrations:
+  run-migration:
     docker:
       # Docker image here that supports NodeJS
       - image: circleci/node:13.8.0
