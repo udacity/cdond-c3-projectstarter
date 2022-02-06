@@ -31,7 +31,7 @@ Resources:
       KeyName: udapeople # If you use another key pair name, you should change this value to match.
       # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
       # Ubuntu 18 or higher works fine
-      ImageId: ami-0892d3c7ee96c0bf7
+      ImageId: ami-06cffe063efe892ad
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
