@@ -260,37 +260,37 @@ jobs:
       - revert-migrations
       - destroy-environment
 
-
-   deploy-backend:
+  deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: [7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90]
+          fingerprints: ["7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90"]
       - attach_workspace:
-          at: ~/
+          at: .
       - run:
           name: Install dependencies
           command: |
-            sudo apt update
-            sudo apt upgrade -y
-            sudo apt install -y ansible
-            sudo apt install -y awscli
+            apk add --update ansible
+            apk add --update npm
+            apk add --update curl
+            pip3 --no-cache-dir install awscli
       - run:
-          name: Deploy backend
+          name: Build Backend
           command: |
             cd backend
             npm i
             npm run build
-            cp package* ./dist
-            cd ..
-            # Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
-            cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+      - run:
+          name: "tar archiv"
+          command: |
+            tar -cf backend.tar ./backend
+      - run:
+          name: Deploy backend
+          command: |
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
       - revert-migrations
       - destroy-environment
 
