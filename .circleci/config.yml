@@ -327,7 +327,19 @@ jobs:
             fi
       
 
-  
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+              --stack-name udapeople-cloudfront \
+              --template-file .circleci/files/cloudfront.yml \
+              --region ${AWS_DEFAULT_REGION} \
+              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
 
 
 
@@ -356,6 +368,8 @@ workflows:
           requires: [run-migration]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [deploy-frontend]
       
         
       
