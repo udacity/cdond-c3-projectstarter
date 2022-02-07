@@ -155,7 +155,6 @@ jobs:
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --output text)
             echo "http://$BACKEND_PUBLIC_IP:3030" >> .circleci/backend_public_url.txt
-            echo "[all]" >> .circleci/ansible/inventory.txt
             echo "$BACKEND_PUBLIC_IP" >> .circleci/ansible/inventory.txt
 
       - run: yum -y install tar gzip
