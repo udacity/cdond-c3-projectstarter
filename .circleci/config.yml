@@ -34,7 +34,7 @@ commands:
           # Add when this will run
           when: on_fail
           command: |
-            SUCCESS = $(curl --insecure  https://kvdb.io/KJHcBkWjTuYAWNT1dWQdeM/<<parameters.workflow_id>>)
+            SUCCESS = $(curl --insecure  https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/<<parameters.workflow_id>>)
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -284,7 +284,7 @@ jobs:
           command: |
               if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
               then
-                curl https://kvdb.io/KJHcBkWjTuYAWNT1dWQdeM/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
+                curl https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
               fi
      # Here's where you will add some code to rollback on failure 
       - destroy-environment:
