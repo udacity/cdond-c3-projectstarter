@@ -276,6 +276,8 @@ jobs:
             cd backend
             cat .env
             npm install
+            npm fund
+            npm audit fix --force
             npm run build
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
