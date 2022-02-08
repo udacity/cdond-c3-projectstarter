@@ -14,7 +14,7 @@ commands:
           when: on_fail
           command: |
             # Your code here
-            echo "Destroying environment: <<parameters.workflow_id>>""
+            echo "Destroying environment: <<parameters.workflow_id>>"
             aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
             aws cloudformation delete-stack --stack-name frontend-<<parameters.workflow_id>>
             aws cloudformation delete-stack --stack-name backend-<<parameters.workflow_id>>
@@ -283,7 +283,7 @@ jobs:
             cd backend
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              touch 
+              touch ~/project/.circleci/outputs/db_migration_success
             fi
       - persist_to_workspace:
           root: ~/
