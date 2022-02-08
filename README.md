@@ -58,4 +58,4 @@ Before you submit your project, please check your work against the project rubri
 
 [License](LICENSE.md)
 
-### Hello World
+### Hello
