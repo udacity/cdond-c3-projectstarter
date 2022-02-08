@@ -27,7 +27,7 @@ commands:
     parameters:
       # Add parameter here 
       workflow_id:
-        type: string    
+        type: string
     steps:
       - run:
           name: Revert migrations
@@ -285,6 +285,7 @@ jobs:
           command: |
               if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
               then
+                echo "insecure" >> ~/.curlrc
                 curl https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
               fi
      # Here's where you will add some code to rollback on failure 
