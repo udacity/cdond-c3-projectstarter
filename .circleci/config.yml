@@ -283,7 +283,7 @@ jobs:
             cd backend
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              touch ~/project/.circleci/outputs/db_migration_success
+              touch ~/project/.circleci/
             fi
       - persist_to_workspace:
           root: ~/
