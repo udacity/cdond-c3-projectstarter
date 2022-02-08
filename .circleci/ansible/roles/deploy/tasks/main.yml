@@ -1,30 +1,31 @@
 ---
 
-- name: create backend directory
-  become: yes
-  file:
-    path: ~/backend
-    state: directory
-    mode: 0755
-
-- name: copy backend files
+- name: copy artifact
   become: yes
   copy:
-    src: ~/project/artifact.tar.gz
-    dest: ~/backend/artifact.tar.gz
+    src: artifact.tar.gz
+    dest: ~/artifact.tar.gz
+    mode: 0755
 
-- name: unpack backend files
+
+# - name: extract artifact
+#   become: yes
+#   shell: tar -vxf artifact.tar.gz
+- name: extract artifact.tar
   become: yes
-  shell: |
-    cd ~/backend
-    tar -vxf artifact.tar.gz
-    rm -f artifact.tar.gz
+  unarchive:
+    src: ~/artifact.tar.gz
+    dest: ~/
+    remote_src: yes
+    mode: 0755
+
+- name: Install packages based on package.json.
+  npm:
+    path: ~/backend
+
 - name: start app
   become: yes
   shell: |
-    cd ~/backend
-    npm install
+    cd backend
     pm2 stop default
     pm2 start npm -- start
-    cd dist
-    pm2 start main.js --update-env
