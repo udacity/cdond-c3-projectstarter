@@ -198,6 +198,7 @@ jobs:
               .circleci/ansible/configure-server.yml
       - destroy-environment
 
+
   run-migration:
     docker:
       # Docker image here that supports NodeJS
@@ -264,7 +265,7 @@ jobs:
       # Docker image here that supports Ansible
       - image: python:3.7-alpine3.11
     steps:
-      # Checkout code from git
+      # Checkout code from GIT
       - checkout
       # Add ssh keys with fingerprint
       - add_ssh_keys:
