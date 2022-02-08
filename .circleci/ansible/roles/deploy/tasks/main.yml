@@ -15,6 +15,7 @@
     production: yes
     state: present
 
+
 - name: Creates directory
   file:
     path: /home/ubuntu/backend
