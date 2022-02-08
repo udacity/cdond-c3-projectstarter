@@ -16,16 +16,15 @@
 - name: unpack backend files
   become: yes
   shell: |
-    cd ~/backend
+    cd backend
     tar -vxf artifact.tar.gz
     rm -f artifact.tar.gz
 
 - name: start app server
   become: yes
   shell: |
-    cd ~/backend
+    cd backend
     npm install
     pm2 stop default
     pm2 start npm -- start
-    cd dist
-    pm2 start main.js --update-env
+   
