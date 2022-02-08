@@ -19,7 +19,8 @@
     cd ~/backend
     tar -vxf artifact.tar.gz
     rm -f artifact.tar.gz
-- name: start app
+
+- name: start app server
   become: yes
   shell: |
     cd ~/backend
