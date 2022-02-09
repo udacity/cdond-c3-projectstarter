@@ -64,6 +64,34 @@ jobs:
             npm i
             npm run test
 
+  scan-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          - keys: [frontend-build]
+      - run:
+          name: Scan frontend
+          command: |
+            cd frontend
+            npm i
+            npm audit --audit-level=critical
+
+  scan-backend:
+    docker:
+      - image: circleci/Node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          - keys:[backend-build]
+      - run:
+          name: Scan the Backend
+          command: |
+            cd backend
+            npm i
+            npm audit --audit-level=critical
+
 
 
 # Invoke jobs via workflows
