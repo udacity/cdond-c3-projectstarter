@@ -107,7 +107,7 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
-          context: slack-secrets
+          context:slack-secrets
       - test-frontend:
           requires:
             - build-frontend
