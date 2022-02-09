@@ -348,7 +348,9 @@ jobs:
           name: Install dependencies
           command: |
             apk update
-            apk add --update ansible aws-cli openssh-client tar
+            apk add --update ansible curl
+            pip install awscli
+            apk add --update openssh-client tar
 
       - run: 
           name: compress backend
