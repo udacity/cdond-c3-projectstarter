@@ -230,7 +230,7 @@ jobs:
             - "22:a3:e0:10:f7:71:29:b9:a2:3a:a7:96:4f:52:36:57"
       # attach workspace
       - attach_workspace:
-          at: ~/
+          at: /tmp/.circleci/ansible
       - run:
           name: Install dependencies
           command: |
@@ -288,6 +288,10 @@ jobs:
                 echo "insecure" >> ~/.curlrc
                 curl https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
               fi
+      - persist_to_workspace:
+          root:  ~/project
+          paths:
+            - backend
      # Here's where you will add some code to rollback on failure 
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID}"     
