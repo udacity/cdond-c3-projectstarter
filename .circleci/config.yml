@@ -188,7 +188,7 @@ jobs:
 
             echo $BACKEND_URL
              
-            curl https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d ${BACKEND_URL}
+            curl https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '${BACKEND_URL}'
       
 
       - run:
