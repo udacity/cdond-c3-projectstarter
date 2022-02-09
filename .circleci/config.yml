@@ -204,10 +204,7 @@ jobs:
           command: |
             # Your code here
             #export BACKEND_URL=$(curl --insecure https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
-            BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
+            BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --output=text)
             echo "${BACKEND_IP}" >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - run: yum -y install tar gzip
@@ -318,7 +315,8 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IPL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
+            #export BACKEND_IPL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
+            BACKEND_IP = $(BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --output=text))
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}" > .circleci/api_url.txt
       - run:
