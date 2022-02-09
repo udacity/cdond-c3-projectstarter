@@ -42,9 +42,9 @@ jobs:
       steps:
         - checkout
         - restore_cache:
-            keys: frontend-build
+            keys: [frontend-build]
         - run:
-            name: Front-end Test
+            name: Test Front-end
             command: |
               npm i
               npm run test
@@ -55,9 +55,9 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: backend-build
+          keys: [backend-build]
       - run:
-          name: Back-end Test
+          name: Test Back-end
           command: |
             npm i
             npm run test
