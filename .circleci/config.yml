@@ -342,7 +342,7 @@ jobs:
       # attach workspace
       - restore_cache:
           keys: [backend-build]
-      - attach-workspace:
+      - attach_workspace:
           at: /tmp/artifacts
       - run:
           name: Install dependencies
