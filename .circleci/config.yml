@@ -181,14 +181,14 @@ jobs:
               --stack-name "backend-${CIRCLE_WORKFLOW_ID}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID}"
             
-            export BACKEND_URL=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
+            #export BACKEND_URL=$(aws ec2 describe-instances \
+            #  --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            #  --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            #  --output text)
 
-            echo $BACKEND_URL
-             
-            curl https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '${BACKEND_URL}'
+            #echo $BACKEND_URL
+            # 
+            #curl https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '${BACKEND_URL}'
       
 
       - run:
@@ -203,9 +203,12 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             # Your code here
-            export BACKEND_URL=$(curl --insecure https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
-
-            echo "${BACKEND_URL}" >> .circleci/ansible/inventory.txt
+            #export BACKEND_URL=$(curl --insecure https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
+            BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+            echo "${BACKEND_IP}" >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
       - run: yum -y install tar gzip
 
