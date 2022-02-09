@@ -1,0 +1,17 @@
+---
+- name: copy  copy the files (compiled back-end files can be found in a folder called ./dist)
+  become: yes
+  copy:
+    src: ~/project/artifact.tar.gz
+    dest: /home/ubuntu/artifact.tar.gz
+
+- name: prepare binaries
+  become: true
+  shell: |
+    cd /home/ubuntu
+    tar xvzf artifact.tar.gz -C .
+- name: start server
+  become: true
+  shell: |
+    cd /home/ubuntu
+    pm2 start npm --name backend -- start

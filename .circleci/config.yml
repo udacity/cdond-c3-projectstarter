@@ -295,25 +295,38 @@ jobs:
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
-      - image: cimg/base:2020.01
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
+      - restore_cache:
+          keys: [frontend-build]
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            yum install -y curl tar sudo
+            curl -sL https://rpm.nodesource.com/setup_13.x | sudo bash -
+            yum install -y nodejs
+            node --version
       - run:
           name: Get backend url
           command: |
-            # your code here
+            export BACKEND_IPL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "${API_URL}" > .circleci/api_url.txt
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure      
+            export API_URL=$(cat .circleci/api_url.txt)
+            echo "${API_URL}" > frontend/.env
+            cd frontend
+            npm i
+            npm run build
+            aws s3 cp dist s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive
+
+      # Here's where you will add some code to rollback on failure 
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
                     
   deploy-backend:
     docker:
@@ -323,16 +336,34 @@ jobs:
       # Checkout code from git
       - checkout
       # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints:
+            - "22:a3:e0:10:f7:71:29:b9:a2:3a:a7:96:4f:52:36:57"
       # attach workspace
+      - restore_cache:
+          keys: [backend-build]
+      - attach-workspace:
+          at: /tmp/artifacts
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            apk update
+            apk add --update ansible aws-cli openssh-client tar
+
+      - run: 
+          name: compress backend
+          command: |
+            tar -C /tmp/artifacts/backend -czvf artifact.tar.gz .
+
       - run:
           name: Deploy backend
           command: |
-            # your code here
+            cd .circleci/ansible
+            export ANSIBLE_HOST_KEY_CHECKING=False
+            ansible-playbook -i /tmp/artifacts/inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID}"
 
   smoke-test:
     docker:
