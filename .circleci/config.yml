@@ -331,7 +331,7 @@ jobs:
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
-      - image: python:3.7-alpine3.11
+      - image: python:3.9.1-alpine3.12
     steps:
       # Checkout code from git
       - checkout
@@ -348,10 +348,9 @@ jobs:
           name: Install dependencies
           command: |
             apk update
-            apk add --update ansible curl
+            apk add --update ansible openssh-client tar
             pip install awscli
-            apk add --update openssh-client tar
-
+            
       - run: 
           name: compress backend
           command: |
