@@ -50,4 +50,3 @@
     npm run build
     cd dist
     pm2 start npm --name backend -- start
-   l
