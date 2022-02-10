@@ -43,11 +43,11 @@ jobs:
             npm install
             npm run build
             return 1
+          notify_slack_error
+          when: on_fail
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build 
-      - notify_slack_error
-        when: on_fail
 
   test-frontend:
       docker:
