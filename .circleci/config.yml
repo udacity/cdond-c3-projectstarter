@@ -5,10 +5,7 @@ orbs:
 command:
   notify_slack_error:
     steps:
-      - slack/notify:
-          channel: devops
-          event: fail
-          template: basic_fail_1
+      
 
 
 jobs:
@@ -43,11 +40,13 @@ jobs:
             npm install
             npm run build
             return 1
-          notify_slack_error
-          when: on_fail
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build 
+      - slack/notify:
+          channel: devops
+          event: fail
+          template: basic_fail_1
 
   test-frontend:
       docker:
@@ -114,6 +113,8 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
+          context: 
+            - slack-secrets
       - test-frontend:
           requires:
             - build-frontend
