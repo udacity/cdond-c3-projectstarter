@@ -305,8 +305,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update tar gzip ansible nodejs npm curl openssh-client
-            pip install awscli
+            sudo apk add --update tar gzip ansible nodejs npm curl openssh-client
+            sudo pip install awscli
       - run:
           name: Deploy backend
           no_output_timeout: 30m
