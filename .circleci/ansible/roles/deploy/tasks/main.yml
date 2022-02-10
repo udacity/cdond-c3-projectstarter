@@ -29,7 +29,12 @@
 #     pm2 start npm -- start
 
 
-
+- name: create backend directory
+  become: yes
+  file:
+    path: /home/ubuntu/backend
+    state: directory
+    mode: 0755
 
 - name: "Move backend files to server."
   copy:
@@ -45,4 +50,4 @@
     npm run build
     cd dist
     pm2 start npm --name backend -- start
-   
+   l
