@@ -39,14 +39,9 @@ jobs:
             cd backend
             npm install
             npm run build
-            return 1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build 
-      - slack/notify:
-          channel: devops
-          event: fail
-          template: basic_fail_1
 
   test-frontend:
       docker:
@@ -61,6 +56,11 @@ jobs:
               cd frontend
               npm i
               npm run test
+              return 1
+        - slack/notify:
+            channel: devops
+            event: fail
+            template: basic_fail_1
                   
   test-backend:
     docker:
@@ -113,9 +113,9 @@ workflows:
     jobs:
       - build-frontend
       - build-backend
+      - test-frontend:
           context: 
             - slack-secrets
-      - test-frontend:
           requires:
             - build-frontend
       - test-backend:
