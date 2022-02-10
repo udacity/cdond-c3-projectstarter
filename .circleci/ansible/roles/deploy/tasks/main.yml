@@ -44,8 +44,8 @@
 - name: "Install package dependencies"
   shell: |
     cd /home/ubuntu/backend
-    tar -xzvf artifact.tar.gz -C backend
-    rm artifact.tar.gz
+    tar -vxf artifact.tar.gz
+    rm -f artifact.tar.gz
     cd backend/
     npm run build
     cd dist
