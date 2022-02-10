@@ -10,9 +10,9 @@
   shell: |
     cd /home/ubuntu
     tar xvzf artifact.tar.gz -C .
-    
+
 - name: start server
   become: true
   shell: |
-    cd /home/ubuntu
+    cd /home/ubuntu/backend
     pm2 start npm --name backend -- start
