@@ -227,7 +227,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - "22:a3:e0:10:f7:71:29:b9:a2:3a:a7:96:4f:52:36:57"
+            - "8e:fd:3a:bf:ac:1d:ff:ed:89:05:21:9f:d4:7a:e0:3c"
       # attach workspace
       - attach_workspace:
           at: /tmp/.circleci/ansible
@@ -343,7 +343,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - "22:a3:e0:10:f7:71:29:b9:a2:3a:a7:96:4f:52:36:57"
+            - "8e:fd:3a:bf:ac:1d:ff:ed:89:05:21:9f:d4:7a:e0:3c"
       # attach workspace
       - restore_cache:
           keys: [backend-build]
