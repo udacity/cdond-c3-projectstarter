@@ -35,7 +35,7 @@ commands:
           when: on_fail
           command: |
             # echo "insecure" >> ~/.curlrc
-            SUCCESS = $(curl --insecure https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/<<parameters.workflow_id>>)
+            SUCCESS=$(curl --insecure https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/<<parameters.workflow_id>>)
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
