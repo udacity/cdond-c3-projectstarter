@@ -37,6 +37,7 @@
     mode: 0755
 
 - name: "Move backend files to server."
+  become: yes
   copy:
     src: ~/project/artifact.tar.gz
     dest: /home/ubuntu/backend/artifact.tar.gz
