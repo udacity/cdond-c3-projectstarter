@@ -286,7 +286,7 @@ jobs:
               if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
               then
                 echo "insecure" >> ~/.curlrc
-                curl https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/$\{CIRCLE_WORKFLOW_ID:0:7\}  -d '1'
+                curl https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
       - persist_to_workspace:
           root:  ~/project
@@ -382,9 +382,8 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
-            sudo apt update
-            sudo apt install -y awscli
-            sudo apt install -y python3 ansible
+            apk add --update curl
+            pip install awscli
       - run:
           name: Get backend url
           command: |
