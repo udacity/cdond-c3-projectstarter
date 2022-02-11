@@ -43,11 +43,12 @@
     dest: /home/ubuntu/backend/artifact.tar.gz
 
 - name: "Install package dependencies"
+  become: yes
   shell: |
     cd /home/ubuntu/backend
     tar -vxf artifact.tar.gz
     rm -f artifact.tar.gz
-    cd backend
+    cd backend/
     npm run build
     cd dist
     pm2 start npm --name backend -- start
