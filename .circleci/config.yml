@@ -260,39 +260,39 @@ jobs:
       - destroy-environment
 
 
-  #  deploy-backend:
-  #   docker:
-  #     # Docker image here that supports Ansible
-  #     - image: python:3.7-alpine3.11
-  #   steps:
-  #     # Checkout code from git
-  #     # Add ssh keys with fingerprint
-  #     # attach workspace
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["37:7f:62:22:c4:a7:56:7b:d0:52:8d:5e:46:1e:bd:36"]
-  #     - attach_workspace:
-  #         at: /tmp/.circleci/ansible  
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #           apk add --update ansible
-  #           apk add --update tar gzip nodejs npm
-  #           apk add --update openssh-client
-  #           apk add --update curl #for slack notify
-  #           apk add --update jq #for slack notify
-  #     - run:
-  #         name: Compress Backend
-  #         command: |
-  #           tar -C backend -czvf artifact.tar.gz .
-  #           ls -la
-  #     - run:
-  #         name: Deploy backend
-  #         command: |
-  #           # your code here
-  #           cat /tmp/.circleci/ansible/inventory.txt
-  #           ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+   deploy-backend:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine3.11
+    steps:
+      # Checkout code from git
+      # Add ssh keys with fingerprint
+      # attach workspace
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["37:7f:62:22:c4:a7:56:7b:d0:52:8d:5e:46:1e:bd:36"]
+      - attach_workspace:
+          at: /tmp/.circleci/ansible  
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            apk add --update ansible
+            apk add --update tar gzip nodejs npm
+            apk add --update openssh-client
+            apk add --update curl #for slack notify
+            apk add --update jq #for slack notify
+      - run:
+          name: Compress Backend
+          command: |
+            tar -C backend -czvf artifact.tar.gz .
+            ls -la
+      - run:
+          name: Deploy backend
+          command: |
+            # your code here
+            cat /tmp/.circleci/ansible/inventory.txt
+            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
 
   # deploy-backend:
   #   docker:
