@@ -1,0 +1,17 @@
+[URL01]  GitHub repository
+https://github.com/jimohabdol/cdond-c3-projectstarter
+
+
+[URL02]  S3 Bucket
+
+
+
+[URL03]  cloudfront
+
+
+
+[URL04]  The backend endpoint health
+
+
+
+[URL05]  Prometheus Server
