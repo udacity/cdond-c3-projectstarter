@@ -259,6 +259,7 @@ jobs:
       - revert-migrations
       - destroy-environment
 
+
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
@@ -271,7 +272,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90"]
       - attach_workspace:
-          at: ~/  
+          at: ~/ 
       - run:
           name: Install dependencies
           command: |
@@ -331,29 +332,29 @@ jobs:
   #     - destroy-environment
 
 
-  deploy-backend:
-    docker:
-      - image: python:3.7-alpine3.11
-    steps:
-      - checkout
-      - add_ssh_keys:
-          fingerprints: ["7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90"]
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install dependencies
-          command: |
-            apk add --update tar gzip ansible nodejs npm curl openssh-client
-            pip install awscli
-      - run:
-          name: Deploy backend
-          no_output_timeout: 30m
-          command: |
-            tar -C backend -czvf artifact.tar.gz . && \
-            cd .circleci/ansible && \
-            ansible-playbook -i inventory.txt deploy-backend.yml
-      - revert-migrations
-      - destroy-environment
+  # deploy-backend:
+  #   docker:
+  #     - image: python:3.7-alpine3.11
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: ["7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90"]
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           apk add --update tar gzip ansible nodejs npm curl openssh-client
+  #           pip install awscli
+  #     - run:
+  #         name: Deploy backend
+  #         no_output_timeout: 30m
+  #         command: |
+  #           tar -C backend -czvf artifact.tar.gz . && \
+  #           cd .circleci/ansible && \
+  #           ansible-playbook -i inventory.txt deploy-backend.yml
+  #     - revert-migrations
+  #     - destroy-environment
 
   smoke-test:
     docker:
