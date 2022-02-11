@@ -47,7 +47,7 @@
   shell: |
     cd /home/ubuntu/backend
     tar -vxf artifact.tar.gz -C backend
-    rm backend_artifact.tar.gz
+    rm -f artifact.tar.gz
     cd backend/
     npm run build
     cd dist
