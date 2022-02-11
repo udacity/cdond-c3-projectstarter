@@ -259,7 +259,6 @@ jobs:
       - revert-migrations
       - destroy-environment
 
-
   deploy-backend:
     docker:
       # Docker image here that supports Ansible
