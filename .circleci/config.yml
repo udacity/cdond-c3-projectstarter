@@ -291,8 +291,12 @@ jobs:
           name: Deploy backend
           command: |
             # your code here
-            cat /tmp/.circleci/ansible/inventory.txt
-            ANSIBLE_HOST_KEY_CHECKING=False ansible-playbook -i /tmp/.circleci/ansible/inventory.txt .circleci/ansible/deploy-backend.yml
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
+      - revert-migrations
+      - destroy-environment
 
   # deploy-backend:
   #   docker:
