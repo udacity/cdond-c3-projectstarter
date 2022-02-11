@@ -260,7 +260,7 @@ jobs:
       - destroy-environment
 
 
-   deploy-backend:
+  deploy-backend:
     docker:
       # Docker image here that supports Ansible
       - image: python:3.7-alpine3.11
