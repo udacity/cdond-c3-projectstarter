@@ -330,8 +330,8 @@ jobs:
             aws s3 cp dist s3://udapeople-"${CIRCLE_WORKFLOW_ID}" --recursive
 
       # Here's where you will add some code to rollback on failure 
-      #- destroy-environment:
-       #   workflow_id: ${CIRCLE_WORKFLOW_ID}
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
                     
   deploy-backend:
     docker:
@@ -368,8 +368,8 @@ jobs:
             export ANSIBLE_HOST_KEY_CHECKING=False
             ansible-playbook -i /tmp/artifacts/inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
-      #- destroy-environment:
-       #   workflow_id: "${CIRCLE_WORKFLOW_ID}"
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID}"
 
   smoke-test:
     docker:
@@ -382,10 +382,22 @@ jobs:
           name: Install dependencies
           command: |
             # your code here
+            sudo apt update
+            sudo apt install -y awscli
+            sudo apt install -y python3 ansible
       - run:
           name: Get backend url
           command: |
             # your code here
+            export BACKEND_IP=$(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --output=text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo ${API_URL}
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
       - run:
           name: Backend smoke test.
           command: |
@@ -394,7 +406,18 @@ jobs:
           name: Frontend smoke test.
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure  
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-west-2.amazonaws.com"
+            echo ${URL} 
+            if curl -s ${URL} | grep "Welcome"
+            then
+                # Change this to 0 after the job fails
+              return 1
+            else
+              return 1
+            fi
+      # Here's where you will add some code to rollback on failure 
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID}"
 
   cloudfront-update:
     docker:
