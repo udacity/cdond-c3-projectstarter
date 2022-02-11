@@ -28,27 +28,68 @@
 #     pm2 stop default
 #     pm2 start npm -- start
 
+# - name: Install dependencies.
+#   become: true
+#   apt:
+#     name: ["nodejs", "npm"]
+#     state: latest
+#     update_cache: yes
 
-- name: create backend directory
-  become: yes
+- name: Install pm2
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: Creates directory
   file:
     path: /home/ubuntu/backend
     state: directory
-    mode: 0755
 
-- name: "Move backend files to server."
-  become: yes
+- name: Copy backend dist files web server
   copy:
-    src: ~/project/artifact.tar.gz
+    src: /root/project/artifact.tar.gz
     dest: /home/ubuntu/backend/artifact.tar.gz
 
-- name: "Install package dependencies"
-  become: yes
+- name: Uncompress Backend
   shell: |
     cd /home/ubuntu/backend
-    tar -vxf artifact.tar.gz -C backend
-    rm -f artifact.tar.gz
-    cd backend/
+    tar xvzf artifact.tar.gz -C .
+    ls -la
+- name: Build
+  become: true
+  shell: |
+    cd /home/ubuntu/backend
+    npm install
     npm run build
-    cd dist
+- name: Start PM2
+  shell: |
+    cd /home/ubuntu/backend
     pm2 start npm --name backend -- start
+
+
+# - name: create backend directory
+#   become: yes
+#   file:
+#     path: /home/ubuntu/backend
+#     state: directory
+#     mode: 0755
+
+# - name: "Move backend files to server."
+#   become: yes
+#   copy:
+#     src: ~/project/artifact.tar.gz
+#     dest: /home/ubuntu/backend/artifact.tar.gz
+
+# - name: "Install package dependencies"
+#   become: yes
+#   shell: |
+#     cd /home/ubuntu/backend
+#     tar -vxf artifact.tar.gz -C backend
+#     rm -f artifact.tar.gz
+#     cd backend/
+#     npm run build
+#     cd dist
+#     pm2 start npm --name backend -- start
