@@ -316,7 +316,7 @@ jobs:
           name: Get backend url
           command: |
             #export BACKEND_IPL=$(curl --insecure  https://kvdb.io/BxKM4f3mJcHzUHxTsjmzND/$\{CIRCLE_WORKFLOW_ID:0:7\})
-            BACKEND_IP = $(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --output=text)
+            export BACKEND_IP = $(aws ec2 describe-instances --query "Reservations[*].Instances[*].PublicIpAddress" --output=text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}" > .circleci/api_url.txt
       - run:
