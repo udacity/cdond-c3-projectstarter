@@ -14,5 +14,7 @@
 - name: start server
   become: true
   shell: |
-    cd /home/ubuntu/backend
+    cd /home/ubuntu/
+    npm install
+    pm2 stop default
     pm2 start npm -- start
