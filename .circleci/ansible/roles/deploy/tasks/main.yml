@@ -43,7 +43,6 @@
     dest: /home/ubuntu/backend/artifact.tar.gz
 
 - name: "Install package dependencies"
-  become: yes
   shell: |
     cd /home/ubuntu/backend
     tar -vxf artifact.tar.gz
