@@ -203,7 +203,7 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             rm -fr ~/project/.circleci/ansible/inventory.txt
-            cp ~/project/.circleci/ansible/inventory_template.txt ~/project/.circleci/ansible/inventory.txt
+            cp ~/project/.circleci/ansible/inventory-template.txt ~/project/.circleci/ansible/inventory.txt
             export BACKEND_IP=$(aws ec2 describe-instances \
               --filters 'Name=tag:Name,Values=backend-*' \
               --query "Reservations[*].Instances[0].PublicIpAddress" \
@@ -410,7 +410,7 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Get old stack workflow id
+          name: Get old stack workflow id and Remove old stacks and files
           command: |
             # your code here
             # Fetch the Old workflow ID
@@ -423,10 +423,7 @@ jobs:
             export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                     --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
             echo Stack names: "${STACKS[@]}"
-
-      - run:
-          name: Remove old stacks and files
-          command: |
+            
             echo OldWorkflowID: "${OldWorkflowID}"
             echo Stack names: "${STACKS[@]}"
 

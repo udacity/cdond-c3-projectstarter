@@ -1,17 +1,13 @@
 [Unit]
-Description=Prometheus
-Wants=network-online.target
-After=network-online.target
+Description=Prometheus Node Exporter Service
+After=network.target
 
 [Service]
-User=prometheus
-Group=prometheus
+User=node_exporter
+Group=node_exporter
 Type=simple
-ExecStart=/usr/local/bin/prometheus \
-    --config.file /etc/prometheus/prometheus.yml \
-    --storage.tsdb.path /var/lib/prometheus/ \
-    --web.console.templates=/etc/prometheus/consoles \
-    --web.console.libraries=/etc/prometheus/console_libraries
+ExecStart=/usr/local/bin/node_exporter
 
 [Install]
 WantedBy=multi-user.target
+
