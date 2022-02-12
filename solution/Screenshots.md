@@ -31,7 +31,7 @@
 ![](media/09_cleanup_done.png)
 10. Only deploy on pushed to master branch.
 [SCREENSHOT10]
-![](media/.png)
+![](media/10_branch.png)
 11. Provide a screenshot of a graph of your EC2 instance including available memory, available disk space, and CPU usage.
 [SCREENSHOT11]
 ![](media/11_memory.png)
