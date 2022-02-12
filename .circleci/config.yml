@@ -57,7 +57,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -75,7 +75,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -95,7 +95,7 @@ jobs:
           template: basic_fail_1
   test-frontend:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -110,7 +110,7 @@ jobs:
                 
   test-backend:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -125,7 +125,7 @@ jobs:
             
   scan-frontend:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -143,7 +143,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -210,8 +210,6 @@ jobs:
               --output text)
              echo $BACKEND_IP >> ~/project/.circleci/ansible/inventory.txt
             
-            export API_URL="http://${BACKEND_IP}:3030"
-            echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> ~/project/frontend/.env
             cat frontend/.env
       - persist_to_workspace:
@@ -224,7 +222,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
         - checkout
         - add_ssh_keys:
@@ -251,7 +249,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -277,7 +275,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -311,7 +309,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -345,7 +343,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
+      - image: oviregie/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       # - run:

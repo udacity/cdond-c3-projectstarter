@@ -1,3 +1,3 @@
 #!/bin/bash
 
-docker push docker1ovi/circleci-node-ansible-aws:13.8.0
+docker push oviregie/circleci-node-ansible-aws:13.8.0
