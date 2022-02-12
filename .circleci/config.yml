@@ -211,6 +211,7 @@ jobs:
              echo $BACKEND_IP >> ~/project/.circleci/ansible/inventory.txt
             
             echo API_URL="http://${BACKEND_IP}:3030" >> ~/project/frontend/.env
+            echo FRONTEND_URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com/#/employees" >> ~/project/frontend/.env
             cat frontend/.env
       - persist_to_workspace:
           root: ~/
@@ -363,6 +364,7 @@ jobs:
           command: |
             source ~/project/frontend/.env
             echo "${API_URL}"
+            sleep 30
             if curl "${API_URL}/api/status" | grep "ok"
             then
                 exit 0
@@ -372,9 +374,9 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |           
-            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com/#/employees"
-            echo ${URL} 
-            if curl -s ${URL} | grep "Welcome"
+            source ~/project/frontend/.env
+            echo ${FRONTEND_URL} 
+            if curl -s ${FRONTEND_URL} | grep "Welcome"
             then
               exit 0
             else
