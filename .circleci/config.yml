@@ -292,7 +292,7 @@ jobs:
           command: |
             # your code here
             cd .circleci/ansible
-            echo "Contents  of the inventory.txt file is -------"
+            echo "Contents  of the inventory.txt file is -----"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - revert-migrations
