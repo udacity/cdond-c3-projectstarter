@@ -27,22 +27,25 @@
 ![](media/08_promotion.png)
 9. Successful cleanup job.
 [SCREENSHOT09]
-![](media/.png)
+![](media/09_cleanup.png)
+![](media/09_cleanup_done.png)
 10. Only deploy on pushed to master branch.
 [SCREENSHOT10]
 ![](media/.png)
 11. Provide a screenshot of a graph of your EC2 instance including available memory, available disk space, and CPU usage.
 [SCREENSHOT11]
-![](media/.png)
+![](media/11_memory.png)
+![](media/11_disk.png)
+![](media/11_cpu.png)
 12. Provide a screenshot of an alert that was sent by Prometheus.
 [SCREENSHOT12]
-![](media/.png)
+![](media/12_alert.png)
 13. Provide a screenshot showing the evidence of deployed and functioning front-end application in CloudFront (aka, your production front-end).
 [URL03_SCREENSHOT]
-![](media/.png)
+![](media/13_cloudfront.png)
 14. Provide a screenshot showing the evidence of a healthy backend application. The backend endpoint status should show a healthy response.
 [URL04_SCREENSHOT]
-![](media/.png)
+![](media/14_backend.png)
 15. Provide a screenshot of your Prometheus server showing UP state
 [URL05_SCREENSHOT]
-![](media/.png)
+![](media/15_prometheus.png)
