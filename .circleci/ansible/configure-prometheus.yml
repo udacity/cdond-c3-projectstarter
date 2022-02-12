@@ -27,6 +27,7 @@
     YOUR_EMAIL_ADDRESS: "{{ lookup('env', 'YOUR_EMAIL_ADDRESS')}}"
     EMAIL_YO_WANT_TO_SEND_EMAILS_TO: "{{ lookup('env', 'EMAIL_YO_WANT_TO_SEND_EMAILS_TO')}}"
     YOUR_EMAIL_PASSWORD: "{{ lookup('env', 'YOUR_EMAIL_PASSWORD')}}"
+    SLACK_WEBHOOK: "{{ lookup('env', 'SLACK_WEBHOOK')}}"
 
   roles:
   - configure-prometheus-server
