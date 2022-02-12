@@ -427,7 +427,7 @@ jobs:
             echo OldWorkflowID: "${OldWorkflowID}"
             echo Stack names: "${STACKS[@]}"
 
-
+            exit 0
             if [[ "${CIRCLE_WORKFLOW_ID:0:7}" =~ "${OldWorkflowID}" ]]
             then
               if aws s3 ls | grep udapeople-${OldWorkflowID}; then
