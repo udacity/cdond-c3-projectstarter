@@ -64,6 +64,14 @@
 - name: Substitute environment variables
   shell: envsubst < /tmp/prometheus.yml > /etc/prometheus/prometheus.yml
 
+- name: Creates directory
+  file:
+    path: /var/lib/prometheus/
+    state: directory
+    owner: prometheus
+    group: prometheus
+    mode: '0644'
+
 - name: "enable prometheus service"
   become: true
   systemd:
