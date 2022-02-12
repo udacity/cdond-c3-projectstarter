@@ -57,7 +57,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -75,7 +75,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -95,7 +95,7 @@ jobs:
           template: basic_fail_1
   test-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -110,7 +110,7 @@ jobs:
                 
   test-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -125,7 +125,7 @@ jobs:
             
   scan-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -143,7 +143,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -224,19 +224,19 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
         - checkout
         - add_ssh_keys:
             fingerprints: ["cf:dd:21:72:b3:b5:53:66:16:32:e3:b7:01:7c:6b:6f"] 
-        - run:
-            name: Install Dependencies
-            command: |
-              sudo apt update -y
-              sudo apt install -y python
-              sudo apt install -y python-pip
-              sudo apt install -y ansible
-              pip install awscli
+        # - run:
+        #     name: Install Dependencies
+        #     command: |
+        #       sudo apt update -y
+        #       sudo apt install -y python
+        #       sudo apt install -y python-pip
+        #       sudo apt install -y ansible
+        #       pip install awscli
         - attach_workspace:
             at: ~/
         - run:
@@ -251,7 +251,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -277,19 +277,19 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt update -y
-            sudo apt install -y python
-            sudo apt install -y python-pip
-            # sudo apt install -y ansible
-            pip install awscli
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       sudo apt update -y
+      #       sudo apt install -y python
+      #       sudo apt install -y python-pip
+      #       # sudo apt install -y ansible
+      #       pip install awscli
       - attach_workspace:
             at: ~/
       - run:
@@ -311,19 +311,19 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
       - restore_cache:
           keys: [backend-build]
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt update -y
-            sudo apt install -y python
-            sudo apt install -y python-pip
-            sudo apt install -y ansible
-            pip install awscli
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       sudo apt update -y
+      #       sudo apt install -y python
+      #       sudo apt install -y python-pip
+      #       sudo apt install -y ansible
+      #       pip install awscli
       - attach_workspace:
           at: ~/
       - run:
@@ -345,14 +345,14 @@ jobs:
 
   smoke-test:
     docker:
-      - image: circleci/node:13.8.0
+      - image: docker1ovi/circleci-node-ansible-aws:13.8.0
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt update
-            sudo apt install -y awscli
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       sudo apt update
+      #       sudo apt install -y awscli
       - attach_workspace:
             at: ~/
       - run:
