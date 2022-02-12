@@ -205,7 +205,7 @@ jobs:
             cp ~/project/.circleci/ansible/inventory_template.txt ~/project/.circleci/ansible/inventory.txt
             export BACKEND_IP=$(aws ec2 describe-instances \
               --filters 'Name=tag:Name,Values=backend-*' \
-              --query "Reservations[0].Instances[0].PublicIpAddress" \
+              --query "Reservations[*].Instances[0].PublicIpAddress" \
               --output text)
              echo $BACKEND_IP >> ~/project/.circleci/ansible/inventory.txt
             
@@ -223,17 +223,19 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: circleci/node:13.8.0
     steps:
         - checkout
         - add_ssh_keys:
             fingerprints: ["cf:dd:21:72:b3:b5:53:66:16:32:e3:b7:01:7c:6b:6f"] 
         - run:
-            name: Install Ansible
+            name: Install Dependencies
             command: |
-              apk add --update ansible tar gzip
+              sudo apt update -y
+              sudo apt install -y python
+              sudo apt install -y python-pip
+              sudo apt install -y ansible
               pip install awscli
-
         - attach_workspace:
             at: ~/
         - run:
