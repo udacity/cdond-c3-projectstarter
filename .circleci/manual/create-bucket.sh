@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export bucket_name="udapeople-$RUN_ID"
+source ../.env
 
 aws s3api create-bucket --bucket $bucket_name \
     --acl public-read-write \
