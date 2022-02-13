@@ -183,7 +183,7 @@ jobs:
           name: Configure server
           command: |
             echo ENVIRONMENT=development > "backend/.env"
-            echo NODE_ENV=production >> "backend/.env"
+            echo NODE_ENV=development >> "backend/.env"
             echo TYPEORM_CONNECTION=postgres >> "backend/.env"
             echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
             echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
@@ -210,7 +210,7 @@ jobs:
           no_output_timeout: 10m
           command: |
             cd backend
-            echo ENVIROMENT=$ENVIROMENT > ".env"
+            echo ENVIROMENT= development > ".env"
             echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ".env"
             echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ".env"
             echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ".env"
