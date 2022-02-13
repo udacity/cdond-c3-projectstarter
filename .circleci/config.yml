@@ -458,7 +458,7 @@ jobs:
   cleanup:
       docker:
         # Docker image here
-        - image: circleci/node:13.8.0
+        - image: amazon/aws-cli
       steps:
         # Checkout code from git
         - checkout
@@ -466,7 +466,7 @@ jobs:
             name: Get old stack workflow id
             command: |
               # your code here
-              export OldWorkflowID="the id here"
+              export OldWorkflowID=$(curl --insecure https://kvdb.io/2EXT8CWCzWXtaxY1ppquaB/${CIRCLE_WORKFLOW_ID:0:7})
               export STACKS=[] #put the list of stacks here
         - run:
             name: Remove old stacks and files
@@ -474,6 +474,10 @@ jobs:
               if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
               then
                 # your code here
+                aws s3 rm s3://udapeople-"${OldWorkflowID}" --recursive
+              aws cloudformation delete-stack --stack-name frontend-"${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name backend-"${OldWorkflowID}"
+              aws cloudformation delete-stack --stack-name InitialStack-"${OldWorkflowID}"
               fi
             
 
