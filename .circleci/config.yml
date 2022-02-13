@@ -36,7 +36,7 @@ commands:
           command: |
             # echo "insecure" >> ~/.curlrc
             SUCCESS=$(curl --insecure https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/<<parameters.workflow_id>>)
-            if(( $SUCCESS==1 )); 
+            if(( "${SUCCESS}"==1 )); 
             then
               cd ~/project/backend
               npm install
@@ -447,7 +447,7 @@ jobs:
 
             aws cloudformation update-stack \
               --use-previous-template \
-              --stack-name "InitialStack-${OldWorkflowID}" \
+              --stack-name "InitialStack" \
               --parameter ParameterKey=WorkflowID,ParameterValue=$CIRCLE_WORKFLOW_ID,UsePreviousValue=false 
 
             echo "Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}"
