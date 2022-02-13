@@ -292,7 +292,7 @@ jobs:
           command: |
             # your code here
             cd .circleci/ansible
-            chmod 400 ubuntu_key.pem
+            chmod 400 udapeople.pem
             echo "Contents  of the inventory.txt file is -----"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
