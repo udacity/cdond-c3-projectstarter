@@ -36,7 +36,7 @@ commands:
           command: |
             # echo "insecure" >> ~/.curlrc
             SUCCESS=$(curl --insecure https://kvdb.io/6yWsFbTisM8N9kxAzV1KuM/<<parameters.workflow_id>>)
-            if(( "${SUCCESS}"==1 )); 
+            if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
               npm install
@@ -482,10 +482,9 @@ jobs:
               if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
               then
                 # your code here
-                #aws s3 rm s3://udapeople-"${OldWorkflowID}" --recursive
+                #aws s3 rm s3://udapeople-kk1j287dhjppmz2378 --recursive
                 aws cloudformation delete-stack --stack-name frontend-"${OldWorkflowID}"
                 aws cloudformation delete-stack --stack-name backend-"${OldWorkflowID}"
-                #aws cloudformation delete-stack --stack-name InitialStack"
               fi
             
 
