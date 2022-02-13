@@ -227,7 +227,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - "8e:fd:3a:bf:ac:1d:ff:ed:89:05:21:9f:d4:7a:e0:3c"
+            - "3c:45:53:0b:ac:b4:bb:aa:79:dd:af:b4:86:77:15:59"
       # attach workspace
       - attach_workspace:
           at: /tmp/.circleci/ansible
@@ -343,7 +343,7 @@ jobs:
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
-            - "8e:fd:3a:bf:ac:1d:ff:ed:89:05:21:9f:d4:7a:e0:3c"
+            - "3c:45:53:0b:ac:b4:bb:aa:79:dd:af:b4:86:77:15:59"
       # attach workspace
       - restore_cache:
           keys: [backend-build]
@@ -450,7 +450,7 @@ jobs:
               --stack-name "InitialStack-${OldWorkflowID}" \
               --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople 
-              
+
             echo "Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}"
       # Here's where you will add some code to rollback on failure  
       - destroy-environment:
