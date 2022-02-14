@@ -3,15 +3,16 @@ https://github.com/jimohabdol/cdond-c3-projectstarter
 
 
 [URL02]  S3 Bucket
-
+http://udapeople-1f21a1b0-f2c5-41ed-b982-8f0fda9ae567.s3-website-us-west-2.amazonaws.com/
 
 
 [URL03]  cloudfront
-
+dsc5zhrx82ob4.cloudfront.net
 
 
 [URL04]  The backend endpoint health
-
+http://ec2-34-222-226-20.us-west-2.compute.amazonaws.com:3030/api/status
 
 
 [URL05]  Prometheus Server
+http://ec2-34-222-24-66.us-west-2.compute.amazonaws.com:9090/targets
