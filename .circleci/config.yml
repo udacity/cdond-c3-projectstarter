@@ -2,12 +2,6 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.8.0
 
-command:
-  notify_slack_error:
-    steps:
-      
-
-
 jobs:
   build-frontend:
     docker:
@@ -122,7 +116,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              #--tags project=your-tag \
+              --tags project=your-tag \
               # --stack-name "your front-end stack name with workflow id" \
               # --parameter-overrides ID="your workflow id"  
               exit 1
