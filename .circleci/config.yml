@@ -109,9 +109,32 @@ jobs:
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
               --stack-name udapeople-backend-prod-${CIRCLE_WORKFLOW_ID:0:7} \
-              --parameter-overrides ID="prod-backend-${CIRCLE_WORKFLOW_ID:0:7}"  
+              --parameter-overrides ID="backend-${CIRCLE_WORKFLOW_ID:0:7}"  
 
-    
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --tags project=udapeople \
+              --stack-name "udapeople-frontend-prod-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="frontend-${CIRCLE_WORKFLOW_ID:0:7}"  
+
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            echo "[all]" >> .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople" \
+              --output text >> .circleci/ansible/inventory.txt
+            
+            cat .circleci/ansible/inventory.txt
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      - destroy-environment    
 
 
 # Invoke jobs via workflows
