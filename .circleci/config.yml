@@ -38,22 +38,22 @@ jobs:
           key: backend-build 
 
   test-frontend:
-      docker:
-        - image: circleci/node:13.8.0
-      steps:
-        - checkout
-        - restore_cache:
-            keys: [frontend-build]
-        - run:
-            name: Test Front-end
-            command: |
-              cd frontend
-              npm i
-              npm run test
-        - slack/notify:
-            channel: devops
-            event: fail
-            template: basic_fail_1
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: Test Front-end
+          command: |
+            cd frontend
+            npm i
+            npm run test
+      - slack/notify:
+          channel: devops
+          event: fail
+          template: basic_fail_1
                   
   test-backend:
     docker:
