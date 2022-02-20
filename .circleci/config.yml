@@ -56,7 +56,6 @@ jobs:
               cd frontend
               npm i
               npm run test
-              return 1
         - slack/notify:
             channel: devops
             event: fail
