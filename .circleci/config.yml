@@ -113,7 +113,7 @@ jobs:
 
 
 # Invoke jobs via workflows
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+# See: https://circleci.com/docs/2.0/configuration-reference/#workflows 
 workflows:
   default:
     jobs:
@@ -135,6 +135,4 @@ workflows:
             - test-backend
       - deploy-infrastructure:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [test-feature-branch]
+          
