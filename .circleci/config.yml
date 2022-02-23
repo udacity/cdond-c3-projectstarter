@@ -128,7 +128,7 @@ jobs:
             echo "[all]" >> .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tags:project,Values=udapeople" \
+              --filters "Name=tag:project,Values=udapeople" \
               --output text >> .circleci/ansible/inventory.txt
             
             cat .circleci/ansible/inventory.txt
@@ -165,6 +165,5 @@ workflows:
             branches:
               only: [circleci-project-setup]
 
-              #HelloWorld
-              
+
           
