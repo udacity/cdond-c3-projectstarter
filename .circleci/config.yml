@@ -101,7 +101,7 @@ jobs:
            paths: [ frontend/node_modules ]
            key: frontend-build
             
-   scan-frontend:
+  scan-frontend:
      docker:
        - image: circleci/node:13.8.0
      steps:
@@ -112,7 +112,7 @@ jobs:
            name: Run vulnerability check
            command: cd frontend && npm audit --audit-level=critical
 
-   scan-backend:
+  scan-backend:
      docker:
        - image: circleci/node:13.8.0
      steps:
