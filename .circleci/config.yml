@@ -82,7 +82,7 @@ jobs:
            command: npm install
        - run:
            name: Run back-end tests
-           command: npm run build
+           command: npm run test
        - save_cache:
            paths: [ backend/node_modules ]
            key: backend-build
@@ -104,7 +104,7 @@ jobs:
            name: Run front-end tests
            command: |
               cd frontend
-              npm run build
+              npm run test
        - save_cache:
            paths: [ frontend/node_modules ]
            key: frontend-build
