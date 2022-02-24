@@ -113,7 +113,7 @@ jobs:
            command: cd frontend && npm install
        - run:
            name: Run vulnerability check
-           command: cd frontend && npm audit --audit-level=critical
+           command: cd frontend && npm audit fix --audit-level=critical -- force
 
   scan-backend:
      docker:
@@ -127,7 +127,7 @@ jobs:
            command: cd backend && npm install
        - run:
            name: Run vulnerability check
-           command: cd backend && npm audit --audit-level=critical
+           command: cd backend && npm audit fix --audit-level=critical -- force
 
   # deploy-infrastructure:
   #   docker:
