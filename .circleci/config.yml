@@ -76,7 +76,7 @@ jobs:
            keys: [backend-build]
        - run:
            name: CD into backend test directory
-           command: cd backend/test
+           command: cd backend
        - run:
            name: Install npm dependencies
            command: npm install
@@ -96,15 +96,13 @@ jobs:
            keys: [frontent-build]
        - run:
            name: CD into frontend test directory
-           command: cd frontend/test
+           command: cd frontend
        - run:
            name: Install npm dependencies
            command: npm install
        - run:
            name: Run front-end tests
-           command: |
-              cd frontend
-              npm run test
+           command: npm run test
        - save_cache:
            paths: [ frontend/node_modules ]
            key: frontend-build
