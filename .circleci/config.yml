@@ -109,6 +109,9 @@ jobs:
        - restore_cache:
            keys: [frontend-build]
        - run:
+           name: Install npm dependencies
+           command: cd frontend && npm install
+       - run:
            name: Run vulnerability check
            command: cd frontend && npm audit --audit-level=critical
 
@@ -119,6 +122,9 @@ jobs:
        - checkout
        - restore_cache:
            keys: [backend-build]
+       - run:
+           name: Install npm dependencies
+           command: cd backend && npm install
        - run:
            name: Run vulnerability check
            command: cd backend && npm audit --audit-level=critical
