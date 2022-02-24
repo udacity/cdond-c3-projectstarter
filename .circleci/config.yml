@@ -74,18 +74,12 @@ jobs:
        - checkout
        - restore_cache:
            keys: [backend-build]
-#       - run:
-#           name: CD into backend test directory
-#           command: cd backend
-#       - run:
-#           name: Install npm dependencies
-#           command: npm install
+       - run:
+           name: Install npm dependencies
+           command: cd backend && npm install
        - run:
            name: Run back-end tests
-           command: |
-              cd backend
-              npm i
-              npm run test
+           command: cd backend && npm run test
        - save_cache:
            paths: [ backend/node_modules ]
            key: backend-build
@@ -98,14 +92,11 @@ jobs:
        - restore_cache:
            keys: [frontend-build]
        - run:
-           name: CD into frontend test directory
-           command: cd frontend
-       - run:
            name: Install npm dependencies
-           command: npm install
+           command: cd frontend && npm install
        - run:
            name: Run front-end tests
-           command: npm run test
+           command: cd frontend && npm run test
        - save_cache:
            paths: [ frontend/node_modules ]
            key: frontend-build
