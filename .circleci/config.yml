@@ -45,7 +45,7 @@ jobs:
           command: |
             # Your code here
             cd frontend
-            npm i
+            npm run build
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -62,7 +62,7 @@ jobs:
           command: |
              # Your code here
              cd backend
-             npm i
+             npm run build
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
