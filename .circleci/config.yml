@@ -44,7 +44,7 @@ jobs:
           name: Build front-end
           command: |
             # Your code here
-            cd frontend
+            cd ~/project/frontend
             npm run build
       - save_cache:
           paths: [frontend/node_modules]
@@ -61,7 +61,7 @@ jobs:
           name: Back-end build
           command: |
              # Your code here
-             cd backend
+             cd ~/project/backend
              npm run build
       - save_cache:
           paths: [backend/node_modules]
@@ -76,7 +76,7 @@ jobs:
            keys: [backend-build]
        - run:
            name: CD into backend test directory
-           command: cd backend
+           command: cd ~/project/backend
        - run:
            name: Install npm dependencies
            command: npm install
@@ -96,7 +96,7 @@ jobs:
            keys: [frontent-build]
        - run:
            name: CD into frontend test directory
-           command: cd frontend
+           command: cd ~/project/frontend
        - run:
            name: Install npm dependencies
            command: npm install
