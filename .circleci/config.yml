@@ -175,9 +175,11 @@ jobs:
            name: Install dependencies
            command: |
              apk add --update ansible && apk add --update openssh
-#       - run:
-#           name: Update known hosts file
-#           command: ssh-keyscan -H 18.157.165.14 >> ~/.ssh/known_hosts
+       - run:
+           name: Update known hosts file
+           command: |
+              cat .circleci/ansible/inventory.txt | egrep "^[0-9]" > filtered.txt &&
+              ssh-keyscan -T 10 -H -f filtered.txt >> ~/.ssh/known_hosts
        - run:
            name: Configure server
            command: |
