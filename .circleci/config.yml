@@ -187,22 +187,31 @@ jobs:
              ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
        # Here's where you will add some code to rollback on failure
 
-  # run-migrations:
-  #   docker:
-  #     # Docker image here that supports NodeJS
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Run migrations
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #     - run:
-  #         name: Send migration results to memstash
-  #         command: |
-  #           # Your code here
-  #           exit 1
-  #    # Here's where you will add some code to rollback on failure      
+  run-migrations:
+     docker:
+       - image: circleci/node:13.8.0
+     steps:
+       - checkout
+       - restore_cache:
+           keys: [backend-build]
+       - run:
+           name: Install npm dependencies
+           command: cd backend && npm install
+       - run:
+           name: Run migrations
+           command: |
+             cd backend && npm run migrations > migration_log.txt
+       - run:
+           name: Send migration results to memstash
+           command: |
+             if grep -q "has been executed successfully"  migration_log.txt
+             then
+                echo "Migration successful";
+             else
+                echo "Migration Failed";
+             fi
+      # Here's where you will add some code to rollback on failure
+
 
   # deploy-frontend:
   #   docker:
@@ -320,8 +329,8 @@ workflows:
 #               only: [test-feature-branch]
       - configure-infrastructure:
            requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
+       - run-migrations:
+           requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
