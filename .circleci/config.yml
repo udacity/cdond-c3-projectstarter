@@ -155,7 +155,6 @@ jobs:
                  --filters Name=tag:Name,Values="backend-${CIRCLE_WORKFLOW_ID:0:7}" \
                  --query 'Reservations[*].Instances[*].{url:PublicIpAddress}' \
                  --output text >> .circleci/ansible/inventory.txt
-       - run: read ipaddress < .circleci/ansible/inventory.txt && echo ${ipaddress}
        - persist_to_workspace:
            root: .
            paths:
