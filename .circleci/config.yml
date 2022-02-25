@@ -203,7 +203,6 @@ jobs:
            name: Run migrations
            command: |
              cd backend
-             npm i
              npm run migrations > ~/project/backend/migration_log.txt
        - run:
            name: Send migration results to kvdb
@@ -211,6 +210,8 @@ jobs:
              if grep -q "success"  ~/project/backend/migration_log.txt
              then
                 curl https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+             else
+                return 1
              fi
       # Here's where you will add some code to rollback on failure
 
