@@ -200,15 +200,13 @@ jobs:
        - run:
            name: Run migrations
            command: |
-             cd backend && npm run migrations > migration_log.txt
+             cd backend && npm i && npm run migrations > ~/project/backend/migration_log.txt
        - run:
-           name: Send migration results to memstash
+           name: Send migration results to kvdb
            command: |
-             if grep -q "has been executed successfully"  migration_log.txt
+             if grep -q "has been executed successfully"  ~/project/backend/migration_log.txt
              then
-                echo "Migration successful";
-             else
-                echo "Migration Failed";
+                curl https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
              fi
       # Here's where you will add some code to rollback on failure
 
