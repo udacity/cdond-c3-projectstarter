@@ -211,26 +211,34 @@ jobs:
       # Here's where you will add some code to rollback on failure
 
 
-  # deploy-frontend:
-  #   docker:
-  #     # Docker image here that supports AWS CLI
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           # your code here
-  #           export API_URL="http://${BACKEND_IP}:3030"
-  #           echo "${API_URL}"
-  #     - run:
-  #         name: Deploy frontend objects
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure      
+  deploy-frontend:
+     docker:
+       - image: amazon/aws-cli
+     steps:
+       - checkout
+       - attach_workspace:
+          at: .
+       - run:
+           name: Install dependencies
+           command: |
+               yum install -y tar gzip
+       - run:
+           name: Get backend url
+           command: |
+             BACKEND_IP=$(aws ec2 describe-instances \
+                              --filters Name=tag:Name,Values="backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                              --query 'Reservations[*].Instances[*].{url:PublicIpAddress}' \
+                              --output text) \
+             export API_URL="http://${BACKEND_IP}:3030"
+             echo "${API_URL}"
+       - run:
+           name: Deploy frontend objects
+           command: |
+             cd frontend
+             npm i
+             npm run build
+             aws s3 cp dist s3://udapeople-${CIRCLE_CI_WORKFLOW_ID:0:7} --recursive
+       # Here's where you will add some code to rollback on failure
                     
   # deploy-backend:
   #   docker:
