@@ -196,11 +196,15 @@ jobs:
            keys: [backend-build]
        - run:
            name: Install npm dependencies
-           command: cd backend && npm install
+           command: |
+              cd backend
+              npm install
        - run:
            name: Run migrations
            command: |
-             cd backend && npm i && npm run migrations > ~/project/backend/migration_log.txt
+             cd backend
+             npm i
+             npm run migrations > ~/project/backend/migration_log.txt
        - run:
            name: Send migration results to kvdb
            command: |
@@ -240,22 +244,30 @@ jobs:
              aws s3 cp dist s3://udapeople-${CIRCLE_CI_WORKFLOW_ID:0:7} --recursive
        # Here's where you will add some code to rollback on failure
                     
-  # deploy-backend:
-  #   docker:
-  #     # Docker image here that supports Ansible
-  #   steps:
-  #     # Checkout code from git
-  #     # Add ssh keys with fingerprint
-  #     # attach workspace
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Deploy backend
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  deploy-backend:
+     docker:
+       - image: python:3.7-alpine3.11
+     steps:
+       - checkout
+       - add_ssh_keys:
+           fingerprints:
+             - "9d:40:b8:cc:27:80:fa:24:1f:ae:e6:e1:f6:59:8d:3c"
+       - attach_workspace:
+          at: .
+       - run:
+           name: Install dependencies
+           command: |
+             apk add --update ansible && apk add --update openssh
+       - run:
+           name: Update known hosts file
+           command: |
+              cat .circleci/ansible/inventory.txt | egrep "^[0-9]" > filtered.txt &&
+              ssh-keyscan -T 10 -H -f filtered.txt >> ~/.ssh/known_hosts
+       - run:
+           name: Deploy backend
+           command: |
+             # your code here
+       # Here's where you will add some code to rollback on failure
 
   # smoke-test:
   #   docker:
