@@ -2,23 +2,23 @@
 
 - name: "install python for Ansible."
       # Your code here
-      become: true
-      apt:
-        name: ["python"]
-        state: latest
-        update_cache: yes
+    become: true
+    apt:
+      name: ["python"]
+      state: latest
+      update_cache: yes
 
 - name: "install dependencies."
-      become: true
-      apt:
-        name: ["nodejs", "npm"]
-        state: latest
-        update_cache: yes
+    become: true
+    apt:
+      name: ["nodejs", "npm"]
+      state: latest
+      update_cache: yes
 
 - name: "install pm2"
-      become: true
-      npm:
-        name: pm2
-        global: yes
-        production: yes
-        state: present
+    become: true
+    npm:
+      name: pm2
+      global: yes
+      production: yes
+      state: present
