@@ -1,7 +1,7 @@
 ---
 
 - name: "install python for Ansible."
-      # Your code here
+    # Your code here
     become: true
     apt:
       name: ["python"]
