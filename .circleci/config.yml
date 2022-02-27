@@ -159,7 +159,7 @@ jobs:
   configure-infrastructure:
     docker:
       - image: python:3.7 
-      - image: alpine:3.11
+      - image: alpine:3.15
     steps:
       - checkout
       - add_ssh_keys:
