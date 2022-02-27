@@ -17,7 +17,6 @@
       wait_for_connection:
         timeout: 600
 
-  
     - name: "upgrade packages."
       become: true
       apt:
@@ -39,8 +38,6 @@
     - TYPEORM_PASSWORD: "{{ lookup('env','TYPEORM_PASSWORD') }}"
     - TYPEORM_DATABASE: "{{ lookup('env','TYPEORM_DATABASE') }}"
 
-  tasks:
-    - name: "Install and configure pm2 to run backend server"
 
 
 
