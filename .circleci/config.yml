@@ -15,7 +15,7 @@ commands:
           command: |
             echo "Destroying environment: <<parameters.workflow_id>> "
             aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflow_id>>
-            aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
+            aws s3 rb s3://udapeople-<<parameters.workflow_id>> --force
             aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflow_id>>
 
 jobs:
