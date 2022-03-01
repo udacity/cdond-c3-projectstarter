@@ -2,6 +2,11 @@ version: 2.1
 orbs:
   slack: circleci/slack@4.8.0
 
+#parameters:
+#  memstash-token:
+#    type: string
+#    default: This would be the value of the Memstash Token
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -17,6 +22,25 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflow_id>>
             aws s3 rb s3://udapeople-<<parameters.workflow_id>> --force
             aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflow_id>>
+
+  # revert-migrations:
+  #  description: Revert the last migration if successfully run in the current workflow.
+    # parameters:
+  #  steps:
+      # Trigger rollback jobs if the smoke tests or any following jobs fail.
+      # Revert the last migration (IF a new migration was applied) on the database to that it goes back to the way it was before. You can use that value you saved in MemStash.io to know if you should revert any migrations.
+  #    - run:
+  #        name: Revert migrations
+  #        when: on_fail
+  #        command: |
+            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
+  #          export SUCCESS=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
+  #          if(( $SUCCESS==1 )); 
+  #          then
+  #            cd ~/project/backend
+  #            npm install
+  #            npm run migrations:revert
+  #          fi
 
 jobs:
   build-frontend:
@@ -141,7 +165,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[all]" > .circleci/ansible/inventory.txt
+            echo "[all]" >> .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
@@ -195,6 +219,49 @@ jobs:
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+
+  run-migrations:
+    docker:
+      # Docker image here that supports NodeJS
+      image: circleci/node:13.8.0
+    steps:
+      # Checkout code from git
+      - checkout
+      - run:
+          name: Run migrations
+          command: |
+            # Your code here
+            cd backend
+            npm run migrations >> migration_output.txt
+            cat migration_output.txt
+      - run:
+          name: Save the Output to a file and Use Grep to Check the Migration
+          command: |
+            cd backend
+            if grep -q "has been executed successfully." migration_output.txt
+            then
+              touch ~/project/.circleci/outputs/db_migration_success
+            fi
+      - persist_to-workspace:
+          root: ~/
+          path: 
+            - project/.circleci/outputs
+
+#      - run:
+#          name: Send migration results to memstash
+#          command: |
+            # Your code here
+#            curl -H "Content-Type: text/plain" \
+#              -H "token: << pipeline.parameters.memstash-token >>" \
+#              --request PUT --data "1" \
+#              https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+
+
+     # Here's where you will add some code to rollback on failure
+     #- revert_migration
+      - destroy_environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
+
 
 
 # Invoke jobs via workflows
