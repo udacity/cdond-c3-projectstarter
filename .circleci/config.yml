@@ -242,7 +242,7 @@ jobs:
             then
               touch ~/project/.circleci/outputs/db_migration_success
             fi
-      - persist_to-workspace:
+      - persist_to_workspace:
           root: ~/
           paths: 
             - project/.circleci/outputs
