@@ -192,6 +192,8 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible/ 
+            cat /etc/ansible/ansible.cfg | grep inventory -A 10
+            ansible all --list-hosts
             ansible-playbook -i hosts configure-server.yml 
       - destroy-environment:
           env: backend 
