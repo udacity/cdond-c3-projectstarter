@@ -169,7 +169,7 @@ jobs:
             pwd
             ls -lha
             cat .circleci/ansible/inventory.txt
-            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=frontend" --output text >> project/.circleci/ansible/inventory.txt
+            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=frontend" --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
             yum install -y tar gzip
       - persist_to_workspace:
