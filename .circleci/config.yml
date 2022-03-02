@@ -118,8 +118,7 @@ jobs:
             npm audit --audit-level=critical
 
   deploy-infrastructure:
-    docker:
-      - image: amazon/aws-cli
+    <<: *awsImage
     steps:
       - checkout
       - run:
@@ -147,7 +146,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      # - destroy-environment
+      - destroy-environment
 
 #   configure-infrastructure:
 #     docker:
