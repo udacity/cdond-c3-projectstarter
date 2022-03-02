@@ -209,9 +209,9 @@ jobs:
            command: |
              if grep -q "success"  ~/project/backend/migration_log.txt
              then
-                curl https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                curl -k https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
              else
-                curl https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
+                curl -k https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
              fi
       # Here's where you will add some code to rollback on failure
 
@@ -226,7 +226,7 @@ jobs:
        - run:
            name: Install dependencies
            command: |
-               yum install -y tar gzip
+               yum install -y tar gzip nodejs
        - run:
            name: Get backend url
            command: |
@@ -242,7 +242,8 @@ jobs:
              cd frontend
              npm i
              npm run build
-             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+             aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
        # Here's where you will add some code to rollback on failure
                     
   deploy-backend:
@@ -258,7 +259,8 @@ jobs:
        - run:
            name: Install dependencies
            command: |
-             apk add --update ansible && apk add --update openssh
+             apk add --update ansible openssh npm tar gzip nodejs
+             pip install awscli
        - run:
            name: Update known hosts file
            command: |
@@ -267,7 +269,7 @@ jobs:
        - run:
            name: Deploy backend
            command: |
-             # your code here
+             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
        # Here's where you will add some code to rollback on failure
 
   # smoke-test:
@@ -350,10 +352,10 @@ workflows:
            requires: [deploy-infrastructure]
       - run-migrations:
            requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+       - deploy-frontend:
+           requires: [run-migrations]
+       - deploy-backend:
+           requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
