@@ -1,8 +1,4 @@
 version: 2.1
-
-orbs: 
-  mailer-orb: sudiptog81/mailer-orb@1.0.0
-
 defaults: &defaults
   docker:
     - image: circleci/node:13.8.0
