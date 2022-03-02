@@ -38,6 +38,8 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - restore_cache:
+          keys: [backend-build]
       - run:
           name: Build front-end
           command: |
@@ -53,8 +55,6 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [frontend-build]
       - run:
           name: Back-end build
           command: |
@@ -266,8 +266,9 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-frontend
       - build-backend
+      - build-frontend
+
       # - test-frontend:
       #     requires: [build-frontend]
       # - test-backend:
