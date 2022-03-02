@@ -77,7 +77,7 @@ jobs:
             npm install
             npm run test
                 
-   test-backend:
+  test-backend:
     <<: *defaults
     steps:
       - checkout
