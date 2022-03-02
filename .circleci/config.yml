@@ -189,7 +189,10 @@ jobs:
           command: |
             cd .circleci/ansible/ 
             ansible-playbook -i hosts configure-server.yml 
-      # Here's where you will add some code to rollback on failure      
+      - destroy-environment:
+          env: backend 
+      - destroy-environment:
+          env: frontend 
 
 #   run-migrations:
 #     docker:
@@ -325,8 +328,8 @@ workflows:
           # filters:
           #   branches:
           #     only: [test-feature-branch]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
