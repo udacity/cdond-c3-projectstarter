@@ -165,7 +165,7 @@ jobs:
            root: .
            paths:
              - .circleci/ansible/inventory.txt
-       # Here's where you will add some code to rollback on failure
+       - destroy-environment
 
   configure-infrastructure:
      docker:
@@ -191,7 +191,7 @@ jobs:
            command: |
              # Your code here
              ansible-playbook .circleci/ansible/configure-server.yml -i .circleci/ansible/inventory.txt
-       # Here's where you will add some code to rollback on failure
+       - destroy-environment
 
   run-migrations:
      docker:
@@ -220,7 +220,9 @@ jobs:
              else
                 curl -k https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 0
              fi
-      # Here's where you will add some code to rollback on failure
+       - destroy-environment
+       - revert-migrations
+
 
 
   deploy-frontend:
@@ -254,7 +256,8 @@ jobs:
              npm run build
              tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
              aws s3 sync dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}
-       # Here's where you will add some code to rollback on failure
+       - destroy-environment
+       - revert-migrations
                     
   deploy-backend:
      docker:
@@ -286,7 +289,8 @@ jobs:
            name: Deploy backend
            command: |
              ansible-playbook -vvvv .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
-       # Here's where you will add some code to rollback on failure
+       - destroy-environment
+       - revert-migrations
 
   smoke-test:
      docker:
@@ -323,8 +327,9 @@ jobs:
              else
                 return 0
              fi
+       - destroy-environment
+       - revert-migrations
 
-       # Here's where you will add some code to rollback on failure
 
   # cloudfront-update:
   #   docker:
