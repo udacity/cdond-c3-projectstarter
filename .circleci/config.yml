@@ -133,14 +133,14 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            cat .circleci/ansible/inventory.txt
-            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=backend" --output text >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory
+            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=backend" --output text >> .circleci/ansible/inventory
+            cat .circleci/ansible/inventory
             yum install -y tar gzip
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - project/.circleci/ansible/inventory
       - destroy-environment:
           env: backend
 
@@ -168,7 +168,7 @@ jobs:
           command: |
             pwd
             ls -lha
-            cat .circleci/ansible/inventory.txt
+            cat .circleci/ansible/inventory
       - destroy-environment:
           env: frontend
 
