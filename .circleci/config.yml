@@ -231,13 +231,13 @@ jobs:
           name: Run migrations
           command: |
             # Your code here
-            cd ~/backend/src
+            cd backend
             npm run migrations >> migration_output.txt
             cat migration_output.txt
       - run:
           name: Save the Output to a file and Use Grep to Check the Migration
           command: |
-            cd ~/backend/src
+            cd backend
             if grep -q "has been executed successfully." migration_output.txt
             then
               touch ~/project/.circleci/outputs/db_migration_success
@@ -259,6 +259,7 @@ jobs:
 
      # Here's where you will add some code to rollback on failure
      #- revert_migration
+      - run: pip install awscli
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
 
