@@ -1,5 +1,9 @@
 version: 2.1
 
+defaults: &defaults
+  docker:
+    - image: circleci/node:13.8.0
+
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -34,8 +38,7 @@ commands:
             
 jobs:
   build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
+    <<: *defaults
     steps:
       - checkout
       #- restore_cache:
@@ -51,8 +54,7 @@ jobs:
           key: frontend-build
 
   build-backend:
-    docker:
-      - image: circleci/node:13.8.0
+    <<: *defaults
     steps:
       - checkout
       - run:
