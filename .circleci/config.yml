@@ -273,28 +273,42 @@ jobs:
              ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
        # Here's where you will add some code to rollback on failure
 
-  # smoke-test:
-  #   docker:
-  #     # Lightweight Docker image 
-  #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Get backend url
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Backend smoke test.
-  #         command: |
-  #           # your code here
-  #     - run:
-  #         name: Frontend smoke test.
-  #         command: |
-  #           # your code here
-  #     # Here's where you will add some code to rollback on failure  
+  smoke-test:
+     docker:
+       - image: python:3.7-alpine3.1
+     steps:
+       # Checkout code from git
+       - checkout
+       - run:
+           name: Install dependencies
+           command: |
+             apk add --update curl nodejs npm
+             pip install awscli
+       - run:
+           name: Get backend url
+           command: |
+             BACKEND_IP=$(aws ec2 describe-instances \
+                              --filters Name=tag:Name,Values="backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                              --query 'Reservations[*].Instances[*].{url:PublicIpAddress}' \
+                              --output text) \
+             export API_URL="http://${BACKEND_IP}:3030"
+             echo "${API_URL}"
+       - run:
+           name: Backend smoke test.
+           command: |
+             curl "http://${BACKEND_IP}:3030/api/status"
+       - run:
+           name: Frontend smoke test.
+           command: |
+             URL="http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-eu-central-1.amazonaws.com"
+             if curl -s ${URL} | grep "Welcome"
+             then
+                return 1
+             else
+                return 0
+             fi
+
+       # Here's where you will add some code to rollback on failure
 
   # cloudfront-update:
   #   docker:
@@ -357,8 +371,8 @@ workflows:
            requires: [run-migrations]
       - deploy-backend:
            requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+       - smoke-test:
+           requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
