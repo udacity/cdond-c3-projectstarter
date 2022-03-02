@@ -62,7 +62,7 @@ jobs:
           command: |
             pwd
             ls -lh
-            cd frontend
+            cd backend
             npm install
             npm run build
       - save_cache:
