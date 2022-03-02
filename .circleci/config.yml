@@ -320,7 +320,7 @@ workflows:
           requires: [build-frontend]
       - deploy-backend-infra:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - deloy-frontend-infra:
+      - deploy-frontend-infra:
           requires: [deploy-backend-infra]
           # filters:
           #   branches:
