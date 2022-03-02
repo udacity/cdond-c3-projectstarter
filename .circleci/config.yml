@@ -2,16 +2,13 @@ version: 2.1
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-#    parameters:
-#      stack-name:
-#        description: Name of stack to delete
-#        type: string
-#      when_to_run:
-#        description: When to run delete stack
-#        type: string
-#        default: "on_fail"
+    description: Delete files from s3 bucket and destroy back-end and front-end cloudformation stacks
     steps:
+      - run:
+          name: Delete files from s3 bucket
+          when: on_fail
+          command: |
+            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
       - run:
           name: Destroy stacks
           when: on_fail
