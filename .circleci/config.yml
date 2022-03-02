@@ -12,7 +12,7 @@ commands:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
       env:
-        type: string   
+        type: string
     steps:
       - run:
           name: Destroy environments
@@ -142,8 +142,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
-          parameters:
-            env: backend
+          env: backend
 
   deploy-frontend-infra:
     <<: *awsImage
@@ -171,8 +170,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
-          parameters:
-            env: frontend
+          env: frontend
 
 #   configure-infrastructure:
 #     docker:
