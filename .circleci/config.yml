@@ -274,7 +274,7 @@ jobs:
        - run:
            name: Install dependencies
            command: |
-             apk add --update ansible openssh npm tar gzip nodejs
+             apk add --update ansible openssh npm tar gzip nodejs curl
              pip install awscli
        - run:
            name: Update known hosts file
