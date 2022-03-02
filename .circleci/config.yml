@@ -373,7 +373,7 @@ workflows:
 #             branches:
 #               only: [test-feature-branch]
       - configure-infrastructure:
-           requires: [deploy-infrastructure]
+           requires: [deploy-infrastructure, build-frontend, build-backend]
       - run-migrations:
            requires: [configure-infrastructure]
       - deploy-frontend:
