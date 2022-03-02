@@ -29,6 +29,13 @@
     - TYPEORM_MIGRATIONS: "{{ lookup('env', 'TYPEORM_MIGRATIONS')}}"
     - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env', 'TYPEORM_MIGRATIONS_DIR')}}"
 
+- name: config EC2
+  hosts: web
+  user: ubuntu
+  become: true
+  become_method: sudo
+  become_user: root
+
   roles:
     - update_packages
     - install_python
