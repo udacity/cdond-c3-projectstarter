@@ -3,15 +3,22 @@ version: 2.1
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    #parameters:
-      # Add parameter here   
+#    parameters:
+#      stack-name:
+#        description: Name of stack to delete
+#        type: string
+#      when_to_run:
+#        description: When to run delete stack
+#        type: string
+#        default: "on_fail"
     steps:
       - run:
-          name: Destroy environments
+          name: Destroy stacks
           when: on_fail
           command: |
-            # Your code here
-            exit 1
+            aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -23,13 +30,12 @@ commands:
           # Add when this will run
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            SUCCESS = $(curl -k https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if(( $SUCCESS==1 )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
             fi
             
 jobs:
@@ -210,9 +216,9 @@ jobs:
            command: |
              if grep -q "No migrations are pending"  ~/project/backend/migration_log.txt
              then
-                curl -k https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                curl -k https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 1
              else
-                curl -k https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '0'
+                curl -k https://kvdb.io/AgDSCaSFfxFuHcGeNmMMTx/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 0
              fi
       # Here's where you will add some code to rollback on failure
 
