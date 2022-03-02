@@ -225,7 +225,7 @@ jobs:
        - run:
            name: Install dependencies
            command: |
-               yum install -y tar gzip nodejs
+               yum install -y tar gzip npm nodejs
        - attach_workspace:
            at: .
        - run:
