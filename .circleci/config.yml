@@ -10,14 +10,15 @@ awsImage: &awsImage
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    #parameters:
-      # Add parameter here   
+    parameters:
+      env:
+        type: string   
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation delete-stack --stack-name udapeople-<< parameters.env >>-${CIRCLE_WORKFLOW_ID}
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -117,7 +118,7 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit --audit-level=critical
 
-  deploy-infrastructure:
+  deploy-backend-infra:
     <<: *awsImage
     steps:
       - checkout
@@ -126,27 +127,52 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --stack-name udapeople-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
-      - run:
-          name: Ensure front-end infrastructure exist
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/frontend.yml \
-              --stack-name udapeople-${CIRCLE_WORKFLOW_ID}\
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID}  
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID} \
+              --tags project=backend
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[app]" >> .circleci/ansible/inventory.txt
-            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> .circleci/ansible/inventory.txt
+            echo "[backend]" >> .circleci/ansible/inventory.txt
+            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=backend" --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
             yum install -y tar gzip
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy-environment
+      - destroy-environment:
+          parameters:
+            env: backend
+
+  deploy-front-infra:
+    <<: *awsImage
+    steps:
+      - checkout
+      - run:
+          name: Ensure front-end infrastructure exist
+          command: |
+            aws cloudformation deploy \
+              --template-file .circleci/files/frontend.yml \
+              --stack-name udapeople-front-${CIRCLE_WORKFLOW_ID}\
+              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID} \
+              --tags project=frontend
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Add back-end ip to ansible inventory
+          command: |
+            echo "[frontend]" >> project/.circleci/ansible/inventory.txt
+            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=frontend" --output text >> project/.circleci/ansible/inventory.txt
+            cat project/.circleci/ansible/inventory.txt
+            yum install -y tar gzip
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+      - destroy-environment:
+          parameters:
+            env: frontend
 
 #   configure-infrastructure:
 #     docker:
