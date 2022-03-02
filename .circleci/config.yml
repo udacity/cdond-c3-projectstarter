@@ -300,7 +300,12 @@ jobs:
        - run:
            name: Backend smoke test.
            command: |
-             curl "http://${BACKEND_IP}:3030/api/status"
+             if curl "${API_URL}/api/status" | grep "ok"
+             then
+               return 0
+             else
+               return 1
+             fi
        - run:
            name: Frontend smoke test.
            command: |
