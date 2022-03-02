@@ -319,14 +319,14 @@ workflows:
 
       - test-frontend:
           requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-backend-infra:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      - deploy-backend-infra
+          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - deploy-frontend-infra:
           requires: [deploy-backend-infra]
           # filters:
