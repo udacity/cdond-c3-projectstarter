@@ -185,6 +185,9 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update ansible tar gzip curl python
+            ls /etc
+            ls /etc/ansible
+            cat /etc/ansible/ansible.cfg | grep inventory -A 10
             curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
             unzip awscli-bundle.zip
             ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
