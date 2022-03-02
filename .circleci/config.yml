@@ -222,6 +222,8 @@ jobs:
        - image: amazon/aws-cli
      steps:
        - checkout
+       - restore_cache:
+           keys: [frontend-build]
        - run:
            name: Install dependencies
            command: |
@@ -253,6 +255,8 @@ jobs:
        - image: python:3.7-alpine3.11
      steps:
        - checkout
+       - restore_cache:
+           keys: [backend-build]
        - add_ssh_keys:
            fingerprints:
              - "9d:40:b8:cc:27:80:fa:24:1f:ae:e6:e1:f6:59:8d:3c"
