@@ -231,13 +231,13 @@ jobs:
           name: Run migrations
           command: |
             # Your code here
-            cd backend
+            cd ~/backend/src
             npm run migrations >> migration_output.txt
             cat migration_output.txt
       - run:
           name: Save the Output to a file and Use Grep to Check the Migration
           command: |
-            cd backend
+            cd ~/backend/src
             if grep -q "has been executed successfully." migration_output.txt
             then
               touch ~/project/.circleci/outputs/db_migration_success
