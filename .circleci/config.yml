@@ -142,7 +142,7 @@ jobs:
             echo "[app]" >> .circleci/ansible/inventory.txt
             aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
-            apk add tar
+            yum install -y tar gzip
       - persist_to_workspace:
           root: ~/
           paths:
