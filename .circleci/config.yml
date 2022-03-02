@@ -276,7 +276,7 @@ jobs:
 
   smoke-test:
      docker:
-       - image: python:3.7-alpine3.1
+       - image: python:3.7-alpine3.11
      steps:
        # Checkout code from git
        - checkout
