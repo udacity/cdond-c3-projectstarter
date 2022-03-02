@@ -133,7 +133,6 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[backend]" >> .circleci/ansible/inventory.txt
             aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=backend" --output text >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
             yum install -y tar gzip
@@ -156,12 +155,12 @@ jobs:
               --stack-name udapeople-front-${CIRCLE_WORKFLOW_ID}\
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID} \
               --tags project=frontend
+      - run: yum install -y tar gzip
       - attach_workspace:
           at: ~/
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[frontend]" >> project/.circleci/ansible/inventory.txt
             aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=frontend" --output text >> project/.circleci/ansible/inventory.txt
             cat project/.circleci/ansible/inventory.txt
             yum install -y tar gzip
