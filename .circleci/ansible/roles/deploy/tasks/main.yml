@@ -22,3 +22,29 @@
     global: yes
     production: yes
     state: present
+
+  - name: Create directory
+    file:
+      path: /home/ubuntu/udapeople
+      state: directory
+
+  - name: Copy files
+    copy:
+      src: /root/project/artifact.tar.gz
+      dest: /home/ubuntu/udapeople/artifact.tar.gz
+      backup: yes
+
+  - name: Uncompress files
+    shell: |
+      cd /home/ubuntu/udapeople
+      tar xvzf artifact.tar.gz -C .
+      ls -la
+
+  - name: Start Application
+    become: yes
+    shell: |
+      npm install
+      npm run build
+      pm2 start npm --name 'udapeople' -- start
+    args:
+      chdir: /home/ubuntu/udapeople
