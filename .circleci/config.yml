@@ -145,7 +145,7 @@ jobs:
           parameters:
             env: backend
 
-  deploy-front-infra:
+  deploy-frontend-infra:
     <<: *awsImage
     steps:
       - checkout
@@ -320,8 +320,10 @@ workflows:
           requires: [build-backend]
       - scan-frontend:
           requires: [build-frontend]
-      - deploy-infrastructure:
+      - deploy-backend-infra:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      - deloy-frontend-infra:
+          requires: [deploy-backend-infra]
           # filters:
           #   branches:
           #     only: [test-feature-branch]
