@@ -201,9 +201,10 @@ jobs:
               npm install
        - run:
            name: Run migrations
+           no_output_timeout: 10m
            command: |
              cd backend
-             npm run migrations 2>&1 | tee ~/project/backend/migration_log.txt
+             npm run migrations | tee ~/project/backend/migration_log.txt
        - run:
            name: Send migration results to kvdb
            command: |
@@ -221,12 +222,12 @@ jobs:
        - image: amazon/aws-cli
      steps:
        - checkout
-       - attach_workspace:
-          at: .
        - run:
            name: Install dependencies
            command: |
                yum install -y tar gzip nodejs
+       - attach_workspace:
+           at: .
        - run:
            name: Get backend url
            command: |
