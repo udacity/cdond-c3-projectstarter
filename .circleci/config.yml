@@ -43,6 +43,8 @@ jobs:
       - run:
           name: Build front-end
           command: |
+            pwd
+            ls -lh
             cd frontend
             npm install
             npm run build
@@ -58,6 +60,8 @@ jobs:
       - run:
           name: Back-end build
           command: |
+            pwd
+            ls -lh
             cd frontend
             npm install
             npm run build
