@@ -225,7 +225,8 @@ jobs:
        - run:
            name: Install dependencies
            command: |
-               yum install -y tar gzip npm nodejs
+               curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
+               yum install -y tar gzip nodejs
        - attach_workspace:
            at: .
        - run:
