@@ -279,9 +279,13 @@ jobs:
               cat .circleci/ansible/inventory.txt | egrep "^[0-9]" > filtered.txt &&
               ssh-keyscan -T 10 -H -f filtered.txt >> ~/.ssh/known_hosts
        - run:
+           name: Unzip backend files
+           command: |
+             tar -C backend -czvf artifact.tar.gz .
+       - run:
            name: Deploy backend
            command: |
-             ansible-playbook .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
+             ansible-playbook -vvvv .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
        # Here's where you will add some code to rollback on failure
 
   smoke-test:
