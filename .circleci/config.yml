@@ -389,8 +389,8 @@ jobs:
            root: .
            paths:
              - oldWorkflowId.txt
-       - destroy-environment
-       - revert-migrations
+#       - destroy-environment
+#       - revert-migrations
        # Here's where you will add some code to rollback on failure
 
   cleanup:
@@ -424,8 +424,8 @@ jobs:
               else
                 echo "Nothing old to delete"
               fi
-        - destroy-environment
-        - revert-migrations
+#        - destroy-environment
+#        - revert-migrations
             
 
 workflows:
