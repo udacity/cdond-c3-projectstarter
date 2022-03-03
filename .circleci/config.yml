@@ -289,10 +289,6 @@ jobs:
               cat .circleci/ansible/inventory.txt | egrep "^[0-9]" > filtered.txt &&
               ssh-keyscan -T 10 -H -f filtered.txt >> ~/.ssh/known_hosts
        - run:
-           name: Unzip backend files
-           command: |
-             tar -C backend -czvf artifact.tar.gz .
-       - run:
            name: Deploy backend
            command: |
              echo ENVIROMENT=production > "backend/.env"
@@ -306,6 +302,7 @@ jobs:
              echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
              echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
              cat backend/.env
+             tar -C backend -czvf artifact.tar.gz .
              ansible-playbook -vvvv .circleci/ansible/deploy-backend.yml -i .circleci/ansible/inventory.txt
        - destroy-environment
        - revert-migrations
