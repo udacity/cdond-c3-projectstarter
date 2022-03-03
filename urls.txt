@@ -1,0 +1,5 @@
+URL01: https://github.com/GinoBrunnerQB/cdond-c3-projectstarter\
+URL02: http://udapeople-cee5131.s3-website.eu-central-1.amazonaws.com/#/employees
+URL03: https://d1wmabcwe0qmdl.cloudfront.net
+URL04: ec2-3-71-17-33.eu-central-1.compute.amazonaws.com
+URL05: http://ec2-35-156-154-83.eu-central-1.compute.amazonaws.com:9090/new/graph
