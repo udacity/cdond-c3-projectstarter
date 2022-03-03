@@ -156,9 +156,9 @@ jobs:
            command: |
              aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
-              --stack-name udapeople \
+              --stack-name udapeople-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
-              --tags project=udapeople &
+              --tags project=udapeople
        - run:
            name: Add back-end ip to ansible inventory
            command: |
@@ -372,19 +372,11 @@ jobs:
              --no-paginate --output text > oldWorkflowId.txt
              cat oldWorkflowId.txt
        - run:
-           name: Deploy cloudfront distribution
-           command: |
-             aws cloudformation deploy \
-              --template-file .circleci/files/cloudfront.yml \
-              --stack-name udapeople \
-              --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
-              --tags project=udapeople &
-       - run:
            name: Update cloudfront distribution
            command: |
               aws cloudformation update-stack \
               --use-previous-template \
-              --stack-name udapeople \
+              --stack-name udapeople-cloudfront-${CIRCLE_WORKFLOW_ID:0:7} \
               --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
        - persist_to_workspace:
            root: .
