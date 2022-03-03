@@ -362,14 +362,14 @@ jobs:
              aws cloudformation \
              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
              --no-paginate --output text > oldWorkflowId.txt
+             cat oldWorkflowId.txt
        - run:
            name: Update cloudfront distribution
            command: |
-               aws cloudformation deploy \
-               --template-file .circleci/files/cloudfront.yml \
-               --tags project=udapeople \
-               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
-               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
+              aws cloudformation update-stack \
+              --use-previous-template \
+              --stack-name udapeoplestack \
+              --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID:0:7}
        - persist_to_workspace:
            root: .
            paths:
