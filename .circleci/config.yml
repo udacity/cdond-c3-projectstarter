@@ -187,6 +187,7 @@ jobs:
       - image: python:3.7-alpine
     steps:
       - checkout
+      - aws-cli/setup
       - add_ssh_keys:
           fingerprints: ["65:e3:0d:22:cf:8b:c1:b9:6a:2d:71:76:61:c9:93:d9"]
       - attach_workspace:
