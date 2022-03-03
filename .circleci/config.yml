@@ -160,7 +160,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name "udapeople-frontend-prod-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM"  
 
