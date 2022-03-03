@@ -326,7 +326,7 @@ jobs:
                               --query 'Reservations[*].Instances[*].PublicIpAddress' \
                               --output text)
              echo "${BACKEND_IP}"
-             if curl -s "https://${BACKEND_IP}:3030/api/status" | grep "ok"
+             if curl "http://${BACKEND_IP}:3030/api/status" | grep "ok"
              then
                return 0
              else
@@ -336,7 +336,7 @@ jobs:
            name: Frontend smoke test.
            command: |
              URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com"
-             if curl -s ${URL} | grep "Welcome"
+             if curl ${URL} | grep "Welcome"
              then
                 return 1
              else
