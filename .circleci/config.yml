@@ -225,6 +225,7 @@ jobs:
     docker:
       # Docker image here that supports NodeJS
       - image: circleci/node:13.8.0
+      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
@@ -260,7 +261,6 @@ jobs:
 
      # Here's where you will add some code to rollback on failure
      #- revert_migration
-      - run: pip install awscli
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
 
