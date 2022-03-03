@@ -1,6 +1,7 @@
 version: 2.1
 orbs:
   slack: circleci/slack@4.8.0
+  aws-cli: circleci/aws-cli@2.1.0
 
 # parameters:
 #  memstash-token:
@@ -166,7 +167,7 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[all]" >> .circleci/ansible/inventory.txt
+            echo "[all]" > .circleci/ansible/inventory.txt
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
@@ -225,7 +226,6 @@ jobs:
     docker:
       # Docker image here that supports NodeJS
       - image: circleci/node:13.8.0
-      - image: amazon/aws-cli
     steps:
       # Checkout code from git
       - checkout
