@@ -338,9 +338,9 @@ jobs:
              URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website.eu-central-1.amazonaws.com"
              if curl ${URL} | grep "Welcome"
              then
-                return 1
-             else
                 return 0
+             else
+                return 1
              fi
 #       - destroy-environment
 #       - revert-migrations
