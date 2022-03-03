@@ -402,6 +402,7 @@ jobs:
            name: Install tar utility
            command: |
                yum install -y tar gzip
+               curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
         - attach_workspace:
             at: .
         - run:
