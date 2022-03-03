@@ -423,6 +423,8 @@ jobs:
               else
                 echo "Nothing old to delete"
               fi
+       - destroy-environment
+       - revert-migrations
             
 
 workflows:
