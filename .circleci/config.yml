@@ -21,7 +21,7 @@ commands:
           command: |
             echo "Destroying environment: <<parameters.workflow_id>> "
             aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflow_id>>
-            aws s3 rb s3://udapeople-<<parameters.workflow_id>> --force
+            aws s3 rb s3://udapeople-prod-frontend-<<parameters.workflow_id>> --force
             aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflow_id>>
 
   # revert-migrations:
@@ -160,7 +160,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name "udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "udapeople-frontend-prod-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM"  
 
