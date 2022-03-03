@@ -120,6 +120,7 @@ jobs:
           name: Scan frontend
           command: |
             cd frontend
+            npm update
             npm i
             npm audit fix --audit-level=critical --force
 
