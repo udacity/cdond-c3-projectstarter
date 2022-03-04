@@ -232,14 +232,14 @@ jobs:
           command: |
             cd ~/project/backend
             npm install
-            npm run migrations > migration_output
+            npm run migrations > ../.circleci/migrations_dump.txt
             echo "Migration Result:------"
-            cat migrations_dump
+            cat ../.circleci/migrations_dump.txt
       - run:
-          name: Send migration results to memstash
+          name: check results
           command: |
             cd ~/project/backend
-            if grep -q "has been executed successfully" migration_output
+            if grep -q "has been executed successfully" .circleci/migrations_dump.txt
             then
               echo "Success"
               
