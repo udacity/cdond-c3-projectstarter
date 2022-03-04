@@ -187,40 +187,6 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
 
-  # configure-infrastructure:
-  #   docker: 
-  #     - image: python:3.9.1-alpine3.12
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["5c:d5:10:b9:ca:35:44:4d:58:ef:be:61:11:66:fe:51"]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add --update curl nodejs npm ansible zip
-  #           pip install awscli
-  #     - run:
-  #         name: Configure server
-  #         command: |
-  #           echo ENVIRONMENT=development > "backend/.env"
-  #           echo NODE_ENV=development >> "backend/.env"
-  #           echo TYPEORM_CONNECTION=postgres >> "backend/.env"
-  #           echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
-  #           echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
-  #           echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-  #           echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-  #           echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-  #           ansible-playbook \
-  #             -i .circleci/ansible/inventory.txt \
-  #             .circleci/ansible/configure-server.yml
-  #     - destroy-environment
-
-
 
   run-migration:
     docker:
@@ -250,32 +216,6 @@ jobs:
       - destroy-environment
 
 
-  # run-migration:
-  #   docker:
-  #     # Docker image here that supports NodeJS
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     # Checkout code from git
-  #     - checkout
-  #     - run:
-  #         name: Run migrations
-  #         no_output_timeout: 10m
-  #         command: |
-  #           cd backend
-  #           echo ENVIROMENT= development > ".env"
-  #           echo TYPEORM_CONNECTION=$TYPEORM_CONNECTION >> ".env"
-  #           echo TYPEORM_MIGRATIONS_DIR=$TYPEORM_MIGRATIONS_DIR >> ".env"
-  #           echo TYPEORM_ENTITIES=$TYPEORM_ENTITIES >> ".env"
-  #           echo TYPEORM_MIGRATIONS=$TYPEORM_MIGRATIONS >> ".env"
-  #           echo TYPEORM_HOST=$TYPEORM_HOST >> ".env"
-  #           echo TYPEORM_PORT=$TYPEORM_PORT >> ".env"
-  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> ".env"
-  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> ".env"
-  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> ".env"
-  #           npm install
-  #           touch migrations_log.txt
-  #           npm run migrations >> migrations_log.txt
-  #           cat migrations_log.txt
 
   deploy-frontend:
     docker:
@@ -332,63 +272,7 @@ jobs:
       - destroy-environment
       - revert-migrations
 
-  # deploy-backend:
-  #   docker:
-  #     - image: circleci/node:13.8.0
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90"]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           sudo apt update
-  #           sudo apt upgrade -y
-  #           sudo apt install -y ansible
-  #           sudo apt install -y awscli
-  #     - run:
-  #         name: Deploy backend
-  #         command: |
-  #           cd backend
-  #           npm i
-  #           npm run build
-  #           cp package* ./dist
-  #           cd ..
-  #           # Zip the directory
-  #           tar -C backend -czvf artifact.tar.gz .
-  #           cd .circleci/ansible
-  #           echo "Contents  of the inventory.txt file is -------"
-  #           cat inventory.txt
-  #           ansible-playbook -i inventory.txt deploy-backend.yml
-  #     - revert-migrations
-  #     - destroy-environment
-
-
-  # deploy-backend:
-  #   docker:
-  #     - image: python:3.7-alpine3.11
-  #   steps:
-  #     - checkout
-  #     - add_ssh_keys:
-  #         fingerprints: ["7e:bc:0d:89:5a:43:e5:de:62:c1:f3:fc:b2:6b:a4:90"]
-  #     - attach_workspace:
-  #         at: ~/
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           apk add --update tar gzip ansible nodejs npm curl openssh-client
-  #           pip install awscli
-  #     - run:
-  #         name: Deploy backend
-  #         no_output_timeout: 30m
-  #         command: |
-  #           tar -C backend -czvf artifact.tar.gz . && \
-  #           cd .circleci/ansible && \
-  #           ansible-playbook -i inventory.txt deploy-backend.yml
-  #     - revert-migrations
-  #     - destroy-environment
+  
 
   smoke-test:
     docker:
@@ -440,7 +324,18 @@ jobs:
               --parameter-overrides WorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
       - destroy-environment
 
-
+  cleanup:
+      docker:
+        - image: amazon/aws-cli
+      steps:
+        - checkout
+        - run:
+            name: Remove old stacks and files
+            command: |
+                aws cloudformation delete-stack --stack-name udapeople-cloudfront
+                aws cloudformation delete-stack --stack-name udapeople-backend-7c9c0e2
+                aws cloudformation delete-stack --stack-name udapeople-frontend-7c9c0e2
+              
 
 workflows:
   default:
@@ -470,6 +365,7 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-       
+      - cleanup:
+          requires: [cloudfront-update]
         
       
