@@ -233,6 +233,8 @@ jobs:
             cd ~/project/backend
             npm install
             npm run migrations > migration_output
+            echo "Migration Result:------"
+            cat migrations_dump
       - run:
           name: Send migration results to memstash
           command: |
