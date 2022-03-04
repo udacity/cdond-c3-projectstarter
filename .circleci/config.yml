@@ -237,7 +237,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y curl tar
+            yum install -y curl tar gzip
             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
             yum install -y nodejs
             node --version
