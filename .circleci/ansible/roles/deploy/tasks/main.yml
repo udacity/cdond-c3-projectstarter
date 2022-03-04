@@ -1,5 +1,45 @@
 ---
 
+
+  - name: "Copy backend files"
+    become: yes
+    synchronize:
+      src: /root/project/backend
+      dest: /home/ubuntu
+      recursive: true
+
+  - name: "npm install and build"
+    become: true
+    shell: |
+      npm install
+      npm run build
+    args:  
+        chdir: /home/ubuntu/backend
+        
+  - name: "Deploy code"
+    become: true
+    shell: |
+      pm2 start -f ./main.js
+    args:  
+        chdir: /home/ubuntu/backend/dist
+    environment:
+      ENVIRONMENT: production
+      TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION') }}"
+      TYPEORM_MIGRATIONS_DIR: "./migrations"
+      TYPEORM_MIGRATIONS: "./migrations/*.js"
+      TYPEORM_ENTITIES: "./modules/domain/**/*.entity.js"
+      TYPEORM_HOST: "{{ lookup('env', 'TYPEORM_HOST') }}"
+      TYPEORM_PORT: "{{ lookup('env', 'TYPEORM_PORT') }}"
+      TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME') }}"
+      TYPEORM_PASSWORD: "{{ lookup('env', 'TYPEORM_PASSWORD') }}"
+      TYPEORM_DATABASE: "{{ lookup('env', 'TYPEORM_DATABASE') }}"
+
+
+
+
+
+
+
 # - name: create backend directory
 #   become: yes
 #   file:
@@ -28,52 +68,61 @@
 #     pm2 stop default
 #     pm2 start npm -- start
 
-- name: Install dependencies.
-  become: true
-  apt:
-    name: ["nodejs", "npm"]
-    state: latest
-    update_cache: yes
 
-- name: Install pm2
-  become: true
-  npm:
-    name: pm2
-    global: yes
-    production: yes
-    state: present
 
-- name: Creates directory
-  become: true
-  file:
-    path: /home/ubuntu/backend
-    state: directory
 
-- name: Copy backend dist files web server
-  become: true
-  copy:
-    src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/backend/artifact.tar.gz
 
-- name: Uncompress Backend
-  become: true
-  shell: |
-    cd /home/ubuntu/backend
-    tar xvzf artifact.tar.gz -C .
-    ls -la
 
-- name: Build
-  become: true
-  shell: |
-    cd /home/ubuntu/backend
-    npm install
-    npm run build
+# - name: Install dependencies.
+#   become: true
+#   apt:
+#     name: ["nodejs", "npm"]
+#     state: latest
+#     update_cache: yes
 
-- name: Start PM2pm2
-  become: true
-  shell: |
-    cd /home/ubuntu/backend
-    pm2 start npm --name backend -- start
+# - name: Install pm2
+#   become: true
+#   npm:
+#     name: pm2
+#     global: yes
+#     production: yes
+#     state: present
+
+# - name: Creates directory
+#   become: true
+#   file:
+#     path: /home/ubuntu/backend
+#     state: directory
+
+# - name: Copy backend dist files web server
+#   become: true
+#   copy:
+#     src: /root/project/artifact.tar.gz
+#     dest: /home/ubuntu/backend/artifact.tar.gz
+
+# - name: Uncompress Backend
+#   become: true
+#   shell: |
+#     cd /home/ubuntu/backend
+#     tar xvzf artifact.tar.gz -C .
+#     ls -la
+
+# - name: Build
+#   become: true
+#   shell: |
+#     cd /home/ubuntu/backend
+#     npm install
+#     npm run build
+
+# - name: Start PM2pm2
+#   become: true
+#   shell: |
+#     cd /home/ubuntu/backend
+#     pm2 start npm --name backend -- start
+
+
+
+
 
 
 # - name: create backend directory
