@@ -478,14 +478,14 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migration:
           requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migration]
-      # - deploy-backend:
-      #     requires: [run-migration]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
+      - deploy-frontend:
+          requires: [run-migration]
+      - deploy-backend:
+          requires: [run-migration]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
       
         
       
