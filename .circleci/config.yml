@@ -206,6 +206,9 @@ jobs:
           command: |
             cd backend
             npm install
+            echo "77777777777777777777777777777777777777777777777777777777"
+            npm audit fix
+            echo "66666666666666666666666666666666666666666666666666666666"
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
