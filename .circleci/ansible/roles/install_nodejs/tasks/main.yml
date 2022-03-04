@@ -1,9 +1,13 @@
 ---
 
-  - name: "install python for Ansible."
+  - name: "install nodejs and npm."
     apt:
       pkg: 
       - nodejs
       - npm
-      - pm2
       update_cache: yes
+  - name: "install pm2"
+    npm:
+      name: pm2
+      global: yes
+      state: present
