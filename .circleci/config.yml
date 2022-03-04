@@ -143,8 +143,8 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/hosts
-      # - destroy-environment:
-      #     env: backend
+      - destroy-environment:
+          env: backend
 
   deploy-frontend-infra:
     <<: *awsImage
