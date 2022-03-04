@@ -232,14 +232,14 @@ jobs:
           command: |
             cd ~/project/backend
             npm install
-            npm run migrations > ../.circleci/migrations_dump.txt
+            npm run migrations > migration_output
             echo "Migration Result:------"
-            cat ../.circleci/migrations_dump.txt
+            
       - run:
           name: check results
           command: |
             cd ~/project/backend
-            if grep -q "has been executed successfully" .circleci/migrations_dump.txt
+            if grep -q "has been executed successfully" migration_output
             then
               echo "Success"
               
