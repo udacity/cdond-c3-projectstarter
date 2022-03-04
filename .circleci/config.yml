@@ -240,10 +240,10 @@ jobs:
             if grep -q "has been executed successfully" migration_output
             then
               echo "Success"
-              curl -H "Content-Type: text/plain" -H "token: bccde535-099e-43c3-91d8-42e8b76b7f3e" --request PUT --data "Success" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+              
             else
               echo "Failure"
-              curl -H "Content-Type: text/plain" -H "token: bccde535-099e-43c3-91d8-42e8b76b7f3e" --request PUT --data "Failure" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
+              
             fi
       - destroy-environment
 
