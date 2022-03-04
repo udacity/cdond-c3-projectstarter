@@ -195,6 +195,7 @@ jobs:
           command: |
             cd .circleci/ansible/ 
             ansible all --list-hosts
+            ansible web -m ping
             ansible-playbook -i inventory configure-server.yml 
       - destroy-environment:
           env: backend 
@@ -317,8 +318,8 @@ jobs:
 workflows:
   default:
     jobs:
-      - build-backend
-      - build-frontend
+      # - build-backend
+      # - build-frontend
 
       # - test-frontend:
       #     requires: [build-frontend]
@@ -330,8 +331,8 @@ workflows:
       #     requires: [build-frontend]
       - deploy-backend-infra
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - deploy-frontend-infra:
-          requires: [deploy-backend-infra]
+      # - deploy-frontend-infra:
+          # requires: [deploy-backend-infra]
           # filters:
           #   branches:
           #     only: [test-feature-branch]
