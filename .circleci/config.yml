@@ -135,14 +135,14 @@ jobs:
           command: |
             pwd
             ls -lh .circleci/ansible
-            cat .circleci/ansible/inventory
-            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=backend" --output text >> .circleci/ansible/inventory
-            cat .circleci/ansible/inventory
+            cat .circleci/ansible/hosts
+            aws ec2 describe-instances  --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=backend" --output text >> .circleci/ansible/hosts
+            cat .circleci/ansible/hosts
             yum install -y tar gzip
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory
+            - project/.circleci/ansible/hosts
       - destroy-environment:
           env: backend
 
@@ -170,7 +170,7 @@ jobs:
           command: |
             pwd
             ls -lha
-            cat .circleci/ansible/inventory
+            cat .circleci/ansible/hosts
       - destroy-environment:
           env: frontend
 
@@ -196,9 +196,9 @@ jobs:
             cd .circleci/ansible/
             pwd 
             ansible all --list-hosts
-            cat inventory
+            cat hosts
             ansible web -m ping
-            ansible-playbook -i inventory configure-server.yml 
+            ansible-playbook -i hosts configure-server.yml 
       - destroy-environment:
           env: backend 
       - destroy-environment:
