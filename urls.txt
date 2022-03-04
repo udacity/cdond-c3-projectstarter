@@ -1,0 +1,11 @@
+cloud front
+d3je1y0g5lgmea.cloudfront.net
+
+s3  bucket
+udapeople-b7103e8.s3-website-us-west-2.amazonaws.com
+
+circleci pipeline
+https://app.circleci.com/pipelines/github/Farrukhkhalid/cdond-c3-projectstarter/139/workflows/b7103e8a-17f8-4fc7-b160-9a84bd6c1809
+
+git hub repo
+https://github.com/Farrukhkhalid/cdond-c3-projectstarter
