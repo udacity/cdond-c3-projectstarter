@@ -193,8 +193,10 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cd .circleci/ansible/ 
+            cd .circleci/ansible/
+            pwd 
             ansible all --list-hosts
+            cat inventory
             ansible web -m ping
             ansible-playbook -i inventory configure-server.yml 
       - destroy-environment:
