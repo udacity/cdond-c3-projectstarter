@@ -225,7 +225,6 @@ jobs:
             npm run migrations >> migrations_log.txt
             cat migrations_log.txt
 
-
   deploy-frontend:
     docker:
       - image: python:3.7-alpine3.11
