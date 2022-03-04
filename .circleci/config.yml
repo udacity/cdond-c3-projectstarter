@@ -165,9 +165,10 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment
       
+
   configure-infrastructure:
-    docker: 
-      - image: python:3.9.1-alpine3.12
+    docker:
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
@@ -177,30 +178,51 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update curl nodejs npm ansible zip
-            pip install awscli
+            cd ~/project/.circleci/ansible
+            apk add --update ansible
       - run:
           name: Configure server
           command: |
-            echo ENVIRONMENT=development > "backend/.env"
-            echo NODE_ENV=development >> "backend/.env"
-            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
-            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
-            echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
-            echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
-            echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
-            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
-            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
-            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-            ansible-playbook \
-              -i .circleci/ansible/inventory.txt \
-              .circleci/ansible/configure-server.yml
+            cd ~/project/.circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
 
+  # configure-infrastructure:
+  #   docker: 
+  #     - image: python:3.9.1-alpine3.12
+  #   steps:
+  #     - checkout
+  #     - add_ssh_keys:
+  #         fingerprints: ["5c:d5:10:b9:ca:35:44:4d:58:ef:be:61:11:66:fe:51"]
+  #     - attach_workspace:
+  #         at: ~/
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           apk add --update curl nodejs npm ansible zip
+  #           pip install awscli
+  #     - run:
+  #         name: Configure server
+  #         command: |
+  #           echo ENVIRONMENT=development > "backend/.env"
+  #           echo NODE_ENV=development >> "backend/.env"
+  #           echo TYPEORM_CONNECTION=postgres >> "backend/.env"
+  #           echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
+  #           echo TYPEORM_MIGRATIONS=./src/migrations/*.ts >> "backend/.env"
+  #           echo TYPEORM_MIGRATIONS_DIR=./src/migrations >> "backend/.env"
+  #           echo TYPEORM_HOST=$TYPEORM_HOST >> "backend/.env"
+  #           echo TYPEORM_PORT=$TYPEORM_PORT >> "backend/.env"
+  #           echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
+  #           echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
+  #           echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
+  #           ansible-playbook \
+  #             -i .circleci/ansible/inventory.txt \
+  #             .circleci/ansible/configure-server.yml
+  #     - destroy-environment
 
 
-  run-migration:
+
+  run-migrations:
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -208,26 +230,22 @@ jobs:
       - run:
           name: Run migrations
           command: |
-            cd backend
+            cd ~/project/backend
             npm install
-            npm run build
-            npm run migrations > ../.circleci/migrations_dump.txt
-            echo "Migration Result:------"
-            cat ../.circleci/migrations_dump.txt
+            npm run migrations > migration_output
       - run:
-          name: check successfull migration
+          name: Send migration results to memstash
           command: |
-            if grep -q "has been executed successfully." .circleci/migrations_dump.txt
+            cd ~/project/backend
+            if grep -q "has been executed successfully" migration_output
             then
-              echo "Migrations done successfully!"
+              echo "Success"
+              curl -H "Content-Type: text/plain" -H "token: bccde535-099e-43c3-91d8-42e8b76b7f3e" --request PUT --data "Success" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             else
-              echo "Migrations Failed"
-              return 1
+              echo "Failure"
+              curl -H "Content-Type: text/plain" -H "token: bccde535-099e-43c3-91d8-42e8b76b7f3e" --request PUT --data "Failure" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
             fi
-      - persist_to_workspace:
-          root: .circleci
-          paths:
-            - migrations_dump.txt
+      - destroy-environment
 
 
 
@@ -460,14 +478,14 @@ workflows:
           requires: [deploy-infrastructure]
       - run-migration:
           requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migration]
-      - deploy-backend:
-          requires: [run-migration]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
+      # - deploy-frontend:
+      #     requires: [run-migration]
+      # - deploy-backend:
+      #     requires: [run-migration]
+      # - smoke-test:
+      #     requires: [deploy-backend, deploy-frontend]
+      # - cloudfront-update:
+      #     requires: [smoke-test]
       
         
       
