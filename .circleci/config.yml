@@ -196,6 +196,7 @@ jobs:
             cat hosts
             echo "_-_----____------___---__---___---___---___---___"
             ansible web -m ping
+      # - run: return 1
       # - destroy-environment:
       #     env: backend 
       # - destroy-environment:
