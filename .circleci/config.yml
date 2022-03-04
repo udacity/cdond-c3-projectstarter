@@ -122,14 +122,14 @@ jobs:
     <<: *awsImage
     steps:
       - checkout
-      - run:
-          name: Ensure back-end infrastructure exists
-          command: |
-            aws cloudformation deploy \
-              --template-file .circleci/files/backend.yml \
-              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
-              --parameter-overrides ID=${CIRCLE_WORKFLOW_ID} \
-              --tags project=backend
+      # - run:
+      #     name: Ensure back-end infrastructure exists
+      #     command: |
+      #       aws cloudformation deploy \
+      #         --template-file .circleci/files/backend.yml \
+      #         --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID} \
+      #         --parameter-overrides ID=${CIRCLE_WORKFLOW_ID} \
+      #         --tags project=backend
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -191,11 +191,10 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible/
-            pwd 
-            ansible all --list-hosts
             cat hosts
-            echo "_-_----____------___---__---___---___---___---___"
             ansible web -m ping
+            echo "_-_----____------___---__---___---___---___---___"
+            ansible-playbook -i hosts configure-server.yml
       # - run: return 1
       # - destroy-environment:
       #     env: backend 
