@@ -356,8 +356,8 @@ workflows:
           # filters:
           #   branches:
           #     only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-backend-infra]
+      # - configure-infrastructure:
+      #     requires: [deploy-backend-infra]
       - run-migrations:
           requires: [configure-infrastructure]
       - deploy-frontend:
