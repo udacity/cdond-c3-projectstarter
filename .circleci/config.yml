@@ -186,10 +186,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible tar gzip curl
-            curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-            unzip awscli-bundle.zip
-            ./awscli-bundle/install -i /usr/local/aws -b /usr/local/bin/aws
+            apk add --update ansible
       - run:
           name: Configure server
           command: |
@@ -197,12 +194,12 @@ jobs:
             pwd 
             ansible all --list-hosts
             cat hosts
+            echo "_-_----____------___---__---___---___---___---___"
             ansible web -m ping
-            ansible-playbook -i hosts configure-server.yml 
-      - destroy-environment:
-          env: backend 
-      - destroy-environment:
-          env: frontend 
+      # - destroy-environment:
+      #     env: backend 
+      # - destroy-environment:
+      #     env: frontend 
 
 #   run-migrations:
 #     docker:
