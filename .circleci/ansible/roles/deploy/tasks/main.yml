@@ -1,10 +1,10 @@
 ---
-  - name: deploy backend
-    copy: src=main.js dest=/
-    when: "{{ inventory_hostname == 'web' }}"
-  - name: run backend
-    script: /main.js
-    state: started
-        # npm install
-        # pm2 stop default
-        # pm2 start npm -- start
+- name: deploy backend
+  copy: src=main.js dest=/
+  when: "{{ inventory_hostname == 'web' }}"
+- name: run backend
+  script: /main.js
+  state: started
+      # npm install
+      # pm2 stop default
+      # pm2 start npm -- start
