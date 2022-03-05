@@ -195,9 +195,9 @@ jobs:
             # cat migrations_dump.txt
 
             npm install
-            echo "77777777777777777777777777777777777777777777777777777777"
+            echo "npm fix ..."
             npm audit fix
-            echo "66666666666666666666666666666666666666666666666666666666"
+            echo "npm run migration ...."
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
