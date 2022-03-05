@@ -276,7 +276,10 @@ jobs:
             cd .circleci/ansible
             echo "running deploy backend playbook ...."
             ansible-playbook -i hosts deploy-backend.yml
-      - destroy-environment
+      - destroy-environment:
+          env: backend
+      - destroy-environment:
+          env: frontend
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11  
