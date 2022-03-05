@@ -5,9 +5,6 @@
       src: main.js
       dest: /main.js
       remote_src: yes
-  # - name: deploy backend
-  #   copy: src=main.js dest=/
-    # when: "{{ inventory_hostname == 'web' }}"
 
   - name: start app
     register: npm_finished
@@ -21,3 +18,6 @@
         # npm install
         # pm2 stop default
         # pm2 start npm -- start
+          # - name: deploy backend
+  #   copy: src=main.js dest=/
+    # when: "{{ inventory_hostname == 'web' }}"
