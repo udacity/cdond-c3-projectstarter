@@ -121,7 +121,7 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit fix --audit-level=critical
+            npm audit fix 
 
 
   deploy-infrastructure:
