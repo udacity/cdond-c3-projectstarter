@@ -18,6 +18,21 @@
       cd ~/backend
       tar -vxf artifact.tar.gz
       rm -f artifact.tar.gz
+  - name: set envs
+    become: yes
+    shell: |
+      export AWS_ACCESS_KEY_ID="AKIAZ74RWVB3HFXOTTGE"
+      export AWS_SECRET_ACCESS_KEY="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"
+      export AWS_DEFAULT_REGION="us-east-1"
+      export TYPEORM_CONNECTION="postgres"
+      export TYPEORM_MIGRATIONS_DIR="/root/backend/src/migrations"
+      export TYPEORM_ENTITIES="/root/backend/src/modules/domain/**/*.entity.ts"
+      export TYPEORM_MIGRATIONS="/root/backend/src/migrations/*.ts"
+      export TYPEORM_HOST="udapeople.chynegvijocj.us-east-1.rds.amazonaws.com"
+      export TYPEORM_PORT=5432
+      export TYPEORM_USERNAME="postgres"
+      export TYPEORM_PASSWORD="udapeople123"
+      export TYPEORM_DATABASE="postgres"
   - name: start app 
     become: yes
     shell: |
