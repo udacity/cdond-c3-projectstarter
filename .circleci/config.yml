@@ -241,28 +241,44 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
-      # - destroy-environment:
-      #     env: frontend
-      # - destroy-environment:
-      #     env: backend      
+      - destroy-environment:
+          env: frontend
+      - destroy-environment:
+          env: backend      
                     
-#   deploy-backend:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Deploy backend
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
-
+  deploy-backend:
+    docker:
+      - image: python:3.7-alpine3.11
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["b5:6f:85:c4:33:03:99:c2:d0:c5:88:82:89:f9:d4:43"]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible curl rsync openssh nodejs npm
+            pip install awscli
+      - run:
+          name: Deploy backend
+          command: |
+            echo "Contents  of the hosts file is -------"
+            cat .circleci/ansible/hosts
+            cd backend
+            echo "running npm i ...."
+            npm i
+            echo "running npm build ...."
+            npm run build
+            cd ..
+            echo "make tar from backend ...."
+            tar -C backend -czvf artifact.tar.gz .
+            cd .circleci/ansible
+            echo "running deploy backend playbook ...."
+            ansible-playbook -i hosts deploy-backend.yml
+      # - destroy-environment
+      # Here's where you will add some code to rollback on failure  
+#            export ANSIBLE_HOST_KEY_CHECKING=False
 #   smoke-test:
 #     docker:
 #       # Lightweight Docker image 
@@ -346,8 +362,8 @@ workflows:
           requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
       # - smoke-test:
       #     requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
