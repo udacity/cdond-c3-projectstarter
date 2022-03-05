@@ -59,5 +59,3 @@
         # pm2 stop default
         # pm2 start npm -- start
           # - name: deploy backend
-  #   copy: src=main.js dest=/
-    # when: "{{ inventory_hostname == 'web' }}"
