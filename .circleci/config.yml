@@ -266,10 +266,12 @@ jobs:
             echo "Contents  of the hosts file is -------"
             cat .circleci/ansible/hosts
             cd backend
+            ls -lh
             echo "running npm i ...."
             npm i
             echo "running npm build ...."
             npm run build
+            ls -lh
             cd ..
             echo "make tar from backend ...."
             tar -C backend -czvf artifact.tar.gz .
