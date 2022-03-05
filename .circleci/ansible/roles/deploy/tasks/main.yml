@@ -8,6 +8,12 @@
   # - name: deploy backend
   #   copy: src=main.js dest=/
     # when: "{{ inventory_hostname == 'web' }}"
+
+  - name: start app
+    register: npm_finished
+    command: pm2 /main.js
+    ignore_errors: yes
+
   - name: run backend
     pm2:
       script: /main.js
