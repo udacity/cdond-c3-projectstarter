@@ -21,8 +21,8 @@
   - name: set envs
     become: yes
     shell: |
-      export AWS_ACCESS_KEY_ID="AKIAZ74RWVB3HFXOTTGE"
-      export AWS_SECRET_ACCESS_KEY="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"
+      export AWS_ACCESS_KEY_ID="AKIAZ74RWVB3OJFFTI4C"
+      export AWS_SECRET_ACCESS_KEY="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"
       export AWS_DEFAULT_REGION="us-east-1"
       export TYPEORM_CONNECTION="postgres"
       export TYPEORM_MIGRATIONS_DIR="/root/backend/src/migrations"
