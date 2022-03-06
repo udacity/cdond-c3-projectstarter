@@ -229,6 +229,7 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
+      - aws-cli/setup
       - attach_workspace:
           at: ~/
       - run:
@@ -254,6 +255,7 @@ jobs:
           command: |
             cd backend
             npm install
+            npm audit fix --force
             npm run migrations >> migrations_dump.txt
             cat migrations_output.txt
       - run:
