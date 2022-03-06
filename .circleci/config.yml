@@ -377,7 +377,9 @@ jobs:
           name: Remove old stacks and files
           command: |
             cat old_id.txt
-            export OldWorkflowID=$(tail -1 old_id.txt)
+            export OldWorkflowID=$(cat old_id.txt)
+            echo "=========================================================="
+            echo $OldWorkflowID
             if [[ -z "${OldWorkflowID}" ]]
             then
               echo "there isn't any old version"
