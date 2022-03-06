@@ -348,9 +348,9 @@ jobs:
                 	    --no-paginate --output text >> old_id.txt
              cat old_id.txt
       - persist_to_workspace:
-      	  root: ~/
-      	  paths:
-        	  - project/old_id.txt
+          root: ~/
+          paths:
+            - project/old_id.txt
       - run:
           name: Update cloudfront distribution
           command: |
