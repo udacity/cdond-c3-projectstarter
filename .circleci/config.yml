@@ -262,10 +262,10 @@ jobs:
             then
               curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 1
             fi
-#      - persist_to_workspace:
-#          root: ~/
-#          paths: 
-#            - project/.circleci/outputs
+      - persist_to_workspace:
+          root: ~/
+          paths: 
+            - project/.circleci/outputs
 
 
      # Here's where you will add some code to rollback on failure
