@@ -284,15 +284,6 @@ jobs:
 #          paths: 
 #            - project/.circleci/outputs
 
-#      - run:
-#          name: Send migration results to memstash
-#          command: |
-            # Your code here
-#            curl -H "Content-Type: text/plain" \
-#              -H "token: << pipeline.parameters.memstash-token >>" \
-#              --request PUT --data "1" \
-#              https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID}
-
 
      # Here's where you will add some code to rollback on failure
       - revert-migrations
