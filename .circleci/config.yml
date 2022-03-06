@@ -11,25 +11,27 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-      env:
+      workflow_id:
         type: string
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-<< parameters.env >>-${CIRCLE_WORKFLOW_ID}
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.workflow_id >>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<< parameters.workflow_id >>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
-    #parameters:
-      # Add parameter here     
+    parameters:
+      workflow_id:
+        type: string
     steps:
       - run:
           name: Revert migrations
-          when: on_success
+          when: on_fail
           command: |
-            SUCCESS=$(curl https://kvdb.io/9MTBK1NA1tTTdcgwFqkm5t/migration_${CIRCLE_WORKFLOW_ID})
+            SUCCESS=$(curl https://kvdb.io/9MTBK1NA1tTTdcgwFqkm5t/migration_<< parameters.workflow_id >>)
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
@@ -149,10 +151,8 @@ jobs:
               --stack-name udapeople-front-${CIRCLE_WORKFLOW_ID}\
               --parameter-overrides ID=${CIRCLE_WORKFLOW_ID} \
               --tags project=frontend
-      # - destroy-environment:
-      #     env: backend
-      # - destroy-environment:
-      #     env: frontend
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
@@ -171,10 +171,8 @@ jobs:
           command: |
             cd .circleci/ansible/
             ansible-playbook -i hosts configure-server.yml
-      # - destroy-environment:
-      #     env: backend 
-      # - destroy-environment:
-      #     env: frontend 
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
   run-migrations:
     docker:
       - image: circleci/node:14.18.1
@@ -186,14 +184,6 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            # npm install
-            # npm install typescript
-            # npm --update install python3 npm
-            # npm run build
-            # npm run migrations:revert
-            # npm run migrations > migrations_dump.txt
-            # cat migrations_dump.txt
-
             npm install
             echo "npm fix ..."
             npm audit fix
@@ -206,10 +196,8 @@ jobs:
             then
               curl https://kvdb.io/9MTBK1NA1tTTdcgwFqkm5t/migration_${CIRCLE_WORKFLOW_ID}  -d '1'
             fi
-      # - destroy-environment:
-      #     env: backend
-      # - destroy-environment:
-      #     env: frontend
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
       - revert-migrations
 
   deploy-frontend:
@@ -241,10 +229,8 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
-      # - destroy-environment:
-      #     env: frontend
-      # - destroy-environment:
-      #     env: backend      
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}   
                     
   deploy-backend:
     docker:
@@ -280,10 +266,8 @@ jobs:
             cd .circleci/ansible
             echo "running deploy backend playbook ...."
             ansible-playbook -i hosts deploy-backend.yml
-      # - destroy-environment:
-      #     env: backend
-      # - destroy-environment:
-      #     env: frontend
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
   smoke-test:
     docker:
       - image: python:3.7-alpine3.11  
@@ -346,7 +330,6 @@ jobs:
              aws cloudformation \
                 	   list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                 	    --no-paginate --output text >> old_id.txt
-             cat old_id.txt
       - persist_to_workspace:
           root: ~/
           paths:
@@ -356,8 +339,7 @@ jobs:
           command: |
               aws cloudformation update-stack --use-previous-template --stack-name udapeople \
                      --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID},UsePreviousValue=false
-       # Here's where you will add some code to rollback on failure  
-
+      - revert-migrations
   cleanup:
     <<: *awsImage
     steps:
@@ -368,19 +350,10 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-          name: Get old stack workflow id
-          command: |
-            cat old_id.txt
-            export OldWorkflowID=$(tail -1 old_id.txt)
-            export STACKS=("udapeople-backend-$OldWorkflowID" "udapeople-frontend-$OldWorkflowID")
-      - run:
           name: Remove old stacks and files
           command: |
-            cat old_id.txt
             export OldWorkflowID=$(cat old_id.txt)
-            export STACKS=("udapeople-backend-$OldWorkflowID" "udapeople-frontend-$OldWorkflowID")
-            echo "=========================================================="
-            echo $STACKS
+            export STACKS=("udapeople-backend-$OldWorkflowID" "udapeople-front-$OldWorkflowID")
             if [[ -z "$OldWorkflowID" ]]
             then
               echo "there isn't any old version"
@@ -391,26 +364,26 @@ jobs:
                 echo "deleting stack $stack"
                 aws cloudformation delete-stack --stack-name $stack
               done
-              aws s3 rm s3://udapeople-$OldWorkflowID --recursive
+              aws s3 rb s3://udapeople-$OldWorkflowID
             fi
            
 
 workflows:
   default:
     jobs:
-      # - build-backend
-      # - build-frontend
-
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      - deploy-infrastructure
-          # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+       - test
+       - build-backend
+       - build-frontend
+       - test-frontend:
+           requires: [build-frontend]
+       - test-backend:
+           requires: [build-backend]
+       - scan-backend:
+           requires: [build-backend]
+       - scan-frontend:
+           requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # filters:
           #   branches:
           #     only: [test-feature-branch]
