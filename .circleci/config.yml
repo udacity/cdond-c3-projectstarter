@@ -401,22 +401,22 @@ workflows:
       #     requires: [build-backend]
       # - scan-frontend:
       #     requires: [build-frontend]
-      - deploy-infrastructure
+      #- deploy-infrastructure
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # filters:
           #   branches:
           #     only: [test-feature-branch]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update:
-          requires: [smoke-test]
+      #- configure-infrastructure:
+       #   requires: [deploy-infrastructure]
+      #- run-migrations:
+      #    requires: [configure-infrastructure]
+      #- deploy-frontend:
+      #    requires: [run-migrations]
+      #- deploy-backend:
+      #    requires: [run-migrations]
+      #- smoke-test:
+      #    requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update
+      #    requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
