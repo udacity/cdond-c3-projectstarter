@@ -229,7 +229,7 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - attach_to_workspace:
+      - attach_workspace:
           at: ~/
       - run:
           name: Install Dependencies
