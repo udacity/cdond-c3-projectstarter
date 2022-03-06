@@ -354,8 +354,8 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            aws deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople \
-                     --parameters ParameterKey=WorkflowID,ParameterValue="udapeople-${CIRCLE_WORKFLOW_ID}"
+              aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople \
+                     --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID}" --tags project=udapeople
        # Here's where you will add some code to rollback on failure  
 
   cleanup:
