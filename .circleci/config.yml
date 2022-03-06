@@ -255,8 +255,8 @@ jobs:
             cd backend
             npm install
             npm audit fix --force
-            npm run migrations >> migrations_dump.txt
-            cat migrations_output.txt
+            npm run migration >> migration_dump.txt
+            cat migration_output.txt
       - run:
           name: Save the Output to a file and Use Grep to Check the Migration
           command: |
