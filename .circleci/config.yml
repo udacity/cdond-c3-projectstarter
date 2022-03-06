@@ -297,23 +297,10 @@ jobs:
       - run:
           name: Get backend url
           command: |
-              echo $(aws ec2 --region us-east-1 describe-instances \
-                    --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID} \
-                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --output text)
-              backend=$(aws ec2 --region us-east-1 describe-instances \
-                    --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID} \
-                    --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --output text)
-              echo $backend
               export BACKEND_IP=$(aws ec2 --region us-east-1 describe-instances \
                       --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID} \
                       --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                      --output text)            
-              export BACKEND_URL=$(aws ec2 --region us-east-1 describe-instances \
-                      --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
-                      --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                      --output text)        
+                      --output text)
               echo BACKEND_URL: http://${BACKEND_IP}:3030/api/status
       - run:
           name: Backend smoke test.
@@ -354,31 +341,48 @@ jobs:
             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
             yum install -y nodejs
       - run:
+          name: find old env
+          command: |
+             aws cloudformation \
+                	   list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+                	    --no-paginate --output text >> old_id.txt
+             cat old_id.txt
+      - persist_to_workspace:
+      	  root: ~/
+      	  paths:
+        	  - project/old_id.txt
+      - run:
           name: Update cloudfront distribution
           command: |
             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
                      --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID}" --tags project=udapeople
        # Here's where you will add some code to rollback on failure  
 
-# cleanup:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Get old stack workflow id
-#           command: |
-#             # your code here
-#             export OldWorkflowID="the id here"
-#             export STACKS=[] #put the list of stacks here
-#       - run:
-#           name: Remove old stacks and files
-#           command: |
-#             if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-#             then
-#               # your code here
-#             fi
-            
+  cleanup:
+    <<: *awsImage
+    steps:
+      - checkout
+      - attach_workspace:
+          at: ~/
+      - run:
+         name: Get old stack workflow id
+         command: |
+           cat old_id.txt
+           export OldWorkflowID=$(tail -1 old_id.txt)
+           export STACKS=["udapeople-backend-$OldWorkflowID", "udapeople-frontend-$OldWorkflowID"]
+     - run:
+         name: Remove old stacks and files
+         command: |
+           cat old_id.txt
+           if [[ "udapeople-${CIRCLE_WORKFLOW_ID}" =~ "${OldWorkflowID}" ]]
+           then
+             aws s3 rm s3://udapeople-$OldWorkflowID --recursive
+             for stack in ${STACKS[@]}; do
+               echo "deleting stack $stack"
+               aws cloudformation delete-stack --stack-name $stack
+             done
+           fi
+           
 
 workflows:
   default:
@@ -411,5 +415,5 @@ workflows:
           requires: [deploy-backend, deploy-frontend]
       - cloudfront-update:
           requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cleanup:
+          requires: [cloudfront-update]
