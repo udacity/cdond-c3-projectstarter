@@ -380,10 +380,11 @@ jobs:
             export OldWorkflowID=$(cat old_id.txt)
             echo "=========================================================="
             echo $OldWorkflowID
-            if [[ -z "${OldWorkflowID}" ]]
+            echo ${CIRCLE_WORKFLOW_ID}
+            if [[ -z "$OldWorkflowID" ]]
             then
               echo "there isn't any old version"
-            elif [[ "udapeople-${CIRCLE_WORKFLOW_ID}" =~ "${OldWorkflowID}" ]]
+            elif [[ "udapeople-${CIRCLE_WORKFLOW_ID}" =~ "$OldWorkflowID" ]]
             then
               echo "not equal"
               for stack in ${STACKS[@]}; do
