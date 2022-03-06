@@ -341,21 +341,24 @@ jobs:
              else
                  return 1
              fi
+      - revert-migrations
 
-#   cloudfront-update:
-#     docker:
-#       # Docker image here that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Update cloudfront distribution
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+   cloudfront-update:
+     <<: *awsImage
+     steps:
+       - checkout
+       - run:
+           name: Install dependencies
+           command: |
+             yum install -y tar gzip curl
+             curl -sL https://rpm.nodesource.com/setup_10.x | bash -
+             yum install -y nodejs
+       - run:
+           name: Update cloudfront distribution
+           command: |
+             aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stacl-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
+                      --parameter-overrides workflowID="udapeople-${CIRCLE_WORKFLOW_ID}" --tags project=udapeople
+       # Here's where you will add some code to rollback on failure  
 
 # cleanup:
 #     docker:
@@ -406,7 +409,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
+      - cloudfront-update:
+          requires: [smoke-test]
       # - cleanup:
       #     requires: [cloudfront-update]
