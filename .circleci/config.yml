@@ -39,24 +39,7 @@ commands:
             npm install
             npm run migration:revert
             fi 
-  # revert-migrations:
-  #  description: Revert the last migration if successfully run in the current workflow.
-    # parameters:
-  #  steps:
-      # Trigger rollback jobs if the smoke tests or any following jobs fail.
-      # Revert the last migration (IF a new migration was applied) on the database to that it goes back to the way it was before. You can use that value you saved in MemStash.io to know if you should revert any migrations.
-  #    - run:
-  #        name: Revert migrations
-  #        when: on_fail
-  #        command: |
-            # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-  #          export SUCCESS=$(curl -H "token: << pipeline.parameters.memstash-token >>" --request GET https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID})
-  #          if(( $SUCCESS==1 )); 
-  #          then
-  #            cd ~/project/backend
-  #            npm install
-  #            npm run migrations:revert
-  #          fi
+  
 
 jobs:
   build-frontend:
