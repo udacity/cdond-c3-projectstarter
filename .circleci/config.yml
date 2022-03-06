@@ -234,8 +234,8 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            sudo npm i
-            sudo npm run migrations >> migration_output.txt
+            npm install
+            npm run migrations >> migration_dump.txt
             cat migration_output.txt
       - run:
           name: Save the Output to a file and Use Grep to Check the Migration
