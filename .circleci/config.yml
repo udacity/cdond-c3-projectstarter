@@ -24,6 +24,21 @@ commands:
             aws s3 rb s3://udapeople-prod-frontend-<<parameters.workflow_id>> --force
             aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflow_id>>
 
+
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.  
+    steps:
+      - run:
+          name: Revert migrations
+          when: on_success
+          command: |
+            SUCCESS=$(curl --insecure https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if (( $SUCCESS == 1 ));
+            then
+            cd ~/project/backend
+            npm install
+            npm run migration:revert
+            fi 
   # revert-migrations:
   #  description: Revert the last migration if successfully run in the current workflow.
     # parameters:
@@ -229,21 +244,21 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Install Dependencies
-          command: |
-            apk upgrade
-            apk update
-            apk add unzip
-            apk add curl
-            /usr/local/bin/python -m pip install --upgrade pip
-      - run:
-          name: Install Node
-          command: |
-            apk add --update nodejs
-            apk add --update npm
+#      - attach_workspace:
+#          at: ~/
+#      - run:
+#          name: Install Dependencies
+#          command: |
+#            apk upgrade
+#            apk update
+#            apk add unzip
+#            apk add curl
+#            /usr/local/bin/python -m pip install --upgrade pip
+#      - run:
+#          name: Install Node
+#          command: |
+#            apk add --update nodejs
+#            apk add --update npm
       - run:
           name: AWS CLI
           command: |
@@ -254,21 +269,20 @@ jobs:
           command: |
             cd backend
             npm install
-            npm audit fix --force
-            npm run migration >> migration_dump.txt
-            cat migration_output.txt
+            npm run migrations >> migrations_dump.txt
+            cat migrations_output.txt
       - run:
-          name: Save the Output to a file and Use Grep to Check the Migration
+          name: Send Migration status to kvdb.io
           command: |
             cd backend
-            if grep -q "has been executed successfully." migration_output.txt
+            if grep -q "has been executed successfully." migrations_dump.txt
             then
-              touch ~/project/.circleci/outputs/db_migration_success
+              curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 1
             fi
-      - persist_to_workspace:
-          root: ~/
-          paths: 
-            - project/.circleci/outputs
+#      - persist_to_workspace:
+#          root: ~/
+#          paths: 
+#            - project/.circleci/outputs
 
 #      - run:
 #          name: Send migration results to memstash
@@ -281,7 +295,7 @@ jobs:
 
 
      # Here's where you will add some code to rollback on failure
-     #- revert_migration
+      - revert-migrations
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"        
 
