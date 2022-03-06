@@ -282,7 +282,7 @@ jobs:
       # Checkout code from git
       - checkout
       - attach_workspace:
-          at: ~/
+          at: .
       - run:
           name: Install tar/gzip utility
           command: |
