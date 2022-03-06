@@ -297,15 +297,24 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 --region us-east-1 describe-instances \
+              echo $(aws ec2 --region us-east-1 describe-instances \
                     --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID} \
                     --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --output text)            
-            export BACKEND_URL=$(aws ec2 --region us-east-1 describe-instances \
-                    --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+                    --output text)
+              backend=$(aws ec2 --region us-east-1 describe-instances \
+                    --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID} \
                     --query 'Reservations[*].Instances[*].PublicIpAddress' \
-                    --output text)        
-            echo BACKEND_URL: http://${BACKEND_IP}:3030/api/status
+                    --output text)
+              echo $backend
+              export BACKEND_IP=$(aws ec2 --region us-east-1 describe-instances \
+                      --filters Name=instance-state-name,Values=running Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID} \
+                      --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                      --output text)            
+              export BACKEND_URL=$(aws ec2 --region us-east-1 describe-instances \
+                      --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID}" \
+                      --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                      --output text)        
+              echo BACKEND_URL: http://${BACKEND_IP}:3030/api/status
       - run:
           name: Backend smoke test.
           command: |
