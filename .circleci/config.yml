@@ -265,7 +265,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths: 
-            - project/.circleci/outputs
+            - project/frontend
 
 
      # Here's where you will add some code to rollback on failure
@@ -282,7 +282,7 @@ jobs:
       # Checkout code from git
       - checkout
       - attach_workspace:
-          at: .
+          at: ~/
       - run:
           name: Install tar/gzip utility
           command: |
