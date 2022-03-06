@@ -354,8 +354,8 @@ jobs:
       - run:
           name: Update cloudfront distribution
           command: |
-            aws cloudformation deploy --template-file .circleci/files/cloudfront.yml --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
-                     --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID}" --tags project=udapeople
+            aws cloudformation update-stack --use-previous-template --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID} \
+                     --parameters ParameterKey=WorkflowID,ParameterValue="udapeople-${CIRCLE_WORKFLOW_ID}",UsePreviousValue=false
        # Here's where you will add some code to rollback on failure  
 
   cleanup:
