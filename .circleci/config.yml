@@ -365,23 +365,23 @@ jobs:
       - attach_workspace:
           at: ~/
       - run:
-         name: Get old stack workflow id
-         command: |
-           cat old_id.txt
-           export OldWorkflowID=$(tail -1 old_id.txt)
-           export STACKS=["udapeople-backend-$OldWorkflowID", "udapeople-frontend-$OldWorkflowID"]
-     - run:
-         name: Remove old stacks and files
-         command: |
-           cat old_id.txt
-           if [[ "udapeople-${CIRCLE_WORKFLOW_ID}" =~ "${OldWorkflowID}" ]]
-           then
-             aws s3 rm s3://udapeople-$OldWorkflowID --recursive
-             for stack in ${STACKS[@]}; do
-               echo "deleting stack $stack"
-               aws cloudformation delete-stack --stack-name $stack
-             done
-           fi
+          name: Get old stack workflow id
+          command: |
+            cat old_id.txt
+            export OldWorkflowID=$(tail -1 old_id.txt)
+            export STACKS=["udapeople-backend-$OldWorkflowID", "udapeople-frontend-$OldWorkflowID"]
+      - run:
+          name: Remove old stacks and files
+          command: |
+            cat old_id.txt
+            if [[ "udapeople-${CIRCLE_WORKFLOW_ID}" =~ "${OldWorkflowID}" ]]
+            then
+              aws s3 rm s3://udapeople-$OldWorkflowID --recursive
+              for stack in ${STACKS[@]}; do
+                echo "deleting stack $stack"
+                aws cloudformation delete-stack --stack-name $stack
+              done
+            fi
            
 
 workflows:
