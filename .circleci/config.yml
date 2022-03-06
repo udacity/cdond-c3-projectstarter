@@ -367,6 +367,7 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
+            yum install -y tar gzip
             cat old_id.txt
             export OldWorkflowID=$(tail -1 old_id.txt)
             export STACKS=["udapeople-backend-$OldWorkflowID", "udapeople-frontend-$OldWorkflowID"]
