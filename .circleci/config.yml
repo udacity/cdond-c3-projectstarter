@@ -377,13 +377,17 @@ jobs:
           name: Remove old stacks and files
           command: |
             cat old_id.txt
-            if [[ "udapeople-${CIRCLE_WORKFLOW_ID}" =~ "${OldWorkflowID}" ]]
+            if [[ -z "${OldWorkflowID}" ]]
             then
-              aws s3 rm s3://udapeople-$OldWorkflowID --recursive
-              for stack in ${STACKS[@]}; do
-                echo "deleting stack $stack"
-                aws cloudformation delete-stack --stack-name $stack
-              done
+              echo "there isn't any old version"
+            elif [[ "udapeople-${CIRCLE_WORKFLOW_ID}" =~ "${OldWorkflowID}" ]]
+            then
+              echo "not equal"
+              #for stack in ${STACKS[@]}; do
+              #  echo "deleting stack $stack"
+              #  aws cloudformation delete-stack --stack-name $stack
+              #done
+              #aws s3 rm s3://udapeople-$OldWorkflowID --recursive
             fi
            
 
@@ -401,22 +405,22 @@ workflows:
       #     requires: [build-backend]
       # - scan-frontend:
       #     requires: [build-frontend]
-      #- deploy-infrastructure
+      - deploy-infrastructure
           # requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           # filters:
           #   branches:
           #     only: [test-feature-branch]
-      #- configure-infrastructure:
-       #   requires: [deploy-infrastructure]
-      #- run-migrations:
-      #    requires: [configure-infrastructure]
-      #- deploy-frontend:
-      #    requires: [run-migrations]
-      #- deploy-backend:
-      #    requires: [run-migrations]
-      #- smoke-test:
-      #    requires: [deploy-backend, deploy-frontend]
-      - cloudfront-update
-      #    requires: [smoke-test]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
       - cleanup:
           requires: [cloudfront-update]
