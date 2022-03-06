@@ -383,11 +383,11 @@ jobs:
             elif [[ "udapeople-${CIRCLE_WORKFLOW_ID}" =~ "${OldWorkflowID}" ]]
             then
               echo "not equal"
-              #for stack in ${STACKS[@]}; do
-              #  echo "deleting stack $stack"
-              #  aws cloudformation delete-stack --stack-name $stack
-              #done
-              #aws s3 rm s3://udapeople-$OldWorkflowID --recursive
+              for stack in ${STACKS[@]}; do
+                echo "deleting stack $stack"
+                aws cloudformation delete-stack --stack-name $stack
+              done
+              aws s3 rm s3://udapeople-$OldWorkflowID --recursive
             fi
            
 
