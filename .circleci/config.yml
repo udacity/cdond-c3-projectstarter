@@ -256,6 +256,7 @@ jobs:
             echo "running npm build ...."
             npm run build
             echo "make tar from backend ...."
+            cd ..
             tar -C backend -czf artifact.tar.gz .
             cd .circleci/ansible
             echo "running deploy backend playbook ...."
