@@ -251,15 +251,10 @@ jobs:
             echo "Contents  of the hosts file is -------"
             cat .circleci/ansible/hosts
             cd backend
-            ls -lh
             echo "running npm i ...."
             npm i
             echo "running npm build ...."
             npm run build
-            ls -lh
-            du -sh *
-            ls -lh dist
-            cd ..
             echo "make tar from backend ...."
             tar -C backend -czf artifact.tar.gz .
             cd .circleci/ansible
@@ -307,7 +302,7 @@ jobs:
              echo ${URL} 
              if curl -s http://udapeople-${CIRCLE_WORKFLOW_ID}.s3-website-us-east-1.amazonaws.com/#/employees | grep "Welcome"
              then
-                 return 0
+                 return 1
              else
                  return 1
              fi
