@@ -198,8 +198,8 @@ jobs:
             fi
       - destroy-environment:
           workflow_id: ${CIRCLE_WORKFLOW_ID}
-      - revert-migrations
-
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
   deploy-frontend:
     <<: *awsImage
     steps:
@@ -230,8 +230,7 @@ jobs:
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID} --recursive
       - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID}   
-                    
+          workflow_id: ${CIRCLE_WORKFLOW_ID}                   
   deploy-backend:
     docker:
       - image: python:3.7-alpine3.11
@@ -312,8 +311,8 @@ jobs:
              else
                  return 1
              fi
-      - revert-migrations
-
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
   cloudfront-update:
     <<: *awsImage
     steps:
@@ -339,7 +338,8 @@ jobs:
           command: |
               aws cloudformation update-stack --use-previous-template --stack-name udapeople \
                      --parameters ParameterKey=WorkflowID,ParameterValue=${CIRCLE_WORKFLOW_ID},UsePreviousValue=false
-      - revert-migrations
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}
   cleanup:
     <<: *awsImage
     steps:
@@ -364,6 +364,7 @@ jobs:
                 echo "deleting stack $stack"
                 aws cloudformation delete-stack --stack-name $stack
               done
+              aws s3 rm s3://udapeople-$OldWorkflowID --recursive
               aws s3 rb s3://udapeople-$OldWorkflowID
             fi
            
