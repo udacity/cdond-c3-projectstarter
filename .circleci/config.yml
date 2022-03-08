@@ -314,6 +314,46 @@ jobs:
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"   
 
+  deploy-backend:
+    docker:
+      # Docker image here that supports Ansible
+      - image: python:3.7-alpine
+    steps:
+      # Checkout code from git
+      - checkout
+      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["65:e3:0d:22:cf:8b:c1:b9:6a:2d:71:76:61:c9:93:d9"]
+      # attach workspace
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+            apk upgrade
+            apk update
+            apk add unzip
+            apk add curl
+            /usr/local/bin/python -m pip install --upgrade pip
+      - run:
+          name: Install Node
+          command: |
+            apk add --update nodejs
+            apk add --update npm
+      - run:
+          name: AWS CLI
+          command: |
+            pip install awscli --upgrade
+            aws --version
+      - run:
+          name: Deploy backend
+          command: |
+            # your code here
+            
+      # Here's where you will add some code to rollback on failure  
+
+
 
 
 
