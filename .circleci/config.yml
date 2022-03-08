@@ -187,9 +187,6 @@ jobs:
           command: |
             cd backend
             npm install
-            echo "npm fix ..."
-            npm audit fix
-            echo "npm run migration ...."
             npm run migrations > migrations_dump.txt
       - run:
           name: Send migration results to memstash
