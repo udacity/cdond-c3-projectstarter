@@ -1,0 +1,18 @@
+---
+
+- name: "Move backend files to server."
+  copy:
+    src: /root/project/backend_artifact.tar.gz
+    dest: ~/home/ubuntu
+
+- name: "Install package dependencies"
+  shell: |
+    cd ~/home/ubuntu
+    tar -xzvf backend_artifact.tar.gz -C backend
+    rm backend_artifact.tar.gz
+    cd backend
+    npm install
+    npm run build
+    cd dist
+    pm2 stop default
+    pm2 start npm --name backend -- start
