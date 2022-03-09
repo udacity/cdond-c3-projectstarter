@@ -1,6 +1,7 @@
 ---
 
 - name: "Move backend files to server."
+  become: true
   copy:
     src: /root/project/backend_artifact.tar.gz
     dest: ~/home/ubuntu
