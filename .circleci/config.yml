@@ -332,10 +332,13 @@ jobs:
           command: |
             # your code here
             apk upgrade
-            apk update
             apk add unzip
             apk add curl
             /usr/local/bin/python -m pip install --upgrade pip
+      - run:
+          name: Update Ansible
+          command: |
+            apk add --update ansible
       - run:
           name: Install Node
           command: |
