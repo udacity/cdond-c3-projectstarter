@@ -176,7 +176,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt   
+            - ./.circleci/ansible/inventory.txt   
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -363,8 +363,7 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook \ 
-              -i ~/.circleci/ansible/inventory.txt \ 
-              ~/.circleci/ansible/deploy-backend.yml
+              -i inventory.txt deploy-backend.yml
 
       # Here's where you will add some code to rollback on failure  
       - revert-migrations
