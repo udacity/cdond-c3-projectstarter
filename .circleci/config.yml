@@ -389,13 +389,14 @@ jobs:
           name: Get backend url
           command: |
             # your code here
-            echo $BACKEND_IP
+            echo "${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
       - run:
           name: Backend smoke test.
           command: |
             # your code here
+            echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
               return 0
