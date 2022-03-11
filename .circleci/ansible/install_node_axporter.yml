@@ -1,0 +1,48 @@
+---
+
+- name: "install node exporter" 
+  hosts: web
+  user: ubuntu
+  become: true
+  become_method: sudo
+  become_user: root  
+  gather_facts: false
+  tasks:
+    - name: "create prometheus user"
+      user:
+        name: node_exporter
+      groups:
+        - node_exporter
+    - name: Unarchive a file that needs to be downloaded (added in 2.0)
+      unarchive:
+        src: https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
+        dest: /home
+        remote_src: yes
+    - name: "copy file"
+      shell:
+        cmd: |
+          cp -r /home/node_exporter-1.3.1.linux-amd64/node_exporter /usr/local/bin/node_exporter
+          cat /etc/systemd/system/node-exporter.service <<EOL
+          [Unit]
+          Description=Prometheus Node Exporter Service
+          After=network.target
+
+          [Service]
+          User=node_exporter
+          Group=node_exporter
+          Type=simple
+          ExecStart=/usr/local/bin/node_exporter
+
+          [Install]
+          WantedBy=multi-user.target
+          EOL
+    - name: "just force systemd to reread configs"
+      systemd: daemon_reload=yes
+    - name: "enable node-exporter"
+      systemd:
+        name: node-exporter
+        state: enabled
+    - name: "start node-exporter"
+      systemd:
+        name: node-exporter
+        state: start
