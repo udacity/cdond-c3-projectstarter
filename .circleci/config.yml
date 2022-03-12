@@ -411,7 +411,7 @@ jobs:
   #        command: |
             # your code here
   #          echo "${API_URL}"
-            if curl ${API_URL_STATUS} | grep "ok"
+            if curl -s ${API_URL_STATUS} | grep "ok"
             then
               return 0
             else
