@@ -394,7 +394,7 @@ jobs:
             apk add unzip curl nodejs npm
             pip install awscli
       - run:
-          name: Get backend url
+          name: Get backend url and Backend Smoke Test
           command: |
             # your code here
             export BACKEND_IP=$(aws ec2 --region us-east-1 describe-instances \
@@ -404,11 +404,11 @@ jobs:
             echo "${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
-      - run:
-          name: Backend smoke test.
-          command: |
+  #    - run:
+  #        name: Backend smoke test.
+  #        command: |
             # your code here
-            echo "${API_URL}"
+  #          echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
               return 0
