@@ -30,7 +30,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          when: on_success
+          when: on_fail
           command: |
             SUCCESS=$(curl --insecure https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7})
             if (( $SUCCESS == 1 ));
