@@ -192,6 +192,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            apk add ansible
             apk add --update ansible
             cat .circleci/ansible/inventory.txt
       - run:
