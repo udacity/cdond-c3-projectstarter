@@ -192,9 +192,15 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add ansible
-            apk add --update ansible
+            apk add ansible openssh-client tar unzip
+            apk add --update ansible openssh-client tar unzip
             cat .circleci/ansible/inventory.txt
+      
+      - run:
+          name: Install AWS CLI for Ansible
+          command: |
+            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+
       - run:
           name: Configure server
           command: |
@@ -203,11 +209,6 @@ jobs:
               -i .circleci/ansible/inventory.txt \
               .circleci/ansible/configure-server.yml
       # Here's the code during a rollback on       
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
