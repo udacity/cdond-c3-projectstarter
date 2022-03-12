@@ -213,7 +213,6 @@ jobs:
     docker:
       # Docker image here that supports NodeJS
       - image: circleci/node:14.18.1
-#      - image: python:3.7-alpine
     steps:
       # Checkout code from git
       - checkout
@@ -232,50 +231,7 @@ jobs:
             then
               curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 1
             fi
-#      - run:
-#          name: Install Dependencies
-#          command: |
-#            apk upgrade
-#            apk update
-#            apk add unzip
-#            apk add curl
-#            /usr/local/bin/python -m pip install --upgrade pip
-#      - run:
-#          name: Install Node
-#          command: |
-#            apk add --update nodejs
-#            apk add --update npm
-#      - run:
-#          name: AWS CLI
-#          command: |
-#            pip install awscli --upgrade
-#            aws --version
-#      - run:
-#          name: Run migrations
-#          command: |
-#            cd backend
-#            npm install
-#            npm run migrations >> migrations_dump.txt
-#            cat migrations_dump.txt
-#      - run:
-#          name: Send Migration status to kvdb.io
-#          command: |
-#            cd backend
-#            if grep -q "has been executed successfully." migrations_dump.txt
-#            then
-#              curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 1
-#            fi
-#      - persist_to_workspace:
-#          root: ~/
-#          paths: 
-#            - project/frontend
-
-     # Here's where you will add some code to rollback on failure
-#      - revert-migrations
-#      - destroy-environment:
-#          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
-          
-                
+                  
   deploy-frontend:
     docker:
       # Docker image here that supports AWS CLI
@@ -283,8 +239,6 @@ jobs:
     steps:
       # Checkout code from git
       - checkout
-      - attach_workspace:
-          at: ~/
       - run:
           name: Install tar/gzip utility
           command: |
@@ -296,6 +250,9 @@ jobs:
             cd frontend
             curl -sL https://rpm.nodesource.com/setup_lts.x | bash -
             yum -y install nodejs
+      
+      - attach_workspace:
+          at: ~/
       - run:
           name: Get backend url
           command: |
