@@ -404,12 +404,14 @@ jobs:
             echo "${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
+            export API_URL_STATUS="${API_URL}/api/status"
+            echo "${API_URL_STATUS}"
   #    - run:
   #        name: Backend smoke test.
   #        command: |
             # your code here
   #          echo "${API_URL}"
-            if curl ${API_URL}/api/status | grep "ok"
+            if curl ${API_URL_STATUS} | grep "ok"
             then
               return 0
             else
