@@ -197,6 +197,9 @@ jobs:
       - run:
           name: Configure server
           command: |
+            ansible-playbook \
+              -i .circleci/ansible/inventory.txt \
+              .circleci/ansible/configure-server.yml
 #            echo ENVIRONMENT=production > "backend/.env"
 #            echo TYPEORM_CONNECTION=postgres >> "backend/.env"
 #            echo TYPEORM_ENTITIES=./src/modules/domain/**/*.entity.ts >> "backend/.env"
@@ -208,9 +211,9 @@ jobs:
 #            echo TYPEORM_USERNAME=$TYPEORM_USERNAME >> "backend/.env"
 #            echo TYPEORM_PASSWORD=$TYPEORM_PASSWORD >> "backend/.env"
 #            echo TYPEORM_DATABASE=$TYPEORM_DATABASE >> "backend/.env"
-            ansible-playbook \
-              -i .circleci/ansible/inventory.txt \
-              .circleci/ansible/configure-server.yml
+#            ansible-playbook \
+#              -i .circleci/ansible/inventory.txt \
+#              .circleci/ansible/configure-server.yml
       # Here's the code during a rollback on       
       - run:
           name: Install AWS CLI for rollback
