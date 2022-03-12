@@ -358,8 +358,10 @@ jobs:
             
             if curl ${API_URL}/api/status | grep "ok"
             then 
+              echo "Smoke Test was Successful"
               return 0
             else
+              echo "Smoke Test Failed"
               return 1
             fi
       - run:
@@ -375,9 +377,9 @@ jobs:
               return 1
             fi
       # Here's where you will add some code to rollback on failure  
-      - revert-migrations
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+#      - revert-migrations
+#      - destroy-environment:
+#          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
 
 # Invoke jobs via workflows
