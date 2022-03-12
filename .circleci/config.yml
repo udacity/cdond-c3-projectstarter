@@ -397,6 +397,10 @@ jobs:
           name: Get backend url
           command: |
             # your code here
+            export BACKEND_IP=$(aws ec2 --region us-east-1 describe-instances \
+                  --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                  --query 'Reservations[*].Instances[*].PublicIpAddress' \
+                  --output text)
             echo "${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
