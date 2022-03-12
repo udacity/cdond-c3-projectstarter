@@ -403,7 +403,7 @@ jobs:
             # your code here
 #            echo "${API_URL}"
             if 
-              curl http://${BACKEND_IP}:3030/api/status | grep "ok"
+              curl -s http://${BACKEND_IP}:3030/api/status | grep "ok"
             then
               return 0
             else
