@@ -119,7 +119,7 @@ jobs:
             npm update
             npm i
             npm audit --audit-level=critical
-            npm audit fix --force
+            npm audit fix
 
   scan-backend:
     docker:
@@ -135,7 +135,7 @@ jobs:
             npm update
             npm i
             npm audit --audit-level=critical
-            npm audit fix --force
+            npm audit fix
 
   deploy-infrastructure:
     docker:
