@@ -3,10 +3,7 @@ orbs:
   slack: circleci/slack@4.8.0
   aws-cli: circleci/aws-cli@2.1.0
 
-# parameters:
-#  memstash-token:
-#    type: string
-#    default: This would be the value of the Memstash Token
+
 
 commands:
   destroy-environment:
