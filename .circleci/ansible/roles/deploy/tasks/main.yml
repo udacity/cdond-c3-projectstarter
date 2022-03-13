@@ -4,11 +4,11 @@
   become: true
   copy:
     src: /root/project/artifact.tar.gz
-    dest: ~/home/ubuntu
+    dest: /root
 
 - name: "Install package dependencies"
   shell: |
-    cd ~/home/ubuntu
+    cd /root
     tar -xzvf artifact.tar.gz -C backend
     rm artifact.tar.gz
     cd backend
