@@ -1,4 +1,14 @@
 ---
+- name: "upgrade packages."
+  become: true
+  apt:
+    upgrade: "yes"
+
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm"]
+    update_cache: yes
 
 - name: "Move backend files to server."
   become: true
