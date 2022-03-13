@@ -27,8 +27,6 @@
   environment:
     - TYPEORM_CONNECTION: "{{ lookup('env', 'TYPEORM_CONNECTION')}}"  
     # Add more env vars here
-    - ENVIRONMENT: "{{ lookup('env','ENVIRONMENT') }}"
-    - NODE_ENV: "{{ lookup('env','NODE_ENV') }}"
     - TYPEORM_ENTITIES: "{{ lookup('env','TYPEORM_ENTITIES') }}"
     - TYPEORM_MIGRATIONS: "{{ lookup('env','TYPEORM_MIGRATIONS') }}"
     - TYPEORM_MIGRATIONS_DIR: "{{ lookup('env','TYPEORM_MIGRATIONS_DIR') }}"
