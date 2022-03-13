@@ -43,5 +43,4 @@
 
   roles:
     # Your code here
-    - install-packages
     - configure-server
