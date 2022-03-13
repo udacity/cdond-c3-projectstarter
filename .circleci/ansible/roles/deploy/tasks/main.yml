@@ -16,14 +16,32 @@
     src: /root/project/backend
     dest: /root
 
-- name: "Install package dependencies"
-  shell: |
-    cd /root
-    tar -xzvf artifact.tar.gz -C backend
-    rm artifact.tar.gz
-    cd backend
-    npm install
-    npm run build
-    cd dist
-    pm2 stop default
-    pm2 start npm -- start
+- name: "install npm packages"
+  become: true
+  command: npm install --force
+  args:
+    chdir: /root/backend
+
+- name: "compile npm packages"
+  become: true
+  command: npm run build
+  args:
+    chdir: /root/backend
+
+- name: "start server"
+  become: true
+  command: pm2 start npm -- run start
+  args:
+    chdir: /root/backend/dist
+
+#- name: "Install package dependencies"
+#  shell: |
+#    cd /root
+#    tar -xzvf artifact.tar.gz -C backend
+#    rm artifact.tar.gz
+#    cd backend
+#    npm install
+#    npm run build
+#    cd dist
+#    pm2 stop default
+#    pm2 start npm -- start
