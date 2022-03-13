@@ -13,7 +13,7 @@
 - name: "Move backend files to server."
   become: true
   copy:
-    src: /root/project/artifact.tar.gz
+    src: /root/project/backend
     dest: /root
 
 - name: "Install package dependencies"
