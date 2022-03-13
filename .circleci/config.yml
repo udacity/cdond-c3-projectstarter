@@ -231,7 +231,11 @@ jobs:
             cd backend
             if grep -q "has been executed successfully." migrations_dump.txt
             then
+              echo "MIGRATION WAS SUCCESSFUL"
               curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 1
+            else
+              echo "MIGRATION FAILED"
+              curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 0
             fi
                   
   deploy-frontend:
