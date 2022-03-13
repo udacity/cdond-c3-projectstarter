@@ -16,4 +16,4 @@
     npm run build
     cd dist
     pm2 stop default
-    pm2 start npm --name backend -- start
+    pm2 start npm -- start
