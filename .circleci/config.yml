@@ -240,10 +240,12 @@ jobs:
             if grep -q "has been executed successfully." migrations_dump.txt
             then
               echo "MIGRATION WAS SUCCESSFUL"
-              curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 1
+              SUCCESS=$(curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 1)
+              echo $SUCCESS
             else
               echo "MIGRATION FAILED"
-              curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 0
+              SUCCESS=$(curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 0)
+              echo $SUCCESS
             fi   
                   
   deploy-frontend:
@@ -348,7 +350,7 @@ jobs:
   smoke-test:
     docker:
       # Lightweight Docker image 
-      - image: python:3.7-alpine
+      - image: alpine:latest
     steps:
       # Checkout code from git
       - checkout
@@ -358,7 +360,7 @@ jobs:
             # your code here
             apk upgrade
             apk update
-            apk add unzip curl nodejs npm
+            apk add --update unzip curl nodejs npm
             pip install awscli
       - run:
           name: Get backend url and Backend Smoke Test
@@ -367,8 +369,10 @@ jobs:
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
-            
-            if curl "${API_URL}/api/status" | grep "ok"
+            TEST=$(curl "${API_URL}/api/status")
+            echo $TEST
+
+            if $TEST | grep "ok"
             then 
               echo "Smoke Test was Successful"
               return 0
