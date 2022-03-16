@@ -240,11 +240,11 @@ jobs:
             if grep -q "has been executed successfully." migrations_dump.txt
             then
               echo "MIGRATION WAS SUCCESSFUL"
-              export SUCCESS=$(curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 1)
+              SUCCESS=$(curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1')
               echo $SUCCESS
             else
               echo "MIGRATION FAILED"
-              export SUCCESS=$(curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d 0)
+              export SUCCESS=$(curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '0')
               echo $SUCCESS
             fi   
                   
