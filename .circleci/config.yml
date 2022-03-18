@@ -463,8 +463,8 @@ jobs:
             cat ~/OldWorkflowID.txt
             
             #put the list of stacks here
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-                  --stack-status-filter CREATE_COMPLETE --no-paginate --output text))
+            aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+                --stack-status-filter CREATE_COMPLETE --no-paginate --output text >> ~/stacks.txt
             
             echo Stack names: $(cat ~/stacks.txt)
       - run:
@@ -474,7 +474,7 @@ jobs:
             Stacks=$(cat ~/stacks.txt)
             echo OldWorkflowID: $OldWorkflowID
             echo Stack names: ${Stacks[@]}
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            if [[ "${Stacks[@]}" =~ "${OldWorkflowID}" ]]
             then
               # your code here
               echo "Destroying environment: ${OldWorkflowID} ##########"
