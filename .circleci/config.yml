@@ -474,7 +474,7 @@ jobs:
             Stacks=$(cat ~/stacks.txt)
             echo OldWorkflowID: $OldWorkflowID
             echo Stack names: ${Stacks[@]}
-            if [[ "${Stacks[@]}" =~ "${OldWorkflowID}" ]]
+            if [[ "${OldWorkflowID}" =~ "${Stacks[@]}" ]]
             then
               # your code here
               echo "Destroying environment: ${OldWorkflowID} ##########"
