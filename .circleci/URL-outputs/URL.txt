@@ -5,3 +5,7 @@ https://github.com/Los-merengue/CI-CD-Pipeline-Project/tree/circleci-project-set
 Public URL for the S3 Bucket
 
 http://udapeople-prod-frontend-3383c62.s3-website-us-east-1.amazonaws.com
+
+URL of Frontend Application in CloudFront
+
+https://d3ljm93vs66vxj.cloudfront.net 
