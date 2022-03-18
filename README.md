@@ -1,5 +1,8 @@
 ## Give your Application Auto-Deploy Superpowers
 
+### Installing the appropriate package for the Configuring Server Using Ansible is Necessary
+### It is Important you make the PostGRE DB accessible through the Security Group
+
 In this project, you will prove your mastery of the following learning objectives:
 
 - Explain the fundamentals and benefits of CI/CD to achieve, build, and deploy automation for cloud-based software products.
