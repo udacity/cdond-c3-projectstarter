@@ -478,11 +478,11 @@ jobs:
             then
               # your code here
               echo "Destroying environment: ${OldWorkflowID} ##########"
-              if echo $Stacks | grep -q "udapeople-backend-${OldWorkflowID}"
+              if echo $Stacks | grep -q "udapeople-backend-prod-${OldWorkflowID}"
               then
                 aws cloudformation delete-stack --stack-name udapeople-backend-prod-${OldWorkflowID}
               fi
-              if echo $Stacks | grep -q "udapeople-frontend-${OldWorkflowID}"
+              if echo $Stacks | grep -q "udapeople-frontend-prod-${OldWorkflowID}"
               then
                 aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
                 aws cloudformation delete-stack --stack-name udapeople-frontend-prod-${OldWorkflowID}
