@@ -202,7 +202,7 @@ jobs:
             cat .circleci/ansible/inventory.txt
       
       - run:
-          name: Install AWS CLI for Ansible
+          name: Install AWS-CLI for Ansible
           command: |
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
 
