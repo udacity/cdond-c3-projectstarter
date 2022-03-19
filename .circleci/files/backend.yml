@@ -22,8 +22,8 @@ Resources:
           ToPort: 3030
           CidrIp: 0.0.0.0/0
         - IpProtocol: tcp
-          FromPort: 9090
-          Toport: 9090
+          FromPort: 9100
+          Toport: 9100
           CidrIp: 0.0.0.0/0
 
   EC2Instance:
