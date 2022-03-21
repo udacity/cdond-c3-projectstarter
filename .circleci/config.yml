@@ -4,7 +4,6 @@ orbs:
   aws-cli: circleci/aws-cli@2.1.0
 
 
-
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -530,5 +529,4 @@ workflows:
       - cloudfront-update:
           requires: [smoke-test]
       - cleanup:
-          requires: [cloudfront-update]
-          
+          requires: [cloudfront-update]          
