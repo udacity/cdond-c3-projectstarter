@@ -1,0 +1,7 @@
+## Public Url to GitHub repository
+
+https://github.com/Los-merengue/CI-CD-Pipeline-Project
+
+## Public URL for your S3 Bucket
+
+http://udapeople-prod-frontend-cc4cd94.s3-website-us-east-1.amazonaws.com/
