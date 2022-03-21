@@ -402,7 +402,6 @@ jobs:
       - revert-migrations:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
-
   cloudfront-update:
     docker:
       # Docker image here that supports AWS CLI
