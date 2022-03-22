@@ -418,7 +418,7 @@ jobs:
             yum install -y curl
             aws --version
       - run:
-          name: Update cloudfront distribution
+          name: Store OldWorkflowID
           command: |
             # your code here
             export OldWorkflowID=$(aws cloudformation \
@@ -428,13 +428,19 @@ jobs:
             echo $OldWorkflowID >> ~/OldWorkflowID.txt
             cat ~/OldWorkflowID.txt
 
+            echo OldWorkflowID: "${OldWorkflowID}"
+
+            curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/workflow_${CIRCLE_WORKFLOW_ID:0:7} -d '$OldWorkflowID'
+      
+      - run:
+          name: Update Cloudfront Distribution
+          command: |
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name InitialStack \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
 
-            echo OldWorkflowID: "${OldWorkflowID}"
             echo Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}
       
       # Here's where you will add some code to rollback on failure
@@ -454,12 +460,13 @@ jobs:
           name: Get old stack workflow id
           command: |
             # your code here
-            export OldWorkflowID=$(aws cloudformation \
-              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-              --no-paginate --output text)
 
-            echo $OldWorkflowID >> ~/OldWorkflowID.txt
+            OldWorkflowID=$(curl --insecure https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/workflow_{CIRCLE_WORKFLOW_ID:0:7})
+
+            echo $OldWorkflowID >> (cat ~/OldWorkflowID.txt)
             cat ~/OldWorkflowID.txt
+            echo 'Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}'
+
             
             #put the list of stacks here
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
