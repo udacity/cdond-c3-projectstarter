@@ -431,7 +431,7 @@ jobs:
             echo OldWorkflowID: "${OldWorkflowID}"
 
             curl https://kvdb.io/QW751dTfwj8w7r6Y8xsEYx/workflow_${CIRCLE_WORKFLOW_ID:0:7} -d '$OldWorkflowID'
-      
+   
       - run:
           name: Update Cloudfront Distribution
           command: |
@@ -467,7 +467,7 @@ jobs:
             cat ~/OldWorkflowID.txt
             echo 'Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}'
 
-            
+
             #put the list of stacks here
             aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                 --stack-status-filter CREATE_COMPLETE --no-paginate --output text >> ~/stacks.txt
