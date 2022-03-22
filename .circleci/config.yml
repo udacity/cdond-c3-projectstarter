@@ -429,7 +429,7 @@ jobs:
             echo $OldWorkflowID >> ~/OldWorkflowID.txt
             cat ~/OldWorkflowID.txt
             
-            curl https://kvdb.io/9gWF5yp3MzQRbEHHpeC5UJ/${CIRCLE_WORKFLOW_ID:0:7} -d '$OldWorkflowID'
+            curl https://kvdb.io/9gWF5yp3MzQRbEHHpeC5UJ/${CIRCLE_WORKFLOW_ID:0:7} -d $OldWorkflowID
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
@@ -457,7 +457,7 @@ jobs:
           name: Get old stack workflow id
           command: |
             # Fetch the Old workflow ID
-            export OldWorkflowID=$(curl --insecure https://kvdb.io/9gWF5yp3MzQRbEHHpeC5UJ/${CIRCLE_WORKFLOW_ID:0:7})
+            OldWorkflowID=$(curl --insecure https://kvdb.io/9gWF5yp3MzQRbEHHpeC5UJ/${CIRCLE_WORKFLOW_ID:0:7})
             echo OldWorkflowID: $OldWorkflowID
             echo Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}
             # Fetch the stack names
@@ -467,7 +467,7 @@ jobs:
       - run:
           name: Remove old stacks and files
           command: |
-            OldWorkflowID=$(cat ~/OldWorkflowID.txt)
+            OldWorkflowID=$(curl --insecure https://kvdb.io/9gWF5yp3MzQRbEHHpeC5UJ/${CIRCLE_WORKFLOW_ID:0:7})
             Stacks=$(cat ~/stacks.txt)
             echo OldWorkflowID: $OldWorkflowID
             echo Stack names: ${Stacks[@]}
