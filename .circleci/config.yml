@@ -483,7 +483,7 @@ jobs:
               fi
               if echo $Stacks | grep -q "udapeople-frontend-prod-${OldWorkflowID}"
               then
-                aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+                aws s3 rb "s3://udapeople-prod-frontend-${OldWorkflowID}" --recursive
                 aws cloudformation delete-stack --stack-name udapeople-frontend-prod-${OldWorkflowID}
               fi
             else
