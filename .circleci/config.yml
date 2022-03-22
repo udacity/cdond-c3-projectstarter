@@ -16,9 +16,9 @@ commands:
           when: on_fail
           command: |
             echo "Destroying environment: <<parameters.workflow_id>> "
-            aws s3 rb s3://udapeople-prod-frontend-<<parameters.workflow_id>> --force
-            aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflow_id>>
-            aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflow_id>>
+            aws s3 rb s3://udapeople-<<parameters.workflow_id>> --force
+            aws cloudformation delete-stack --stack-name udapeople-backend-<<parameters.workflow_id>>
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.workflow_id>>
 
 
   revert-migrations:
@@ -152,8 +152,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-              --stack-name udapeople-backend-prod-${CIRCLE_WORKFLOW_ID:0:7} \
-              --parameter-overrides ID="backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM"
 
       - run:
@@ -162,8 +162,8 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
-              --stack-name "udapeople-frontend-prod-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --parameter-overrides ID="frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --capabilities "CAPABILITY_IAM" "CAPABILITY_NAMED_IAM"  
 
       - run:
@@ -287,7 +287,7 @@ jobs:
             npm install
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
-            aws s3 cp dist s3://udapeople-prod-frontend-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       
       # Here's where you will add some code to rollback on failure   
       - destroy-environment:
@@ -389,7 +389,7 @@ jobs:
           name: Frontend smoke test
           command: |
             # your code here
-            URL="http://udapeople-prod-frontend-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
             if curl -s ${URL} | grep "Welcome"
             then
@@ -477,13 +477,13 @@ jobs:
             then
               # your code here
               echo "Destroying environment: ${OldWorkflowID} ##########"
-              if echo $Stacks | grep -q "udapeople-backend-prod-${OldWorkflowID}"
+              if echo $Stacks | grep -q "udapeople-backend-${OldWorkflowID}"
               then
                 aws cloudformation delete-stack --stack-name udapeople-backend-prod-${OldWorkflowID}
               fi
-              if echo $Stacks | grep -q "udapeople-frontend-prod-${OldWorkflowID}"
+              if echo $Stacks | grep -q "udapeople-frontend-${OldWorkflowID}"
               then
-                aws s3 rb "s3://udapeople-prod-frontend-${OldWorkflowID}" --recursive
+                aws s3 rb "s3://udapeople-frontend-${OldWorkflowID}" --recursive
                 aws cloudformation delete-stack --stack-name udapeople-frontend-prod-${OldWorkflowID}
               fi
             else
