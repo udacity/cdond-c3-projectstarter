@@ -428,6 +428,8 @@ jobs:
   
             echo $OldWorkflowID >> ~/OldWorkflowID.txt
             cat ~/OldWorkflowID.txt
+            
+            curl https://kvdb.io/9gWF5yp3MzQRbEHHpeC5UJ/${CIRCLE_WORKFLOW_ID:0:7} -d '$OldWorkflowID')
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
@@ -454,15 +456,13 @@ jobs:
       - run:
           name: Get old stack workflow id
           command: |
-            # your code here
-            export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\`WorkflowID\`].Value" --no-paginate --output text)
-
-            echo $OldWorkflowID >> ~/OldWorkflowID.txt
-            cat ~/OldWorkflowID.txt
-            
-            #put the list of stacks here
-            aws cloudformation list-stacks --query "StackSummaries[*].StackName" --stack-status-filter CREATE_COMPLETE --no-paginate --output text >> ~/stacks.txt
-            
+            # Fetch the Old workflow ID
+            curl --insecure https://kvdb.io/9gWF5yp3MzQRbEHHpeC5UJ/${CIRCLE_WORKFLOW_ID:0:7} >> ~/OldWorkflowID.txt
+            echo OldWorkflowID: $(cat ~/OldWorkflowID.txt)
+            echo Current Workflow ID: ${CIRCLE_WORKFLOW_ID:0:7}
+            # Fetch the stack names
+            aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
+              --stack-status-filter CREATE_COMPLETE --no-paginate --output text >> ~/stacks.txt
             echo Stack names: $(cat ~/stacks.txt)
       - run:
           name: Remove old stacks and files
@@ -471,21 +471,20 @@ jobs:
             Stacks=$(cat ~/stacks.txt)
             echo OldWorkflowID: $OldWorkflowID
             echo Stack names: ${Stacks[@]}
-            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
+            if [[ "${Stacks[@]}" =~ "${OldWorkflowID}" ]]
             then
-              # your code here
-              echo "Destroying environment: ${OldWorkflowID} ##########"
+              echo "Destroying environment: ${OldWorkflowID}"
               if echo $Stacks | grep -q "udapeople-backend-${OldWorkflowID}"
               then
-                aws cloudformation delete-stack --stack-name udapeople-backend-prod-${OldWorkflowID}
+                aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID}
               fi
               if echo $Stacks | grep -q "udapeople-frontend-${OldWorkflowID}"
               then
-                aws s3 rb "s3://udapeople-frontend-${OldWorkflowID}" --force
-                aws cloudformation delete-stack --stack-name udapeople-frontend-prod-${OldWorkflowID}
+                aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
+                aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
               fi
             else
-              echo "--------------- Cannot Run The CleanUp Please Check Some Of The Parameters ---------------"
+              echo "--------------- Error in the Cleanup ---------------"
             fi
 
 # Invoke jobs via workflows
