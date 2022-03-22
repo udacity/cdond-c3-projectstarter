@@ -276,9 +276,7 @@ jobs:
           name: Get backend url and Deploy Frontend Object
           command: |
             # your code here
-            BACKEND_IP=$(aws ec2 describe-instances --query \ 
-             'Reservations[*].Instances[*].PublicIpAddress' --filters \
-             "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
 
             API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
