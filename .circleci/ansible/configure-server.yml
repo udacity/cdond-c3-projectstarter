@@ -39,7 +39,7 @@
     - name: persist environment variables
       become: yes
       shell: |
-        echo ENVIRONMENT=\"production\" >> /etc/environment
+#        echo ENVIRONMENT=\"production\" >> /etc/environment
         echo TYPEORM_CONNECTION=\"$TYPEORM_CONNECTION\" >> /etc/environment
         echo TYPEORM_ENTITIES=\"$TYPEORM_ENTITIES\" >> /etc/environment
         echo TYPEORM_HOST=\"$TYPEORM_HOST\" >> /etc/environment
