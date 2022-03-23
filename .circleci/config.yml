@@ -430,7 +430,7 @@ jobs:
             
             curl https://kvdb.io/9gWF5yp3MzQRbEHHpeC5UJ/${CIRCLE_WORKFLOW_ID:0:7} -d $OldWorkflowID
 
-            aws cloudformation update-stack \
+            aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name FirstStack \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
