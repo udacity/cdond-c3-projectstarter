@@ -176,6 +176,13 @@ jobs:
               --output text >> .circleci/ansible/inventory.txt
             
             cat .circleci/ansible/inventory.txt
+
+      - run:
+          name: Fetch and save Backend URL
+          command: |
+            BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            echo Backend IP: $BACKEND_IP
+            curl https://kvdb.io/Jp7xTZq74cm6sSuusTvWxV/${CIRCLE_WORKFLOW_ID:0:7} -d http://$BACKEND_IP:3030
       - run: yum -y install tar gzip
       - persist_to_workspace:
           root: ~/
@@ -276,7 +283,7 @@ jobs:
           name: Get backend url and Deploy Frontend Object
           command: |
             # your code here
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
+            export BACKEND_IP=$(curl --insecure https://kvdb.io/Jp7xTZq74cm6sSuusTvWxV/${CIRCLE_WORKFLOW_ID:0:7})
 
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
