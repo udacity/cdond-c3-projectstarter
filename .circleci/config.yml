@@ -182,7 +182,7 @@ jobs:
           command: |
             BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text)
             echo Backend IP: $BACKEND_IP
-            curl https://kvdb.io/Jp7xTZq74cm6sSuusTvWxV/${CIRCLE_WORKFLOW_ID:0:7} -d http://$BACKEND_IP:3030
+            curl https://kvdb.io/Jp7xTZq74cm6sSuusTvWxV/${CIRCLE_WORKFLOW_ID:0:7} -d $BACKEND_IP
       - run: yum -y install tar gzip
       - persist_to_workspace:
           root: ~/
