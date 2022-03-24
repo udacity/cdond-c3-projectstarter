@@ -8,7 +8,7 @@ Parameters:
 
 Resources:
   InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: AWS::EC2::SecurityGroupss
     Properties:
       GroupName: !Sub UdaPeople-${ID}
       GroupDescription: Allow port 22 and port 3030.
@@ -28,10 +28,13 @@ Resources:
       InstanceType: t2.micro
       SecurityGroups:
         - Ref: InstanceSecurityGroup
-      KeyName: udacity # If you use another key pair name, you should change this value to match.
-      # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
-      # Ubuntu 18 or higher works fine
-      ImageId: ami-068663a3c619dd892 
+      KeyName: UdacityCourse
+      ImageId: ami-04505e74c0741db8d 
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
+
+Outputs:
+  BackendIP:
+    Value: !GetAtt EC2Instance.PublicIp
+    Description: IP of backend instance
