@@ -69,41 +69,45 @@ jobs:
 
   test-frontend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
       # Your job code here
                 
   test-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       # Your job code here
             
   scan-frontend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
       # Your job code here
 
   scan-backend:
     docker:
-      # Docker image here
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
-      # Restore from cache
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
       # Your job code here
 
   deploy-infrastructure:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -130,16 +134,17 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
 
   configure-infrastructure:
     docker:
-      # Docker image here that supports Ansible
+      - image: python:alpine
     steps:
-      # Checkout code from git
+      - checkout
       # Add ssh keys with fingerprint
-      # attach workspace
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -154,9 +159,9 @@ jobs:
 
   run-migrations:
     docker:
-      # Docker image here that supports NodeJS
+      - image: circleci/node:13.8.0
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Run migrations
           command: |
@@ -171,9 +176,9 @@ jobs:
 
   deploy-frontend:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -192,11 +197,12 @@ jobs:
                     
   deploy-backend:
     docker:
-      # Docker image here that supports Ansible
+      - image: python:alpine
     steps:
-      # Checkout code from git
+      - checkout
       # Add ssh keys with fingerprint
-      # attach workspace
+      - attach_workspace:
+          at: ~/
       - run:
           name: Install dependencies
           command: |
@@ -209,9 +215,9 @@ jobs:
 
   smoke-test:
     docker:
-      # Lightweight Docker image 
+      - image: alpine 
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -232,9 +238,9 @@ jobs:
 
   cloudfront-update:
     docker:
-      # Docker image here that supports AWS CLI
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Install dependencies
           command: |
@@ -247,9 +253,9 @@ jobs:
 
 cleanup:
     docker:
-      # Docker image here
+      - image: amazon/aws-cli
     steps:
-      # Checkout code from git
+      - checkout
       - run:
           name: Get old stack workflow id
           command: |
