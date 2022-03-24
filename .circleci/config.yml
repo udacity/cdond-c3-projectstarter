@@ -164,19 +164,20 @@ jobs:
       - image: python:alpine
     steps:
       - checkout
-      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["ce:2b:fc:fb:97:b8:d0:95:95:44:b1:0b:56:80:d5:f4"]
       - attach_workspace:
           at: ~/
       - run:
           name: Install dependencies
           command: |
-            # Your code here
-            exit 1
+            apk add --update ansible openssh
       - run:
           name: Configure server
           command: |
-            # Your code here
-            exit 1
+            export BackendIP=$(tail -1 .circleci/ansible/inventory.txt)
+            ssh-keyscan -H $BackendIP >> ~/.ssh/known_hosts
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml 
       # Here's where you will add some code to rollback on failure
 
   run-migrations:
