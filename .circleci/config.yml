@@ -177,8 +177,9 @@ jobs:
           command: |
             export BackendIP=$(tail -1 .circleci/ansible/inventory.txt)
             ssh-keyscan -H $BackendIP >> ~/.ssh/known_hosts
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml 
-      # Here's where you will add some code to rollback on failure
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      - destroy-environment
+      # Here's where you will add some code to rollback on failure???????
 
   run-migrations:
     docker:
@@ -311,8 +312,8 @@ workflows:
           # filters:
           #   branches:
           #     only: [test-feature-branch]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       # - run-migrations:
       #     requires: [configure-infrastructure]
       # - deploy-frontend:
