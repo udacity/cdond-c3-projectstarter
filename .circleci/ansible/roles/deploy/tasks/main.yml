@@ -12,12 +12,7 @@
     dest: ~/web
 
 - name: Install packages based on package.json
-  command: npm i
-  args:
-    chdir: ~/web
-
-- name: Stop backend
-  command: pm2 stop default
+  command: npm install
   args:
     chdir: ~/web
 
