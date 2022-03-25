@@ -254,11 +254,14 @@ jobs:
           name: Install Ansible
           command: sudo apt-get install -y ansible
       - run:
-          name: Build and zip backend
+          name: Build backend
           command: |
             cd backend
             npm i
             npm run build
+      - run:
+          name: Zip backend
+          command: |
             cd ..
             tar -C backend -czvf .circleci/ansible/roles/deploy/files/artifact.tar.gz .
       - run:
