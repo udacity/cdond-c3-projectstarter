@@ -35,7 +35,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -52,7 +52,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -69,7 +69,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -83,7 +83,7 @@ jobs:
 
   test-backend:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -97,7 +97,7 @@ jobs:
 
   scan-frontend:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -112,7 +112,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -183,7 +183,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - run:
@@ -203,14 +203,14 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - attach_workspace:
           at: .
-      - run:
-          name: Update repo cache
-          command: sudo apt-get update
+      # - run:
+      #     name: Update repo cache
+      #     command: sudo apt-get update
       # - run:
       #     name: Install Ansible
       #     command: sudo apt-get install -y ansible
@@ -241,7 +241,7 @@ jobs:
 
   deploy-backend:
     docker:
-      - image: circleci/node
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - add_ssh_keys:
