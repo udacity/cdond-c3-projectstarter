@@ -172,12 +172,12 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible openssh
+            apk add --update ansible openssh aws-cli
       - run:
           name: Configure server
           command: |
             export BackendIP=$(tail -1 .circleci/ansible/inventory.txt)
-            ssh-keyscan -H $BackendIP >> ~/.ssh/known_hosts
+            ssh-keyscan -H ${BackendIP} >> ~/.ssh/known_hosts
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment
       # Here's where you will add some code to rollback on failure???????
