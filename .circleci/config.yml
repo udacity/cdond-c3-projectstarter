@@ -198,6 +198,13 @@ jobs:
             then
                 curl --insecure https://kvdb.io/17CLni3qvnWWcdfzA7Ax43/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
+      - run:
+          name: Install AWS CLI
+          when: on_fail
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - destroy-environment
 
   deploy-frontend:
@@ -207,12 +214,6 @@ jobs:
       - checkout
       - attach_workspace:
           at: .
-      # - run:
-      #     name: Update repo cache
-      #     command: sudo apt-get update
-      # - run:
-      #     name: Install Ansible
-      #     command: sudo apt-get install -y ansible
       - run:
           name: Install AWS CLI
           command: |
@@ -236,7 +237,7 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-ve4mi8yeov59y --recursive
-      # Here's where you will add some code to rollback on failure
+      - destroy-environment
 
   deploy-backend:
     docker:
@@ -262,7 +263,8 @@ jobs:
       - run:
           name: Zip backend
           command: |
-            cd ..
+            echo PWD here----------
+            pwd
             tar -C backend -czvf .circleci/ansible/roles/deploy/files/artifact.tar.gz .
       - run:
           name: Deploy backend
@@ -271,7 +273,14 @@ jobs:
             echo "Contents of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      # Here's where you will add some code to rollback on failure
+      - run:
+          name: Install AWS CLI
+          when: on_fail
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - destroy-environment
 
   smoke-test:
     docker:
@@ -294,7 +303,7 @@ jobs:
           name: Frontend smoke test.
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure
+      - destroy-environment
 
   cloudfront-update:
     docker:
@@ -309,7 +318,7 @@ jobs:
           name: Update cloudfront distribution
           command: |
             # your code here
-      # Here's where you will add some code to rollback on failure
+      - destroy-environment
 
   cleanup:
     docker:
