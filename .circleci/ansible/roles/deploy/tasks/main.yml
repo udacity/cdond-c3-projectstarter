@@ -1,4 +1,11 @@
 ---
+
+- name: Create a web directory
+  file:
+    path: ~/web
+    state: directory
+    mode: '0755'
+
 - name: Extract backend source
   unarchive:
     src: artifact.tar.gz
