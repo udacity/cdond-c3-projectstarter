@@ -4,9 +4,10 @@
     src: artifact.tar.gz
     dest: ~/web
 
-- name: Install packages based on package.json.
-  community.general.npm:
-    path: ~/web
+- name: Install packages based on package.json
+  command: npm i
+  args:
+    chdir: ~/web
 
 - name: Stop backend
   command: pm2 stop default

@@ -263,8 +263,6 @@ jobs:
       - run:
           name: Zip backend
           command: |
-            echo PWD here----------
-            pwd
             tar -C backend -czvf .circleci/ansible/roles/deploy/files/artifact.tar.gz .
       - run:
           name: Deploy backend
