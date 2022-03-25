@@ -35,7 +35,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -52,7 +52,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -69,7 +69,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -83,7 +83,7 @@ jobs:
 
   test-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -97,7 +97,7 @@ jobs:
 
   scan-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -112,7 +112,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - restore_cache:
@@ -153,7 +153,6 @@ jobs:
             aws cloudformation \
             list-exports --query "Exports[?Name==\`BackendIP\`].Value" \
             --no-paginate --output text >> .circleci/ansible/inventory.txt
-            cat .circleci/ansible/inventory.txt
       - persist_to_workspace:
           root: .
           paths:
@@ -176,68 +175,103 @@ jobs:
       - run:
           name: Configure server
           command: |
-            cat .circleci/ansible/inventory.txt
-            export BackendIP=$(tail -1 .circleci/ansible/inventory.txt)
-            echo ${BackendIP}
-            ssh-keyscan -H ${BackendIP} >> ~/.ssh/known_hosts
+            export BACKEND_IP=$(tail -1 .circleci/ansible/inventory.txt)
+            ssh-keyscan -H ${BACKEND_IP} >> ~/.ssh/known_hosts
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment
       # Here's where you will add some code to rollback on failure???????
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node
     steps:
       - checkout
       - run:
           name: Run migrations
           command: |
-            # Your code here
-            exit 1
+            cd backend
+            npm install
+            npm run migrations > migrations_dump.txt
       - run:
-          name: Send migration results to memstash
+          name: Send migration status to kvdb.io OR memstash.io
           command: |
-            # Your code here
-            exit 1
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+                curl https://kvdb.io/17CLni3qvnWWcdfzA7Ax43/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            fi
       # Here's where you will add some code to rollback on failure
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: circleci/node
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
-          name: Install dependencies
+          name: Update repo cache
+          command: sudo apt-get update
+      # - run:
+      #     name: Install Ansible
+      #     command: sudo apt-get install -y ansible
+      - run:
+          name: Install AWS CLI
           command: |
-            # your code here
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Get backend url
           command: |
-            # your code here
+            export BACKEND_IP=$(tail -1 .circleci/ansible/inventory.txt)
+            ssh-keyscan -H ${BACKEND_IP} >> ~/.ssh/known_hosts
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-ve4mi8yeov59y --recursive
       # Here's where you will add some code to rollback on failure
 
   deploy-backend:
     docker:
-      - image: python:alpine
+      - image: circleci/node
     steps:
       - checkout
-      # Add ssh keys with fingerprint
+      - add_ssh_keys:
+          fingerprints: ["ce:2b:fc:fb:97:b8:d0:95:95:44:b1:0b:56:80:d5:f4"]
       - attach_workspace:
-          at: ~/
+          at: .
       - run:
-          name: Install dependencies
+          name: Update repo cache
+          command: sudo apt-get update
+      - run:
+          name: Install Ansible
+          command: sudo apt-get install -y ansible
+      - run:
+          name: Build backend
           command: |
-            # your code here
+            cd backend
+            npm i
+            npm run build
+      - run:
+          name: Zip backend
+          command: |
+            cd ..
+            tar -C backend -czvf .circleci/ansible/roles/deploy/files/artifact.tar.gz .
       - run:
           name: Deploy backend
           command: |
-            # your code here
+            cd .circleci/ansible
+            echo "Contents of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure
 
   smoke-test:
