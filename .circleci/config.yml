@@ -179,7 +179,6 @@ jobs:
             ssh-keyscan -H ${BACKEND_IP} >> ~/.ssh/known_hosts
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       - destroy-environment
-      # Here's where you will add some code to rollback on failure???????
 
   run-migrations:
     docker:
@@ -199,7 +198,7 @@ jobs:
             then
                 curl --insecure https://kvdb.io/17CLni3qvnWWcdfzA7Ax43/migration_${CIRCLE_WORKFLOW_ID:0:7} -d '1'
             fi
-      # Here's where you will add some code to rollback on failure
+      - destroy-environment
 
   deploy-frontend:
     docker:
@@ -255,14 +254,11 @@ jobs:
           name: Install Ansible
           command: sudo apt-get install -y ansible
       - run:
-          name: Build backend
+          name: Build and zip backend
           command: |
             cd backend
             npm i
             npm run build
-      - run:
-          name: Zip backend
-          command: |
             cd ..
             tar -C backend -czvf .circleci/ansible/roles/deploy/files/artifact.tar.gz .
       - run:
