@@ -21,3 +21,46 @@
   npm:
     name: pm2
     global: yes
+
+- name: Create group for node_exporter
+  become: yes
+  group:
+    name: node_exporter
+    state: present
+
+- name: Create user for node_exporter
+  become: yes
+  user:
+    name: node_exporter
+    group: node_exporter
+    createhome: no
+    system: yes
+    state: present
+
+- name: Download node_exporter
+  unarchive:
+    src: https://github.com/prometheus/node_exporter/releases/download/v1.3.1/node_exporter-1.3.1.linux-amd64.tar.gz
+    dest: /tmp
+    remote_src: yes
+
+- name: Install node_exporter
+  become: true
+  file:
+    src: /tmp/node_exporter-1.3.1.linux-amd64/node_exporter
+    path: /usr/bin/node_exporter
+    mode: '0777'
+    remote_src: yes
+    
+- name: Add node_exporter systemd service
+  become: true
+  copy:
+    src: node_exporter.service
+    dest: /etc/systemd/system
+
+- name: Enable node_exporter service
+  become: true
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: node_exporter
+    enabled: yes
