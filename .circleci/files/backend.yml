@@ -39,4 +39,4 @@ Outputs:
     Value: !GetAtt EC2Instance.PublicIp
     Description: IP of backend instance
     Export:
-      Name: BackendIP
+      Name: !Sub BackendIP-${ID}
