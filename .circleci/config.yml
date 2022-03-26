@@ -24,12 +24,11 @@ commands:
           when: on_fail
           command: |
             SUCCESS=$(curl --insecure https://kvdb.io/17CLni3qvnWWcdfzA7Ax43/migration_${CIRCLE_WORKFLOW_ID:0:7})
-            https://kvdb.io/17CLni3qvnWWcdfzA7Ax43/migration_${CIRCLE_WORKFLOW_ID:0:7}
             if(( $SUCCESS==1 )); 
             then
               cd ~/project/backend
               npm install
-              npm run migration:revert
+              npm run migrations:revert
             fi
 
 jobs:
@@ -287,14 +286,11 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Get backend url
+          name: Backend smoke test
           command: |
             export BACKEND_IP=$(tail -1 .circleci/ansible/inventory.txt)
             export API_URL="http://${BACKEND_IP}:3030"
-      - run:
-          name: Backend smoke test.
-          command: |
-            echo "API_URL: ${API_URL}"
+            echo "API_URL = ${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
                 return 0
@@ -302,7 +298,7 @@ jobs:
                 return 1
             fi
       - run:
-          name: Frontend smoke test.
+          name: Frontend smoke test
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
