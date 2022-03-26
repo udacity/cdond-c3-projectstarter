@@ -329,7 +329,7 @@ jobs:
       - checkout
       - run:
           name: Store old WorkflowID
-          commmand: |
+          command: |
             aws cloudformation \
             list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
             --no-paginate --output text > OldWorkflowID.txt
