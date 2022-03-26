@@ -368,15 +368,11 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
       - run:
-          name: Get old stack workflow id
+          name: Remove old stacks and files
           command: |
             echo "cat OldWorkflowID.txt: $(cat OldWorkflowID.txt)"
             export OldWorkflowID=$(cat OldWorkflowID.txt)
             echo "OldWorkflowID: ${OldWorkflowID}"
-
-      - run:
-          name: Remove old stacks and files
-          command: |
             aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
             aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID}
             aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
