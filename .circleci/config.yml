@@ -19,9 +19,6 @@ commands:
     # parameters:
       # Add parameter here
     steps:
-      - restore_cache:
-          keys: [backend-build]
-          when: on_fail
       - run:
           name: Revert migrations
           when: on_fail
@@ -331,33 +328,43 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Install dependencies
-          command: |
-            # your code here
+          name: Store old WorkflowID
+          commmand: |
+            aws cloudformation \
+            list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+            --no-paginate --output text > OldWorkflowID.txt
+      - persist_to_workspace:
+          root: .
+          paths:
+            - OldWorkflowID.txt
       - run:
           name: Update cloudfront distribution
           command: |
-            # your code here
+            aws cloudformation deploy \
+              --template-file .circleci/files/cloudfront.yml \
+              --stack-name InitialStack \
+              --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
+              --tags project=udapeople
       - destroy-environment
+      - revert-migrations
 
   cleanup:
     docker:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - attach_workspace:
+          at: .
       - run:
           name: Get old stack workflow id
           command: |
-            # your code here
-            export OldWorkflowID="the id here"
-            export STACKS=[] #put the list of stacks here
+            export OldWorkflowID=$(cat OldWorkflowID.txt)
       - run:
           name: Remove old stacks and files
           command: |
-            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
-            then
-              # your code here
-            fi
+            aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
+            aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID}
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
 
 workflows:
   default:
@@ -387,7 +394,7 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
-      # - cloudfront-update:
-      #     requires: [smoke-test]
-      # - cleanup:
-      #     requires: [cloudfront-update]
+      - cloudfront-update:
+          requires: [smoke-test]
+      - cleanup:
+          requires: [cloudfront-update]
