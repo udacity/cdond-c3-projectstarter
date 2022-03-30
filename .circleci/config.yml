@@ -166,9 +166,9 @@ workflows:
       - scan-frontend:
           requires: [ build-frontend ]
       - deploy-infrastructure:
-          requires: [ test-frontend, test-backend, scan-frontend, scan-backend ]
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only: [ test-feature-branch ]
-#      - deploy:
-#          context: slack-secrets
+              only: [test-feature-branch]
+#     - deploy:
+#         context: slack-secrets
