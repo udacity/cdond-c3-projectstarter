@@ -165,9 +165,9 @@ jobs:
             ec2 describe-instances \
               --filters \
               "Name=instance-state-name,Values=running" \
-              --region us-east-1 \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
-              --output text >> ansible/inventory
+              --output text >> inventory
+            destroy-environment
       - persist_to_workspace:
           root: ~/
           paths:
