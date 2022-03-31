@@ -161,13 +161,13 @@ jobs:
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            aws --region YOUR-AWS-REGION \
+            aws --region us-east-1 \
             ec2 describe-instances \
               --filters \
               "Name=instance-state-name,Values=running" \
               --region us-east-1 \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
-              --output text >> ~/.circleci/ansible/inventory
+              --output text >> ansible/inventory
       - persist_to_workspace:
           root: ~/
           paths:
