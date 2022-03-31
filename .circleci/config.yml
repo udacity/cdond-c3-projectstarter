@@ -7,14 +7,20 @@ commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
     parameters:
-    # Add parameter here
+      ID:
+        Description: Unique ID
+        Type: String
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            # Your code here
-            exit 1
+            aws cloudformation delete-stack \
+            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --region us-east-1 \
+            aws cloudformation delete-stack \ 
+            --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --region us-east-1
 
 jobs:
   build-frontend:
@@ -148,6 +154,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
+              --region us-east-1 \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
@@ -157,6 +164,7 @@ jobs:
             ec2 describe-instances \
               --filters \
               "Name=instance-state-name,Values=running" \
+              --region us-east-1 \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
               --output text >> ./ansible/inventory.txt
       - persist_to_workspace:
