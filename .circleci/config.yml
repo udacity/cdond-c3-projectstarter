@@ -6,6 +6,10 @@ orbs:
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      ID:
+        Description: Unique Workflow ID
+        Type: String
     steps:
       - run:
           name: Destroy environments
@@ -142,6 +146,7 @@ jobs:
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
+              --region us-east-1 \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"
       - run:
