@@ -167,7 +167,7 @@ jobs:
               "Name=instance-state-name,Values=running" \
               --region us-east-1 \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
-              --output text >> ./ansible/inventory
+              --output text >> ~/.circleci/ansible/inventory
       - persist_to_workspace:
           root: ~/
           paths:
