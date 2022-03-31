@@ -3,24 +3,24 @@ orbs:
   node: circleci/node@4.1
   slack: circleci/slack@4.1
 
-commands:
-  destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      ID:
-        type: string
-        default: ${CIRCLE_WORKFLOW_ID:0:7}
-    steps:
-      - run:
-          name: Destroy environments
-          when: on_fail
-          command: |
-            aws cloudformation delete-stack \
-            --stack-name udapeople-backend-<<pipeline.parameters.ID>> \
-            --region us-east-1 \
-            aws cloudformation delete-stack \ 
-            --stack-name udapeople-frontend-<<pipeline.parameters.ID>> \
-            --region us-east-1
+#commands:
+#  destroy-environment:
+#    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+#    parameters:
+#      ID:
+#        type: string
+#        default: ${CIRCLE_WORKFLOW_ID:0:7}
+#    steps:
+#      - run:
+#          name: Destroy environments
+#          when: on_fail
+#          command: |
+#            aws cloudformation delete-stack \
+#            --stack-name udapeople-backend-<<pipeline.parameters.ID>> \
+#            --region us-east-1 \
+#            aws cloudformation delete-stack \
+#            --stack-name udapeople-frontend-<<pipeline.parameters.ID>> \
+#            --region us-east-1
 
 jobs:
   build-frontend:
@@ -167,7 +167,6 @@ jobs:
               "Name=instance-state-name,Values=running" \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
               --output text >> inventory
-            destroy-environment
       - persist_to_workspace:
           root: ~/
           paths:
