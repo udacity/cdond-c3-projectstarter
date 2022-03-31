@@ -9,16 +9,17 @@ commands:
     parameters:
       ID:
         type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
             aws cloudformation delete-stack \
-            --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --stack-name udapeople-backend-<<pipeline.parameters.ID>> \
             --region us-east-1 \
             aws cloudformation delete-stack \ 
-            --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
+            --stack-name udapeople-frontend-<<pipeline.parameters.ID>> \
             --region us-east-1
 
 jobs:
@@ -151,7 +152,7 @@ jobs:
       - run:
           name: Ensure front-end infrastructure exist
           command: |
-            aws cloudformation deploy \
+            aws cloudformation de9ploy \
               --template-file .circleci/files/frontend.yml \
               --tags project=udapeople \
               --region us-east-1 \
@@ -166,7 +167,7 @@ jobs:
               "Name=instance-state-name,Values=running" \
               --region us-east-1 \
               --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
-              --output text >> ./ansible/inventory.txt
+              --output text >> ansible/inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
