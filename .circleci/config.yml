@@ -6,7 +6,7 @@ version: 2.1
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
   
-  build-frontend:
+   build-frontend:
     docker:
       - image: circleci/node:13.8.0
     steps:
@@ -23,10 +23,21 @@ jobs:
           paths: [frontend/node_modules]
           key: frontend-build
 
-  build-backend:
+   build-backend:
     docker:
       - image: circleci/node:13.8.0
-    
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Build backend
+          command: |
+             cd backend
+             npm install
+             npm run build
+      - save_cache:
+          paths: [backend/node_modules]
           key: backend-build
 workflows:
   default:
