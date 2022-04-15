@@ -10,7 +10,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            # Your code here
+            # Y
             exit 1
 
   revert-migrations:
