@@ -5,10 +5,12 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout
+      - checkout:
+          path: ~/frontend
+
       - restore_cache:
           keys: [frontend-build]
-      - run: cd frontend
+    #  - run: cd frontend
       - run: pwd
       - run: npm install
       - run: npm run build
@@ -28,10 +30,11 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout
+      - checkout:
+          path: ~/backend
       - restore_cache:
           keys: [backend-build]
-      - run: cd backend
+    #  - run: cd backend
       - run: npm install
       - run: npm run build
       # - run:
