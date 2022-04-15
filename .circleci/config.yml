@@ -49,7 +49,7 @@ jobs:
           keys: [frontend-build]
     
       - run:
-          name: Build front-end
+          name: test front-end
           command: |
             # Your code here
             cd frontend
@@ -68,7 +68,7 @@ jobs:
           keys: [backend-build]
       
       - run:
-          name: Back-end build
+          name: test backend
           command: |
              # Your code here
              cd backend
@@ -88,7 +88,7 @@ jobs:
           keys: [frontend-build]
     
       - run:
-          name: Build front-end
+          name: scan frontend
           command: |
             # Your code here
             cd frontend
@@ -107,7 +107,7 @@ jobs:
           keys: [backend-build]
       
       - run:
-          name: Back-end build
+          name: scan backend
           command: |
              # Your code here
              cd backend
