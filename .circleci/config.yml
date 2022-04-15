@@ -6,24 +6,16 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-         # path: ~/frontend
-
       - restore_cache:
           keys: [frontend-build]
-    #  - run: cd frontend
-      - run: ls
-      # - run: npm install
-      # - run: npm run build
+    
       - run:
           name: Build front-end
           command: |
             # Your code here
-            ls
             cd frontend
-            ls
             npm install
             npm run build
-      #       #exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -32,21 +24,18 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - checkout:
-          path: ~/backend
+      - checkout
       - restore_cache:
           keys: [backend-build]
-    #  - run: cd backend
-      - run: npm install
-      - run: npm run build
-      # - run:
-      #     name: Back-end build
-      #     command: |
-      #        # Your code here
-      #        cd frontend
-      #        npm install
-      #        npm run build
-      #        #exit 1
+      
+      - run:
+          name: Back-end build
+          command: |
+             # Your code here
+             cd backend
+             npm install
+             npm run build
+             
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
