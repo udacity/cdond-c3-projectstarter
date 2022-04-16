@@ -2,12 +2,12 @@ version: 2.1
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-    parameters:
-      # Add parameter here   
+    # parameters:
+    #   # Add parameter here   
     steps:
       - run:
           name: Destroy environments
-          when: on_fail
+          #when: on_fail
           command: |
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:5}     
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:5}     
@@ -166,13 +166,15 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Project,Values=udacity" \
-              --output text > inventory.txt
+              --filters "Name=tag:Project,Values=udapeople" \
+              --output text >> inventory.txt
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure    
+            - .circleci/ansible/inventory.txt
+      # Here's where you will add some code to rollback on failure   
+      - destroy_environment:
+          when: on_fail
 workflows:
   default:
     jobs:
