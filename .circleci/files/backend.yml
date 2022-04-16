@@ -8,7 +8,7 @@ Parameters:
 
 Resources:
   InstanceSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
+    Type: AWS::EC2::SecurityGroupss
     Properties:
       GroupName: !Sub UdaPeople-${ID}
       GroupDescription: Allow port 22 and port 3030.
@@ -31,7 +31,7 @@ Resources:
       KeyName: udacity # If you use another key pair name, you should change this value to match.
       # If this ami id is not available for you, you can find another (https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/finding-an-ami.html)
       # Ubuntu 18 or higher works fine
-      ImageId: ami-04a7df89e71c1c3c6
+      ImageId: ami-03ededff12e34e59e
       Tags:
         - Key: Name
           Value: !Sub backend-${ID}
