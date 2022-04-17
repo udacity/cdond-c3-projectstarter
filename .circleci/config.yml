@@ -31,7 +31,10 @@ commands:
             #  Add revert code here. You can find this in the Getting Started section.
               exit 1
             fi
-            
+
+default: &default
+  image: circleci/node:13.8.0
+
 jobs:
   build-frontend:
     docker:
@@ -52,7 +55,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - <<: *default
     steps:
       - checkout
       - restore_cache:
@@ -67,25 +70,25 @@ jobs:
           paths: [backend/node_modules]
           key: backend-build
 
-#   test-frontend:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       # Restore from cache
-#       # Your job code here
+  # test-frontend:
+  #   docker:
+  #     - <<: *default #
+  #   steps:
+  #     # Checkout code from git
+  #     # Restore from cache
+  #     # Your job code here
                 
-#   test-backend:
-#     docker:
-#       # Docker image here
-#     steps:
-#       # Checkout code from git
-#       # Restore from cache
-#       # Your job code here
+  # test-backend:
+  #   docker:
+  #     - <<: *default #
+  #   steps:
+      # Checkout code from git
+      # Restore from cache
+      # Your job code here
             
 #   scan-frontend:
 #     docker:
-#       # Docker image here
+#       - <<: *default #
 #     steps:
 #       # Checkout code from git
 #       # Restore from cache
@@ -93,7 +96,7 @@ jobs:
 
 #   scan-backend:
 #     docker:
-#       # Docker image here
+#       - <<: *default #
 #     steps:
 #       # Checkout code from git
 #       # Restore from cache
@@ -101,7 +104,7 @@ jobs:
 
 #   deploy-infrastructure:
 #     docker:
-#       # Docker image here that supports AWS CLI
+#       - <<: *default # that supports AWS CLI
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -135,7 +138,7 @@ jobs:
 
 #   configure-infrastructure:
 #     docker:
-#       # Docker image here that supports Ansible
+#       - <<: *default # that supports Ansible
 #     steps:
 #       # Checkout code from git
 #       # Add ssh keys with fingerprint
@@ -154,7 +157,7 @@ jobs:
 
 #   run-migrations:
 #     docker:
-#       # Docker image here that supports NodeJS
+#       - <<: *default # that supports NodeJS
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -171,7 +174,7 @@ jobs:
 
 #   deploy-frontend:
 #     docker:
-#       # Docker image here that supports AWS CLI
+#       - <<: *default # that supports AWS CLI
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -192,7 +195,7 @@ jobs:
                     
 #   deploy-backend:
 #     docker:
-#       # Docker image here that supports Ansible
+#       - <<: *default # that supports Ansible
 #     steps:
 #       # Checkout code from git
 #       # Add ssh keys with fingerprint
@@ -232,7 +235,7 @@ jobs:
 
 #   cloudfront-update:
 #     docker:
-#       # Docker image here that supports AWS CLI
+#       - <<: *default # that supports AWS CLI
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -247,7 +250,7 @@ jobs:
 
 # cleanup:
 #     docker:
-#       # Docker image here
+#       - <<: *default #
 #     steps:
 #       # Checkout code from git
 #       - run:
