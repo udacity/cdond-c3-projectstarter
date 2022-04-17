@@ -188,6 +188,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            pip install --upgrade pip
             pip install ansible
             sudo apt update
             sudo apt install tar gzip
