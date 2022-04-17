@@ -109,8 +109,7 @@ jobs:
             npm audit --audit-level=critical
 
   scan-backend:
-    docker:
-      - <<: *imgdefault 
+    <<: *imgdefault 
     steps:
       - checkout
       - restore_cache:
