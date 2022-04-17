@@ -171,7 +171,7 @@ jobs:
               --output text >> inventory.txt
             cat inventory.txt
       - persist_to_workspace:
-          root: ~/workspace
+          root: workspace
           paths:
             - .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure   
