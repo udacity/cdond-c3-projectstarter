@@ -178,7 +178,7 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - ~/*
+            - /tmp/workspace/*
       # Here's where you will add some code to rollback on failure   
       - destroy-environment
   configure-infrastructure:
