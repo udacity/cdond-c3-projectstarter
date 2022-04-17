@@ -188,22 +188,25 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            sudo python3 -m pip install -U pip
-            pip install ansible
+            #sudo python3 -m pip install -U pip
             sudo apt update
+            sudo apt install ansible -y
             sudo apt install tar gzip
             sudo apt install -yy less
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             sudo unzip awscliv2.zip
             sudo ./aws/install
+            sudo systemd daemon-reload
 
              
       - run:
           name: Configure server
           command: |
             cd .circleci/ansible
+            ls
             ansible-playbook -i inventory.txt configure-server.yml
-      # Here's where you will add some code to rollback on failure      
+      # Here's where you will add some code to rollback on failure     
+      - destroy-environment 
   run-migrations:
     docker:
       - image: cimg/node:13.8.0
