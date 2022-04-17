@@ -133,7 +133,7 @@ jobs:
           key: backend-build
 
   deploy-infrastructure:
-    working_directory: ~/project
+    working_directory: ~/app
     docker:
       - image: amazon/aws-cli
       # Docker image here that supports AWS CLI
@@ -173,9 +173,9 @@ jobs:
             cat inventory.txt
             pwd
       - persist_to_workspace:
-          root: ~/
+          root: ~/app
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure   
       - destroy-environment
   configure-infrastructure:
@@ -200,6 +200,7 @@ jobs:
             sudo unzip awscliv2.zip
             sudo ./aws/install
             #sudo systemd daemon-reload
+            ls ~/app
 
       # - run:
       #     name: Configure server
@@ -207,15 +208,15 @@ jobs:
       #       cd .circleci/ansible
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: /root/project/.circleci/ansible/inventory.txt    
+          at: ~/app    
       - run:
           name: Configure server
           command: |
-            cd /root/project/.circleci/ansible/
-            #cd .circleci/ansible
+            #cd /root/project/.circleci/ansible/
+            cd .circleci/ansible
             cat inventory.txt
             pwd
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i "~/app/inventory.txt" configure-server.yml
       # Here's where you will add some code to rollback on failure     
       - destroy-environment 
   run-migrations:
