@@ -133,6 +133,7 @@ jobs:
           key: backend-build
 
   deploy-infrastructure:
+    working_directory: ~/project
     docker:
       - image: amazon/aws-cli
       # Docker image here that supports AWS CLI
@@ -173,10 +174,11 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory.txt
+            - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure   
     #  - destroy-environment
   configure-infrastructure:
+    working_directory: ~/project
     docker:
       - image: circleci/python:3.6.2
     steps:
@@ -198,13 +200,13 @@ jobs:
             sudo ./aws/install
             #sudo systemd daemon-reload
 
-      - run:
-          name: Configure server
-          command: |
-            cd .circleci/ansible
+      # - run:
+      #     name: Configure server
+      #     command: |
+      #       cd .circleci/ansible
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: ~/inventory.txt    
+          at: ~/project/.circleci/ansible/inventory.txt    
       - run:
           name: Configure server
           command: |
