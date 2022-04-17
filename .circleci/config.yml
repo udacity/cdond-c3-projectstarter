@@ -177,7 +177,7 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure   
-    #  - destroy-environment
+      - destroy-environment
   configure-infrastructure:
     working_directory: ~/project
     docker:
@@ -207,7 +207,7 @@ jobs:
       #       cd .circleci/ansible
       - attach_workspace:
           # Must be absolute path or relative path from working_directory
-          at: ~/project/.circleci/ansible/inventory.txt    
+          at: ~/root/project/.circleci/ansible/inventory.txt    
       - run:
           name: Configure server
           command: |
@@ -216,7 +216,7 @@ jobs:
             pwd
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure     
-      #- destroy-environment 
+      - destroy-environment 
   run-migrations:
     docker:
       - image: cimg/node:13.8.0
