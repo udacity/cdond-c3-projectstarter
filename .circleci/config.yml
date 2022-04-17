@@ -149,16 +149,16 @@ jobs:
           command: |
             aws cloudformation deploy \
                 --template-file .circleci/files/backend.yml \
-                --stack-name "udapeople-backend-873246932740" \
-                --parameter-overrides ID="873246932740"  \
+                --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
                 --tags project=udapeople
       - run:
           name: Ensure front-end infrastructure exist
           command: |  # remember to replase 873246932740 to CIRCLE_WORKFLOW_ID
             aws cloudformation deploy \
                 --template-file .circleci/files/frontend.yml \
-                --stack-name "udapeople-frontend-873246932740" \
-                --parameter-overrides ID="873246932740"  \
+                --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
+                --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
                 --tags project=udapeople
       
       - run:
@@ -204,7 +204,39 @@ jobs:
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure      
-
+  run-migrations:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout
+      # retrieving the build cache from the backend analyze job.
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Install aws dependencies
+          command: |
+            sudo apt update && sudo apt install -yy less
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Run migrations
+          command: |
+            cd backend
+            npm i
+            npm run migrations > migrations_dump.txt
+            cat migration_dump.txt
+      - run:
+          name: Send migration results to memstash
+          command: |
+            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            then
+              # If you are using kvdb.io, generate the bucket ID "U6tbBiPUzNzX4NFALsu7WT" in your local terminal first
+              curl https://kvdb.io/U6tbBiPUzNzX4NFALsu7WT/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            fi
+      - save_cache:
+          paths: [backend/node_modules]
+          key: backend-build
 workflows:
   default:
     jobs:
@@ -222,4 +254,6 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
    
