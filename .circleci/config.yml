@@ -162,11 +162,11 @@ jobs:
                 --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
                 --tags project=udapeople
       
-      - run: mkdir -p /workspace
+      - run: mkdir -p ~/workspace
       - run:
           name: Add back-end ip to ansible inventory
           command: |
-            echo "[web]"> /workspace/inventory.txt
+            #echo "[web]"> /workspace/inventory.txt
             cd .circleci/ansible
             aws ec2 describe-instances \
               --query "Reservations[*].Instances[*].PublicIpAddress[]" \
@@ -176,9 +176,9 @@ jobs:
             pwd
       
       - persist_to_workspace:
-          root: /workspace
+          root: ~/.
           paths:
-            - ~/project/*
+            - ~/*
       # Here's where you will add some code to rollback on failure   
       - destroy-environment
   configure-infrastructure:
@@ -223,8 +223,8 @@ jobs:
             cd .circleci/ansible
             #cat inventory.txt
             pwd
-            cat /tmp/workspace/project/.circleci/ansible/inventory.txt
-            ansible-playbook -i "/tmp/workspace/project/.circleci/ansible/inventory.txt" configure-server.yml
+            cat /tmp/workspace/.circleci/ansible/inventory.txt
+            ansible-playbook -i "/tmp/workspace/.circleci/ansible/inventory.txt" configure-server.yml
       # Here's where you will add some code to rollback on failure     
       - destroy-environment 
   run-migrations:
