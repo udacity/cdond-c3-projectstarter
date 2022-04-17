@@ -171,6 +171,7 @@ jobs:
               --filters "Name=tag:project,Values=udapeople" \
               --output text >> inventory.txt
             cat inventory.txt
+            pwd
       - persist_to_workspace:
           root: ~/
           paths:
@@ -212,6 +213,7 @@ jobs:
           command: |
             cd .circleci/ansible
             cat inventory.txt
+            pwd
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure     
       #- destroy-environment 
