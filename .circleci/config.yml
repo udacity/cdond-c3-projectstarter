@@ -182,7 +182,7 @@ jobs:
       # Here's where you will add some code to rollback on failure   
       - destroy-environment
   configure-infrastructure:
-    working_directory: /app
+    #working_directory: /app
     docker:
       - image: circleci/python:3.6.2
     steps:
