@@ -200,7 +200,7 @@ jobs:
             sudo unzip awscliv2.zip
             sudo ./aws/install
             #sudo systemd daemon-reload
-            ls ~/app
+            #ls /app
 
       # - run:
       #     name: Configure server
