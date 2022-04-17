@@ -167,7 +167,7 @@ jobs:
             cd .circleci/ansible
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Project,Values=udapeople" \
+              --filters "Name=tag:project,Values=udapeople" \
               --output text >> inventory.txt
       - persist_to_workspace:
           root: ~/
@@ -207,7 +207,7 @@ jobs:
             ls
             ansible-playbook -i inventory.txt configure-server.yml
       # Here's where you will add some code to rollback on failure     
-      - destroy-environment 
+      #- destroy-environment 
   run-migrations:
     docker:
       - image: cimg/node:13.8.0
