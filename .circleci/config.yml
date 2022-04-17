@@ -33,12 +33,12 @@ version: 2.1
 #             fi
 
 imgdefault: &imgdefault
-  image: circleci/node:13.8.0
+  docker:
+   - image: circleci/node:13.8.0
 
 jobs:
   build-frontend:
-    docker:
-      - image: circleci/node:13.8.0
+    <<: *imgdefault
     steps:
       - checkout
       - restore_cache:
@@ -54,8 +54,7 @@ jobs:
           key: frontend-build
 
   build-backend:
-    docker:
-      - <<: *imgdefault
+    <<: *imgdefault
     steps:
       - checkout
       - restore_cache:
@@ -71,8 +70,7 @@ jobs:
           key: backend-build
 
   test-frontend:
-    docker:
-      - <<: *imgdefault #
+    <<: *imgdefault
     steps:
       - checkout
       - restore_cache:
@@ -85,8 +83,7 @@ jobs:
             npm run test
                 
   test-backend:
-    docker:
-      - <<: *imgdefault #
+    <<: *imgdefault
     steps:
       - checkout
       - restore_cache:
@@ -98,25 +95,34 @@ jobs:
             npm install
             npm run test
             
-#   scan-frontend:
-#     docker:
-#       - <<: *imgdefault #
-#     steps:
-#       # Checkout code from git
-#       # Restore from cache
-#       # Your job code here
+  scan-frontend:
+    <<: *imgdefault 
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - run:
+          name: front-end test
+          command: |
+            cd backend
+            npm install
+            npm audit --audit-level=critical
 
-#   scan-backend:
-#     docker:
-#       - <<: *imgdefault #
-#     steps:
-#       # Checkout code from git
-#       # Restore from cache
-#       # Your job code here
-
+  scan-backend:
+    docker:
+      - <<: *imgdefault 
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [backend-build]
+      - run:
+          name: Back-end test
+          command: |
+            cd backend
+            npm install
+            npm audit --audit-level=critical
 #   deploy-infrastructure:
-#     docker:
-#       - <<: *imgdefault # that supports AWS CLI
+#     <<: *imgdefault # that supports AWS CLI
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -149,8 +155,7 @@ jobs:
 #       # Here's where you will add some code to rollback on failure      
 
 #   configure-infrastructure:
-#     docker:
-#       - <<: *imgdefault # that supports Ansible
+#     <<: *imgdefault # that supports Ansible
 #     steps:
 #       # Checkout code from git
 #       # Add ssh keys with fingerprint
@@ -168,8 +173,7 @@ jobs:
 #       # Here's where you will add some code to rollback on failure      
 
 #   run-migrations:
-#     docker:
-#       - <<: *imgdefault # that supports NodeJS
+#     <<: *imgdefault # that supports NodeJS
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -185,8 +189,7 @@ jobs:
 #      # Here's where you will add some code to rollback on failure      
 
 #   deploy-frontend:
-#     docker:
-#       - <<: *imgdefault # that supports AWS CLI
+#     <<: *imgdefault # that supports AWS CLI
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -206,8 +209,7 @@ jobs:
 #       # Here's where you will add some code to rollback on failure      
                     
 #   deploy-backend:
-#     docker:
-#       - <<: *imgdefault # that supports Ansible
+#     <<: *imgdefault # that supports Ansible
 #     steps:
 #       # Checkout code from git
 #       # Add ssh keys with fingerprint
@@ -246,8 +248,7 @@ jobs:
 #       # Here's where you will add some code to rollback on failure  
 
 #   cloudfront-update:
-#     docker:
-#       - <<: *imgdefault # that supports AWS CLI
+#     <<: *imgdefault # that supports AWS CLI
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -261,8 +262,7 @@ jobs:
 #       # Here's where you will add some code to rollback on failure  
 
 # cleanup:
-#     docker:
-#       - <<: *imgdefault #
+#     <<: *imgdefault #
 #     steps:
 #       # Checkout code from git
 #       - run:
@@ -289,10 +289,10 @@ workflows:
           requires: [build-frontend]
       - test-backend:
           requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
       # - deploy-infrastructure:
       #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       #     filters:
