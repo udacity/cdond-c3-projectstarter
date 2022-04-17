@@ -171,9 +171,9 @@ jobs:
               --output text >> inventory.txt
             cat inventory.txt
       - persist_to_workspace:
-          root: workspace
+          root: ~/
           paths:
-            - .circleci/ansible/inventory.txt
+            - inventory.txt
       # Here's where you will add some code to rollback on failure   
     #  - destroy-environment
   configure-infrastructure:
@@ -184,9 +184,7 @@ jobs:
       - add_ssh_keys:
           fingerprints:
             - "52:5f:5d:3e:01:11:db:50:f7:49:21:f7:2c:86:89:18"
-      - attach_workspace:
-          # Must be absolute path or relative path from working_directory
-          at: /tmp/workspace/.circleci/ansible/inventory.txt
+      
       - run:
           name: Install dependencies
           command: |
@@ -200,7 +198,13 @@ jobs:
             sudo ./aws/install
             #sudo systemd daemon-reload
 
-             
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+      - attach_workspace:
+          # Must be absolute path or relative path from working_directory
+          at: ~/inventory.txt    
       - run:
           name: Configure server
           command: |
