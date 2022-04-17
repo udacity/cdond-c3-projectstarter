@@ -196,9 +196,9 @@ jobs:
           command: |
             #sudo python3 -m pip install -U pip
             sudo apt update
-            sudo apt upgrade
+            #sudo apt upgrade
             sudo apt install software-properties-common --force-yes
-            sudo apt-add-repository ppa:ansible/ansible --force-yes
+            sudo apt-add-repository ppa:ansible/ansible 
             sudo apt update
             sudo apt install ansible --force-yes
             sudo apt install tar gzip
