@@ -196,7 +196,11 @@ jobs:
           command: |
             #sudo python3 -m pip install -U pip
             sudo apt update
-            sudo apt install ansible -y
+            sudo apt upgrade
+            sudo apt install software-properties-common
+            sudo apt-add-repository ppa:ansible/ansible
+            sudo apt update
+            sudo apt install ansible 
             sudo apt install tar gzip
             sudo apt install -yy less
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
