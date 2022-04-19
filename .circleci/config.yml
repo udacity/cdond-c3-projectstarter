@@ -157,9 +157,9 @@ jobs:
       - run:
           name: install tar and gzip
           command: |        
-             yum update && \
-             yum upgrade && \
-             yum install tar gzip
+             yum update -y && \
+             yum upgrade -y && \
+             yum install tar gzip -y
             
       - run:
           name: Ensure back-end infrastructure exists
