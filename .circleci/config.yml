@@ -203,7 +203,7 @@ jobs:
             # sudo add-apt-repository --yes ppa:ansible/ansible 
             # sudo apt update
             # sudo apt install ansible --yes
-            sudo apt install tar gzip
+            sudo apt install tar gzip --yes
             # sudo apt install -yy less
             # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             # sudo unzip awscliv2.zip
