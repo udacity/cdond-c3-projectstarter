@@ -38,28 +38,8 @@ imgdefault: &imgdefault
 
 orbs:
   slack: circleci/slack@4.1
+  aws-cli: circleci/aws-cli@1.3.0
 jobs:
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*This is a text notification*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: always
 
   build-frontend:
     <<: *imgdefault
@@ -76,6 +56,9 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   build-backend:
     <<: *imgdefault
@@ -92,6 +75,9 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   test-frontend:
     <<: *imgdefault
@@ -105,7 +91,10 @@ jobs:
             cd backend
             npm install
             npm run test
-                
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
   test-backend:
     <<: *imgdefault
     steps:
@@ -118,6 +107,9 @@ jobs:
             cd backend
             npm install
             npm run test
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
             
   scan-frontend:
     <<: *imgdefault 
@@ -133,6 +125,9 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   scan-backend:
     <<: *imgdefault 
@@ -148,12 +143,16 @@ jobs:
             npm audit fix --audit-level=critical --force
             npm audit fix --force
             npm audit --audit-level=critical
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
 
   deploy-infrastructure:
     docker:
     - image: amazon/aws-cli # that supports AWS CLI
     steps:
       - checkout
+      - aws-cli/setup
       - run:
           name: install tar and gzip
           command: |        
@@ -191,7 +190,11 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      # Here's where you will add some code to rollback on failure      
+      # Here's where you will add some code to rollback on failure
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+
 
 #   configure-infrastructure:
 #     <<: *imgdefault # that supports Ansible
@@ -209,7 +212,10 @@ jobs:
 #           command: |
 #             # Your code here
 #             exit 1
-#       # Here's where you will add some code to rollback on failure      
+#       # Here's where you will add some code to rollback on failure
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1      
 
 #   run-migrations:
 #     <<: *imgdefault # that supports NodeJS
@@ -225,7 +231,10 @@ jobs:
 #           command: |
 #             # Your code here
 #             exit 1
-#      # Here's where you will add some code to rollback on failure      
+#      # Here's where you will add some code to rollback on failure
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1      
 
 #   deploy-frontend:
 #     <<: *imgdefault # that supports AWS CLI
@@ -245,7 +254,10 @@ jobs:
 #           name: Deploy frontend objects
 #           command: |
 #             # your code here
-#       # Here's where you will add some code to rollback on failure      
+#       # Here's where you will add some code to rollback on failure
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1      
                     
 #   deploy-backend:
 #     <<: *imgdefault # that supports Ansible
@@ -262,6 +274,9 @@ jobs:
 #           command: |
 #             # your code here
 #       # Here's where you will add some code to rollback on failure  
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
 #   smoke-test:
 #     docker:
@@ -286,6 +301,9 @@ jobs:
 #             # your code here
 #       # Here's where you will add some code to rollback on failure  
 
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 #   cloudfront-update:
 #     <<: *imgdefault # that supports AWS CLI
 #     steps:
@@ -300,6 +318,9 @@ jobs:
 #             # your code here
 #       # Here's where you will add some code to rollback on failure  
 
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 # cleanup:
 #     <<: *imgdefault #
 #     steps:
@@ -318,11 +339,13 @@ jobs:
 #               # your code here
 #             fi
             
+      # - slack/notify:
+      #     event: fail
+      #     template: basic_fail_1
 
 workflows:
   default:
     jobs:
-      - notify
       - build-frontend
       - build-backend
       - test-frontend:
