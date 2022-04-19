@@ -157,10 +157,10 @@ jobs:
       - run:
           name: install tar and gzip
           command: |        
-            apk update && \
-            apk upgrade && \
-            apk add tar && \
-            apk add gzip
+            sudo apt update && \
+            sudo apt upgrade && \
+            asudo aptpk install tar && \
+            apsudo aptk adinstalld gzip
             
       - run:
           name: Ensure back-end infrastructure exists
