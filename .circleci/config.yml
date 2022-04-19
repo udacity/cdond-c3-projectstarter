@@ -244,15 +244,20 @@ jobs:
       - run:
           name: Install aws dependencies
           command: |
-            sudo apt update && sudo apt install -yy less
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
+            #&& sudo apt install -yy less
+            sudo apt update 
+            sudo apt install awscli --yes
+            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            # unzip awscliv2.zip
+            # sudo ./aws/install
       - run:
           name: Run migrations
           command: |
             cd backend
-            npm i
+            npm install
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
+            npm audit --audit-level=critical
             npm run migrations > migrations_dump.txt
             cat migration_dump.txt
       - run:
