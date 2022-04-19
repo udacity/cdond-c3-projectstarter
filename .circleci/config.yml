@@ -230,7 +230,7 @@ jobs:
             cat ~/project/.circleci/ansible/inventory.txt
             cd .circleci/ansible
             pwd
-            ansible-playbook -i "~/project/.circleci/ansible/inventory.txt" configure-server.yml
+            ansible-playbook -i "/home/circleci/project/.circleci/ansible/inventory.txt" configure-server.yml
       # Here's where you will add some code to rollback on failure     
       - destroy-environment 
   run-migrations:
