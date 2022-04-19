@@ -225,8 +225,8 @@ jobs:
             #cd .circleci/ansible
             #cat inventory.txt
             pwd
-            ls project/
-            cat project/.circleci/ansible/inventory.txt
+            #ls project/
+            cat ~/project/.circleci/ansible/inventory.txt
             ansible-playbook -i "~/project/.circleci/ansible/inventory.txt" configure-server.yml
       # Here's where you will add some code to rollback on failure     
       - destroy-environment 
