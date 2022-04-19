@@ -204,10 +204,11 @@ jobs:
             # sudo apt update
             sudo apt install ansible --yes
             sudo apt install tar gzip
-            sudo apt install -yy less
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            sudo unzip awscliv2.zip
-            sudo ./aws/install
+            # sudo apt install -yy less
+            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            # sudo unzip awscliv2.zip
+            # sudo ./aws/install
+            sudo apt install awscli --yes
             #sudo systemd daemon-reload 
             #ls /app
 
@@ -227,6 +228,8 @@ jobs:
             pwd
             #ls project/
             cat ~/project/.circleci/ansible/inventory.txt
+            cd .circleci/ansible
+            pwd
             ansible-playbook -i "~/project/.circleci/ansible/inventory.txt" configure-server.yml
       # Here's where you will add some code to rollback on failure     
       - destroy-environment 
