@@ -50,14 +50,14 @@ jobs:
                   "fields": [
                     {
                       "type": "plain_text",
-                      "text": "*This is a text notification*",
+                      "text": "*Uh oh, something went wrong*",
                       "emoji": true
                     }
                   ]
                 }
               ]
             }
-          event: always
+          event: on_fail
 
   build-frontend:
     docker:
