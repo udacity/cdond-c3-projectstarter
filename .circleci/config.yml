@@ -194,4 +194,5 @@ workflows:
        #   requires: [smoke-test]
      # - cleanup:
       #    requires: [cloudfront-update]
-      - notify
+      - notify:
+          requires: [build-backend]
