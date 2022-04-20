@@ -37,28 +37,6 @@ commands:
             
 jobs:
 
-  notify:
-    docker:
-      - image: 'cimg/base:stable'
-    steps:
-      - slack/notify:
-          custom: |
-            {
-              "blocks": [
-                {
-                  "type": "section",
-                  "fields": [
-                    {
-                      "type": "plain_text",
-                      "text": "*Uh oh, something went wrong*",
-                      "emoji": true
-                    }
-                  ]
-                }
-              ]
-            }
-          event: fail
-
   build-frontend:
     docker:
       - image: circleci/node:13.8.0
@@ -197,5 +175,3 @@ workflows:
        #   requires: [smoke-test]
      # - cleanup:
       #    requires: [cloudfront-update]
-      - notify:
-          requires: [build-backend]
