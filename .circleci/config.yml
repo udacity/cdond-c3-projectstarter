@@ -57,7 +57,7 @@ jobs:
                 }
               ]
             }
-          event: on_fail
+          event: fail
 
   build-frontend:
     docker:
@@ -165,7 +165,6 @@ jobs:
 workflows:
   default:
     jobs:
-      - notify
       - build-frontend
       - build-backend
       - test-frontend:
@@ -195,3 +194,4 @@ workflows:
        #   requires: [smoke-test]
      # - cleanup:
       #    requires: [cloudfront-update]
+      - notify
