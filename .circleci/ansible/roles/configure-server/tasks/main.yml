@@ -1,3 +1,11 @@
+- name: "install python"
+  become: yes
+  npm:
+    name: python
+    global: yes
+    production: yes
+    state: present
+
 - name: "update apt packages."
   become: yes
   apt:
@@ -28,10 +36,3 @@
     production: yes
     state: present
 
-- name: "install python"
-  become: yes
-  npm:
-    name: python
-    global: yes
-    production: yes
-    state: present
