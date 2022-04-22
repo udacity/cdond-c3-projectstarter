@@ -14,9 +14,9 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            # aws s3 rm s3://udapeople-prod-<<parameters.workflowId>> --recursive
-            # aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflowId>>
-            # aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflowId>>
+             aws s3 rm s3://udapeople-prod-<<parameters.workflowId>> --recursive
+             aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflowId>>
+             aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflowId>>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -29,7 +29,7 @@ commands:
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = $( curl https://kvdb.io/Y486qWLJa2eJcBFWzwFR7K/migration_<< parameters.workflowId >>)
+            SUCCESS = $( curl --insecure https://kvdb.io/Y486qWLJa2eJcBFWzwFR7K/migration_<< parameters.workflowId >>)
             if(( SUCCESS==true )); 
             then
              cd ~/project/backend
@@ -232,7 +232,7 @@ jobs:
               if grep -q "has been executed successfully." ~/project/backend/migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
               then
                 echo "Migration successful!"
-                curl https://kvdb.io/Y486qWLJa2eJcBFWzwFR7K/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                curl --insecure https://kvdb.io/Y486qWLJa2eJcBFWzwFR7K/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
       - destroy-environment:
           workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
@@ -375,6 +375,28 @@ jobs:
           workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
           workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+
+  cloudfront-update:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      # Checkout code from git
+      - run:
+          name: Install dependencies tar
+          command: |
+            yum -y install tar gzip
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            aws cloudformation deploy \
+            --template-file .circleci/files/cloudfront.yml \
+            --stack-name InitialStack \
+            --parameter-overrides WorkflowID="udapeople-${CIRCLE_WORKFLOW_ID:0:7}" \
+            --tags project=udapeople
+      - destroy-environment:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"  
 
 workflows:
   default:

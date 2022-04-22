@@ -1,7 +1,7 @@
 - name: copy file
   become: true
   copy: 
-    src: artifact.tar.gz
+    src: /root/project/artifact.tar.gz
     dest: /home/ubuntu/artifact.tar.gz
 
 - name: Start the job
