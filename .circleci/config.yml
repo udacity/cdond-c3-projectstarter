@@ -211,9 +211,20 @@ jobs:
       - restore_cache:
           keys: [backend-build]
       - run:
+          name: install npm
+          command: |
+            cd backend
+            npm install
+      - run:
+          name: install other dependencies
+          command: |
+            npm install typescript
+            npm --update install python3 npm      
+      - run:
           name: Run migrations
           command: |
             cd backend
+            npm run migrations:revert
             npm run migrations > ~/migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
             cat migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
       - run:
@@ -244,19 +255,22 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
       - run:
-          name: Install dependencies node
-          command: |
-            # your code here
-      - run:
           name: Get backend url
           command: |
             # your code here
+            export BACKEND_IP= $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
       - run:
           name: Deploy frontend objects
           command: |
-            # your code here
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
       # Here's where you will add some code to rollback on failure    
 
 workflows:
