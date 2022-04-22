@@ -222,6 +222,7 @@ jobs:
             npm --update install python3 npm      
       - run:
           name: Run migrations
+          #
           command: |
             cd backend
             npm run migrations > ~/migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
