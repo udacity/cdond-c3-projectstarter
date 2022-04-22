@@ -224,8 +224,8 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm run migrations > ~/migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
-            cat  ~/migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
+            npm run migrations > migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
+            cat migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
       - run:
           name: Send migration status to kvdb.io 
           command: |   
@@ -236,6 +236,7 @@ jobs:
               fi
       - destroy-environment:
           workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"  
+          #
 
   deploy-frontend:
     docker:
