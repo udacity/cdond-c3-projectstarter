@@ -317,9 +317,7 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
-          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"  
-      - revert-migrations:
-          workflowId: ${CIRCLE_WORKFLOW_ID}   
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"   
 
   smoke-test:
     docker:
