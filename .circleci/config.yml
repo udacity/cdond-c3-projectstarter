@@ -15,8 +15,8 @@ commands:
           when: on_fail
           command: |
             # aws s3 rm s3://udapeople-prod-<<parameters.workflowId>> --recursive
-            aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflowId>>
-            aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflowId>>
+            # aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflowId>>
+            # aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflowId>>
 
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -30,12 +30,11 @@ commands:
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
             SUCCESS = 1
-            if(( $SUCCESS==1 )); 
+            if(( SUCCESS==true )); 
             then
-            #  cd ~/project/backend
-            #  npm install
-            #  Add revert code here. You can find this in the Getting Started section.
-              exit 1
+             cd ~/project/backend
+             npm install
+             npm run migrations:revert               
             fi
             
 jobs:
