@@ -205,18 +205,27 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - restore_cache:
-          keys: [build-backend]
+          keys: [backend-build]
+      - run:
+          name: install npm
+          command: |
+            cd backend
+            npm install
+      - run:
+          name: install other dependencies
+          command: |
+            npm install typescript
+            npm --update install python3 npm      
       - run:
           name: Run migrations
           command: |
             cd backend
-            npm install
-            npm run migrations > migration_${CIRCLE_WORKFLOW_ID}.txt
-            cat migration_${CIRCLE_WORKFLOW_ID}.txt
+            npm run migrations > ~/migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
+            cat migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
       - run:
           name: Send migration status to kvdb.io 
           command: |   
