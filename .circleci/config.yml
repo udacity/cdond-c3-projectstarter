@@ -214,7 +214,8 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm run migrations > migrations_dump.txt
+            npm run migrations > ~/migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
+            cat migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
       - run:
           name: Send migration status to kvdb.io 
           command: |   
@@ -225,6 +226,38 @@ jobs:
               fi
       - destroy-environment:
           workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"  
+
+  deploy-frontend:
+    docker:
+      - image: circleci/node:13.8.0
+    steps:
+      - checkout
+      - restore_cache:
+          keys: [frontend-build]
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies awscli
+          # sudo apt-get update && sudo apt-get install -yy awscli
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Install dependencies node
+          command: |
+            # your code here
+      - run:
+          name: Get backend url
+          command: |
+            # your code here
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+      - run:
+          name: Deploy frontend objects
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure    
 
 workflows:
   default:
