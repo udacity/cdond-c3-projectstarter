@@ -29,7 +29,7 @@ commands:
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = 1
+            SUCCESS = $( curl https://kvdb.io/Y486qWLJa2eJcBFWzwFR7K/migration_<< parameters.workflow_id >>)
             if(( SUCCESS==true )); 
             then
              cd ~/project/backend
@@ -316,8 +316,52 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      # Here's where you will add some code to rollback on failure # 
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}  
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID}   
 
+  smoke-test:
+    docker:
+            - image: python:3.9.0-alpine
+    steps:
+      - checkout
+      - run:
+          name: install curl
+          command: apk add --update curl
+      - run:
+          name: Install npm
+          command: |
+            apk add --update npm
+      - run:
+          name: Install node 
+          command: |
+            apk add --update nodejs           
+      - run:
+          name: Install aws cli
+          command: |
+            pip install awscli  
+      - run:
+          name: Get backend url
+          command: |
+            cat ~/inventory.txt
+            BACKEND_IP=$(cat ~/inventory.txt)
+      - run:
+          name: Backend smoke test.
+          command: |
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure  
 
 workflows:
   default:
