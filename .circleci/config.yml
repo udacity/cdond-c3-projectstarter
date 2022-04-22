@@ -209,23 +209,14 @@ jobs:
     steps:
       - checkout
       - restore_cache:
-          keys: [backend-build]
-      - run:
-          name: install npm
-          command: |
-            cd backend
-            npm install
-      - run:
-          name: install other dependencies
-          command: |
-            npm install typescript
-            npm --update install python3 npm      
+          keys: [build-backend]
       - run:
           name: Run migrations
           command: |
             cd backend
-            npm run migrations > ~/migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
-            cat migrations_dump_${CIRCLE_WORKFLOW_ID}.txt
+            npm install
+            npm run migrations > migration_${CIRCLE_WORKFLOW_ID}.txt
+            cat migration_${CIRCLE_WORKFLOW_ID}.txt
       - run:
           name: Send migration status to kvdb.io 
           command: |   
