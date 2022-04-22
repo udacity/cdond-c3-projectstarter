@@ -1,7 +1,6 @@
-
- - name: copy file
-   become: true
-   copy: 
+- name: copy file
+  become: true
+  copy: 
     src: artifact.tar.gz
     dest: /home/ubuntu/artifact.tar.gz
 
