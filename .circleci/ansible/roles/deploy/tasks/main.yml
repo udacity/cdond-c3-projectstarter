@@ -1,0 +1,16 @@
+
+ - name: copy file
+ become: true
+   copy: 
+    src: artifact.tar.gz
+    dest: /home/ubuntu/artifact.tar.gz
+
+- name: Start the job
+  shell: |
+    cd /home/ubuntu/
+    tar xzvf artifact.tar.gz
+    pwd
+    cd backend
+    npm install
+    pm2 stop default
+    pm2 start npm -- start
