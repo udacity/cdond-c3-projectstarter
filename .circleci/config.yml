@@ -29,7 +29,7 @@ commands:
           when: on_fail
           command: |
             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-            SUCCESS = $( curl https://kvdb.io/Y486qWLJa2eJcBFWzwFR7K/migration_<< parameters.workflow_id >>)
+            SUCCESS = $( curl https://kvdb.io/Y486qWLJa2eJcBFWzwFR7K/migration_<< parameters.workflowId >>)
             if(( SUCCESS==true )); 
             then
              cd ~/project/backend
@@ -235,8 +235,7 @@ jobs:
                 curl https://kvdb.io/Y486qWLJa2eJcBFWzwFR7K/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
               fi
       - destroy-environment:
-          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"  
-          #
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   deploy-frontend:
     docker:
@@ -270,7 +269,10 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      # Here's where you will add some code to rollback on failure    
+      - destroy-environment:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}" 
 
   deploy-backend:
     docker:
@@ -317,11 +319,13 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       - destroy-environment:
-          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"   
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   smoke-test:
     docker:
-            - image: python:3.9.0-alpine
+      - image: python:3.9.0-alpine
     steps:
       - checkout
       - run:
@@ -358,8 +362,19 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            # your code here
-      # Here's where you will add some code to rollback on failure  
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            echo ${URL} 
+            if curl -s ${URL} | grep "Welcome"
+            then
+                # Change this to 0 after the job fails
+              return 1
+            else
+              return 1
+            fi
+      - destroy-environment:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
 
 workflows:
   default:
@@ -387,8 +402,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      #- smoke-test:
-       #   requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       #- cloudfront-update:
        #   requires: [smoke-test]
      # - cleanup:
