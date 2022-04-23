@@ -194,8 +194,9 @@ jobs:
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:project,Values=udapeople" \
-              --output text >> .circleci/ansible/inventory.txt
+              --output text > .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
+      - run: cat .circleci/ansible/inventory.txt 
       - persist_to_workspace:
           root: ~/
           paths:
@@ -217,7 +218,7 @@ jobs:
       - add_ssh_keys:
           fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
       - attach_workspace:
-          at: .
+          at: ~/
       # Add ssh keys with fingerprint
       # attach workspace
       - run: cat .circleci/ansible/inventory.txt 
