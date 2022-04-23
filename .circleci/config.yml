@@ -95,7 +95,7 @@ jobs:
     <<: *imgdefault
     steps:
       - checkout
-      - jq/install
+      # - jq/install
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -112,7 +112,7 @@ jobs:
     <<: *imgdefault
     steps:
       - checkout
-      - jq/install
+      # - jq/install
       - restore_cache:
           keys: [backend-build]
       - run:
