@@ -188,8 +188,7 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - destroy-environment:
-          when: on_fail
+      - destroy-environment
           # workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
 
