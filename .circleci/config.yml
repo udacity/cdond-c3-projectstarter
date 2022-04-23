@@ -1,17 +1,24 @@
 version: 2.1
+parameters:
+  workflow-id:
+    type: string
+    default: "${CIRCLE_WORKFLOW_ID}"
 
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflow_id:
+        type: string
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
             aws cloudformation delete-stack \
-              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+              --stack-name "udapeople-backend-<<parameters.workflow_id>>"
             aws cloudformation delete-stack \
-              --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
+              --stack-name "udapeople-frontend-<<parameters.workflow_id>>"
             aws s3 rm s3://udapeople-019204297525 --recursive
             
 
@@ -188,31 +195,37 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - destroy-environment
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
           # workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
 
-#   configure-infrastructure:
-#     <<: *imgdefault # that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1      
-
+  configure-infrastructure:
+    docker:
+    - image: prooph/ansible-aws-cli # that supports Ansible
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
+      - attach_workspace:
+          at: .
+      # Add ssh keys with fingerprint
+      # attach workspace
+      - run: cat .circleci/ansible/inventory.txt 
+      - run: yum install tar gzip -y
+      - run:
+          name: Configure server
+          command: |
+            cd .circleci/ansible
+            ansible-playbook -i inventory.txt configure-server.yml
+            # # Your code here
+            # exit 1
+      # Here's where you will add some code to rollback on failure
+      - slack/notify:
+          event: fail
+          template: basic_fail_1      
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 #   run-migrations:
 #     <<: *imgdefault # that supports NodeJS
 #     steps:
