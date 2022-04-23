@@ -49,6 +49,7 @@ orbs:
   slack: circleci/slack@4.1
   aws-cli: circleci/aws-cli@1.3.0
   jq: circleci/jq@2.2.0
+
 jobs:
 
   build-frontend:
@@ -213,7 +214,6 @@ jobs:
     - image: prooph/ansible-aws-cli # that supports Ansible
     steps:
       - checkout
-      - jq/install
       - add_ssh_keys:
           fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
       - attach_workspace:
@@ -229,10 +229,7 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
             # # Your code here
             # exit 1
-      # Here's where you will add some code to rollback on failure
-      - slack/notify:
-          event: fail
-          template: basic_fail_1      
+      # Here's where you will add some code to rollback on failure   
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 #   run-migrations:
