@@ -189,7 +189,7 @@ jobs:
           event: fail
           template: basic_fail_1
       - destroy-environment:
-          event: fail
+          when: on_fail
           # workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
 
