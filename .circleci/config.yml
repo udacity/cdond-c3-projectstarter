@@ -48,12 +48,14 @@ imgdefault: &imgdefault
 orbs:
   slack: circleci/slack@4.1
   aws-cli: circleci/aws-cli@1.3.0
+  jq: circleci/jq@2.2.0
 jobs:
 
   build-frontend:
     <<: *imgdefault
     steps:
       - checkout
+      - jq/install
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -73,6 +75,7 @@ jobs:
     <<: *imgdefault
     steps:
       - checkout
+      - jq/install
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -92,6 +95,7 @@ jobs:
     <<: *imgdefault
     steps:
       - checkout
+      - jq/install
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -108,6 +112,7 @@ jobs:
     <<: *imgdefault
     steps:
       - checkout
+      - jq/install
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -124,6 +129,7 @@ jobs:
     <<: *imgdefault 
     steps:
       - checkout
+      - jq/install
       - restore_cache:
           keys: [frontend-build]
       - run:
@@ -142,6 +148,7 @@ jobs:
     <<: *imgdefault 
     steps:
       - checkout
+      - jq/install
       - restore_cache:
           keys: [backend-build]
       - run:
@@ -161,6 +168,7 @@ jobs:
     - image: amazon/aws-cli # that supports AWS CLI
     steps:
       - checkout
+      - jq/install
       - run: yum install tar gzip -y
 
       - run:
@@ -205,6 +213,7 @@ jobs:
     - image: prooph/ansible-aws-cli # that supports Ansible
     steps:
       - checkout
+      - jq/install
       - add_ssh_keys:
           fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
       - attach_workspace:
@@ -212,7 +221,7 @@ jobs:
       # Add ssh keys with fingerprint
       # attach workspace
       - run: cat .circleci/ansible/inventory.txt 
-      - run: yum install tar gzip -y
+      # - run: yum install tar gzip -y
       - run:
           name: Configure server
           command: |
