@@ -64,9 +64,9 @@ commands:
           command: |
             apk add --update nodejs nodejs-npm
       - run:
-          name: Install tar and gzip and curl
+          name: Install tar and gzip and curl jq
           command: |
-            apk add tar gzip curl
+            apk add tar gzip curl jq
              
 imgdefault: &imgdefault
   docker:
@@ -197,8 +197,6 @@ jobs:
     steps:
       - checkout
       - jq/install
-      - run: yum install tar gzip -y
-
       - run:
           name: Ensure back-end infrastructure exists
           command: |
@@ -237,7 +235,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-    - image: python:3.7-alpine3.11 # that supports Ansible
+    - image: python:alpine3.15 # that supports Ansible
     steps:
       - checkout
       - install_dependencies
@@ -260,7 +258,10 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
             # # Your code here
             # exit 1
-      # Here's where you will add some code to rollback on failure   
+      # Here's where you will add some code to rollback on failure
+      - slack/notify:
+          event: fail
+          template: basic_fail_1   
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
@@ -299,11 +300,10 @@ jobs:
 
   deploy-frontend:
     docker:
-    - image: python:3.7-alpine3.11 # that supports AWS CLI
+    - image: python:alpine3.15 # that supports AWS CLI
     steps:
       - checkout
       - install_dependencies
-
       - run:
           name: Get backend url
           command: |
@@ -326,6 +326,9 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
       # Here's where you will add some code to rollback on failure
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
@@ -333,7 +336,7 @@ jobs:
 
   deploy-backend:
     docker:
-    - image: python:3.7-alpine3.11 # that supports Ansible
+    - image: python:alpine3.15 # that supports Ansible
     steps:
       - checkout
       - install_dependencies
@@ -361,54 +364,80 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      # Here's where you will add some code to rollback on failure  
+      # Here's where you will add some code to rollback on failure
+      - slack/notify:
+          event: fail
+          template: basic_fail_1  
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-#   smoke-test:
-#     docker:
-#       # Lightweight Docker image 
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#       - run:
-#           name: Backend smoke test.
-#           command: |
-#             # your code here
-#       - run:
-#           name: Frontend smoke test.
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
 
+  smoke-test:
+    docker:
+      - image: python:alpine3.15 # Lightweight Docker image 
+    steps:
+      - checkout
+      - install_dependencies
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:project,Values=udapeople" \
+              --output text |tail -1)
+      - run:
+          name: Backend smoke test.
+          command: |
+            export API_URL="http://${BACKEND_IP}:3030"
+            echo "${API_URL}"
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+                return 0
+            else
+                return 1
+            fi
+      - run:
+          name: Frontend smoke test.
+          command: |
+            URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
+            echo ${URL} 
+            if curl -s ${URL} | grep "Welcome"
+            then
+                # Change this to 0 after the job fails
+              return 1
+            else
+              return 1
+            fi
+      # Here's where you will add some code to rollback on failure  
+      - slack/notify:
+          event: fail
+          template: basic_fail_1
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+  # cloudfront-update:
+  #   <<: *imgdefault # that supports AWS CLI
+  #   steps:
+  #     # Checkout code from git
+  #     - run:
+  #         name: Install dependencies
+  #         command: |
+  #           # your code here
+  #     - run:
+  #         name: Update cloudfront distribution
+  #         command: |
+  #           # your code here
+  #     # Here's where you will add some code to rollback on failure  
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
-#   cloudfront-update:
-#     <<: *imgdefault # that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Update cloudfront distribution
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure  
+      # - destroy-environment:
+      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      # - revert-migrations:
+      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
 # cleanup:
 #     <<: *imgdefault #
 #     steps:
@@ -426,10 +455,13 @@ jobs:
 #             then
 #               # your code here
 #             fi
-            
       # - slack/notify:
       #     event: fail
       #     template: basic_fail_1
+      # - destroy-environment:
+      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      # - revert-migrations:
+      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 
 workflows:
   default:
@@ -451,14 +483,14 @@ workflows:
               only: [test-feature-branch]
       - configure-infrastructure:
           requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
