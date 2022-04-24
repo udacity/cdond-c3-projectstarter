@@ -197,6 +197,7 @@ jobs:
     steps:
       - checkout
       - jq/install
+      - run: yum instsall tar gzip -y
       - run:
           name: Ensure back-end infrastructure exists
           command: |
