@@ -267,10 +267,11 @@ jobs:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   run-migrations:
-    <<: *imgdefault # that supports NodeJS
+    docker:
+    - image: python:alpine3.15 # that supports NodeJS
     steps:
       - checkout
-      - jq/install
+      - install_dependencies
       - attach_workspace:
           at: ~/
       - restore_cache:
