@@ -1,35 +1,35 @@
 ---
 - name: "update apt packages."
-  become: true
+  become: yes
   apt:
     update_cache: yes
 
 - name: "upgrade packages"
-  become: true
+  become: yes
   apt:
     upgrade: yes
 
 - name: remove dependencies that are no longer required
-  become: true
+  become: yes
   apt:
     autoremove: yes
 
 - name: "install dependencies"
-  become: true
+  become: yes
   apt:
     name: ["nodejs", "npm", "python3", "tar", "gzip", "git"]
     state: latest
     update_cache: yes
 
 - name: "Install zip utility."
-  become: true
+  become: yes
   apt:
     name: [ "zip", "unzip" ]
     state: latest
     update_cache: yes
 
 - name: "install pm2"
-  become: true
+  become: yes
   npm:
     name: pm2
     global: yes
