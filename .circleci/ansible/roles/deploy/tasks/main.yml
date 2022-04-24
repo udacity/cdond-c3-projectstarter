@@ -6,12 +6,12 @@
 - name: extract backend filters
   ansible.builtin.shell: |
     cd /home/ubuntu/
-    tar –xvf artifact.tar.gz 
+    tar xvf artifact.tar.gz
   args:
     executable: /bin/bash
 - name: Install node
   ansible.builtin.shell: |
-    cd /home/ubuntu/artifact
+    cd /home/ubuntu/backend
     npm install
   args:
     executable: /bin/bash
@@ -23,6 +23,7 @@
     executable: /bin/bash
 - name: stop pm2
   ansible.builtin.shell: |
+    cd /home/ubuntu/backend
     pm2 stop default
   args:
     executable: /bin/bash
