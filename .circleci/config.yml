@@ -241,7 +241,6 @@ jobs:
     steps:
       - checkout
       - install_dependencies
-      - jq/install
       - add_ssh_keys:
           fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
       - attach_workspace:
