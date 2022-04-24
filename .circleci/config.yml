@@ -62,7 +62,7 @@ commands:
       - run:
           name: Install NPM and Node
           command: |
-            apk add --update nodejs nodejs-npm
+            apk add --update nodejs npm
       - run:
           name: Install tar and gzip and curl jq
           command: |
