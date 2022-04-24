@@ -17,14 +17,7 @@
 - name: "install dependencies"
   become: yes
   apt:
-    name: ["nodejs", "npm", "python3", "tar", "gzip", "git"]
-    state: latest
-    update_cache: yes
-
-- name: "Install zip utility."
-  become: yes
-  apt:
-    name: [ "zip", "unzip" ]
+    name: ["nodejs", "npm", "python3", "tar", "gzip", "git","zip", "unzip"]
     state: latest
     update_cache: yes
 

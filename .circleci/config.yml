@@ -41,7 +41,7 @@ commands:
             fi
 
   install_dependencies:
-    description: Installs Python3, Ansible, AWSCLI, Node, NPM
+    description: Installs Python3, Ansible, AWSCLI, Node, NPM , py3-pip
     steps:
       - run:
           name: Install ansible
@@ -50,14 +50,10 @@ commands:
       - run:
           name: Install aws
           command: |
-                apk add --no-cache \
-                    python3 \
-                    py3-pip \
-                && pip3 install --upgrade pip \
+                pip3 install --upgrade pip \
                 && pip3 install --no-cache-dir \
                     awscli \
                 && rm -rf /var/cache/apk/*
-
                 aws --version 
       - run:
           name: Install NPM and Node
@@ -360,9 +356,7 @@ jobs:
             npm run build
             cd ..
             # Zip the directory
-            pwd
             tar -C backend -czf artifact.tar.gz .
-            ls -l
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
