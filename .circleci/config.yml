@@ -64,9 +64,9 @@ commands:
           command: |
             apk add --update nodejs nodejs-npm
       - run:
-          name: Install tar and gzip
+          name: Install tar and gzip and curl
           command: |
-            apk add tar gzip
+            apk add tar gzip curl
              
 imgdefault: &imgdefault
   docker:
@@ -240,12 +240,12 @@ jobs:
     - image: python:3.7-alpine3.11 # that supports Ansible
     steps:
       - checkout
+      - install_dependencies
       - jq/install
       - add_ssh_keys:
           fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
       - attach_workspace:
           at: ~/
-      - install_dependencies
       - run: 
           name: disbale ssh checking
           command: |
@@ -303,8 +303,8 @@ jobs:
     - image: python:3.7-alpine3.11 # that supports AWS CLI
     steps:
       - checkout
-      - jq/install
       - install_dependencies
+      - jq/install
       - run:
           name: Get backend url
           command: |
@@ -340,12 +340,12 @@ jobs:
     - image: python:3.7-alpine3.11 # that supports Ansible
     steps:
       - checkout
+      - install_dependencies
       - jq/install
       - add_ssh_keys:
           fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
       - attach_workspace:
           at: ~/
-      - install_dependencies
       - run: 
           name: disbale ssh checking
           command: |
