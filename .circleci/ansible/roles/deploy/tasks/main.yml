@@ -1,0 +1,50 @@
+---
+- name: "upgrade packages."
+  become: true
+  apt:
+    upgrade: "yes"
+
+- name: "install dependencies."
+  become: true
+  apt:
+    name: ["nodejs", "npm", "tar"]
+    update_cache: yes
+    
+- name: "install pm2"
+  become: true
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
+
+- name: "Create directory"
+  become: true
+  file:
+    path: ~/udapeople/
+    state: directory
+
+- name: "extract backend"
+  become: true
+  unarchive:
+    src: /home/circleci/project/backend.tar.gz
+    dest: ~/udapeople/
+
+- name: "install npm to  backend" 
+  become: true
+  command: npm install
+  args:
+    chdir: ~/udapeople/
+   
+- name: "pm2 stop default"
+  become: true
+  command: pm2 stop default
+  args:
+    chdir: ~/udapeople/
+  
+- name: "run  backend"
+  become: true
+  command: pm2 start npm -- start
+  args:
+    chdir: ~/udapeople/
+  
