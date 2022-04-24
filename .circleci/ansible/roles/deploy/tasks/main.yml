@@ -1,0 +1,30 @@
+---
+- name: Copy backend compiled web server
+  copy:
+    src: artifact.tar.gz 
+    dest: /home/ubuntu
+- name: extract backend filters
+  shell: |
+    cd /home/ubuntu/
+    tar –xzvf artifact.tar.gz 
+- name: Install node
+  shell: |
+    cd /home/ubuntu/artifact
+    npm install
+- name: Build Node
+  shell: |
+    cd /home/ubuntu/backend
+    npm run build
+- name: stop pm2
+  shell: |
+    pm2 stop default
+
+- name: Start backend with pm2
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 start npm -- start
+- name: save your list of processes
+  shell: |
+    cd /home/ubuntu/backend
+    pm2 save  
+
