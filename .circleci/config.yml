@@ -408,10 +408,10 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      - destroy-environment:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-      - revert-migrations:
-          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      # - destroy-environment:
+      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      # - revert-migrations:
+      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   # cloudfront-update:
   #   <<: *imgdefault # that supports AWS CLI
   #   steps:
