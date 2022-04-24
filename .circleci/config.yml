@@ -16,6 +16,7 @@ commands:
           when: on_fail
           command: |
             aws s3 rm s3://udapeople-<<parameters.workflow_id>> --recursive
+            aws s3 rb s3://udapeople-<<parameters.workflow_id>>
             aws cloudformation delete-stack \
               --stack-name "udapeople-backend-<<parameters.workflow_id>>"
             aws cloudformation delete-stack \
@@ -66,7 +67,7 @@ commands:
              
 imgdefault: &imgdefault
   docker:
-   - image: circleci/node:13.8.0
+   - image: circleci/node:18.0.0
 
 orbs:
   slack: circleci/slack@4.1
