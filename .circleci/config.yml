@@ -304,7 +304,7 @@ jobs:
     steps:
       - checkout
       - install_dependencies
-      - jq/install
+
       - run:
           name: Get backend url
           command: |
@@ -327,9 +327,6 @@ jobs:
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
 
       # Here's where you will add some code to rollback on failure
-      - slack/notify:
-          event: fail
-          template: basic_fail_1      
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
@@ -341,7 +338,6 @@ jobs:
     steps:
       - checkout
       - install_dependencies
-      - jq/install
       - add_ssh_keys:
           fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
       - attach_workspace:
@@ -367,9 +363,6 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
       # Here's where you will add some code to rollback on failure  
-      - slack/notify:
-          event: fail
-          template: basic_fail_1
       - destroy-environment:
           workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
