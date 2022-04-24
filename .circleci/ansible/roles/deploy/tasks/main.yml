@@ -13,25 +13,25 @@
     cd /home/ubuntu/
     npm install
 
-- name: Build Node
-  shell: |
-    cd /home/ubuntu/
-    npm run build
+# - name: Build Node
+#   shell: |
+#     cd /home/ubuntu/
+#     npm run build
 
-- name: stop pm2
-  shell: |
-    cd /home/ubuntu/
-    pm2 stop default
-    
+# - name: stop pm2
+#   shell: |
+#     cd /home/ubuntu/
+#     pm2 stop default
+
 - name: Start backend with pm2
   shell: |
     cd /home/ubuntu/
     pm2 start npm -- start
 
-- name: save your list of processes
-  shell: |
-    cd /home/ubuntu/
-    pm2 save  
+# - name: save your list of processes
+#   shell: |
+#     cd /home/ubuntu/
+#     pm2 save  
 
 
 
