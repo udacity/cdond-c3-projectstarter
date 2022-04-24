@@ -67,7 +67,7 @@ commands:
              
 imgdefault: &imgdefault
   docker:
-   - image: circleci/node:18.0.0
+   - image: circleci/node:14.18
 
 orbs:
   slack: circleci/slack@4.1
