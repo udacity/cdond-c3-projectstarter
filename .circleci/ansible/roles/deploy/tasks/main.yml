@@ -4,27 +4,39 @@
     src: /root/project/artifact.tar.gz 
     dest: /home/ubuntu
 - name: extract backend filters
-  shell: |
+  ansible.builtin.shell: |
     cd /home/ubuntu/
     tar –xvf artifact.tar.gz 
+  args:
+    executable: /bin/bash
 - name: Install node
-  shell: |
+  ansible.builtin.shell: |
     cd /home/ubuntu/artifact
     npm install
+  args:
+    executable: /bin/bash
 - name: Build Node
-  shell: |
+  ansible.builtin.shell: |
     cd /home/ubuntu/backend
     npm run build
+  args:
+    executable: /bin/bash
 - name: stop pm2
-  shell: |
+  ansible.builtin.shell: |
     pm2 stop default
+  args:
+    executable: /bin/bash
 
 - name: Start backend with pm2
-  shell: |
+  ansible.builtin.shell: |
     cd /home/ubuntu/backend
     pm2 start npm -- start
+  args:
+    executable: /bin/bash
 - name: save your list of processes
-  shell: |
+  ansible.builtin.shell: |
     cd /home/ubuntu/backend
     pm2 save  
+  args:
+    executable: /bin/bash
 
