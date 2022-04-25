@@ -110,7 +110,7 @@ jobs:
 
             npm install
             npm run build
-            cp .env
+            cp .env dist/.env
             pwd
             ls -al
       - save_cache:
