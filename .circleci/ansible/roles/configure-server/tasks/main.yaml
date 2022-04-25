@@ -20,7 +20,15 @@
     name: ["nodejs", "npm", "python3", "tar", "gzip", "git","zip", "unzip"]
     state: latest
     update_cache: yes
-
+# - name: "install n"
+#   become: true
+#   npm:
+#     name: n
+#     global: yes
+#     production: yes
+# - name: "install nodejs 12.20.1"
+#   become: true
+#   shell: n 12.20.1
 - name: "install pm2"
   become: yes
   npm:
@@ -28,3 +36,14 @@
     global: yes
     production: yes
     state: present
+- name: "set Enviroment variables"
+  shell: |
+    echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> /home/ubuntu/.bashrc
+    echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> /home/ubuntu/.bashrc
+    echo "TYPEORM_HOST=${TYPEORM_HOST}" >> /home/ubuntu/.bashrc
+    echo "TYPEORM_PORT=${TYPEORM_PORT}" >> /home/ubuntu/.bashrc
+    echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> /home/ubuntu/.bashrc
+    echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> /home/ubuntu/.bashrc
+    echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> /home/ubuntu/.bashrc
+    echo "TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> /home/ubuntu/.bashrc
+    echo "TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> /home/ubuntu/.bashrc

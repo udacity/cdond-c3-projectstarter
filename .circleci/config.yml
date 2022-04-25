@@ -57,13 +57,13 @@ commands:
                 && rm -rf /var/cache/apk/*
                 aws --version 
       - run:
-          name: Install NPM and Node
-          command: |
-            apk add --update nodejs npm
-      - run:
           name: Install tar and gzip and curl jq
           command: |
-            apk add tar gzip curl jq
+            apk add tar gzip curl jq wget
+      - run:
+          name: Install NPM and Node
+          command: |            
+            apk add --update nodejs npm
              
 imgdefault: &imgdefault
   docker:
@@ -200,7 +200,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
-              --tags project=udapeople \
+              --tags project=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7} \
               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}" 
       - run:
@@ -208,7 +208,7 @@ jobs:
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/frontend.yml \
-              --tags project=udapeople \
+              --tags project=udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7} \
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
       - run:
@@ -216,7 +216,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
+              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text |tail -1 >> .circleci/ansible/inventory.txt
             cat .circleci/ansible/inventory.txt
 
@@ -234,6 +234,18 @@ jobs:
   configure-infrastructure:
     docker:
     - image: python:alpine3.15 # that supports Ansible
+      environment:
+          NODE_ENV: "production"
+          VERSION: "1"
+          ENVIRONMENT: "production"
+          TYPEORM_CONNECTION: $TYPEORM_CONNECTION
+          TYPEORM_HOST: $TYPEORM_HOST
+          TYPEORM_USERNAME: $TYPEORM_USERNAME
+          TYPEORM_PASSWORD: $TYPEORM_PASSWORD
+          TYPEORM_DATABASE: $TYPEORM_DATABASE
+          TYPEORM_PORT: $TYPEORM_PORT
+          TYPEORM_ENTITIES: $TYPEORM_ENTITIES
+          ANSIBLE_HOST_KEY_CHECKING: False
     steps:
       - checkout
       - install_dependencies
@@ -241,10 +253,6 @@ jobs:
           fingerprints: ["31:15:91:9c:f5:09:f2:cb:04:af:21:79:2e:16:15:68"]
       - attach_workspace:
           at: ~/
-      - run: 
-          name: disbale ssh checking
-          command: |
-                export ANSIBLE_HOST_KEY_CHECKING=False
       # Add ssh keys with fingerprint
       # attach workspace
       - run: cat .circleci/ansible/inventory.txt 
@@ -253,6 +261,7 @@ jobs:
           name: Configure server
           command: |
             cd .circleci/ansible
+            cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
             # # Your code here
             # exit 1
@@ -277,6 +286,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            cat .env
             npm install
             # Run and save the migration output
             npm run migrations > migrations_dump.txt
@@ -310,7 +320,7 @@ jobs:
             # your code here
             export BACKEND_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:project,Values=udapeople" \
+              --filters "Name=tag:project,Values=udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text |tail -1)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
@@ -337,6 +347,18 @@ jobs:
   deploy-backend:
     docker:
     - image: python:alpine3.15 # that supports Ansible
+      environment:
+        NODE_ENV: "production"
+        VERSION: "1"
+        ENVIRONMENT: "production"
+        TYPEORM_CONNECTION: $TYPEORM_CONNECTION
+        TYPEORM_HOST: $TYPEORM_HOST
+        TYPEORM_USERNAME: $TYPEORM_USERNAME
+        TYPEORM_PASSWORD: $TYPEORM_PASSWORD
+        TYPEORM_DATABASE: $TYPEORM_DATABASE
+        TYPEORM_PORT: $TYPEORM_PORT
+        TYPEORM_ENTITIES: $TYPEORM_ENTITIES
+        ANSIBLE_HOST_KEY_CHECKING: False
     steps:
       - checkout
       - install_dependencies
@@ -353,10 +375,9 @@ jobs:
           name: Deploy backend
           command: |
             cd backend
-            npm i
+            npm install
             npm run build
             cd ..
-            # Zip the directory
             tar -C backend -czf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
@@ -385,7 +406,7 @@ jobs:
                 --filters "Name=tag:project,Values=udapeople" \
                 --output text |tail -1)
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
+            echo "API_URL=${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
                 return 0
@@ -397,6 +418,7 @@ jobs:
           command: |
             URL="http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-east-1.amazonaws.com/#/employees"            
             echo ${URL} 
+            echo `curl -s ${URL}`
             if curl -s ${URL} | grep "Welcome"
             then
                 # Change this to 0 after the job fails
