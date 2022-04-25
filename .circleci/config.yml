@@ -346,8 +346,11 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            cat ~/inventory.txt
-            BACKEND_IP=$(cat ~/inventory.txt)
+            cd .circleci/ansible
+            cat inventory.txt
+            BACKEND_IP=$(cat inventory.txt)
+            cd ..
+            cd ..
       - run:
           name: Backend smoke test.
           command: |
