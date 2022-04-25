@@ -45,7 +45,14 @@
     tar xzvf artifact.tar.gz
     pwd
 
-- name: Use pm2 to run backend
-  command: pm2 start dist/main.js --name "backend" -i max
+- name: "compile npm packages"
+  become: true
+  command: npm run build
+  args:
+    chdir: /home/ubuntu/backend
+
+- name: "start server"
+  become: true
+  command: pm2 start npm --run start
   args:
     chdir: /home/ubuntu/backend
