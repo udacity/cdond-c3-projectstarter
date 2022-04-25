@@ -64,7 +64,9 @@ commands:
           name: Install NPM and Node
           command: |            
             apk add --update nodejs npm
-             
+            npm --version
+            node -v
+            npm install -g typescript
 imgdefault: &imgdefault
   docker:
    - image: circleci/node:14.18
@@ -345,7 +347,7 @@ jobs:
 
   deploy-backend:
     docker:
-    - image: python:alpine3.15 # that supports Ansible
+    - image: python:3.7-alpine3.11 # that supports Ansible
       environment:
         NODE_ENV: "production"
         VERSION: "1"
