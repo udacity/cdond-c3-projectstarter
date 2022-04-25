@@ -14,7 +14,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-             aws s3 rm s3://udapeople-prod-<<parameters.workflowId>> --recursive
+             aws s3 rm s3://udapeople-<<parameters.workflowId>> --recursive
              aws cloudformation delete-stack --stack-name udapeople-backend-prod-<<parameters.workflowId>>
              aws cloudformation delete-stack --stack-name udapeople-frontend-prod-<<parameters.workflowId>>
 
@@ -346,11 +346,11 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            BACKEND_URL=$(aws ec2 describe-instances \
+            BACKEND_IP=$(aws ec2 describe-instances \
             --filters Name=instance-state-name,Values=running \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
             --output text)
-            echo "${BACKEND_URL}"
+            echo "${BACKEND_IP}"
             echo "backendip is ${BACKEND_IP}"
       - run:
           name: Backend smoke test.
