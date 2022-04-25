@@ -298,7 +298,7 @@ jobs:
             echo "CIRCLE_WORKFLOW_ID: ${CIRCLE_WORKFLOW_ID:0:7}"
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-                curl https://kvdb.io/${kvd_token}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                curl --insecure https://kvdb.io/${kvd_token}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
      # Here's where you will add some code to rollback on failure
       - slack/notify:
@@ -410,7 +410,7 @@ jobs:
             echo "API_URL=${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
             then
-                return 0
+                return 1
             else
                 return 1
             fi
@@ -431,30 +431,28 @@ jobs:
       - slack/notify:
           event: fail
           template: basic_fail_1
-      # - destroy-environment:
-      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-      # - revert-migrations:
-      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
   # cloudfront-update:
-  #   <<: *imgdefault # that supports AWS CLI
+  #   docker:
+  #   - image: python:3.7-alpine3.11 # that supports AWS CLI
   #   steps:
-  #     # Checkout code from git
-  #     - run:
-  #         name: Install dependencies
-  #         command: |
-  #           # your code here
+  #     - checkout
+  #     - install_dependencies
   #     - run:
   #         name: Update cloudfront distribution
   #         command: |
   #           # your code here
   #     # Here's where you will add some code to rollback on failure  
-      # - slack/notify:
-      #     event: fail
-      #     template: basic_fail_1
-      # - destroy-environment:
-      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
-      # - revert-migrations:
-      #     workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
+  #     - slack/notify:
+  #         event: fail
+  #         template: basic_fail_1
+  #     - destroy-environment:
+  #         workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"
+  #     - revert-migrations:
+  #         workflow_id: "${CIRCLE_WORKFLOW_ID:0:7}"  
 
 # cleanup:
 #     <<: *imgdefault #
