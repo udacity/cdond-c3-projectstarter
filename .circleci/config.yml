@@ -107,8 +107,12 @@ jobs:
           name: Back-end build
           command: |
             cd backend
+
             npm install
             npm run build
+            cp .env
+            pwd
+            ls -al
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
