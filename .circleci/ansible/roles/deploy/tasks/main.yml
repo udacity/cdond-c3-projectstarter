@@ -26,7 +26,8 @@
 - name: Start backend with pm2
   shell: |
     cd /home/ubuntu/
-    pm2 start npm -- start
+    export $(cat .env | xargs) && rails c
+    pm2 start npm -- start --update-env
 
 # - name: save your list of processes
 #   shell: |

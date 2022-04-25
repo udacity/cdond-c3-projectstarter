@@ -47,3 +47,14 @@
     echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> /home/ubuntu/.bashrc
     echo "TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> /home/ubuntu/.bashrc
     echo "TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> /home/ubuntu/.bashrc
+- name: "set Enviroment variables"
+  shell: |
+    echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> /home/ubuntu/.env
+    echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> /home/ubuntu/.env
+    echo "TYPEORM_HOST=${TYPEORM_HOST}" >> /home/ubuntu/.env
+    echo "TYPEORM_PORT=${TYPEORM_PORT}" >> /home/ubuntu/.env
+    echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> /home/ubuntu/.env
+    echo "TYPEORM_PASSWORD=password" >> /home/ubuntu/.env
+    echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> /home/ubuntu/.env
+    echo "TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> /home/ubuntu/.env
+    echo "TYPEORM_MIGRATIONS_DIR=${TYPEORM_MIGRATIONS_DIR}" >> /home/ubuntu/.env
