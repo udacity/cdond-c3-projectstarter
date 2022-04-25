@@ -346,11 +346,12 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            cd .circleci/ansible
-            cat inventory.txt
-            BACKEND_IP=$(cat inventory.txt)
-            cd ..
-            cd ..
+            BACKEND_URL=$(aws ec2 describe-instances \
+            --filters Name=instance-state-name,Values=running \
+            --query 'Reservations[*].Instances[*].PublicDnsName' \
+            --output text)
+            echo "${BACKEND_URL}"
+            echo "backendip is ${BACKEND_IP}""
       - run:
           name: Backend smoke test.
           command: |
