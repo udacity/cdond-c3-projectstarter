@@ -351,7 +351,7 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicDnsName' \
             --output text)
             echo "${BACKEND_URL}"
-            echo "backendip is ${BACKEND_IP}""
+            echo "backendip is ${BACKEND_IP}"
       - run:
           name: Backend smoke test.
           command: |
