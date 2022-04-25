@@ -344,17 +344,13 @@ jobs:
           command: |
             pip install awscli  
       - run:
-          name: Get backend url
+          name: Get backend url and do backend smoketest
           command: |
             BACKEND_IP=$(aws ec2 describe-instances \
             --filters Name=instance-state-name,Values=running \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
             --output text)
             echo "${BACKEND_IP}"
-            echo "backendip is ${BACKEND_IP}"
-      - run:
-          name: Backend smoke test.
-          command: |
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
