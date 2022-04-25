@@ -37,12 +37,13 @@
   become: true
   copy: 
     src: /root/project/artifact.tar.gz
-    dest: /home/ubuntu/artifact.tar.gz
+    dest: /home/ubuntu/backend/artifact.tar.gz
 
-- name: Unarchives the compressed artifact file
-  unarchive:
-    src: /home/ubuntu/artifact.tar.gz
-    dest: /home/ubuntu/backend
+- name: uncompress the copied file
+  shell: |
+    cd /home/ubuntu/backend
+    tar xzvf artifact.tar.gz
+    pwd
 
 - name: Use pm2 to run backend
   command: pm2 start dist/main.js --name "backend" -i max
