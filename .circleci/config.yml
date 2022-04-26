@@ -349,14 +349,15 @@ jobs:
             --filters Name=instance-state-name,Values=running \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
             --output text)
-            echo "${BACKEND_IP}"
+            echo "1 backend ip ${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "${API_URL}"
-            echo "${API_URL}/api/status"
+            echo "2 api url ${API_URL}"
+            echo "3 api status url${API_URL}/api/status"
             if curl "${API_URL}/api/status" | grep "ok"
             then
                 return 0
             else
+                echo "curl sent was ${API_URL}/api/status"
                 return 1
             fi
       - run:
