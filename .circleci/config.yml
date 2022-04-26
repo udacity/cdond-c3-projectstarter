@@ -348,6 +348,7 @@ jobs:
             BACKEND_IP=$(aws ec2 describe-instances \
             --filters Name=instance-state-name,Values=running \
             --query 'Reservations[*].Instances[*].PublicDnsName' \
+            --filters "Name=tag:Name, Values = backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text)
             echo "1 backend ip ${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
