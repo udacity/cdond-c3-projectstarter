@@ -350,10 +350,7 @@ jobs:
             --query 'Reservations[*].Instances[*].PublicDnsName' \
             --filters "Name=tag:Name, Values = backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --output text)
-            echo "1 backend ip ${BACKEND_IP}"
             export API_URL="http://${BACKEND_IP}:3030"
-            echo "2 api url ${API_URL}"
-            echo "3 api status url${API_URL}/api/status"
             if curl "${API_URL}/api/status" | grep "ok"
             then
                 return 0
@@ -373,10 +370,10 @@ jobs:
             else
               return 1
             fi
-      ##- destroy-environment:
-       #   workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
-      #- revert-migrations:
-       #   workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - destroy-environment:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - revert-migrations:
+          workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
 
   cloudfront-update:
     docker:
@@ -415,7 +412,7 @@ jobs:
       steps:
         - checkout
         - run:
-            name: Get old stack workflow id
+            name: Get old stack workflow id and Remove old stacks and files
             command: |
               # your code here
               export OldWorkflowID=$(aws cloudformation \
@@ -427,9 +424,6 @@ jobs:
               export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
                       --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
               echo Stack names: "${STACKS[@]}"    
-        - run:
-            name: Remove old stacks and files
-            command: |
               if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
               then
                 echo " old wf id is ${OldWorkflowID}"
