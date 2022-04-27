@@ -426,11 +426,8 @@ jobs:
             command: |
               # your code here
               echo "current dir is $PWD"
-              OldWorkflowString=$(< ~/project/OldWorkflowID.txt)
-              echo OldWorkflowString is "${OldWorkflowString}"
-
-              OldWorkflowID = $("$OldWorkflowString" | cut -c11-17)
-              echo OldWorkflowID cut short is "${OldWorkflowID}"
+              OldWorkflowID=$(< ~/project/OldWorkflowID.txt)
+              echo OldWorkflowID is "${OldWorkflowID}"
 
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
               # Fetch the stack names          
@@ -438,12 +435,12 @@ jobs:
                       --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
               echo Stack names: "${STACKS[@]}"    
 
-              if [["${STACKS[@]}" =~ "${OldWorkflowID}"]]
+              if [["${STACKS[@]}" =~ "${OldWorkflowID:11:17}"]]
               then
-                echo " old wf id is ${OldWorkflowID}. Deleting..."
-                aws s3 rm s3://udapeople-${OldWorkflowID} --recursive
-                aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID}
-                aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID}
+                echo " old wf id is ${OldWorkflowID:11:17}. Deleting..."
+                aws s3 rm s3://udapeople-${OldWorkflowID:11:17} --recursive
+                aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID:11:17}
+                aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID:11:17}
               else
                 echo "Stacks: ${STACKS[@]}"
                 echo "OldWFID: .*"${CIRCLE_WORKFLOW_ID:0:7}".*"
