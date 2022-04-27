@@ -392,6 +392,7 @@ jobs:
             --no-paginate --output text)
             echo $OldWorkflowID >> ~/OldWorkflowID.txt
             cat ~/OldWorkflowID.txt
+            echo $(realpath ~/OldWorkflowID.txt)
 
             aws cloudformation deploy \
             --template-file .circleci/files/cloudfront.yml \
@@ -415,10 +416,11 @@ jobs:
             name: Get old stack workflow id and Remove old stacks and files
             command: |
               # your code here
-              OldWorkflowID=$(<~/OldWorkflowID.txt)
+              echo "current dir is $PWD"
+              OldWorkflowID=$(< OldWorkflowID.txt)
               echo OldWorkflowID is "${OldWorkflowID}"
 
-              OldWorkflowIDtwo = 'cat ~/OldWorkflowID.txt'
+              OldWorkflowIDtwo = 'cat OldWorkflowID.txt'
               echo two is "$OldWorkflowIDtwo"
 
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
