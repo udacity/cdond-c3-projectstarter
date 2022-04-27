@@ -436,10 +436,9 @@ jobs:
                       --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
               echo Stack names: "${STACKS[@]}"    
 
-              if ["${CIRCLE_WORKFLOW_ID:0:7}" = "${OldWorkflowID:11:17}"]; 
-              then
+              if ["${CIRCLE_WORKFLOW_ID:0:7}" = "${OldWorkflowID:11:17}"]; then
                 echo "Stacks: ${STACKS[@]}"
-                echo "cicle wf ${CIRCLE_WORKFLOW_ID:0:7} equals old wf id  "${OldWorkflowID:11:17}"
+                echo "cicle wf ${CIRCLE_WORKFLOW_ID:0:7} equals old wf id  "${OldWorkflowID:11:17}""
               else
                 echo " old wf id is ${OldWorkflowID:11:17}. Deleting..."
                 aws s3 rm s3://udapeople-${OldWorkflowID:11:17} --recursive
