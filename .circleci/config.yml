@@ -428,7 +428,7 @@ jobs:
               echo "current dir is $PWD"
               OldWorkflowID=$(< ~/project/OldWorkflowID.txt)
               echo OldWorkflowID is "${OldWorkflowID}"
-              echo shortened OldWorkflowID is ${OldWorkflowID:11:17}
+              echo shortened OldWorkflowID is ${OldWorkflowID:10:16}
 
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
               # Fetch the stack names          
@@ -436,14 +436,14 @@ jobs:
                       --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
               echo Stack names: "${STACKS[@]}"    
 
-              if ["${CIRCLE_WORKFLOW_ID:0:7}" = "${OldWorkflowID:11:17}"]; then
+              if ["${CIRCLE_WORKFLOW_ID:0:7}" = "${OldWorkflowID:10:16}"]; then
                 echo "Stacks: ${STACKS[@]}"
-                echo "cicle wf ${CIRCLE_WORKFLOW_ID:0:7} equals old wf id  "${OldWorkflowID:11:17}""
+                echo "cicle wf ${CIRCLE_WORKFLOW_ID:0:7} equals old wf id  "${OldWorkflowID:10:16}""
               else
-                echo " old wf id is ${OldWorkflowID:11:17}. Deleting..."
-                aws s3 rm s3://udapeople-${OldWorkflowID:11:17} --recursive
-                aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID:11:17}
-                aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID:11:17}
+                echo " old wf id is ${OldWorkflowID:10:16}. Deleting..."
+                aws s3 rm s3://udapeople-${OldWorkflowID:10:16} --recursive
+                aws cloudformation delete-stack --stack-name udapeople-backend-${OldWorkflowID:10:16}
+                aws cloudformation delete-stack --stack-name udapeople-frontend-${OldWorkflowID:10:16}
               fi
 
 workflows:
