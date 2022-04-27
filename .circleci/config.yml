@@ -426,11 +426,11 @@ jobs:
             command: |
               # your code here
               echo "current dir is $PWD"
-              OldWorkflowID=$(< ~/project/OldWorkflowID.txt)
-              echo OldWorkflowID is "${OldWorkflowID}"
+              OldWorkflowString=$(< ~/project/OldWorkflowID.txt)
+              echo OldWorkflowString is "${OldWorkflowString}"
 
-              OldWorkflowIDtwo = 'cat ~/project/OldWorkflowID.txt'
-              echo two is "$OldWorkflowIDtwo"
+              OldWorkflowID = cut -d - -f 2 <<< $OldWorkflowString
+              echo OldWorkflowID cut short is "${OldWorkflowID}"
 
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
               # Fetch the stack names          
