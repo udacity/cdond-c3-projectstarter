@@ -415,7 +415,9 @@ jobs:
             name: Get old stack workflow id and Remove old stacks and files
             command: |
               # your code here
-              export OldWorkflowID=$(aws cloudformation list-exports --query "Exports[?Name==\'WorkflowID\'].Value" --no-paginate --output text)
+              export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name=='WorkflowID'].Value" \
+              --no-paginate --output text)
 
               echo OldWorkflowID: "${OldWorkflowID}"
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
