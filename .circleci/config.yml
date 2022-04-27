@@ -402,6 +402,10 @@ jobs:
 
             echo OldWorkflowID: "${OldWorkflowID}"
             echo Current Workflow Id: "${CIRCLE_WORKFLOW_ID:0:7}"
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - ~/OldWorkflowID.txt
       - destroy-environment:
           workflowId: "${CIRCLE_WORKFLOW_ID:0:7}"
       - revert-migrations:
@@ -412,15 +416,17 @@ jobs:
         - image: amazon/aws-cli
       steps:
         - checkout
+        - attach_workspace:
+            at: ~/
         - run:
             name: Get old stack workflow id and Remove old stacks and files
             command: |
               # your code here
               echo "current dir is $PWD"
-              OldWorkflowID=$(< OldWorkflowID.txt)
+              OldWorkflowID=$(< ~/OldWorkflowID.txt)
               echo OldWorkflowID is "${OldWorkflowID}"
 
-              OldWorkflowIDtwo = 'cat OldWorkflowID.txt'
+              OldWorkflowIDtwo = 'cat ~/OldWorkflowID.txt'
               echo two is "$OldWorkflowIDtwo"
 
               echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
