@@ -193,7 +193,8 @@ jobs:
       # Here's where you will add some code to rollback on failure      
                     
   deploy-backend:
-    docker:
+  
+    docker:  
       # Docker image here that supports Ansible
     steps:
       # Checkout code from git
@@ -210,7 +211,7 @@ jobs:
       # Here's where you will add some code to rollback on failure  
 
   smoke-test:
-    docker:
+    docker: 
       # Lightweight Docker image 
     steps:
       # Checkout code from git
