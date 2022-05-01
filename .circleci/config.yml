@@ -35,7 +35,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: cimg/node:18.0.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -53,7 +53,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: cimg/node:18.0.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -70,7 +70,7 @@ jobs:
           key: backend-build
   test-frontend:
     docker:
-      - image: cimg/node:18.0.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -79,14 +79,13 @@ jobs:
           name: frontend test
           command: | 
             cd frontend
-            npm install
             npm run test
 
 
                 
   test-backend:
     docker:
-      - image: cimg/node:18.0.0
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -95,7 +94,6 @@ jobs:
           name: backend test
           command: | 
             cd backend
-            npm install
             npm run test
 
 
