@@ -232,7 +232,7 @@ jobs:
             # your code here
       # Here's where you will add some code to rollback on failure  
 
-  cloudfront-update:
+  #cloudfront-update:
     docker:
       # Docker image here that supports AWS CLI
     steps:
