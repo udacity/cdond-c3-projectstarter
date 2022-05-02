@@ -45,8 +45,6 @@ jobs:
           command: |
             cd frontend
             npm install
-            npm instal <node_modules>
-            npm fund
             npm audit fix --audit-level=critical --force
             npm run build
             
@@ -66,8 +64,6 @@ jobs:
           command: |
             cd backend
             npm install 
-            npm instal <node_modules>
-            npm fund
             npm audit fix --audit-level=critical --force
             npm run build 
             
