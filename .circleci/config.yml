@@ -1,5 +1,6 @@
 version: 2.1
-
+orbs:
+ 
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -96,7 +97,7 @@ jobs:
           name: backend test
           command: | 
             cd backend
-            npm i 
+             
             npm run test
 
   scan-frontend:
