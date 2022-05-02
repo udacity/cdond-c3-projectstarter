@@ -80,7 +80,7 @@ jobs:
           name: frontend test
           command: | 
             cd frontend
-            npm audit fix --audit-level=critical --force
+            npm i
             npm run test
 
 
@@ -96,7 +96,7 @@ jobs:
           name: backend test
           command: | 
             cd backend
-            npm audit fix --audit-level=critical --force
+            npm i 
             npm run test
 
   scan-frontend:
