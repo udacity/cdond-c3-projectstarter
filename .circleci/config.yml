@@ -44,9 +44,6 @@ jobs:
           name: Build front-end
           working_directory: ./frontend
           command: |
-            cd frontend
-            npm install
-            npm run build
             exit 1
       - save_cache:
           paths: [frontend/node_modules]
@@ -63,9 +60,6 @@ jobs:
           name: Back-end build
           working_directory: ./backend
           command: |
-            cd backend
-            npm install
-            npm run build
             exit 1
       - save_cache:
           paths: [backend/node_modules]
