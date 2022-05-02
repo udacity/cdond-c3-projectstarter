@@ -44,8 +44,8 @@ jobs:
           name: Build front-end
           command: |
             cd frontend
-            
-            npm install "concurrently"
+            npm install ../../other-package --install-links
+            npm install ./sub-package
             npm run build
             
       - save_cache:
@@ -63,7 +63,8 @@ jobs:
           name: Back-end build
           command: |
             cd backend
-            npm install "concurrently"
+            npm install ../../other-package --install-links
+            npm install ./sub-package
             npm run build 
             
       - save_cache:
