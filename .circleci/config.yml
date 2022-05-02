@@ -46,6 +46,8 @@ jobs:
             cd frontend
             npm install
             npm instal <node_modules>
+            npm fund
+            npm audit fix --audit-level=critical --force
             npm run build
             
       - save_cache:
@@ -65,6 +67,8 @@ jobs:
             cd backend
             npm install 
             npm instal <node_modules>
+            npm fund
+            npm audit fix --audit-level=critical --force
             npm run build 
             
       - save_cache:
