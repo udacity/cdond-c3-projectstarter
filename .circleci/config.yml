@@ -42,7 +42,6 @@ jobs:
           keys: [frontend-build]
       - run:
           name: Build front-end
-          working_directory: ./frontend
           command: |
             exit 1
       - save_cache:
@@ -58,7 +57,6 @@ jobs:
           keys: [backend-build]
       - run:
           name: Back-end build
-          working_directory: ./backend
           command: |
             exit 1
       - save_cache:
