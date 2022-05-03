@@ -37,7 +37,6 @@ jobs:
             npm install
             npm run build
             npm audit --audit-level=critical
-            exit 1
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-build
@@ -56,7 +55,6 @@ jobs:
             npm install
             npm run build
             npm audit --audit-level=critical
-            exit 1
       - save_cache:
           paths: [backend/node_modules]
           key: backend-build
