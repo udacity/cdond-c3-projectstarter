@@ -149,14 +149,15 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
           command: |
             aws cloudformation deploy \
               --template-file .circleci/files/backend.yml \
               --tags project=udapeople \
-               --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"  \
-               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"   
+              --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}"  \
+              --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"   
       
       - run:
           name: Ensure front-end infrastructure exist
@@ -172,7 +173,7 @@ jobs:
           command: |
             aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=!Sub backend-${ID}" \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --output text >> inventory
             
       - persist_to_workspace:
