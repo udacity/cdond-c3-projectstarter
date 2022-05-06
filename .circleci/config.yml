@@ -322,10 +322,10 @@ workflows:
       #   requires: [build-frontend]
       - deploy-infrastructure
       #    requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure] 
-      - run-migrations:
-          requires: [configure-infrastructure]
+      #- configure-infrastructure:
+      #    requires: [deploy-infrastructure] 
+      - run-migrations
+      #    requires: [configure-infrastructure]
       - deploy-frontend:
           requires: [run-migrations]
           
