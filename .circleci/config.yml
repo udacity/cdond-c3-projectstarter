@@ -315,22 +315,16 @@ jobs:
       - attach_workspace:
           at: .
       - run:
-          name: Install dependencies
+          name: Install dependencies apt
           command: |
-            sudo apt update && sudo apt install
-      - run: 
-          name: Install AWS dependencies
-          command: | 
-            sudo apt upgrade && sudo apt install
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
-      - run:
-          name: install node
-          command: | 
-            npm install 
+            apk add --update ansible
+            apk add --update gzip
+            apk add --update tar
+            apk add --update npm
+            apk add --update nodejs
+            apk add --update curl
+            pip install awscli
     
-        
       - run:
           name: updating env variables
           command: |
