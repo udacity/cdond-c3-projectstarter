@@ -216,7 +216,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:13.8.0
+      - image: cimg/node:12.22.12
     steps:
       - checkout
       - restore_cache:
