@@ -235,14 +235,12 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm install
+            npm i
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
+            npm audit fix --audit-level=critical --force
             npm run build
-            npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
-            npm audit --audit-level=critical
-            
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
            
