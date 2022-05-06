@@ -236,11 +236,9 @@ jobs:
           command: |
             cd backend
             npm i
+            npm run build --force
             npm audit fix --audit-level=critical --force
             npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
-            npm audit fix --audit-level=critical --force
-            
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
            
