@@ -235,7 +235,7 @@ jobs:
           name: Run migrations
           no_output_timeout: 30m
           command: |
-            cat backend
+            cd backend
             npm install 
             npm run build
             npm run migrations > migrations_dump.txt
