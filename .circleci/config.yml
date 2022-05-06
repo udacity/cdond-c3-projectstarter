@@ -21,7 +21,7 @@ commands:
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}   
       - run:  
           name: Destroy S3 bucket        
-          When: on-fail
+          When: on_fail
           command: |
             aws s3 rm s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
             aws s3 rb s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --force
@@ -32,7 +32,7 @@ commands:
     steps:
       - run:
           name: Revert migrations
-          when: on-fail
+          when: on_fail
           command: |
             SUCCESS=$(curl --insecure  https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7})         
             if(( $SUCCESS==1 )); 
