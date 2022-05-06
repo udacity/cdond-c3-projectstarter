@@ -213,7 +213,8 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt configure-server.yml
             
-      - destroy-environment      
+      - destroy-environment    
+
   run-migrations:
     docker:
       - image: cimg/node:13.8.0
@@ -243,9 +244,9 @@ jobs:
             fi
             
       - destroy-environment  
-      - 
+      - revert-migrations
 
-   deploy-frontend:
+  deploy-frontend:
     docker:
       - image: cimg/node:13.8.0
     steps:
