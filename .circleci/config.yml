@@ -216,7 +216,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: cimg/node:12.22.12
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - restore_cache:
@@ -233,11 +233,10 @@ jobs:
 
       - run:
           name: Run migrations
+          no_output_timeout: 30m
           command: |
             cd backend
-            npm install 
-            npm run migrations > migrations_dump.txt
-            cat migrations_dump.txt
+            npm run migrations > migration_status
            
       - run:
           name: Send migration status to kvdb.io 
