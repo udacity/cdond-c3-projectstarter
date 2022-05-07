@@ -223,11 +223,7 @@ jobs:
 
     steps:
       - checkout
-      - restore_cache: 
-          keys: [backend-build]   
-      - attach_workspace:
-          at: .
-    
+      
       - run: 
           name: Install AWS dependencies
           command: | 
