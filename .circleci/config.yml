@@ -176,6 +176,7 @@ jobs:
           name: Install tar utility
           command: |
             yum install -y tar gzip
+            pwd
       - run:
           name: Add back-end ip to ansible inventory
           command: |
@@ -184,13 +185,23 @@ jobs:
             --filters "Name=tag:project,Values=udapeople_backend" \
             --output text >> .circleci/ansible/inventory.txt
       - run: 
+          name: ay 7aga tanya
+          command: |
+            pwd
+      - run: 
           name: ay 7aga
-          command: 
+          command: |
             cat .circleci/ansible/inventory.txt
+      
       - persist_to_workspace:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      
+      - slack/notify:
+          channel: cicd
+          event: fail
+          template: basic_fail_1
       # Here's where you will add some code to rollback on failure      
 
 #   configure-infrastructure:
