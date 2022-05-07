@@ -1,38 +1,22 @@
----
-
-- name: update packages
-  become: yes
+- name: "Updating APT Packages."
   apt:
     update_cache: yes
+
+- name: "Upgrading APT Packages."
+  apt:
     upgrade: yes
 
-
-- name: install dependencies
-  become: yes
+- name: "Installing Utilities."
   apt:
-    name: 
-      - nodejs
-      - npm  
+    name: [ "zip", "unzip", "tar" ]
     state: latest
     update_cache: yes
 
-
-- name: install nodejs prerequisites
-  apt:
-    name:
-      - apt-transport-https
-      - gcc
-      - g++
-      - make
-    state: present
-
-- name: install node 
+- name: install node
   shell: |
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - && sudo apt-get install -y nodejs
-
-
-- name: "install pm2"
-  become: yes
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - && sudo apt-get install -y nodejs
+    
+- name: "Installing pm2"
   npm:
     name: pm2
     global: yes
