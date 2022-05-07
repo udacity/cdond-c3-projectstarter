@@ -264,6 +264,7 @@ jobs:
                 # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
                 curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
+            cat /home/circleci/.npm/_logs/2022-05-07T20_37_21_805Z-debug.log
 #      # Here's where you will add some code to rollback on failure      
 
 #   deploy-frontend:
