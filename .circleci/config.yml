@@ -236,15 +236,6 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
 
-      - run:
-          name: git clone backend dir to ansible machine 
-          command: |
-            sudo apt update
-            sudo apt install git
-            cd /home/ubuntu
-            git clone https://github.com/rehamgad-1994925/c3-projectstarter-Udacity.git 
-            
-
 
       - run:
           name: Run migrations

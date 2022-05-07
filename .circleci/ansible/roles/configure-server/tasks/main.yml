@@ -16,6 +16,10 @@
       state: latest
       update_cache: yes
 
+- name: "install nodejs 13.8.0"
+  become: yes
+  shell: n 13.8.0
+
 - name: "install pm2"
   become: yes
   npm:
@@ -39,4 +43,3 @@
     sudo apt-get -y update
     sudo apt-get -y install docker-ce docker-ce-cli containerd.io docker-compose-plugin
     sudo docker run --name some-postgres -e POSTGRES_PASSWORD=mypassword -d -p 5432:5432 postgres 
-    
