@@ -193,10 +193,10 @@ jobs:
           command: |
             cat .circleci/ansible/inventory.txt
       
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/.circleci/ansible/inventory.txt
+      # - persist_to_workspace:
+      #     root: ~/
+      #     paths:
+      #       - project/.circleci/ansible/inventory.txt
       
       - slack/notify:
           channel: cicd
