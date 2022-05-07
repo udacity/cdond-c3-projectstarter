@@ -243,6 +243,10 @@ jobs:
               echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
               echo "ENVIRONMENT: production" >> backend/.env
 
+      - persist_to_workspace:
+          root: .
+          paths:
+            - backend/.env
 
 
       - run:
@@ -395,7 +399,10 @@ jobs:
             export BACKEND_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text )
+            echo ${BACKEND_IP}
             export API_URL="http://${BACKEND_IP}:3030"
+            
+            
             echo "${API_URL}"
             curl "${API_URL}/api/status"
             echo curl "${API_URL}/api/status" 
@@ -440,12 +447,7 @@ workflows:
           requires: [test-frontend, test-backend, scan-frontend, scan-backend]
       - configure-infrastructure:
           requires: [deploy-infrastructure] 
-      #- run-migrations:
-          #requires: [configure-infrastructure]
-      - deploy-frontend:
+      - run-migrations:
           requires: [configure-infrastructure]
-      - deploy-backend:
-          requires: [configure-infrastructure]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+      
           
