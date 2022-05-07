@@ -203,6 +203,7 @@ jobs:
       
       - run:
           name: Install dependencies
+
           command: |
             apk add --update ansible
             
@@ -219,10 +220,13 @@ jobs:
   run-migrations:
     docker:
       - image: cimg/node:13.8.0
+
     steps:
       - checkout
-      - attach_workspace:
-          at: .
+      - restore_cache: 
+          keys: [backend-build]   
+    #  - attach_workspace:
+     #     at: .
     
       - run: 
           name: Install AWS dependencies
