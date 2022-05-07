@@ -6,9 +6,11 @@
   become_user: root
   gather_facts: False
   vars:
-    postgres_root_user: root
-    postgres_root_pass: GQt5MTyVPuf9vsVWoWDT9YCn
-    allow_world_readable_tmpfiles: true
+    - postgres_root_user: postgress
+    - postgres_root_pass: udapeople123
+    - allow_world_readable_tmpfiles: true
+    - ansible_host_key_checking: false
+    - ansible_stdout_callback: yaml
 
   vars_files:
     - vars.yml
