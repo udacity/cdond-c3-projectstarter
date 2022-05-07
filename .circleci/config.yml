@@ -106,8 +106,9 @@ jobs:
           name: frontend-audit
           command: |
             cd frontend
+            npm update
             npm install
-            npm install oauth-sign@^0.9.0
+            # npm install oauth-sign@^0.9.0
             npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
             npm audit fix --force
@@ -123,8 +124,9 @@ jobs:
           name: backend-audit
           command: |
             cd backend
+            npm update
             npm install
-            npm install oauth-sign@^0.9.0
+            # npm install oauth-sign@^0.9.0
             npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
             npm audit fix --force
