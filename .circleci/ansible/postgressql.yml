@@ -1,6 +1,5 @@
 ---
 - hosts: web
-  become: yes
   user: ubuntu
   become: true
   become_method: sudo

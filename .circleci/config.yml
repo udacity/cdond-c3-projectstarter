@@ -200,7 +200,13 @@ jobs:
             - "42:c3:20:c0:bb:0d:7f:d8:af:d2:1b:be:87:ff:f9:eb"
       - attach_workspace:
           at: .
-
+      - run: 
+          name: Install AWS dependencies
+          command: | 
+            sudo apt upgrade && sudo apt install
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Install dependencies
           command: |
