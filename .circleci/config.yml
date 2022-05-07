@@ -226,7 +226,7 @@ jobs:
           name: Run playbook and config server
           command: |
             pwd
-            ansible-playbook -i inventory configure-server.yml
+            ansible-playbook -i inventory ../configure-server.yml
       - run:
           name: Install dependencies
           command: |
