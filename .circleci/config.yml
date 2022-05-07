@@ -2,7 +2,6 @@ version: 2.1
 
 orbs: 
   slack: circleci/slack@4.10.1
-# 
 
 commands:
    install_ansible:
@@ -15,6 +14,19 @@ commands:
             sudo apt install software-properties-common
             sudo add-apt-repository --yes --update ppa:ansible/ansible
             sudo apt install ansible
+
+   install_dependancies:
+    description: "Installs dependancies"
+    steps:
+      - run: 
+          name: "Install dep"
+          command: |
+            sudo apt-get update
+            sudo apt-get install awscli
+            aws --version
+            sudo apt install nodejs
+            node -v
+            sudo apt install npm
 #   destroy-environment:
 #     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
 #     parameters:
@@ -220,18 +232,10 @@ jobs:
     steps:
       - checkout
       - install_ansible
+      - install_dependancies
       - add_ssh_keys:
           fingerprints: ["44:b9:4f:3c:7a:bb:29:c3:75:79:6e:c4:16:ff:d4:52"]
-      
-      - run:
-          name: Install dependencies
-          command: |
-            sudo apt-get update
-            sudo apt-get install awscli
-            aws --version
-            sudo apt install nodejs
-            node -v
-            sudo apt install npm
+            
       - run:
           name: Run playbook and config server
           command: |
