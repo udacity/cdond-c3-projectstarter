@@ -10,13 +10,12 @@
 - name: install dependencies
   become: yes
   apt:
-      name: 
-        - nodejs
-        - npm  
-      state: latest
-      update_cache: yes
+    name: 
+      - nodejs
+      - npm  
+    state: latest
+    update_cache: yes
 
----
 
 - name: install nodejs prerequisites
   apt:
@@ -36,7 +35,7 @@
     repo: deb https://deb.nodesource.com/node_13.x {{ ansible_lsb.codename }} main
     state: present
     update_cache: yes
-    
+
 - name: install nodejs
   apt:
     name: nodejs
