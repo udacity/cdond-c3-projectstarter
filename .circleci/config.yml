@@ -222,10 +222,7 @@ jobs:
       - install_ansible
       - add_ssh_keys:
           fingerprints: ["44:b9:4f:3c:7a:bb:29:c3:75:79:6e:c4:16:ff:d4:52"]
-      - run:
-          name: Run playbook and config server
-          command: |
-            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+      
       - run:
           name: Install dependencies
           command: |
@@ -235,14 +232,17 @@ jobs:
             sudo apt install nodejs
             node -v
             sudo apt install npm
-            
-
       - run:
-          name: Configure server
+          name: Run playbook and config server
           command: |
-            # Your code here
-            exit 1
-      # Here's where you will add some code to rollback on failure      
+            ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
+
+      # - run:
+      #     name: Configure server
+      #     command: |
+      #       # Your code here
+      #       exit 1
+      # # Here's where you will add some code to rollback on failure      
 
 #   run-migrations:
 #     docker:
