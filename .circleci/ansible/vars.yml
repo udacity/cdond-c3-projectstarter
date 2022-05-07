@@ -1,0 +1,4 @@
+---
+db_user: postgres
+db_password: udapeople123
+db_name: udapeople

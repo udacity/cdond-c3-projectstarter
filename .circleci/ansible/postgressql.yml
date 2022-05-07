@@ -1,0 +1,83 @@
+---
+- hosts: web
+  become: yes
+
+  vars_files:
+    - vars.yml
+
+  pre_tasks:
+    - name: "Install packages"
+      dnf: "name={{ item }} state=present"
+      with_items:
+        - postgresql
+        - postgresql-server
+
+    - name: "Install Python packages"
+      pip: "name={{ item }}  state=present"
+      with_items:
+        - psycopg2-binary
+
+  tasks:
+    - name: "Find out if PostgreSQL is initialized"
+      ansible.builtin.stat:
+        path: "/var/lib/pgsql/data/pg_hba.conf"
+      register: postgres_data
+
+    - name: "Initialize PostgreSQL"
+      shell: "postgresql-setup initdb"
+      when: not postgres_data.stat.exists
+ 
+    - name: "Start and enable services"
+      service: "name={{ item }} state=started enabled=yes"
+      with_items:
+        - postgresql
+
+    - name: "Create app database"
+      postgresql_db:
+        state: present
+        name: "{{ db_name }}"
+      become: yes
+      become_user: postgres
+
+    - name: "Create db user"
+      postgresql_user:
+        state: present
+        name: "{{ db_user }}"
+        password: "{{ db_password }}"
+      become: yes
+      become_user: postgres
+
+    - name: "Grant db user access to app db"
+      postgresql_privs:
+        type: database
+        database: "{{ db_name }}"
+        roles: "{{ db_user }}"
+        grant_option: no
+        privs: all
+      become: yes
+      become_user: postgres
+
+    - name: "Allow md5 connection for the db user"
+      postgresql_pg_hba:
+        dest: "~/data/pg_hba.conf"
+        contype: host
+        databases: all
+        method: md5
+        users: "{{ db_user }}"
+        create: true
+      become: yes
+      become_user: postgres
+      notify: restart postgres
+ 
+    - name: "Load SQL script into a variable"
+      set_fact:
+        migration_sql: "{{ lookup('file', 'conf/migration.sql') }}"
+
+    - name: "Execute script from variable"
+      command: "psql {{ db_name }} -c {{ migration_sql }}"
+      become_user: postgres
+      register: sql_response_variable
+
+  handlers:
+    - name: restart postgres
+      service: name=postgresql state=restarted
