@@ -1,2 +1,2 @@
 [web]
-172.31.22.230
+ec2-54-203-100-67.us-west-2.compute.amazonaws.com
