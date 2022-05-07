@@ -229,7 +229,6 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            yum install -y tar gzip
             sudo apt-get update
             sudo apt-get install awscli
             aws --version
