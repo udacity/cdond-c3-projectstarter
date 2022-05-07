@@ -9,6 +9,7 @@
     - postgres_root_user: postgress
     - postgres_root_pass: udapeople123
     - allow_world_readable_tmpfiles: true
+    - ansible_python_interpreter: /usr/bin/python3
     - ansible_host_key_checking: false
     - ansible_stdout_callback: yaml
 
