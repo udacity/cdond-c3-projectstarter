@@ -227,7 +227,7 @@ jobs:
           channel: cicd
           event: fail
           template: basic_fail_1
-      - destroy-environment   
+      # - destroy-environment   
 
   configure-infrastructure:
     docker:
@@ -243,7 +243,7 @@ jobs:
           name: Run playbook and config server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      - destroy-environment 
+      # - destroy-environment 
 
   run-migrations:
     docker:
