@@ -40,6 +40,7 @@ commands:
               npm install
               npm run migration:revert
             fi
+
             
 jobs:
   build-frontend:
@@ -219,9 +220,7 @@ jobs:
       - image: cimg/node:13.8.0
     steps:
       - checkout
-      - restore_cache:
-          keys: [backend-build]
-      
+    
       - run: 
           name: Install AWS dependencies
           command: | 
@@ -230,32 +229,14 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
 
-      - run:
-            name: updating env variables
-            command: |
-              echo "TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> backend/.env
-              echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> backend/.env
-              echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
-              echo "TYPEORM_HOST=${TYPEORM_HOST}" >> backend/.env
-              echo "TYPEORM_PORT=${TYPEORM_PORT}" >> backend/.env
-              echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> backend/.env
-              echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> backend/.env
-              echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
-              echo "ENVIRONMENT: production" >> backend/.env
-
-      - persist_to_workspace:
-          root: .
-          paths:
-            - backend/.env
+     
 
 
       - run:
           name: Run migrations
-          no_output_timeout: 30m
           command: |
             cd backend
             npm install 
-            npm run build
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
            
@@ -265,9 +246,8 @@ jobs:
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
             #If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
-              curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d 1
-            else
-              curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d  0
+              curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+            
             fi
             
       - destroy-environment  
