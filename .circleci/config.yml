@@ -27,36 +27,39 @@ commands:
             sudo apt install nodejs
             node -v
             sudo apt install npm
-#   destroy-environment:
-#     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-#     parameters:
-#       # Add parameter here   
-#     steps:
-#       - run:
-#           name: Destroy environments
-#           when: on_fail
-#           command: |
-#             # Your code here
-#             exit 1
+   destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflow_ID:
+        type: string
+        default: ${CIRCLE_WOEKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend_<< parameters.Workflow_ID>>
+            aws s3 rm s3://udapeople_<< parameters.Workflow_ID>> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend_<<parameters.Workflow_ID>>
 
-#   revert-migrations:
-#     description: Revert the last migration if successfully run in the current workflow.
-#     parameters:
-#       # Add parameter here     
-#     steps:
-#       - run:
-#           name: Revert migrations
-#           # Add when this will run
-#           command: |
-#             # Curl command here to see if there was a successful migration associated with the workflow id, store result in SUCCESS variable
-#             SUCCESS = 1
-#             if(( $SUCCESS==1 )); 
-#             then
-#             #  cd ~/project/backend
-#             #  npm install
-#             #  Add revert code here. You can find this in the Getting Started section.
-#               exit 1
-#             fi
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      Workflow_ID:
+        type: string
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Revert migrations
+          when: on fail
+          command: |
+            SUCCESS = $(curl --insecure  https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if(( $SUCCESS==1 )); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migration:revert
+            fi
             
 jobs:
   build-frontend:
@@ -224,7 +227,7 @@ jobs:
           channel: cicd
           event: fail
           template: basic_fail_1
-      # Here's where you will add some code to rollback on failure      
+      - destroy-environment   
 
   configure-infrastructure:
     docker:
@@ -240,13 +243,19 @@ jobs:
           name: Run playbook and config server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      # # Here's where you will add some code to rollback on failure      
+      - destroy-environment 
 
   run-migrations:
     docker:
       - image: circleci/node:13.8.0
     steps:
       - checkout
+      - run:
+          name: install aws
+          command: |
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Run migrations
           command: |
@@ -255,17 +264,16 @@ jobs:
             # Run and save the migration output
             npm run migrations > migrations_dump.txt
       - run:
-          name: Send migration results to memstash
+          name: Send migration results to kvdb.io
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-                # If you are using memstash.io, generate the token "7933fe63-4687-4fa1-8426-aa25aa1730ec" on the website
-                curl -H "Content-Type: text/plain" -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
                 # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
-                curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+                curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
             cat /home/circleci/.npm/_logs/2022-05-07T20_37_21_805Z-debug.log
-#      # Here's where you will add some code to rollback on failure      
+      - destroy-environment   
+      - revert-migration  
 
 #   deploy-frontend:
 #     docker:
