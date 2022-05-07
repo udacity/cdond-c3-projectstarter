@@ -225,7 +225,8 @@ jobs:
       - run:
           name: Run playbook and config server
           command: |
-            ansible-playbook -i inventory ansible/configure-server.yml
+            pwd
+            ansible-playbook -i inventory configure-server.yml
       - run:
           name: Install dependencies
           command: |
