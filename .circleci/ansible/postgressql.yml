@@ -17,20 +17,24 @@
 
   pre_tasks:
     - name: "Install packages"
-      dnf: "name={{ item }} state=present"
-      with_items:
-        - postgresql
-        - postgresql-server
+      dnf:
+        name: 
+          - postgresql
+          - postgresql-server
+        state: present
+      
+        
 
     - name: "Install Python packages"
-      pip: "name={{ item }}  state=present"
-      with_items:
-        - psycopg2-binary
+      pip: 
+        name: psycopg2-binary
+        state: present
+      
 
   tasks:
     - name: "Find out if PostgreSQL is initialized"
       ansible.builtin.stat:
-        path: "/var/lib/pgsql/data/pg_hba.conf"
+      path: "/var/lib/pgsql/data/pg_hba.conf"
       register: postgres_data
 
     - name: "Initialize PostgreSQL"
@@ -38,9 +42,11 @@
       when: not postgres_data.stat.exists
  
     - name: "Start and enable services"
-      service: "name={{ item }} state=started enabled=yes"
-      with_items:
-        - postgresql
+      service: 
+        name: postgresql
+        state: started 
+        enabled: yes
+      
 
     - name: "Create app database"
       postgresql_db:
@@ -61,7 +67,7 @@
       postgresql_privs:
         type: database
         database: "{{ db_name }}"
-        roles: "{{ db_user }}"
+        roles: "{{ db_user}}"
         grant_option: no
         privs: all
       become: yes
