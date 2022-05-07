@@ -217,11 +217,13 @@ jobs:
       - destroy-environment    
 
   run-migrations:
-    executor: node
+    docker:
+      - image: cimg/node:13.8.0
     steps:
       - checkout
       - attach_workspace:
           at: .
+    
       - run: 
           name: Install AWS dependencies
           command: | 
