@@ -1,4 +1,4 @@
 ---
-db_user: postgres
-db_password: udapeople123
+postgres_root_user: postgres
+postgres_root_pass: udapeople123
 db_name: udapeople

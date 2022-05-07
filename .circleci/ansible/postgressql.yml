@@ -1,98 +1,100 @@
 ---
-- hosts: web
+- name: Install and set up Postgres 14 in Ubuntu 20.04
+  hosts: web
   user: ubuntu
-  become: true
-  become_method: sudo
-  become_user: root  
-  gather_facts: false
+  become: yes
+  become_user: root
+  gather_facts: False
   vars:
-    - ansible_python_interpreter: /usr/bin/python3
-    - ansible_host_key_checking: false
-    - ansible_stdout_callback: yaml
-  
+    postgres_root_user: root
+    postgres_root_pass: GQt5MTyVPuf9vsVWoWDT9YCn
+    allow_world_readable_tmpfiles: true
 
   vars_files:
     - vars.yml
-
-  pre_tasks:
-    - name: "Install packages"
-      dnf:
-        name: 
-          - postgresql
-          - postgresql-server
-        state: present
-      
-        
-
-    - name: "Install Python packages"
-      pip: 
-        name: psycopg2-binary
-        state: present
-      
-
   tasks:
-    - name: "Find out if PostgreSQL is initialized"
-      ansible.builtin.stat:
-        path: "/var/lib/pgsql/data/pg_hba.conf"
-      register: postgres_data
+    - name: Update apt repo and cache on all Ubuntu boxes
+      apt:
+        update_cache: yes
+        force_apt_get: yes
+        cache_valid_time: 3600
 
-    - name: "Initialize PostgreSQL"
-      shell: "postgresql-setup initdb"
-      when: not postgres_data.stat.exists
- 
-    - name: "Start and enable services"
-      service: 
-        name: postgresql
-        state: started 
-        enabled: yes
-      
+    - name: Upgrade all packages on servers
+      apt:
+        upgrade: dist
+        force_apt_get: yes
 
-    - name: "Create app database"
-      postgresql_db:
+    - name: Install required packages
+      apt:
+        name:
+          - wget
+          - python3-psycopg2
+          - acl
+        state: latest
+
+    - name: Set up Postgres 14 repo
+      shell: |
+        echo "deb http://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" > /etc/apt/sources.list.d/pgdg.list
+        wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      args:
+        warn: no
+
+    - name: Install postgresql
+      apt:
+        name: postgresql-14
+        update_cache: yes
+      notify:
+        - Enable Postgresql
+
+    - name: Ensure PostgreSQL is listening on *
+      lineinfile:
+        dest: /etc/postgresql/14/main/postgresql.conf
+        regexp: '^listen_addresses\s*='
+        line: "listen_addresses='*'"
         state: present
-        name: "{{ db_name }}"
+      notify: Restart Postgresql
+
+    - name: Add new configuration to "pg_hba.conf"
+      blockinfile:
+        dest: /etc/postgresql/14/main/pg_hba.conf
+        block: |
+          host    all             all             0.0.0.0/0                md5
+          host    all             all             ::/0                     md5
+      notify: Restart Postgresql
+
+    - name: Change peer identification to trust
+      shell: /bin/sed -i '/^local/s/peer/trust/' /etc/postgresql/14/main/pg_hba.conf
+      args:
+        warn: no
+      notify: Restart Postgresql
+
+    - name: Create a Superuser PostgreSQL database user
       become: yes
       become_user: postgres
-
-    - name: "Create db user"
       postgresql_user:
+        name: '{{ postgres_root_user }}'
+        password: '{{ postgres_root_pass }}'
+        role_attr_flags: CREATEDB,SUPERUSER,CREATEROLE
+        encrypted: yes
         state: present
-        name: "{{ db_user }}"
-        password: "{{ db_password }}"
-      become: yes
-      become_user: postgres
-
-    - name: "Grant db user access to app db"
-      postgresql_privs:
-        type: database
-        database: "{{ db_name }}"
-        roles: "{{ db_user}}"
-        grant_option: no
-        privs: all
-      become: yes
-      become_user: postgres
-
-    - name: "Allow md5 connection for the db user"
-      postgresql_pg_hba:
-        dest: "~/data/pg_hba.conf"
-        contype: host
-        databases: all
-        method: md5
-        users: "{{ db_user }}"
-        create: true
-      become: yes
-      become_user: postgres
-      notify: restart postgres
- 
-    - name: "Load SQL script into a variable"
-      set_fact:
-        migration_sql: "{{ lookup('file', 'conf/migration.sql') }}"
-
-    - name: "Execute script from variable"
-      command: "psql {{ db_name }} -c {{ migration_sql }}"
-      become_user: postgres
-      register: sql_response_variable
 
   handlers:
-    - name: restart postgres
-      service: name=postgresql state=restarted
+    - name: Restart Postgresql
+      systemd:
+        name: postgresql
+        state: restarted
+
+    - name: Start Postgresql
+      systemd:
+        name: postgresql
+        state: started
+
+    - name: Stop Postgresql
+      systemd:
+        name: postgresql
+        state: stopped
+
+    - name: Enable Postgresql
+      systemd:
+        name: postgresql
+        enabled: yes
