@@ -384,8 +384,8 @@ jobs:
             
             
             echo "${API_URL}"
-           curl "${API_URL}/api/status"
-           echo curl "${API_URL}/api/status" 
+            curl "${API_URL}/api/status"
+            echo curl "${API_URL}/api/status" 
             if curl "${API_URL}/api/status" | grep "ok"
             then
               return 0
