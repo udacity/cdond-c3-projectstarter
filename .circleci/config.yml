@@ -259,7 +259,7 @@ jobs:
                   curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/hfew3q89/migration_${CIRCLE_WORKFLOW_ID:0:7}/1 -d "Content-Length: 1024"
               fi      
             
-      - destroy-environment  
+      #- destroy-environment  
       
 
   deploy-frontend:
