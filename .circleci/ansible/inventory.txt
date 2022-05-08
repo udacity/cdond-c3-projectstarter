@@ -1,2 +1,2 @@
 [web]
-
+ec2-54-191-222-69.us-west-2.compute.amazonaws.com
