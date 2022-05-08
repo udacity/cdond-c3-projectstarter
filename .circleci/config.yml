@@ -27,20 +27,20 @@ commands:
             sudo apt install nodejs
             node -v
             sudo apt install npm
-  #  destroy-environment:
-  #   description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-  #   parameters:
-  #     workflow_ID:
-  #       type: string
-  #       default: ${CIRCLE_WOEKFLOW_ID:0:7}
-  #   steps:
-  #     - run:
-  #         name: Destroy environments
-  #         when: on_fail
-  #         command: |
-  #           aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID>>
-  #           aws s3 rm s3://udapeople-<< parameters.Workflow_ID>> --recursive
-  #           aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.Workflow_ID>>
+   destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflow_ID:
+        type: string
+        default: ${CIRCLE_WOEKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID>>
+            aws s3 rm s3://udapeople-<< parameters.Workflow_ID>> --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.Workflow_ID>>
 
    revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -223,7 +223,7 @@ jobs:
           channel: cicd
           event: fail
           template: basic_fail_1
-      # - destroy-environment   
+      - destroy-environment   
 
   configure-infrastructure:
     docker:
@@ -239,7 +239,7 @@ jobs:
           name: Run playbook and config server
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      # - destroy-environment 
+      - destroy-environment 
       - slack/notify:
           channel: cicd
           event: fail
@@ -260,13 +260,6 @@ jobs:
           keys: [db-migrations]
 
       - run:
-          name: wasalt l hena
-          command: |
-            echo "hiiii------>"
-            aws --version
-            npm --version
-
-      - run:
           name: Run migrations
           command: |
             cd backend
@@ -283,33 +276,53 @@ jobs:
                 # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
                 curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      # - destroy-environment   
+      - destroy-environment   
       - revert-migrations
       - slack/notify:
           channel: cicd
           event: fail
           template: basic_fail_1
 
-#   deploy-frontend:
-#     docker:
-#       # Docker image here that supports AWS CLI
-#     steps:
-#       # Checkout code from git
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # your code here
-#       - run:
-#           name: Get backend url
-#           command: |
-#             # your code here
-#             export API_URL="http://${BACKEND_IP}:3030"
-#             echo "${API_URL}"
-#       - run:
-#           name: Deploy frontend objects
-#           command: |
-#             # your code here
-#       # Here's where you will add some code to rollback on failure      
+  deploy-frontend:
+    docker:
+      - image: amazon/aws-cli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            - install_ansible
+            - install_dependancies
+      - restore_cache:
+          keys: [frontend-deps]
+      - run: 
+          name: install npm dependancies
+          command: |
+            cd frontend
+            npm install
+            
+      - run:
+          name: Get backend url
+          command: |
+            BACKEND_IP= $(aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --filters "Name=tag:project,Values=udapeople_backend" \
+            --output text)
+            export API_URL="http://${BACKEND_IP}:3030"
+            # echo "${API_URL}"
+            echo "API_URL = ${API_URL}"
+            echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+      - destroy-environment 
+      - revert-migrations
                     
 #   deploy-backend:
 #     docker:
@@ -389,27 +402,27 @@ jobs:
 workflows:
   my_workflow:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [master]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      - deploy-frontend
+          # requires: [run-migrations]
       # - deploy-backend:
       #     requires: [run-migrations]
       # - smoke-test:
