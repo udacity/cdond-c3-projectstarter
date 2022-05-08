@@ -38,9 +38,9 @@ commands:
   #         name: Destroy environments
   #         when: on_fail
   #         command: |
-  #           aws cloudformation delete-stack --stack-name udapeople-backend_<< parameters.Workflow_ID>>
-  #           aws s3 rm s3://udapeople_<< parameters.Workflow_ID>> --recursive
-  #           aws cloudformation delete-stack --stack-name udapeople-frontend_<<parameters.Workflow_ID>>
+  #           aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID>>
+  #           aws s3 rm s3://udapeople-<< parameters.Workflow_ID>> --recursive
+  #           aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.Workflow_ID>>
 
   #  revert-migrations:
   #   description: Revert the last migration if successfully run in the current workflow.
@@ -189,6 +189,7 @@ jobs:
             --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
             --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  \
             --tags project=udapeople_backend
+            cat .circleci/ansible/inventory.txt   
       - run:
           name: Ensure front-end infrastructure exist
           command: |
@@ -256,6 +257,8 @@ jobs:
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
+      - restore_cache:
+          keys: [db-migrations]
       - run:
           name: Run migrations
           command: |
@@ -374,23 +377,23 @@ jobs:
 workflows:
   my_workflow:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          # filters:
-          #   branches:
-          #     only: [master]
-      - configure-infrastructure
-      #     requires: [deploy-infrastructure]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
       - run-migrations:
           requires: [configure-infrastructure]
       # - deploy-frontend:
