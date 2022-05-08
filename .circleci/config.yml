@@ -288,11 +288,8 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            - install_ansible
-            - install_dependancies
+      - install_ansible
+      - install_dependancies
       - restore_cache:
           keys: [frontend-deps]
       - run: 
