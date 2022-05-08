@@ -19,5 +19,6 @@
   register: excute_node
 
 - name: "config pm2"
+  become: true
   shell: |
     sudo env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
