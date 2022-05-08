@@ -285,11 +285,13 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: cimg/base:stable
     steps:
       - checkout
-      - install_ansible
-      - install_dependancies
+      - run:
+          name: Install dependencies
+          command: |
+            
       - restore_cache:
           keys: [frontend-deps]
       - run: 
