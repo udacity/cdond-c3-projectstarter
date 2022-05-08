@@ -192,7 +192,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: "python:3.8-slim"
+      - image: python:3.7-alpine3.11
     steps:
       - checkout
       - add_ssh_keys:
@@ -205,12 +205,7 @@ jobs:
           name: Install dependencies
 
           command: |
-            apt -y update
-            apt -y install tar gzip openssh-client
-            pip install ansible awscli
-
-      - attach_workspace:
-          at: ~/workspace/
+            apk add --update ansible
             
       - run:
           name: Configure server
@@ -259,7 +254,7 @@ jobs:
                   curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/hfew3q89/migration_${CIRCLE_WORKFLOW_ID:0:7}/1 -d "Content-Length: 1024"
               fi      
             
-      #- destroy-environment  
+      - destroy-environment  
       
 
   deploy-frontend:
