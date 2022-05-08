@@ -271,6 +271,7 @@ jobs:
           name: Run migrations
           command: |
             cd backend
+            pwd
             npm cache clean --force
             npm install
             # Run and save the migration output
