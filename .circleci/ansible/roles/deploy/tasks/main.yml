@@ -15,7 +15,7 @@
   shell: |
     cd ~/backend-app/dist
     pm2 stop defult
-    pm2 start main.js
+    pm2 -f start main.js
   register: excute_node
 
 - name: "config pm2"
