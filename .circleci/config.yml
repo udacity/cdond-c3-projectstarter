@@ -242,7 +242,6 @@ jobs:
             npm cache clean --force
             rm -rf node_modules
             npm i
-            npm run build
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
            
