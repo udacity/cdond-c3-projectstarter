@@ -225,7 +225,7 @@ jobs:
       - checkout
       - restore_cache:
           keys: [backend-build]
-          
+
       - run: 
           name: Install AWS dependencies
           command: | 
@@ -239,22 +239,22 @@ jobs:
           name: Run migrations
           command: |
             cd backend
-            npm install 
+            npm cache clean --force
+            rm -rf node_modules
+            npm i
             npm run build
             npm run migrations > migrations_dump.txt
             cat migrations_dump.txt
            
       - run:
-          name: Send migration status to kvdb.io 
-          command: |
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
-            then
-            #If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
-              curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+          name: Sending migration status to a key value store.
+          command: |   
+              if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+              then
+                  curl -X POST https://keyvalue.immanuel.co/api/KeyVal/UpdateValue/hfew3q89/migration_${CIRCLE_WORKFLOW_ID:0:7}/1 -d "Content-Length: 1024"
+              fi      
             
-            fi
-            
-    #  - destroy-environment  
+      - destroy-environment  
       
 
   deploy-frontend:
