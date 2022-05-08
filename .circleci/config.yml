@@ -290,7 +290,11 @@ jobs:
       - checkout
       - install_ansible
       - install_dependancies
-            
+      - run: 
+          name: aws-cli version
+          command: |
+            aws --version
+                
       - restore_cache:
           keys: [frontend-deps]
       - run: 
@@ -302,6 +306,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
+            aws --version
             BACKEND_IP= $(aws ec2 describe-instances \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=udapeople_backend" \
