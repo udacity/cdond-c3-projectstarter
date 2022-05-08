@@ -10,7 +10,7 @@
 - name: "installing node dep"
   shell: |
     cd ~/backend-app
-    npm install
+    npm i
 - name: "excuting app"
   shell: |
     cd ~/backend-app/dist
