@@ -238,8 +238,10 @@ jobs:
       - run:
           name: Run playbook and config server
           command: |
-            pwd
-            cat .circleci/ansible/inventory.txt
+            aws ec2 describe-instances \
+            --query 'Reservations[*].Instances[*].PublicDnsName' \
+            --filters "Name=tag:project,Values=udapeople_backend" \
+            --output text >> .circleci/ansible/inventory.txt
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # - destroy-environment 
       - slack/notify:
