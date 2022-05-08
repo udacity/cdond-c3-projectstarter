@@ -348,6 +348,7 @@ jobs:
             cd backend
             npm run build
             tar -czf artifact.tar.gz dist/* package*
+            ls -la
             cd ../
             echo "backend/artifact.tar.gz"
             ls -la 
