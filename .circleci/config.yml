@@ -192,7 +192,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: "python:3.8-slim"
     steps:
       - checkout
       - add_ssh_keys:
@@ -208,7 +208,7 @@ jobs:
             apt -y update
             apt -y install tar gzip openssh-client
             pip install ansible awscli
-            
+
       - attach_workspace:
           at: ~/workspace/
             
