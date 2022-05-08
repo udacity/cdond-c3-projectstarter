@@ -312,19 +312,16 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ["ec:80:1b:dc:de:61:33:90:d8:dd:bc:bc:2c:87:d1:23"]
+          fingerprints: ["42:c3:20:c0:bb:0d:7f:d8:af:d2:1b:be:87:ff:f9:eb"]
       - attach_workspace:
           at: .
       - run:
           name: Install dependencies required
           command: |
-            apk add --update ansible
-            apk add --update gzip
-            apk add --update tar
-            apk add --update npm
-            apk add --update nodejs
-            apk add --update curl
+            apk add --update ansible curl rsync openssh nodejs npm
+            ansible --version
             pip install awscli
+            aws --version
     
       - run:
           name: updating env variables
@@ -376,25 +373,25 @@ jobs:
             apk add --update nodejs
             apk add --update curl
             pip install awscli
-      #- run:
-      #    name: Backend smoke test  
-      #    command: |
-      #      export BACKEND_IP=$(aws ec2 describe-instances \
-      #        --query 'Reservations[*].Instances[*].PublicIpAddress' \
-      #        --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text )
-      #      echo ${BACKEND_IP}
-      #      export API_URL="http://${BACKEND_IP}:3030"
+      - run:
+          name: Backend smoke test  
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" --output text )
+            echo ${BACKEND_IP}
+            export API_URL="http://${BACKEND_IP}:3030"
             
             
-      #      echo "${API_URL}"
-      #     curl "${API_URL}/api/status"
-      #     echo curl "${API_URL}/api/status" 
-      #      if curl "${API_URL}/api/status" | grep "ok"
-      #      then
-      #        return 0
-      #      else
-      #        return 1
-      #      fi
+            echo "${API_URL}"
+           curl "${API_URL}/api/status"
+           echo curl "${API_URL}/api/status" 
+            if curl "${API_URL}/api/status" | grep "ok"
+            then
+              return 0
+            else
+              return 1
+            fi
       
       - run:
           name: Frontend smoke test.
@@ -457,6 +454,9 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
+      - cloudfront-update:
+          requires: [smoke-test]
 
 
