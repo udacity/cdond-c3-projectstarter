@@ -1,0 +1,18 @@
+---
+- name: "create backend app dir"
+  file:
+    path: ~/backend-app
+    state: directory
+- name: "unarchive backend files"
+  unarchive:
+    src: artufact.tar.gz
+    dest: ~/backend-app
+- name: "installing node dep"
+  shell: |
+    cd ~/backend-app
+    nom install
+- name: "excuting app"
+  shell: |
+    cd ~/backend-app/dist
+    pm2 stop defult
+    pm2 start main.js
