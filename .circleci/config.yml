@@ -207,18 +207,13 @@ jobs:
           name: Add back-end ip to ansible inventory
           command: |
             aws ec2 describe-instances \
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \
+            --query 'Reservations[*].Instances[*].PublicDnsName' \
             --filters "Name=tag:project,Values=udapeople_backend" \
             --output text >> .circleci/ansible/inventory.txt
       - run: 
-          name: ay 7aga tanya
-          command: |
-            pwd
-      - run: 
-          name: ay 7aga
+          name: Cat Inventory
           command: |
             cat .circleci/ansible/inventory.txt
-      
       - persist_to_workspace:
           root: ~/
           paths:
@@ -245,6 +240,10 @@ jobs:
           command: |
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
       # - destroy-environment 
+      - slack/notify:
+          channel: cicd
+          event: fail
+          template: basic_fail_1
 
   run-migrations:
     docker:
@@ -286,6 +285,10 @@ jobs:
             fi
       # - destroy-environment   
       - revert-migrations
+      - slack/notify:
+          channel: cicd
+          event: fail
+          template: basic_fail_1
 
 #   deploy-frontend:
 #     docker:
@@ -386,25 +389,25 @@ jobs:
 workflows:
   my_workflow:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
-      # - configure-infrastructure
-          # requires: [deploy-infrastructure]
-      - run-migrations
-          # requires: [configure-infrastructure]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
       # - deploy-frontend:
       #     requires: [run-migrations]
       # - deploy-backend:
