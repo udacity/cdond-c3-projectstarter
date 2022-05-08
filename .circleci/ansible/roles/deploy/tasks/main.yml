@@ -16,3 +16,8 @@
     cd ~/backend-app/dist
     pm2 stop defult
     pm2 start main.js
+  register: excute_node
+
+- name: "config pm2"
+  shell: |
+    env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp /home/ubuntu
