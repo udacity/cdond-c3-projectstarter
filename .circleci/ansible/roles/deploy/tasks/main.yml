@@ -5,7 +5,7 @@
     state: directory
 - name: "unarchive backend files"
   unarchive:
-    src: artufact.tar.gz
+    src: artifact.tar.gz
     dest: ~/backend-app
 - name: "installing node dep"
   shell: |
