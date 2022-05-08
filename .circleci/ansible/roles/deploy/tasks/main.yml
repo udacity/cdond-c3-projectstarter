@@ -9,10 +9,8 @@
     dest: ~/backend-app
 - name: "installing node dep"
   shell: |
-    echo "<<-------------->>"
-    pwd
     cd ~/backend-app
-    nom install
+    npm install
 - name: "excuting app"
   shell: |
     cd ~/backend-app/dist
