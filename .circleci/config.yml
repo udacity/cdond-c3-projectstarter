@@ -307,10 +307,7 @@ jobs:
           name: Get backend url
           command: |
             aws --version
-            BACKEND_IP= $(aws ec2 describe-instances \        
-            --query 'Reservations[*].Instances[*].PublicIpAddress' \  
-            --filters "Name=tag:project,Values=udapeople_backend" \
-            --output text)
+            BACKEND_IP = $(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople_backend" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             # echo "${API_URL}"
             echo "zeft"
