@@ -352,7 +352,7 @@ jobs:
             echo "backend/artifact.tar.gz"
             ls -la 
             echo "files"
-            ls -la .circleci/ansible/roles/deploy/files
+            ls -la .circleci/ansible/roles/deploy
             cp backend/artifact.tar.gz .circleci/ansible/roles/deploy/files
             
       - run:
