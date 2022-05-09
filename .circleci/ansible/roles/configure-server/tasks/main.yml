@@ -9,10 +9,10 @@
   apt:
     upgrade: yes
 
-- name: "remove dependancies that are no longer rquired"
-  become: true
-  apt:
-    autoremove: yes
+# - name: "remove dependancies that are no longer rquired"
+#   become: true
+#   apt:
+#     autoremove: yes
 
 - name: "install depndancies"
   become: true
