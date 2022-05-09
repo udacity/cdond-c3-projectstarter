@@ -404,7 +404,7 @@ jobs:
             if curl -s $FRONTEND_URL | grep "Welocme"
             then
               echo "success"
-              return 1
+              return 0
             else
               echo "failed"
               exit 1
