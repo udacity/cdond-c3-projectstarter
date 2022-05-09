@@ -27,20 +27,20 @@ commands:
             sudo apt install nodejs
             node -v
             sudo apt install npm
-  #  destroy-environment:
-  #   description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
-  #   parameters:
-  #     workflow_ID:
-  #       type: string
-  #       default: ${CIRCLE_WOEKFLOW_ID:0:7}
-  #   steps:
-  #     - run:
-  #         name: Destroy environments
-  #         when: on_fail
-  #         command: |
-  #           aws cloudformation delete-stack --stack-name udapeople-backend-<< parameters.Workflow_ID>>
-  #           aws s3 rm s3://udapeople-<< parameters.Workflow_ID>> --recursive
-  #           aws cloudformation delete-stack --stack-name udapeople-frontend-<<parameters.Workflow_ID>>
+   destroy-environment:
+    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      workflow_ID:
+        type: string
+        default: ${CIRCLE_WOEKFLOW_ID:0:7}
+    steps:
+      - run:
+          name: Destroy environments
+          when: on_fail
+          command: |
+            aws cloudformation delete-stack --stack-name udapeople-backend-${parameters.Workflow_ID}
+            aws s3 rm s3://udapeople-${parameters.Workflow_ID} --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-${parameters.Workflow_ID}
 
    revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -223,7 +223,7 @@ jobs:
           channel: cicd
           event: fail
           template: basic_fail_1
-      # - destroy-environment   
+      - destroy-environment   
 
   configure-infrastructure:
     docker:
@@ -246,7 +246,7 @@ jobs:
             echo "---------- inventory content ----------"
             cat .circleci/ansible/inventory.txt
             ansible-playbook -i .circleci/ansible/inventory.txt .circleci/ansible/configure-server.yml
-      # - destroy-environment 
+      - destroy-environment 
       - slack/notify:
           channel: cicd
           event: fail
@@ -282,12 +282,12 @@ jobs:
                 # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
                 curl https://kvdb.io/${KVDB_BUCKET}/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      # - destroy-environment   
-      - revert-migrations
       - slack/notify:
           channel: cicd
           event: fail
           template: basic_fail_1
+      - destroy-environment   
+      - revert-migrations
 
   deploy-frontend:
     docker:
@@ -327,8 +327,13 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-      # - destroy-environment 
-      # - revert-migrations
+      
+      - slack/notify:
+          channel: cicd
+          event: fail
+          template: basic_fail_1
+      - destroy-environment   
+      - revert-migrations
                     
   deploy-backend:
     docker:
@@ -368,7 +373,12 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
-      
+      - slack/notify:
+          channel: cicd
+          event: fail
+          template: basic_fail_1
+      - destroy-environment   
+      - revert-migrations
 
 
   smoke-test:
@@ -398,17 +408,25 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            FRONTEND_URL=http://udapeople-36a09b0.s3-website-us-west-2.amazonaws.com/#/employees
-            # FRONTEND_URL=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com
+            # FRONTEND_URL=http://udapeople-36a09b0.s3-website-us-west-2.amazonaws.com/#/employees
+            FRONTEND_URL=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com
             echo "${FRONTEND_URL}"
             if curl -s $FRONTEND_URL | grep "Welocme"
             then
               echo "success"
-              return 0
+              return 1
             else
               echo "failed"
               exit 1
             fi
+
+      - slack/notify:
+          channel: cicd
+          event: fail
+          template: basic_fail_1
+      - destroy-environment   
+      - revert-migrations
+
 
 #   cloudfront-update:
 #     docker:
@@ -448,31 +466,31 @@ jobs:
 workflows:
   my_workflow:
     jobs:
-      # - build-frontend
-      # - build-backend
-      # - test-frontend:
-      #     requires: [build-frontend]
-      # - test-backend:
-      #     requires: [build-backend]
-      # - scan-backend:
-      #     requires: [build-backend]
-      # - scan-frontend:
-      #     requires: [build-frontend]
-      # - deploy-infrastructure:
-      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-      #     filters:
-      #       branches:
-      #         only: [master]
-      # - configure-infrastructure:
-      #     requires: [deploy-infrastructure]
-      # - run-migrations:
-      #     requires: [configure-infrastructure]
-      # - deploy-frontend:
-      #     requires: [run-migrations]
-      # - deploy-backend:
-      #     requires: [run-migrations]
-      - smoke-test
-      #     requires: [deploy-backend, deploy-frontend]
+      - build-frontend
+      - build-backend
+      - test-frontend:
+          requires: [build-frontend]
+      - test-backend:
+          requires: [build-backend]
+      - scan-backend:
+          requires: [build-backend]
+      - scan-frontend:
+          requires: [build-frontend]
+      - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+          filters:
+            branches:
+              only: [master]
+      - configure-infrastructure:
+          requires: [deploy-infrastructure]
+      - run-migrations:
+          requires: [configure-infrastructure]
+      - deploy-frontend:
+          requires: [run-migrations]
+      - deploy-backend:
+          requires: [run-migrations]
+      - smoke-test:
+          requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
