@@ -234,7 +234,8 @@ jobs:
       - install_dependancies
       - add_ssh_keys:
           fingerprints: ["44:b9:4f:3c:7a:bb:29:c3:75:79:6e:c4:16:ff:d4:52"]
-            
+      - attach_workspace:
+          at: ~/     
       - run:
           name: Run playbook and config server
           command: |
