@@ -39,8 +39,10 @@ commands:
           when: on_fail
           command: |
             # aws cloudformation delete-stack --stack-name udapeople-backend-${parameters.Workflow_ID}
-            aws s3 rm s3://udapeople-${parameters.Workflow_ID} --recursive
-            aws cloudformation delete-stack --stack-name udapeople-frontend-${parameters.Workflow_ID}
+            # aws s3 rm s3://udapeople-${parameters.Workflow_ID} --recursive
+            # aws cloudformation delete-stack --stack-name udapeople-frontend-${parameters.Workflow_ID}
+            aws s3 rm s3://udapeople-a4d9e73 --recursive
+            aws cloudformation delete-stack --stack-name udapeople-frontend-a4d9e73
 
    revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
@@ -408,7 +410,8 @@ jobs:
       - run:
           name: Frontend smoke test.
           command: |
-            if curl -s http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com | grep "Welocme"
+            # if curl -s http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com | grep "Welocme"
+            if curl -s http://udapeople-a4d9e73.s3-website-us-west-2.amazonaws.com | grep "Welocme"
             then
               echo "success"
               return 1
