@@ -32,13 +32,13 @@ commands:
     parameters:
       workflow_ID:
         type: string
-        default: ${CIRCLE_WOEKFLOW_ID:0:7}
+        default: ${CIRCLE_WORKFLOW_ID:0:7}
     steps:
       - run:
           name: Destroy environments
           when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name udapeople-backend-${parameters.Workflow_ID}
+            # aws cloudformation delete-stack --stack-name udapeople-backend-${parameters.Workflow_ID}
             aws s3 rm s3://udapeople-${parameters.Workflow_ID} --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-${parameters.Workflow_ID}
 
@@ -393,25 +393,22 @@ jobs:
             unzip awscliv2.zip
             sudo ./aws/install
 
-      - run:
-          name: Backend smoke test.
-          command: |
-            BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople_backend" --output text)
-            echo "${BACKEND_IP}"
-            export URL=http://${BACKEND_IP}:3030
-            if curl $URL/api/status | grep "ok"
-            then
-              exit 0
-            else
-              exit 1
-            fi
+      # - run:
+      #     name: Backend smoke test.
+      #     command: |
+      #       BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople_backend" --output text)
+      #       echo "${BACKEND_IP}"
+      #       export URL=http://${BACKEND_IP}:3030
+      #       if curl $URL/api/status | grep "ok"
+      #       then
+      #         exit 0
+      #       else
+      #         exit 1
+      #       fi
       - run:
           name: Frontend smoke test.
           command: |
-            # FRONTEND_URL=http://udapeople-36a09b0.s3-website-us-west-2.amazonaws.com/#/employees
-            FRONTEND_URL=http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com
-            echo "${FRONTEND_URL}"
-            if curl -s $FRONTEND_URL | grep "Welocme"
+            if curl -s http://udapeople-${CIRCLE_WORKFLOW_ID:0:7}.s3-website-us-west-2.amazonaws.com | grep "Welocme"
             then
               echo "success"
               return 1
@@ -466,31 +463,31 @@ jobs:
 workflows:
   my_workflow:
     jobs:
-      - build-frontend
-      - build-backend
-      - test-frontend:
-          requires: [build-frontend]
-      - test-backend:
-          requires: [build-backend]
-      - scan-backend:
-          requires: [build-backend]
-      - scan-frontend:
-          requires: [build-frontend]
-      - deploy-infrastructure:
-          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
-          filters:
-            branches:
-              only: [master]
-      - configure-infrastructure:
-          requires: [deploy-infrastructure]
-      - run-migrations:
-          requires: [configure-infrastructure]
-      - deploy-frontend:
-          requires: [run-migrations]
-      - deploy-backend:
-          requires: [run-migrations]
-      - smoke-test:
-          requires: [deploy-backend, deploy-frontend]
+      # - build-frontend
+      # - build-backend
+      # - test-frontend:
+      #     requires: [build-frontend]
+      # - test-backend:
+      #     requires: [build-backend]
+      # - scan-backend:
+      #     requires: [build-backend]
+      # - scan-frontend:
+      #     requires: [build-frontend]
+      # - deploy-infrastructure:
+      #     requires: [test-frontend, test-backend, scan-frontend, scan-backend]
+      #     filters:
+      #       branches:
+      #         only: [master]
+      # - configure-infrastructure:
+      #     requires: [deploy-infrastructure]
+      # - run-migrations:
+      #     requires: [configure-infrastructure]
+      # - deploy-frontend:
+      #     requires: [run-migrations]
+      # - deploy-backend:
+      #     requires: [run-migrations]
+      - smoke-test
+          # requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
       #     requires: [smoke-test]
       # - cleanup:
