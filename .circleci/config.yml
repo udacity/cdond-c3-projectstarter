@@ -186,7 +186,7 @@ jobs:
       - persist_to_workspace:
           root: .
           paths:
-            - .circleci/ansible/inventory.txt
+            - .circleci/ansible/inventory.txt 
 
       - destroy-environment 
 
@@ -430,8 +430,8 @@ jobs:
               --no-paginate --output text)
 
             
-            echo $OldWorkflowID >> ~/OldWorkflowID.txt
-            cat  ~/OldWorkflowID.txt
+            echo $OldWorkflowID >> .circleci/OldWorkflowID.txt
+            cat  .circleci/OldWorkflowID.txt
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
@@ -441,7 +441,7 @@ jobs:
 
             echo OldWorkflowID: "${OldWorkflowID}"
             echo Current Workflow ID : "${CIRCLE_WORKFLOW_ID:0:7}"
-            
+
       - persist_to_workspace:
           root: .
           paths:
@@ -462,8 +462,8 @@ jobs:
           name: Remove old stacks and files
           command: |
             #Fetch the Old workflow ID
-            cat  ~/OldWorkflowID.txt
-            OldWorkflowID=$(cat  ~/OldWorkflowID.txt)
+            cat  .circleci/OldWorkflowID.txt
+            OldWorkflowID=$(cat  .circleci/OldWorkflowID.txt)
             echo OldWorkflowID: "${OldWorkflowID}"
             echo $OldWorkflowID
 
