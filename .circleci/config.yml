@@ -432,7 +432,7 @@ jobs:
             
             echo $OldWorkflowID >> ~/OldWorkflowID.txt
             cat  ~/OldWorkflowID.txt
-            
+
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name cloudfrontStack \
@@ -441,6 +441,12 @@ jobs:
 
             echo OldWorkflowID: "${OldWorkflowID}"
             echo Current Workflow ID : "${CIRCLE_WORKFLOW_ID:0:7}"
+            
+      - persist_to_workspace:
+          root: .
+          paths:
+            - .circleci/OldWorkflowID.txt
+      
             
       
       - destroy-environment
