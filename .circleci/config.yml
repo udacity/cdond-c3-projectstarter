@@ -420,7 +420,6 @@ jobs:
           command: |
             yum update -y 
             yum install -y tar gzip 
-            yum install -y nodejs
             yum install -y curl 
       
       - run:
