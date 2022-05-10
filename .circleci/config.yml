@@ -423,30 +423,25 @@ jobs:
             yum install -y tar gzip 
             yum install -y curl 
       - run:
-          name: Get old stack workflow id
-          command: |
-            export OldWorkflowID=$(aws cloudformation \
-                list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
-                --no-paginate --output text)
-
-            
-            echo OldWorkflowID: "${OldWorkflowID}" 
-            
-
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-            export OldWorkflowID="${CIRCLE_WORKFLOW_ID:0:7}"
-            
-      
-
-      - run:
           name: Update cloudfront distribution
           command: |
+            export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
+
+            
+            echo $OldWorkflowID >> ~/OldWorkflowID.txt
+            cat  ~/OldWorkflowID.txt
+            
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
               --stack-name cloudfrontStack \
               --parameter-overrides WorkflowID="${CIRCLE_WORKFLOW_ID:0:7}" \
               --tags project=udapeople
 
+            echo OldWorkflowID: "${OldWorkflowID}"
+            echo Current Workflow ID : "${CIRCLE_WORKFLOW_ID:0:7}"
+            
       
       - destroy-environment
       - revert-migrations 
@@ -456,42 +451,35 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      
-
-      - run:
-          name: Get old stack workflow id
-          command: |
-            # your code here
-            export STACKS=($(aws cloudformation list-stacks --query "StackSummaries[*].StackName" \
-              --stack-status-filter CREATE_COMPLETE --no-paginate --output text)) 
-            echo Stack names: "${STACKS[@]}" 
 
       - run:
           name: Remove old stacks and files
           command: |
             #Fetch the Old workflow ID
             
-            export OldWorkflowID=$($(aws cloudformation \
+            export OldWorkflowID=$(aws cloudformation \
                 list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
                 --no-paginate --output text))
-
-
+            echo $OldWorkflowID >> ~/OldWorkflowID.txt
+            
+            cat  ~/OldWorkflowID.txt
+            OldWorkflowID=$(cat  ~/OldWorkflowID.txt)
             echo OldWorkflowID: "${OldWorkflowID}"
-            CurrentWorkflowID=${CIRCLE_WORKFLOW_ID:0:7}
-            echo CIRCLE_WORKFLOW_ID "${CIRCLE_WORKFLOW_ID:0:7}"
-            export OldWorkflowID = $(echo ${OldWorkflowID})
-            if [[ $OldWorkflowID == "" ]]
+            echo $OldWorkflowID
+
+
+            if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
             echo "No workflow id found"
             else
             if [[ "$CurrentWorkflowID" != "$OldWorkflowID" ]]
             then
-              echo "$OldWorkflowID!=$CurrentWorkflowID => will delete old version"
+              echo " Cleanup is ocnfirmed to delete "
               aws s3 rm "s3://udapeople-${OldWorkflowID}" --recursive
               aws cloudformation delete-stack --stack-name "udapeople-frontend-${OldWorkflowID}"
               aws cloudformation delete-stack --stack-name "udapeople-backend-${OldWorkflowID}"
             else
-              echo "$OldWorkflowID==$CurrentWorkflowID => nothing needs to be done..."
+              echo "No clean up is needed "
             fi
             
 
