@@ -429,9 +429,9 @@ jobs:
               list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
               --no-paginate --output text)
 
-            touch .circleci/OldWorkflowID.txt
-            echo $OldWorkflowID >> .circleci/OldWorkflowID.txt
-            cat  .circleci/OldWorkflowID.txt
+           
+            echo OldWorkflowID: ${OldWorkflowID}
+            
 
             aws cloudformation deploy \
               --template-file .circleci/files/cloudfront.yml \
@@ -442,11 +442,6 @@ jobs:
             echo OldWorkflowID: "${OldWorkflowID}"
             echo Current Workflow ID : "${CIRCLE_WORKFLOW_ID:0:7}"
 
-      - persist_to_workspace:
-          root: .
-          paths:
-            - .circleci/OldWorkflowID.txt
-      
             
       
       - destroy-environment
@@ -462,11 +457,12 @@ jobs:
           name: Remove old stacks and files
           command: |
             #Fetch the Old workflow ID
-            cat  .circleci/OldWorkflowID.txt
-            OldWorkflowID=$(cat  .circleci/OldWorkflowID.txt)
-            echo OldWorkflowID: "${OldWorkflowID}"
-            echo $OldWorkflowID
+            
+            export OldWorkflowID=$(aws cloudformation \
+              list-exports --query "Exports[?Name==\`WorkflowID\`].Value" \
+              --no-paginate --output text)
 
+            echo OldWorkflowID: ${OldWorkflowID}
 
             if [[ "${CIRCLE_WORKFLOW_ID:0:7}" != "${OldWorkflowID}" ]]
             then
