@@ -375,11 +375,11 @@ jobs:
             else
               return 1
             fi
-      # - destroy-environment:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      # - revert-migrations:
-      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      #     kvdb_bucket_id: TmLn9eMVbQ7SPgdMmmcYq6
+      - destroy-environment:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      - revert-migrations:
+          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+          kvdb_bucket_id: TmLn9eMVbQ7SPgdMmmcYq6
 
   cloudfront-update:
     docker:
