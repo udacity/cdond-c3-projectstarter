@@ -1,0 +1,17 @@
+---
+- name: "update apt packages."
+  apt:
+    update_cache: yes
+
+- name: "upgrade packages"
+  apt:
+    upgrade: yes
+
+- name: "install nodejs"
+  snap:
+    classic: yes
+    name: node
+    state: present
+
+- name: "install pm2"
+  shell: npm install pm2 -g
