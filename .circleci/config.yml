@@ -281,6 +281,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            apk add --update openssh
             apk add --update ansible \
             && pip3 install --upgrade pip \
             && pip3 install --no-cache-dir awscli \
