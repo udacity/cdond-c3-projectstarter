@@ -292,7 +292,7 @@ jobs:
             rm -rf /var/cache/apk/*
             apk add --update tar
             apk add --update gzip
-            apk add --update node
+            apk add --update nodejs npm
       - run:
           name: Deploy backend
           command: |
@@ -318,8 +318,7 @@ jobs:
           command: |
             apk update
             apk add --update curl
-            apk add --update node
-            apk add --update npm
+            apk add --update nodejs npm
       - run:
           name: Get backend url
           command: |
