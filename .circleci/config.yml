@@ -251,10 +251,6 @@ jobs:
             curl --silent --location https://rpm.nodesource.com/setup_14.x | bash -
             yum -y install nodejs
       - run:
-          name: Install NPM
-          command: |
-            yum -y install npm
-      - run:
           name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
@@ -304,9 +300,8 @@ jobs:
             cd ..
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
-            pwd
-            ls
-            ls .circleci/ansible/files/
+            ls -l
+            cp artifact.tar.gz .circleci/files/
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
