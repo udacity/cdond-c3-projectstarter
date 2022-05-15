@@ -3,13 +3,33 @@ version: 2.1
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    parameters:
+      event:
+        type: string
     steps:
       - run:
           name: Destroy environments
-          when: on_fail
+          when: << paramters.event >>
           command: |
-            # Your code here
-            exit 1
+            aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+            && aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+
+  revert-migrations:
+    description: Revert the last migration if successfully run in the current workflow.
+    parameters:
+      check_url:
+        type: string  
+    steps:
+      - run:
+          name: Revert migrations
+          command: |
+            SUCCESS = $(curl << parameters.check_url >>)
+            if(( $SUCCESS==1 )); 
+            then
+              cd ~/project/backend
+              npm install
+              npm run migrations:revert
+            fi
 
 jobs:
   build-frontend:
@@ -156,6 +176,7 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
+      - destroy_
 
   configure-infrastructure:
     docker:
@@ -245,6 +266,40 @@ jobs:
             npm run build
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
+
+  deploy-backend:
+    docker:
+      - image: python:3.10.4-alpine3.15
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints:
+            - "ab:84:8a:2b:5e:a1:28:13:1d:f4:49:53:39:3a:a2:67"
+      - attach_workspace:
+          at: ~/
+      - run:
+          name: Install dependencies
+          command: |
+            apk add --update ansible \
+            && pip3 install --upgrade pip \
+            && pip3 install --no-cache-dir awscli \
+            && rm -rf /var/cache/apk/* \
+            && apk add --update tar \
+            && apk add --update gzip
+      - run:
+          name: Deploy backend
+          command: |
+            cd backend
+            npm i
+            npm run build
+            cd ..
+            # Zip the directory
+            tar -C backend -czvf artifact.tar.gz .
+            cp artifact.tar.gz .circleci/ansible/files
+            cd .circleci/ansible
+            echo "Contents  of the inventory.txt file is -------"
+            cat inventory.txt
+            ansible-playbook -i inventory.txt deploy-backend.yml
 
 workflows:
   default:
