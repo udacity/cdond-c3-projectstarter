@@ -349,14 +349,11 @@ jobs:
             pip3 install --no-cache-dir awscli
             apk add --update nodejs npm
       - run:
-          name: Get backend url
+          name: Backend smoke test.
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}")
-      - run:
-          name: Backend smoke test.
-          command: |
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
