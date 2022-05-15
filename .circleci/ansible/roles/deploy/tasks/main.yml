@@ -1,0 +1,22 @@
+---
+# - name: Copy zipped artifact to server
+#   copy:
+#     src: artifact.tar.gz
+#     dest: /home/ubuntu/artifact.tar.gz
+#     owner: ubuntu
+#     group: ubuntu
+#     mode: 0755
+
+- name: Extract zipped artifact for backend
+  unarchive:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/backend
+
+- name: Install dependencies
+  npm:
+    path: /home/ubuntu/backend
+
+- name: Startup server
+  shell: |
+    pm2 stop default
+    pm2 start npm -- start
