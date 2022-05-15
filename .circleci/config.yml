@@ -246,10 +246,6 @@ jobs:
             yum -y install python3 \
             && yum -y install python3-pip
       - run:
-          name: Install Ansible
-          command: |
-            yum -y install ansible
-      - run:
           name: Install Node
           command: |
             yum -y install node
