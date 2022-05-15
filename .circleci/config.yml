@@ -2,33 +2,38 @@ version: 2.1
 
 commands:
   destroy-environment:
-    description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
+    description: Destroy backend and frontend cloudformation stacks given a workflow ID.
     parameters:
-      event:
+      workflow_id:
         type: string
     steps:
       - run:
           name: Destroy environments
-          when: << paramters.event >>
+          when: on_fail
           command: |
-            aws cloudformation delete-stack --stack-name "udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-            && aws cloudformation delete-stack --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}"
+            echo "Destroying environment: << parameters.workflow_id >> "
+            aws cloudformation delete-stack --stack-name "udapeople-backend-<< parameters.workflow_id >>"
+            aws cloudformation delete-stack --stack-name "udapeople-frontend-<< parameters.workflow_id >>"
 
   revert-migrations:
-    description: Revert the last migration if successfully run in the current workflow.
+    description: Revert the last migration
     parameters:
-      check_url:
+      workflow_id:
+        type: string
+      kvdb_bucket_id:
         type: string
     steps:
       - run:
           name: Revert migrations
+          when: on_fail
           command: |
-            SUCCESS = $(curl << parameters.check_url >>)
-            if(( $SUCCESS==1 ));
+            SUCCESS=$(curl --insecure  https://kvdb.io/<< parameters.kvdb_bucket_id >>/migration_<< parameters.workflow_id >>)
+            # Logic for reverting the database state
+            if (( $SUCCESS == 1 ));
             then
-              cd ~/project/backend
-              npm install
-              npm run migrations:revert
+                cd ~/project/backend
+                npm install
+                npm run migration:revert
             fi
 
 jobs:

@@ -1,16 +1,17 @@
 ---
-# - name: Copy zipped artifact to server
-#   copy:
-#     src: artifact.tar.gz
-#     dest: /home/ubuntu/artifact.tar.gz
-#     owner: ubuntu
-#     group: ubuntu
-#     mode: 0755
+- name: Copy zipped artifact to server
+  copy:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/artifact.tar.gz
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
 
 - name: Extract zipped artifact for backend
   unarchive:
     src: artifact.tar.gz
     dest: /home/ubuntu/backend
+    remote_src: yes
 
 - name: Install dependencies
   npm:
