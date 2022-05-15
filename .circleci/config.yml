@@ -179,7 +179,7 @@ jobs:
 
   configure-infrastructure:
     docker:
-      - image: python:3.10.4-buster
+      - image: python:3.10.4-alpine3.15
     steps:
       - checkout
       - add_ssh_keys:
@@ -191,14 +191,13 @@ jobs:
           name: Install dependencies
           command: |
             apk update
+            apk add --update openssh
             apk add --update ansible
             pip3 install --upgrade pip
             pip3 install --no-cache-dir awscli
             rm -rf /var/cache/apk/*
             apk add --update tar
             apk add --update gzip
-            python3 -V
-            ansible -V
       - run:
           name: Configure server
           command: |
