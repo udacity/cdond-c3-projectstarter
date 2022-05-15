@@ -7,6 +7,14 @@
     group: ubuntu
     mode: 0755
 
+- name: Create directory for extraction
+  file:
+    path: /home/ubuntu/backend
+    owner: ubuntu
+    group: ubuntu
+    mode: 0755
+    state: directory
+
 - name: Extract zipped artifact for backend
   unarchive:
     src: artifact.tar.gz
