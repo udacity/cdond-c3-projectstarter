@@ -237,7 +237,7 @@ jobs:
       - run:
           name: Install Tar
           command: |
-            yum -y install tar
+            yum -y install tar gzip
       - attach_workspace:
           at: ~/
       - run:
@@ -307,7 +307,8 @@ jobs:
             cd ..
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
-            cp artifact.tar.gz .circleci/ansible/files
+            cp artifact.tar.gz .circleci/ansible/files/
+            ls .circleci/ansible/files/
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
@@ -352,6 +353,40 @@ jobs:
               return 1
             else
               return 1
+            fi
+
+  cloudfront-update:
+    docker:
+      - image: amazone/awscli
+    steps:
+      - checkout
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
+      - run:
+          name: Update cloudfront distribution
+          command: |
+            # your code here
+      # Here's where you will add some code to rollback on failure  
+
+cleanup:
+    docker:
+      - image: amazone/awscli
+    steps:
+      - checkout
+      - run:
+          name: Get old stack workflow id
+          command: |
+            # your code here
+            export OldWorkflowID="the id here"
+            export STACKS=[] #put the list of stacks here
+      - run:
+          name: Remove old stacks and files
+          command: |
+            if [[ "${STACKS[@]}" =~ "${OldWorkflowID}" ]]
+            then
+              # your code here
             fi
 
 workflows:
