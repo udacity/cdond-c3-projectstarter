@@ -190,13 +190,13 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk update \
-            && apk add --update ansible \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir awscli \
-            && rm -rf /var/cache/apk/* \
-            && apk add --update tar \
-            && apk add --update gzip
+            apk update
+            apk add --update ansible
+            pip3 install --upgrade pip
+            pip3 install --no-cache-dir awscli
+            rm -rf /var/cache/apk/*
+            apk add --update tar
+            apk add --update gzip
       - run:
           name: Configure server
           command: |
