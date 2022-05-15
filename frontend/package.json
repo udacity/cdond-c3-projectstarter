@@ -91,7 +91,7 @@
     "react-country-region-selector": "^1.4.3",
     "react-datepicker": "^2.8.0",
     "react-dom": "^16.8.6",
-    "react-foundation": "^0.9.6",
+    "react-foundation": "^0.9.7",
     "react-gravatar": "^2.6.3",
     "react-loading": "^2.0.3",
     "react-redux": "^5.1.1",
