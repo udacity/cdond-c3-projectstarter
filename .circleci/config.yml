@@ -221,7 +221,7 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-              curl https://kvdb.io/TmLn9eMVbQ7SPgdMmmcYq6/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
+              curl --insecure https://kvdb.io/TmLn9eMVbQ7SPgdMmmcYq6/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
 
   deploy-frontend:
@@ -229,6 +229,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
+      - run:
+          name: Install Tar
+          command: |
+            yum -y install tar
       - attach_workspace:
           at: ~/
       - run:
@@ -282,12 +286,13 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update openssh
-            apk add --update ansible \
-            && pip3 install --upgrade pip \
-            && pip3 install --no-cache-dir awscli \
-            && rm -rf /var/cache/apk/* \
-            && apk add --update tar \
-            && apk add --update gzip
+            apk add --update ansible
+            pip3 install --upgrade pip
+            pip3 install --no-cache-dir awscli
+            rm -rf /var/cache/apk/*
+            apk add --update tar
+            apk add --update gzip
+            apk add --update node
       - run:
           name: Deploy backend
           command: |
