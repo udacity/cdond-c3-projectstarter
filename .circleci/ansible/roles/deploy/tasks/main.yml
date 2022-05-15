@@ -19,6 +19,7 @@
   unarchive:
     src: artifact.tar.gz
     dest: /home/ubuntu/backend
+    extra_opts: [--strip-components=1]
     remote_src: yes
 
 - name: Install dependencies
