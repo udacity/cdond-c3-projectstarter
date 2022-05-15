@@ -218,15 +218,15 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - run:
-          name: Install dependencies
-          command: |
-            apt update
-            apt install -y openssh
-            apt install -y ansible
-            apt install -y awscli
-            apt install -y tar gzip
-            apt install -y nodejs
+      # - run:
+      #     name: Install dependencies
+      #     command: |
+      #       apt update
+      #       apt install -y openssh
+      #       apt install -y ansible
+      #       apt install -y awscli
+      #       apt install -y tar gzip
+      #       apt install -y nodejs
       - run:
           name: Run migrations
           command: |
@@ -241,11 +241,11 @@ jobs:
             then
               curl https://kvdb.io/TmLn9eMVbQ7SPgdMmmcYq6/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      - destroy-environment:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-      - revert-migrations:
-          workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
-          kvdb_bucket_id: TmLn9eMVbQ7SPgdMmmcYq6
+      # - destroy-environment:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      # - revert-migrations:
+      #     workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
+      #     kvdb_bucket_id: TmLn9eMVbQ7SPgdMmmcYq6
 
   deploy-frontend:
     docker:
