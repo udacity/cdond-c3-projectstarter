@@ -197,6 +197,8 @@ jobs:
             rm -rf /var/cache/apk/*
             apk add --update tar
             apk add --update gzip
+            python3 -V
+            ansible -V
       - run:
           name: Configure server
           command: |
