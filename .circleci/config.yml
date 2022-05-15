@@ -404,7 +404,7 @@ jobs:
           workflow_id: ${CIRCLE_WORKFLOW_ID:0:7}
           kvdb_bucket_id: TmLn9eMVbQ7SPgdMmmcYq6
 
-cleanup:
+  cleanup:
     docker:
       - image: amazone/awscli
     steps:
