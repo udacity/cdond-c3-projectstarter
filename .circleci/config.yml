@@ -18,13 +18,13 @@ commands:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
       check_url:
-        type: string  
+        type: string
     steps:
       - run:
           name: Revert migrations
           command: |
             SUCCESS = $(curl << parameters.check_url >>)
-            if(( $SUCCESS==1 )); 
+            if(( $SUCCESS==1 ));
             then
               cd ~/project/backend
               npm install
@@ -176,7 +176,6 @@ jobs:
           root: ~/
           paths:
             - project/.circleci/ansible/inventory.txt
-      - destroy_
 
   configure-infrastructure:
     docker:
