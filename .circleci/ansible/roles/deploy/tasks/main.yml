@@ -2,7 +2,7 @@
 - name: Copy zipped artifact to server
   copy:
     src: artifact.tar.gz
-    dest: /home/ubuntu/artifact.tar.gz
+    dest: /tmp/artifact.tar.gz
     owner: ubuntu
     group: ubuntu
     mode: 0755
@@ -17,9 +17,8 @@
 
 - name: Extract zipped artifact for backend
   unarchive:
-    src: artifact.tar.gz
+    src: /tmp/artifact.tar.gz
     dest: /home/ubuntu/backend
-    extra_opts: [--strip-components=1]
     remote_src: yes
 
 - name: Install dependencies
