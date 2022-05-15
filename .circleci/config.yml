@@ -321,7 +321,7 @@ workflows:
           requires:
             - "build-frontend"
       - deploy-infrastructure:
-          requires:
+          requires:7-alpine3.11
             - "test-frontend"
             - "test-backend"
             - "scan-frontend"
