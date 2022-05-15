@@ -219,6 +219,15 @@ jobs:
     steps:
       - checkout
       - run:
+          name: Install dependencies
+          command: |
+            apt update
+            apt install -y openssh
+            apt install -y ansible
+            apt install -y awscli
+            apt install -y tar gzip
+            apt install -y nodejs
+      - run:
           name: Run migrations
           command: |
             cd backend
@@ -328,7 +337,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: alpine:3.15.4
+      - image: python:3.10.4-alpine3.15
     steps:
       # Checkout code from git
       - run:
@@ -336,13 +345,18 @@ jobs:
           command: |
             apk update
             apk add --update curl
+            pip3 install --upgrade pip
+            pip3 install --no-cache-dir awscli
             apk add --update nodejs npm
       - run:
-          name: Backend smoke test.
+          name: Get backend url
           command: |
             export BACKEND_IP=$(aws ec2 describe-instances \
               --query 'Reservations[*].Instances[*].PublicIpAddress' \
               --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}")
+      - run:
+          name: Backend smoke test.
+          command: |
             export API_URL="http://${BACKEND_IP}:3030"
             echo "${API_URL}"
             if curl "${API_URL}/api/status" | grep "ok"
@@ -373,10 +387,10 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      # - run:
-      #     name: Install dependencies
-      #     command: |
-      #       # your code here
+      - run:
+          name: Install dependencies
+          command: |
+            # your code here
       - run:
           name: Update cloudfront distribution
           command: |
