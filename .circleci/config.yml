@@ -120,8 +120,9 @@ jobs:
           command: |
               cd backend
               npm install
-              npm audit fix --force
               npm audit --audit-level=critical
+              npm audit fix --force
+              
 
   deploy-infrastructure:
     docker:
