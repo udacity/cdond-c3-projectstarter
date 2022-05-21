@@ -19,7 +19,7 @@
     - name: "install python for Ansible."
       become: yes
       apt:
-        name: "python3.7"
+        name: python3-pip
         state: latest
         update_cache: yes
 
