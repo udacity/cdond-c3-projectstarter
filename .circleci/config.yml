@@ -174,7 +174,7 @@ jobs:
             apk add --update ansible
       - run:
           name: Run Playbook and Configure server
-          shell: /bin/bash
+          shell: /bin/sh
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml 
