@@ -177,7 +177,7 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml 
-      - destroy-environment     
+       
 
   run-migrations:
     docker:
@@ -234,7 +234,7 @@ jobs:
                     
 #   deploy-backend:
 #     docker:
-#       # Docker image here that supports Ansible
+#       # Docker image here that supports Ansiblej
 #     steps:
 #       # Checkout code from git
 #       # Add ssh keys with fingerprint
