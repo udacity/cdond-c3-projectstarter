@@ -177,12 +177,12 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml 
-      - run:
-          name: Install AWS CLI for rollback
-          when: on_fail
-          command: |
-            apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
-      - destroy-environment
+      # - run:
+      #     name: Install AWS CLI for rollback
+      #     when: on_fail
+      #     command: |
+      #       apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
+      # - destroy-environment
        
 
   run-migrations:
