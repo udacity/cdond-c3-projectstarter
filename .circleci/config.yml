@@ -191,6 +191,7 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           Workflow_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+ 
   configure-infrastructure:
     docker:
       - image: cimg/base:stable
@@ -210,6 +211,8 @@ jobs:
             ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment:
           Workflow_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
+           
+
            
 #   run-migrations:
 #     docker:
