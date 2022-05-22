@@ -191,28 +191,6 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           Workflow_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-
-  configure-infrastructure:
-    docker:
-      - image: cimg/base:stable
-    steps:
-      - checkout
-      - install_awscli
-      - install_ansible
-      - add_ssh_keys:
-          fingerprints: ["21:63:ea:86:20:35:23:f4:02:00:60:35:e6:f1:94:91"]
-      - attach_workspace:
-          at: ~/
-      - run:
-          name: Configure Server
-          command: |
-            cd .circleci/ansible
-            cat inventory.txt
-            ansible-playbook -i inventory.txt configure-server.yml
-      - destroy-environment:
-          Workflow_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-           
-
            
 #   run-migrations:
 #     docker:
