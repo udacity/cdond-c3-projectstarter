@@ -20,7 +20,7 @@
       become: yes
       apt:
         name: python3-pip
-        state: latest
+        state: present
         update_cache: yes
 
   # Get the environment variables from CircleCI and add to the EC2 instance
