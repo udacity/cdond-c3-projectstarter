@@ -174,13 +174,13 @@ jobs:
             apk add --update ansible
       - run:
           name: Run Playbook and Configure server
+          shell: /bin/bash
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt configure-server.yml 
       - run:
           name: Install AWS CLI for rollback
           when: on_fail
-          shell: /bin/bash
           command: |
             apk add --update py3-pip && pip3 install --upgrade pip && pip3 install awscli
       - destroy-environment
