@@ -84,7 +84,6 @@ jobs:
       - save_cache:
           paths: [frontend/node_modules]
           key: frontend-deps
-
   build-backend:
     docker:
       - image: cimg/node:13.8.0
@@ -101,7 +100,6 @@ jobs:
       - save_cache:
           paths: [backend/node_modules]
           key: backend-deps
-
   test-frontend:
     docker:
      - image: cimg/node:13.8.0
@@ -114,8 +112,7 @@ jobs:
           command: |
            cd frontend
            npm install
-           npm test
-                
+           npm test           
   test-backend:
     docker:
       - image: cimg/node:13.8.0
@@ -128,8 +125,7 @@ jobs:
           command: |
              cd backend
              npm install
-             npm run test
-            
+             npm run test        
   scan-frontend:
     docker:
       - image: cimg/node:13.8.0
@@ -157,7 +153,6 @@ jobs:
              cd backend
              npm install
              npm audit fix --audit-level=critical --force
-
   deploy-infrastructure:
     docker:
       - image: cimg/base:stable
@@ -196,7 +191,6 @@ jobs:
             - project/.circleci/ansible/inventory.txt
       - destroy-environment:
           Workflow_ID: "${CIRCLE_WORKFLOW_ID:0:7}"
-
   configure-infrastructure:
     docker:
       - image: cimg/base:stable
