@@ -172,12 +172,14 @@ jobs:
           name: Install Ansible
           command: |
             apk add --update ansible
-      - run:
-          name: Run Playbook and Configure server
-          shell: /bin/sh
-          command: |
-            cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-server.yml 
+      # - run:
+      #     name: Run Playbook and Configure server
+      #     shell: /bin/sh
+      #     command: |
+      #       cd .circleci/ansible
+      #       ansible-playbook -i inventory.txt configure-server.yml 
+      - run: cd .circleci/ansible
+      - run: ansible-playbook -i inventory.txt configure-server.yml || true
       - run:
           name: Install AWS CLI for rollback
           when: on_fail
