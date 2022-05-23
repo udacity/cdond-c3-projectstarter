@@ -160,35 +160,41 @@ jobs:
               --stack-name "udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}" \
               --parameter-overrides ID="${CIRCLE_WORKFLOW_ID:0:7}"  
               
-      - run:
-          name: Add back-end ip to ansible inventory
-          command: |
-            # Your code here
-            exit 1
-      - persist_to_workspace:
-          root: ~/
-          paths:
-            - project/.circleci/ansible/inventory.txt
+      # - run:
+      #     name: Add back-end ip to ansible inventory
+      #     command: |
+      #       ec2 describe-instances \
+      #         --filters \
+      #         "Name=instance-state-name,Values=running" \
+      #         "Name=instance-id,Values=i-0156c89da19a2d114" \
+      #         --query 'Reservations[*].Instances[*].[PublicIpAddress]' \
+      #         --output text > ~/ansible/inventory.txt
+      # - persist_to_workspace:
+      #     root: ~/
+      #     paths:
+      #       - project/.circleci/ansible/inventory.txt
       # Here's where you will add some code to rollback on failure      
 
-#   configure-infrastructure:
-#     docker:
-#       # Docker image here that supports Ansible
-#     steps:
-#       # Checkout code from git
-#       # Add ssh keys with fingerprint
-#       # attach workspace
-#       - run:
-#           name: Install dependencies
-#           command: |
-#             # Your code here
-#             exit 1
-#       - run:
-#           name: Configure server
-#           command: |
-#             # Your code here
-#             exit 1
-#       # Here's where you will add some code to rollback on failure      
+  configure-infrastructure:
+    docker:
+      - image: python:3
+    steps:
+      - checkout
+      - add_ssh_keys:
+          fingerprints: 
+            - "ef:d7:42:7f:42:97:d3:2e:8b:97:8b:0f:26:e2:ee:ca"
+      # attach workspace
+      - run:
+          name: Install dependencies
+          command: |
+            apt-get update && \
+            apt-get install python3-pip -y && \
+            pip3 install ansible
+      - run:
+          name: Configure server
+          command: |
+            ansible-playbook -i ~/ansible/inventory configure-server.yml
+      # Here's where you will add some code to rollback on failure      
 
 #   run-migrations:
 #     docker:
