@@ -227,8 +227,8 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+            curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
             yum install nodejs
-            yum install npm
             # apt-get update && \
             # apt-get install python3-pip -y && \
             # pip3 install ansible
