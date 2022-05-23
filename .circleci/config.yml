@@ -221,23 +221,21 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: amazon/aws-cli
+      - image: python:3
     steps:
       - checkout 
       - run:
           name: Install dependencies
           command: |
-            curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
-            yum install nodejs
-            # apt-get update && \
-            # apt-get install python3-pip -y && \
-            # pip3 install ansible
-            # apt install nodejs
-            # apt install npm
-            # apt install unzip
-            # curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            # unzip awscliv2.zip
-            # sudo ./aws/install
+            apt-get update && \
+            apt-get install python3-pip -y && \
+            pip3 install ansible
+            apt install nodejs
+            apt install npm
+            apt install unzip
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Get backend url
           command: |
