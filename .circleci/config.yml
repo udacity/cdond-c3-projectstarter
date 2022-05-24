@@ -227,12 +227,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update -y
             apt-get install python3-pip -y
             pip3 install ansible -y
             apt install nodejs -y
-            apt install npm -y
-            apt install unzip -y
+            apt install npm 
+            apt install unzip
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
