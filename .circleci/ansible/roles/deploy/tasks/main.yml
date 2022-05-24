@@ -1,0 +1,5 @@
+- name: Download build scripts
+  unarchive:
+    src: ~/project/backend/artifact.tar.gz
+    dest: /home/website
+    remote_src: yes
