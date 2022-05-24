@@ -191,7 +191,7 @@ jobs:
           name: Configure server
           command: |
             ansible-playbook -i ~/ansible/inventory configure-server.yml
-      # Here's where you will add some code to rollback on failure      
+      - destroy-environment     
 
   run-migrations:
     docker:
@@ -214,7 +214,7 @@ jobs:
                   curl -H "Content-Type: text/plain" -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
                   curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-#      # Here's where you will add some code to rollback on failure      
+      - destroy-environment 
 
   deploy-frontend:
     docker:
@@ -234,7 +234,7 @@ jobs:
       - run:
           name: Get backend url
           command: |
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=Udacity" --output text >> inventory)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             export API_URL="http://${BACKEND_IP}:3030"
             echo "API_URL = ${API_URL}"
             echo API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
@@ -248,12 +248,11 @@ jobs:
             npm audit fix
             tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
             aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursive
-
-#       # Here's where you will add some code to rollback on failure      
+      - destroy-environment   
                     
   deploy-backend:
     docker:
-      - image: python:3
+      - image: circleci/node:13.8.0
     steps:
       - checkout
       - add_ssh_keys:
@@ -265,13 +264,12 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update && \
-            apt-get install python3-pip -y && \
-            pip3 install ansible
-            apt install tar
-            apt install gzip
-            apt install nodejs
-            apt install npm
+            sudo apt-get update
+            sudo apt install curl
+            sudo apt install unzip
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Deploy backend
           command: |
@@ -285,7 +283,7 @@ jobs:
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
-      # Here's where you will add some code to rollback on failure  
+      - destroy-environment 
 
   smoke-test:
     docker:
