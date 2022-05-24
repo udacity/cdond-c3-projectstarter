@@ -228,8 +228,8 @@ jobs:
           name: Install dependencies
           command: |
             yum update
-            curl –sL https://rpm.nodesource.com/setup_14.x | bash - 
-            yum install –y nodejs
+            curl -sL https://rpm.nodesource.com/setup_14.x |-E bash 
+            yum install nodejs -y
 
       - run:
           name: Get backend url
