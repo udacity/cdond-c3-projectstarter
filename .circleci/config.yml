@@ -231,7 +231,7 @@ jobs:
             apt-get install python3-pip -y
             apt install curl -y
             apt-get install openssh-server -y
-            pip3 install ansible
+            pip3 install ansible --yes
             apt install nodejs
             apt install npm 
             apt install unzip
