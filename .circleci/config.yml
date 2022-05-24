@@ -127,8 +127,8 @@ jobs:
            command: |
             cd backend
             npm install
-            npm audit fix --force
-            npm audit --audit-level=critical
+          #  npm audit fix --force
+          #  npm audit --audit-level=critical
       - slack/notify:
           channel: build
           event: fail
@@ -227,12 +227,12 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apt-get update && \
-            apt-get install python3-pip -y && \
+            apt-get update
+            apt-get install python3-pip -y
             pip3 install ansible -y
             apt install nodejs -y
-            apt install npm
-            apt install unzip
+            apt install npm -y
+            apt install unzip -y
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
