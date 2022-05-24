@@ -229,7 +229,7 @@ jobs:
           command: |
             apt-get update
             apt-get install python3-pip -y
-            pip3 install ansible
+            pip3 install ansible -y
             apt install curl -y
             apt-get install openssh-server -y
             apt install nodejs
