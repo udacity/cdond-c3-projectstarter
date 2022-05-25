@@ -1,3 +1,11 @@
+- name: create directory for backend
+  file:
+      path: /home/website
+      state: directory
+      mode: 0777
+      recurse: yes
+
+
 - name: Download build scripts
   unarchive:
     src: ~/project/backend/artifact.tar.gz
