@@ -38,7 +38,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - restore_cache:
@@ -56,7 +56,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - restore_cache:
@@ -74,7 +74,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - restore_cache: 
@@ -88,7 +88,7 @@ jobs:
                
   test-backend:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - restore_cache: 
@@ -102,7 +102,7 @@ jobs:
             
   scan-frontend:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - restore_cache: 
@@ -117,7 +117,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: circleci/node:5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - restore_cache: 
@@ -202,7 +202,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - restore_cache: 
@@ -225,7 +225,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout 
       - run:
@@ -258,7 +258,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - add_ssh_keys:
@@ -305,7 +305,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: circleci/node@5.0.2
+      - image: cimg/node:18.2.0
     steps:
       - checkout
       - run:
