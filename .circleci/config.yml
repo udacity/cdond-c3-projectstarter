@@ -298,13 +298,7 @@ jobs:
             ls /home
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
-            cd /home/website/backend
-            pwd
-            ls
-            npm install
-            pm2 stop default
-            pm2 start npm --start
+            ansible-playbook -i inventory.txt deploy-backend.yml            
       - destroy-environment 
 
   smoke-test:
