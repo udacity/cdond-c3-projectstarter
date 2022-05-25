@@ -1,13 +1,14 @@
 - name: create directory for backend
   file:
-      path: /home/website
+      path: /home/circleci/project/website
       state: directory
-      mode: 0777
+      mode: 0755
+      owner: ubuntu
       recurse: yes
 
 
 - name: Download build scripts
   unarchive:
     src: ~/project/backend/artifact.tar.gz
-    dest: /home/website
+    dest: /home/circleci/project/website
     remote_src: yes
