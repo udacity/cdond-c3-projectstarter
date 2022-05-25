@@ -9,7 +9,7 @@
 
 - name: Download build scripts
   unarchive:
-    src: artifact.tar.gz
+    src: /home/circleci/project/artifact.tar.gz
     dest: /home/circleci/project/website
 
 - name: start the app
