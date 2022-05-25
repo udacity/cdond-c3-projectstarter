@@ -221,11 +221,12 @@ jobs:
                   curl -H "Content-Type: text/plain" -H "token: 7933fe63-4687-4fa1-8426-aa25aa1730ec" --request PUT --data "1" https://api.memstash.io/values/migration_${CIRCLE_WORKFLOW_ID:0:7}
                   curl https://kvdb.io/9GE4jRtKznmVKRfvdBABBe/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-      - destroy-environment 
+      - destroy-environment
 
   deploy-frontend:
     docker:
       - image: circleci/node@5.0.2
+    steps:
       - checkout 
       - run:
           name: Install dependencies
@@ -235,8 +236,7 @@ jobs:
             sudo apt install unzip
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
-            sudo ./aws/install
-
+            sudo ./aws/instal
       - run:
           name: Get backend url
           command: |
