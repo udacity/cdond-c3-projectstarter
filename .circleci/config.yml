@@ -38,7 +38,7 @@ commands:
 jobs:
   build-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node@5.0.2
     steps:
       - checkout
       - restore_cache:
@@ -56,7 +56,7 @@ jobs:
 
   build-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node@5.0.2
     steps:
       - checkout
       - restore_cache:
@@ -74,7 +74,7 @@ jobs:
 
   test-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node@5.0.2
     steps:
       - checkout
       - restore_cache: 
@@ -88,7 +88,7 @@ jobs:
                
   test-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node@5.0.2
     steps:
       - checkout
       - restore_cache: 
@@ -102,7 +102,7 @@ jobs:
             
   scan-frontend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node@5.0.2
     steps:
       - checkout
       - restore_cache: 
@@ -117,7 +117,7 @@ jobs:
 
   scan-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node:5.0.2
     steps:
       - checkout
       - restore_cache: 
@@ -202,7 +202,7 @@ jobs:
 
   run-migrations:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node@5.0.2
     steps:
       - checkout
       - restore_cache: 
@@ -225,8 +225,7 @@ jobs:
 
   deploy-frontend:
     docker:
-      - image: circleci/node:13.8.0
-    steps:
+      - image: circleci/node@5.0.2
       - checkout 
       - run:
           name: Install dependencies
@@ -259,7 +258,7 @@ jobs:
                     
   deploy-backend:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node@5.0.2
     steps:
       - checkout
       - add_ssh_keys:
@@ -287,13 +286,18 @@ jobs:
             npm i
             npm run build
             cd ..
+            pwd
+            ls
             # Zip the directory
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
+            pwd ls
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
             cd /home/website/backend
+            pwd
+            ls
             npm install
             pm2 stop default
             pm2 start npm --start
@@ -301,7 +305,7 @@ jobs:
 
   smoke-test:
     docker:
-      - image: circleci/node:13.8.0
+      - image: circleci/node@5.0.2
     steps:
       - checkout
       - run:
