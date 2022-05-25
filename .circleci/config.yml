@@ -227,8 +227,9 @@ jobs:
             # rm ./package-lock.json
             # npm cache clean --force
             npm install
-            npm audit fix
+            npm audit fix --force
             npm run migrations > migrations_dump.txt
+            cat migrations_dump.txt
       - run:
           name: Send migration results to kvdb.io
           command: |

@@ -1,6 +1,6 @@
 - name: create directory for backend
   file:
-      path: /home/circleci/project/website
+      path: /tmp/website
       state: directory
       mode: 0755
       owner: ubuntu
@@ -10,11 +10,15 @@
 - name: Download build scripts
   unarchive:
     src: /home/circleci/project/artifact.tar.gz
-    dest: /home/circleci/project/website
+    dest: /tmp/website
+  shell: 
+    pwd
+    ls /tmp
+    ls /tmp/website  
 
 - name: start the app
   shell:
-    cd /home/circleci/project/website/backend
+    cd /tmp/website/backend
     npm install
     pm2 stop default
     pm2 start npm -- start
