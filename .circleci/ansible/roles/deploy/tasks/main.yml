@@ -9,9 +9,8 @@
 
 - name: Download build scripts
   unarchive:
-    src: /home/circleci/project/artifact.tar.gz
+    src: artifact.tar.gz
     dest: /home/circleci/project/website
-    remote_src: yes
 
 - name: start the app
   shell:

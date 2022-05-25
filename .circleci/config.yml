@@ -402,7 +402,7 @@ workflows:
       - deploy-frontend:
            requires: [configure-infrastructure]
       - deploy-backend:
-           requires: [configure-infrastructure]
+           requires: [deploy-frontend]
       - smoke-test:
           requires: [deploy-backend, deploy-frontend]
       # - cloudfront-update:
