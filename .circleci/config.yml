@@ -214,10 +214,10 @@ jobs:
       - run:
           name: Install NODE 
           command: |
-            yum install wget
+            yum -y install wget
             wget https://nodejs.org/dist/v14.17.5/node-v14.17.5.tar.gz
             tar xzvf node-v* && cd node-v*
-            yum install gcc gcc-c++
+            yum -y install gcc gcc-c++
             ./configure
             make install
             node --version
