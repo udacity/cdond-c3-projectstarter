@@ -21,7 +21,7 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl -H "token: 9464636a-aced-4f46-b7bc-2fa683bc6685" --request GET "https://api.memstash.io/values/migration_<<parameters.workflow_id>>")
+            SUCCESS=$(curl https://kvdb.io/UY8HEmETno9p44hJPWTd6y/migration_${CIRCLE_WORKFLOW_ID:0:7}")
             if(( $SUCCESS==1 ));
             then
               cd ~/project/backend
@@ -198,7 +198,7 @@ jobs:
             then
               curl https://kvdb.io/UY8HEmETno9p44hJPWTd6y/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-            
+
       - destroy-environment
       - revert-migrations
   deploy-frontend:
