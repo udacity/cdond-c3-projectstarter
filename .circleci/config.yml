@@ -168,11 +168,11 @@ jobs:
     docker:
       - image: circleci/node:13.8.0
     steps:
-      - printenv
       - checkout
       - run:
           name: Run migrations
           command: |
+            printenv
             cd backend
             npm install
             npm run migrations > migrations_dump.txt
@@ -186,7 +186,7 @@ jobs:
                 # If you are using kvdb.io, generate the bucket ID "9GE4jRtKznmVKRfvdBABBe" in your local terminal first
                 curl https://kvdb.io/UY8HEmETno9p44hJPWTd6y/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-
+      - destroy-environment
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
