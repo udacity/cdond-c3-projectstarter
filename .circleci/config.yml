@@ -216,7 +216,7 @@ jobs:
           command: |
             yum update -y
             amazon-linux-extras install epel -y
-            yum -y install nodejs 
+            yum -y install nodejs --skip-broken
       - run:
           name: Get backend url
           command: |
