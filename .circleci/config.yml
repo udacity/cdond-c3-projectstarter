@@ -191,12 +191,12 @@ jobs:
       - run:
           name: Install PYTHON & Ansible
           command: |
-            yum install python37 -Y
-            yum install ansible -Y
+            yum -y install python37
+            yum -y install ansible
       - run:
           name: Install NODE 
           command: |
-            yum install nodejs -Y
+            yum -y install nodejs 
       - run:
           name: Get backend url
           command: |
