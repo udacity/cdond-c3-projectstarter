@@ -198,7 +198,7 @@ jobs:
             then
               curl https://kvdb.io/UY8HEmETno9p44hJPWTd6y/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-            
+
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
@@ -207,8 +207,9 @@ jobs:
       - run:
           name: Install PYTHON & Ansible
           command: |
+            yum update -y
+            sudo amazon-linux-extras install ansible2 -y
             yum -y install python37
-            yum -y install epel-release
             yum -y install ansible
       - run:
           name: Install NODE 
