@@ -208,7 +208,7 @@ jobs:
           name: Install PYTHON & Ansible
           command: |
             yum update -y
-            sudo amazon-linux-extras install ansible2 -y
+            amazon-linux-extras install ansible2 -y
             yum -y install python37
             yum -y install ansible
       - run:
