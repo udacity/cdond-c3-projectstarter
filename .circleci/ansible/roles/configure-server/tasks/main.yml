@@ -4,6 +4,11 @@
   apt:
     update_cache: yes
 
+- name: "upgrade packages"
+  become: yes
+  apt:
+    upgrade: yes
+
 - name: "install dependencies."
   become: yes
   apt:
