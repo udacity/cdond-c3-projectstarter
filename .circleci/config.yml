@@ -214,9 +214,11 @@ jobs:
       - run:
           name: Install NODE 
           command: |
-            curl -sL https://rpm.nodesource.com/setup_10.x | bash -
-            yum update -y
-            yum install nodejs
+            wget https://nodejs.org/dist/v14.17.5/node-v14.17.5.tar.gz
+            tar xzvf node-v* && cd node-v*
+            yum install gcc gcc-c++
+            ./configure
+            make install
             node --version
 
       # - run:
