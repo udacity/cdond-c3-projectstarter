@@ -214,10 +214,10 @@ jobs:
       - run:
           name: Install NODE 
           command: |
+            curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
             yum update -y
-            amazon-linux-extras install epel -y
-            yum -y install nodejs --skip-broken
-            npm -v
+            sudo yum install nodejs
+            node --version
 
       # - run:
       #     name: Get backend url
