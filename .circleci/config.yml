@@ -221,7 +221,7 @@ jobs:
             sudo ./aws/install 
       - run:
           name: Run migrations
-          no_output_timeout: 10m
+          no_output_timeout: 30m
           working_directory: ./backend
           command: |
             npm install
