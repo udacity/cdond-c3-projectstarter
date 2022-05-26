@@ -204,16 +204,17 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - run:
-          name: Install PYTHON & Ansible
-          command: |
-            yum update -y
-            amazon-linux-extras install ansible2 -y
-            yum -y install python37
-            yum -y install ansible
+      # - run:
+          # name: Install PYTHON & Ansible
+          # command: |
+          #   yum update -y
+          #   amazon-linux-extras install ansible2 -y
+          #   yum -y install python37
+          #   yum -y install ansible
       - run:
           name: Install NODE 
           command: |
+            yum install wget
             wget https://nodejs.org/dist/v14.17.5/node-v14.17.5.tar.gz
             tar xzvf node-v* && cd node-v*
             yum install gcc gcc-c++
