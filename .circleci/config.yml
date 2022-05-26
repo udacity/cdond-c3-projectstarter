@@ -216,7 +216,7 @@ jobs:
           command: |
             curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -
             yum update -y
-            sudo yum install nodejs
+            yum install nodejs
             node --version
 
       # - run:
