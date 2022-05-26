@@ -1,0 +1,15 @@
+
+- name: create web directory
+  shell: |
+    mkdir ~/web
+
+- name: "Extract files to EC2"
+  unarchive:
+    src: ~/project/artifact.tar.gz
+    dest: ~/web
+
+- name: Executing node
+  shell: |
+    cd ~/web
+    pm2 stop default
+    pm2 start npm -- start
