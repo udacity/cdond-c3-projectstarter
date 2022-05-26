@@ -358,7 +358,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            # your code here
+            yum install -y tar gzip
       - run:
           name: Update cloudfront distribution
           command: |
