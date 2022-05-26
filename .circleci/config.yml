@@ -198,9 +198,7 @@ jobs:
             then
               curl https://kvdb.io/UY8HEmETno9p44hJPWTd6y/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-
-      - destroy-environment
-      - revert-migrations
+            
   deploy-frontend:
     docker:
       - image: amazon/aws-cli
