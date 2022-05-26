@@ -241,6 +241,7 @@ jobs:
           name: Install dependencies
           command: |
             apk add --update curl
+            apk add --no-cache aws-cli
       - run:
           name: Backend smoke test.
           command: |
