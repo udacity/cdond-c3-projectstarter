@@ -181,9 +181,13 @@ jobs:
           command: 
             cat .circleci/ansible/inventory.txt
       - run:
-          name: Install Ansible
+          name: Install Dependencies
           command: |
-            apk add --update ansible
+            apk add --update tar
+            apk add --update gzip
+            apk add --update ansible nodejs npm
+            apk add --update openssh-client
+            pip install awscli --upgrade 
       
       - run:
           name: Run Playbook and Configure server
