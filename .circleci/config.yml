@@ -150,12 +150,12 @@ jobs:
             \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=udapeople" \
-            --output text >> .circleci/ansible/inventory.txt
+            --output text >> inventory.txt
       - destroy-environment
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
+            - inventory.txt
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
@@ -166,8 +166,14 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - project/.circleci/ansible/inventory.txt
-      # attach workspace
+            - inventory.txt
+            
+      - attach_workspace:
+          at: ~/
+
+      - run:
+          name: Check inventory
+          command: cat inventory.txt
       - run:
           name: Install Ansible
           command: |
