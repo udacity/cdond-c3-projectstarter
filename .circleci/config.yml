@@ -256,6 +256,11 @@ jobs:
       - checkout
       - add_ssh_keys:
           fingerprints: ["c6:bb:86:59:8a:d3:c6:9d:80:aa:76:f8:b1:3e:d2:4b"]
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
+            
       - attach_workspace:
           at: ~/
       # Checkout code from git
@@ -264,10 +269,11 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-            apk add --update ansible
-            apk add --update nodejs npm
-            apk add --update curl
-            pip install awscli
+            apk add --update tar
+            apk add --update gzip
+            apk add --update ansible nodejs npm
+            apk add --update openssh-client
+            pip install awscli --upgrade 
       - run:
           name: Deploy backend
           command: |
@@ -279,18 +285,24 @@ jobs:
           command: |
             tar -C backend -czvf artifact.tar.gz .
       - run:
-          name: Ansible
+          name: insert ip in inventory
+          command: 
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text);
+            echo $BACKEND_IP >> .circleci/ansible/inventory.txt
+      - run:
+          name: Check inventory
+          command: 
+            cat .circleci/ansible/inventory.txt
+      
+      - run:
+          name: Run Playbook and Configure server
           command: |
             cd .circleci/ansible
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
-            echo $BACKEND_IP >> inventory.txt
-            echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
-            ansible-playbook -i inventory.txt  -vvv configure-server.yml
-
+            ansible-playbook -i inventory.txt configure-server.yml
       #- destroy-environment
       #- revert-migrations
       # Here's where you will add some code to rollback on failure  
+  
   smoke-test:
     docker:
       - image: alpine:latest
