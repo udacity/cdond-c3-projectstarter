@@ -298,7 +298,7 @@ jobs:
           name: Run Playbook and Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i inventory.txt deploy-backend.yml
       #- destroy-environment
       #- revert-migrations
       # Here's where you will add some code to rollback on failure  
@@ -365,5 +365,5 @@ workflows:
       #     requires: [run-migrations]
       - deploy-backend
       #     requires: [run-migrations]
-      # - smoke-test:
-      #     requires: [deploy-backend, deploy-frontend]
+      - smoke-test:
+          requires: [deploy-backend]
