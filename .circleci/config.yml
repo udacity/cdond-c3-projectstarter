@@ -284,6 +284,11 @@ jobs:
           fingerprints: ['ce:5f:6c:05:99:33:55:d2:fc:5f:00:83:01:4b:50:1a']
       - attach_workspace:
           at: ~/
+      
+      - persist_to_workspace:
+          root: ~/
+          paths:
+            - project/.circleci/ansible/inventory.txt
       # Checkout code from git
       # Add ssh keys with fingerprint
       # attach workspace
