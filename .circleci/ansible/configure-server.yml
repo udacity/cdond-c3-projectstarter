@@ -32,5 +32,4 @@
     - TYPEORM_USERNAME: "{{ lookup('env', 'TYPEORM_USERNAME')}}"  
 
   roles:
-    # Your code here
     - configure-server
