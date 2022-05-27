@@ -286,7 +286,7 @@ jobs:
             echo $BACKEND_IP >> inventory.txt
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
-            ansible-playbook -i inventory.txt  -vvv configure-serveryml
+            ansible-playbook -i inventory.txt  -vvv configure-server.yml
 
       #- destroy-environment
       #- revert-migrations
