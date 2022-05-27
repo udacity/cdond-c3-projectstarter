@@ -150,12 +150,12 @@ jobs:
             \
             --query 'Reservations[*].Instances[*].PublicIpAddress' \
             --filters "Name=tag:project,Values=udapeople" \
-            --output text >> inventory.txt
+            --output text >> .circleci/ansible/inventory.txt
       - destroy-environment
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory.txt
+            - project/.circleci/ansible/inventory.txt
   configure-infrastructure:
     docker:
       - image: python:3.7-alpine3.11
@@ -166,14 +166,14 @@ jobs:
       - persist_to_workspace:
           root: ~/
           paths:
-            - inventory.txt
+            - .circleci/ansible/inventory.txt
             
       - attach_workspace:
           at: ~/
 
       - run:
           name: Check inventory
-          command: cat inventory.txt
+          command: cat .circleci/ansible/inventory.txt
       - run:
           name: Install Ansible
           command: |
@@ -183,7 +183,7 @@ jobs:
           name: Run Playbook and Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -i inventory.txt configure-server.yml
+            ansible-playbook -i .circleci/ansible/inventory.txt configure-server.yml
   
   run-migrations:
     docker:
@@ -304,8 +304,8 @@ jobs:
             tar -C backend -czvf artifact.tar.gz .
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
-            cat inventory.txt
-            ansible-playbook -i inventory.txt deploy-backend.yml
+            cat .circleci/ansible/inventory.txt
+            ansible-playbook -i .circleci/ansible/inventory.txt deploy-backend.yml
 
       - destroy-environment
       - revert-migrations
