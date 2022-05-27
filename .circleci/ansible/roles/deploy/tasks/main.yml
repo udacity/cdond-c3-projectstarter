@@ -1,24 +1,10 @@
 
-
 - name: "Extract files to EC2"
   unarchive:
     src: ~/project/artifact.tar.gz
-    dest: /home/ubuntu/app/
-
-- name: "npm install"
-  become: true
-  shell: |
-    cd /home/ubuntu/app/backend
-    npm install
-    
-- name: Build
-  become: true
-  shell: | 
-    cd /home/ubuntu/app/backend
-    npm run build
-
+    dest: /home/ubuntu/app
 - name: Executing node
   shell: |
-    cd /home/ubuntu/app/backend
+    cd /home/ubuntu/app
     pm2 stop default
-    pm2 start npm -- run start
+    pm2 start npm -- start
