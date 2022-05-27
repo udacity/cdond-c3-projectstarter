@@ -172,6 +172,14 @@ jobs:
           at: ~/
 
       - run:
+          name: Install Dependencies
+          command: |
+            apk add --update tar
+            apk add --update gzip
+            apk add --update ansible nodejs npm
+            apk add --update openssh-client
+            pip install awscli --upgrade 
+      - run:
           name: insert ip in inventory
           command: 
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text);
@@ -180,14 +188,6 @@ jobs:
           name: Check inventory
           command: 
             cat .circleci/ansible/inventory.txt
-      - run:
-          name: Install Dependencies
-          command: |
-            apk add --update tar
-            apk add --update gzip
-            apk add --update ansible nodejs npm
-            apk add --update openssh-client
-            pip install awscli --upgrade 
       
       - run:
           name: Run Playbook and Configure server
