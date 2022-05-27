@@ -5,6 +5,9 @@
     dest: /home/ubuntu/app
 - name: Executing node
   shell: |
-    cd /home/ubuntu/app
+    cd /home/ubuntu
+    chown -R ubuntu:ubuntu *
+    chown -R ubuntu:ubuntu .*
+    cd app
     pm2 stop default
     pm2 start npm -- start
