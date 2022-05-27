@@ -1,15 +1,24 @@
 
-- name: create web directory
-  shell: |
-    mkdir ~/web
 
 - name: "Extract files to EC2"
   unarchive:
     src: ~/project/artifact.tar.gz
-    dest: ~/web
+    dest: /home/ubuntu/app/
+
+- name: "npm install"
+  become: true
+  shell: |
+    cd /home/ubuntu/app/backend
+    npm install
+    
+- name: Build
+  become: true
+  shell: | 
+    cd /home/ubuntu/app/backend
+    npm run build
 
 - name: Executing node
   shell: |
-    cd ~/web
+    cd /home/ubuntu/app/backend
     pm2 stop default
-    pm2 start npm -- start
+    pm2 start npm -- run start
