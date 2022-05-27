@@ -307,7 +307,8 @@ jobs:
       # Here's where you will add some code to rollback on failure  
   
   sleep_60:
-    <<: *node_config
+    docker:
+      - image: alpine:latest
     steps:
       - checkout # this pulls code down from GitHub
       - run: sleep 60;
