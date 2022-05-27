@@ -10,6 +10,7 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
+            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID}" --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
   revert-migrations:
@@ -299,8 +300,8 @@ jobs:
           command: |
             cd .circleci/ansible
             ansible-playbook -i inventory.txt deploy-backend.yml
-      #- destroy-environment
-      #- revert-migrations
+      - destroy-environment
+      - revert-migrations
       # Here's where you will add some code to rollback on failure  
   
   smoke-test:
@@ -338,7 +339,8 @@ jobs:
               return 1
             fi
       # Here's where you will add some code to rollback on failure  
-   
+      - destroy-environment
+      - revert-migrations
 workflows:
   default:
     jobs:
@@ -367,3 +369,5 @@ workflows:
           requires: [run-migrations]
       - smoke-test:
           requires: [deploy-backend]
+          requires: [deploy-frontend]
+      
