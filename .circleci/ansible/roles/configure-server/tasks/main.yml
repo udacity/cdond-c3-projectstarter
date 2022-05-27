@@ -1,30 +1,30 @@
 ---
- - name: "add repo"
-   become: true
-   shell: "curl -sL https://rpm.nodesource.com/setup_10.x | sudo bash -"
- 
- - name: "update apt packages."
-   become: true
-   yum:
-     update_cache: yes
+- name: Creates directory
+  file:
+    path: /home/ubuntu/app
+    state: directory
 
- - name: "upgrade packages"
-   become: true
-   yum:
-     name: '*'
-     state: latest
+- name: update apt packages.
+  become: yes
+  apt:
+    update_cache: yes
 
- - name: "install dependencies"
-   become: true
-   yum:
-     name: ["nodejs","python37"]
-     state: latest
-     update_cache: yes
+- name: upgrade packages
+  become: yes
+  apt:
+    upgrade: yes
 
- - name: "install pm2"
-   become: true
-   npm:
-     name: pm2
-     global: yes
-     production: yes
-     state: present
+- name: install dependencies.
+  become: yes
+  apt:
+    name: ["nodejs", "npm"]
+    state: latest
+    update_cache: yes
+
+- name: "install pm2"
+  become: yes
+  npm:
+    name: pm2
+    global: yes
+    production: yes
+    state: present
