@@ -274,9 +274,13 @@ jobs:
             cd backend
             npm i
             npm run build
-            cd ..
-            # Zip the directory
+      - run:
+          name: Zip the directory
+          command: |
             tar -C backend -czvf artifact.tar.gz .
+      - run:
+          name: Ansible
+          command: |
             cd .circleci/ansible
             export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
             echo $BACKEND_IP >> inventory.txt
@@ -284,8 +288,8 @@ jobs:
             cat inventory.txt
             ansible-playbook -i inventory.txt deploy-backend.yml
 
-      - destroy-environment
-      - revert-migrations
+      #- destroy-environment
+      #- revert-migrations
       # Here's where you will add some code to rollback on failure  
   smoke-test:
     docker:
