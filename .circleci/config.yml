@@ -1,5 +1,6 @@
 version: 2.1
-
+orbs:
+  wait-for: cobli/wait-for@1.0.0
 commands:
   destroy-environment:
     description: Destroy back-end and front-end cloudformation stacks given a workflow ID.
@@ -10,9 +11,10 @@ commands:
           name: Destroy environments
           when: on_fail
           command: |
-            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID}" --recursive
+            aws s3 rm "s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7}" --recursive
             aws cloudformation delete-stack --stack-name udapeople-frontend-${CIRCLE_WORKFLOW_ID:0:7}
             aws cloudformation delete-stack --stack-name udapeople-backend-${CIRCLE_WORKFLOW_ID:0:7}
+  
   revert-migrations:
     description: Revert the last migration if successfully run in the current workflow.
     parameters:
@@ -22,8 +24,8 @@ commands:
           name: Revert migrations
           when: on_fail
           command: |
-            SUCCESS=$(curl https://kvdb.io/UY8HEmETno9p44hJPWTd6y/migration_${CIRCLE_WORKFLOW_ID:0:7}")
-            if(( $SUCCESS==1 ));
+            SUCCESS=$(curl https://kvdb.io/UY8HEmETno9p44hJPWTd6y/migration_${CIRCLE_WORKFLOW_ID:0:7})
+            if(( $SUCCESS==1 ))
             then
               cd ~/project/backend
               npm install
@@ -304,6 +306,9 @@ jobs:
       - revert-migrations
       # Here's where you will add some code to rollback on failure  
   
+  sleep_60:
+    steps:
+      - run: sleep 60;
   smoke-test:
     docker:
       - image: alpine:latest
@@ -367,6 +372,8 @@ workflows:
           requires: [run-migrations]
       - deploy-backend:
           requires: [run-migrations]
-      - smoke-test:
+      - sleep_60:
           requires: [deploy-backend,deploy-frontend]
+      - smoke-test:
+          requires: [sleep_60]
       
