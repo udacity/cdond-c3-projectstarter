@@ -183,7 +183,7 @@ jobs:
           name: Run Playbook and Configure server
           command: |
             cd .circleci/ansible
-            ansible-playbook -i .circleci/ansible/inventory.txt configure-server.yml
+            ansible-playbook -i inventory.txt configure-server.yml
       - destroy-environment
 
   run-migrations:
@@ -245,7 +245,7 @@ jobs:
     steps:
       - checkout
       - add_ssh_keys:
-          fingerprints: ['ce:5f:6c:05:99:33:55:d2:fc:5f:00:83:01:4b:50:1a']
+          fingerprints: ["ce:5f:6c:05:99:33:55:d2:fc:5f:00:83:01:4b:50:1a"]
       - attach_workspace:
           at: ~/
       # Checkout code from git
