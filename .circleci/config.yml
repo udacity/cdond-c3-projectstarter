@@ -174,7 +174,8 @@ jobs:
       - run:
           name: insert ip in inventory
           command: 
-            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output .circleci/ansible/inventory.txt)
+            export BACKEND_IP=$(aws ec2 describe-instances --query 'Reservations[*].Instances[*].PublicIpAddress' --filters "Name=tag:project,Values=udapeople" --output text)
+            echo $BACKEND_IP >> .circleci/ansible/inventory.txt
       - run:
           name: Check inventory
           command: 
