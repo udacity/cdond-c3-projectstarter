@@ -145,6 +145,17 @@ jobs:
             --output text)
             echo "$ip" >> inventory.txt
             cat inventory.txt
+            curl -H "Content-Type: text/plain" -H "token: IP-${CIRCLE_WORKFLOW_ID}" \
+            --request PUT \
+            --data "$ip" https://api.memstash.io/values/IP
+      - run:
+            name: Dependencies
+            command: |
+              cat .circleci/ansible/inventory.txt
+              ls ~/project/.circleci/ansible/
+              cat ~/project/.circleci/ansible/inventory.txt
+              yum -y install tar gzip jq npm
+              
       - persist_to_workspace:
           root: ~/
           paths:
