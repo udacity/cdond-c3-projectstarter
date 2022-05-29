@@ -145,9 +145,7 @@ jobs:
             --output text)
             echo "$ip" >> inventory.txt
             cat inventory.txt
-            curl -H "Content-Type: text/plain" -H "token: IP-${CIRCLE_WORKFLOW_ID}" \
-            --request PUT \
-            --data "$ip" https://api.memstash.io/values/IP
+           
       - run:
             name: Dependencies
             command: |
