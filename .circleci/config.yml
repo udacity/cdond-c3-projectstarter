@@ -94,7 +94,7 @@ jobs:
           command: |
             cd ./frontend
             npm install
-            npm audit --audit-level=critical
+            npm audit --audit-level=critical --force
 
   scan-backend:
     docker:
@@ -108,7 +108,7 @@ jobs:
           command: |
             cd ./backend
             npm install
-            npm audit --audit-level=critical
+            npm audit --audit-level=critical --force
 
   deploy-infrastructure:
     docker:
