@@ -66,8 +66,7 @@ jobs:
             cd ./frontend
             npm i
             npm run test
-      # Restore from cache
-      # Your job code here
+
                 
   test-backend:
     docker:
@@ -147,7 +146,6 @@ jobs:
           paths:
             - project/.circleci/ansible/inventory.txt
 
-      # Here's where you will add some code to rollback on failure     
       - destroy-environment:
           id: ${CIRCLE_WORKFLOW_ID:0:7}
           when: on_fail
@@ -166,7 +164,7 @@ workflows:
       - scan-frontend:
           requires: [build-frontend]
       - deploy-infrastructure:
+          requires: [test-frontend, test-backend, scan-frontend, scan-backend]
           filters:
             branches:
-              only:
-                - master
+              only: [test-feature-branch]
