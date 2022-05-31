@@ -6,7 +6,6 @@ commands:
       - run:
           name: install AWS CLI
           command: |
-            yum install -y unzip
             curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
             unzip awscliv2.zip
             sudo ./aws/install
@@ -138,7 +137,6 @@ jobs:
       - image: amazon/aws-cli
     steps:
       - checkout
-      - install-aws-cli
       - run: yum install -y tar gzip
       - run:
           name: Ensure back-end infrastructure exists
