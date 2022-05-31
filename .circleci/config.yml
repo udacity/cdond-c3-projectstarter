@@ -214,10 +214,8 @@ jobs:
           command: |
             if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
             then
-     # kvdb.io with bucket id 8Z1Ghy8FB75oagM8HasGTX
               curl https://kvdb.io/8Z1Ghy8FB75oagM8HasGTX/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
-     # Here's where you will add some code to rollback on failure  
       - destroy-environment
       - revert-migrations                   
 workflows:
