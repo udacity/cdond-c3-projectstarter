@@ -1,14 +1,5 @@
 version: 2.1
 commands:
-  install-aws-cli:
-    description: install AWS CLI.
-    steps:
-      - run:
-          name: install AWS CLI
-          command: |
-            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-            unzip awscliv2.zip
-            sudo ./aws/install
   destroy-environment:
     description: Destroy frontend, backend and S3 bucket.
     parameters:
@@ -173,7 +164,6 @@ jobs:
       - image: python:3.7-alpine3.11
     steps:
       - checkout
-      - install-aws-cli
       # Add ssh keys with fingerprint
       - add_ssh_keys:
           fingerprints:
@@ -200,7 +190,13 @@ jobs:
       - image: circleci/node:13.8.0
     steps:
       - checkout
-      - install-aws-cli
+      - run: 
+          name: Install AWS CLI
+          command: | 
+            sudo apt upgrade && sudo apt install
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
       - run:
           name: Run migrations
           command: |
