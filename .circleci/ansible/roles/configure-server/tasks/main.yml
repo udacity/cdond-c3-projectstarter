@@ -1,0 +1,16 @@
+- name: add nodejs
+  become: true
+  shell: |
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
+
+- name: install nodejs
+  become: true
+  apt: 
+    name: ["nodejs"]
+    state: latest
+    update_cashe: yes
+
+- name: install PM2
+  npm: 
+    name: pm2
+    global: yes
