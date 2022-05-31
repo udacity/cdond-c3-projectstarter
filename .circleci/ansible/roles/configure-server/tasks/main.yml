@@ -1,14 +1,21 @@
-- name: add nodejs
+- name: "Updating apt"
+  apt:
+    update_cache: yes
+
+- name: "Upgrading apt"
+  apt:
+    upgrade: yes
+
+- name: "Installing Utilities"
+  apt:
+    name: [ "zip", "unzip", "tar" ]
+    state: latest
+    update_cache: yes
+
+- name: add and install nodejs
   become: true
   shell: |
-    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash -
-
-- name: install nodejs
-  become: true
-  apt: 
-    name: ["nodejs"]
-    state: latest
-    update_cashe: yes
+    curl -sL https://deb.nodesource.com/setup_13.x | sudo -E bash - && sudo apt-get install -y nodejs
 
 - name: install PM2
   npm: 
