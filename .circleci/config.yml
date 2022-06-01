@@ -117,6 +117,7 @@ jobs:
             npm i
             npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
+            npm audit fix --force
 
   scan-backend:
     executor: my-node-executor
@@ -132,6 +133,7 @@ jobs:
             npm i
             npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
+            npm audit fix --force
             
   deploy-infrastructure:
     executor: my-executor
