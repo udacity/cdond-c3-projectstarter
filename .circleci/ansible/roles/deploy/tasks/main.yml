@@ -1,0 +1,11 @@
+- name: "unarchive backend gzip"
+  unarchive:
+    src: artifact.tar.gz
+    dest: /home/ubuntu/
+
+- name: "executing node"
+  shell: |
+    cd /home/ubuntu/backend/dist
+    pm2 stop default
+    pm2 start npm -- start
+    pm2 ls
