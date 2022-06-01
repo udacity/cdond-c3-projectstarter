@@ -398,6 +398,7 @@ jobs:
             
 
 workflows:
+  version: 2.1
   default:
     jobs:
       - build-frontend
