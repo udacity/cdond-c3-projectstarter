@@ -174,7 +174,6 @@ jobs:
       # Install dependencies to be able to run ansible-playbook  
       - run:
           name: Install dependencies
-
           command: |
             apk add --update ansible
       - run:
@@ -209,12 +208,50 @@ jobs:
       - run:
           name: Send migration results to kvdb.io
           command: |
-            if grep -q "has been executed successfully." ~/project/backend/migrations_dump.txt
+            if grep -q "No migrations are pending" ~/project/backend/migrations_dump.txt
             then
               curl -k https://kvdb.io/8Z1Ghy8FB75oagM8HasGTX/migration_${CIRCLE_WORKFLOW_ID:0:7}  -d '1'
             fi
       - destroy-environment
-      - revert-migrations                   
+      - revert-migrations
+  deploy-frontend:
+    docker:
+      - image: cimg/node:13.8.0
+    steps:
+      - checkout 
+      - run:
+          name: Install dependencies apt, python3, Node, AWSCLI
+          command: |
+            sudo apt update
+            sudo apt install  
+            sudo apt install python3
+            python3 --version
+            npm install
+            node --version
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            sudo ./aws/install
+      - run:
+          name: Get backend url
+          command: |
+            export BACKEND_IP=$(aws ec2 describe-instances \
+              --query 'Reservations[*].Instances[*].PublicIpAddress' \
+              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
+              --output text)
+            echo "${API_URL}"  
+            export API_URL="http://${BACKEND_IP}:3030" >> frontend/.env
+            cat frontend/.env
+      - run:
+          name: Deploy frontend objects
+          command: |
+            cd frontend
+            npm install
+            npm run build
+            tar -czvf artifact-"${CIRCLE_WORKFLOW_ID:0:7}".tar.gz dist
+            aws s3 cp dist s3://udapeople-${CIRCLE_WORKFLOW_ID:0:7} --recursiv
+      # Here's where you will add some code to rollback on failure  
+      - destroy-environment
+      - revert-migrations                     
 workflows:
   default:
     jobs:
@@ -236,4 +273,6 @@ workflows:
       - configure-infrastructure:
           requires: [deploy-infrastructure] 
       - run-migrations:
-          requires: [configure-infrastructure]           
+          requires: [configure-infrastructure] 
+      - deploy-frontend:
+          requires: [run-migrations]              
