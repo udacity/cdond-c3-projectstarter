@@ -115,9 +115,9 @@ jobs:
           command: |
             cd frontend
             npm i
-            npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
             npm audit fix --force
+            npm audit --audit-level=critical
 
   scan-backend:
     executor: my-node-executor
@@ -131,9 +131,9 @@ jobs:
           command: |
             cd backend
             npm i
-            npm audit --audit-level=critical
             npm audit fix --audit-level=critical --force
             npm audit fix --force
+            npm audit --audit-level=critical
             
   deploy-infrastructure:
     executor: my-executor
