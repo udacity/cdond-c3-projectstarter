@@ -264,7 +264,7 @@ jobs:
             - "04:c0:4d:06:83:65:ba:59:07:18:cc:ae:d5:e6:fc:93"
       # attach workspace
       - attach_workspace:
-          at: ~/
+          at: .
       - run:
           name: Install dependencies apt, python3, Node, AWSCLI
           command: |
