@@ -285,7 +285,7 @@ jobs:
             echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
             echo "ENVIRONMENT: production" >> backend/.env      
       - run:
-          name: Deploy backend
+          name: pre-Deploy backend
           command: |
             cd backend
             npm i
@@ -296,6 +296,9 @@ jobs:
             mkdir -v .circleci/ansible/roles/deploy/files
             cp artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
             cd .circleci/ansible/roles/deploy/files
+      - run:
+          name: Deploy backend
+          command: |
             cd .circleci/ansible
             echo "Contents  of the inventory.txt file is -------"
             cat inventory.txt
