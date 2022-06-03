@@ -33,4 +33,4 @@
 
 - name: print message
   debug:
-    msg: "{{ execute_node.stdout_lines
+    msg: "{{ execute_node.stdout_lines}}
