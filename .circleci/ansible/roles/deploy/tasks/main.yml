@@ -1,31 +1,36 @@
-- name: "create backend app direc"
-  file:
-    paths: ~/backend-app
-    state: directory
+---
+- name: "Copying compiled app"
+  copy:
+    src: "~/artifact.tar.gz"
+    dest: "~/artifact.tar.gz"
 
-- name: "Unarchive backend files"
-  unarchive:
-    source: artifact.tar.gz
-    destination: ~/backend-app
+- name: "Make folder"
+  shell: mkdir ~/backend
+
+- name: "Unzip backend files to correct directory"
+  ansible.builtin.unarchive:
+    src: ~/artifact.tar.gz
+    dest: ~/backend
     
-- name: "Installing dependencies"
+- name: "Install dependencies for project"
   shell: |
-    cd ~/backend-app
-    npm i
+    cd ~/backend
+    npm install
+- name: "Copying env vars"
+  copy:
+    src: "~/.env"
+    dest: "~/backend/.env"
 
-- name: "excuting node app with PM2"
+- name: "Ensuring env vars is copied"
   shell: |
-    cd ~/backend-app/dist
+    sleep 15
+- name: "Executing node"
+  shell: |
+    cd ~/backend
     pm2 stop default
-    pm2 start main.js
+    pm2 start npm -- start
+  register: execute_node
 
-  register: excute_node    
-
-- name: "print message"
-  debug: 
-    msg: "{{ excute_node.stdout_lines }}"    
-
-- name: "excuting node app with PM2"
-  become: true
-  shell: |
-    env PATH=$PATH:/usr/local/bin pm2 startup systemd -u ubuntu --hp home/ubuntu
+- name: print message
+  debug:
+    msg: "{{ execute_node.stdout_lines

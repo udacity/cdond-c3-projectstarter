@@ -255,61 +255,37 @@ jobs:
       - revert-migrations 
   deploy-backend:
     docker:
-      - image: python:3.7-alpine3.11
+      - image: "python:3.8-slim"
     steps:
       - checkout
-      # Add ssh keys with fingerprint
+      - restore_cache:
+          keys: [backend-build]
       - add_ssh_keys:
-          fingerprints:
-            - "04:c0:4d:06:83:65:ba:59:07:18:cc:ae:d5:e6:fc:93"
-      # attach workspace
+          fingerprints: [ "04:c0:4d:06:83:65:ba:59:07:18:cc:ae:d5:e6:fc:93" ]
+      - run:
+          name: Installing dependencies
+          command: |
+            apt update -y
+            apt -y install tar gzip nodejs npm curl
+            pip install ansible awscli
       - attach_workspace:
-          at: .
+          at: ~/workspace/
       - run:
-          name: Install dependencies apt, python3, Node, AWSCLI
+          name: Deploy
           command: |
-            apk add --update ansible curl rsync openssh nodejs npm
-            ansible --version
-            pip install awscli
-            aws --version
-      - run:
-          name: env variables
-          command: |
-            echo "TYPEORM_MIGRATIONS=${TYPEORM_MIGRATIONS}" >> backend/.env
-            echo "TYPEORM_ENTITIES=${TYPEORM_ENTITIES}" >> backend/.env
-            echo "TYPEORM_CONNECTION=${TYPEORM_CONNECTION}" >> backend/.env
-            echo "TYPEORM_HOST=${TYPEORM_HOST}" >> backend/.env
-            echo "TYPEORM_PORT=${TYPEORM_PORT}" >> backend/.env
-            echo "TYPEORM_USERNAME=${TYPEORM_USERNAME}" >> backend/.env
-            echo "TYPEORM_PASSWORD=${TYPEORM_PASSWORD}" >> backend/.env
-            echo "TYPEORM_DATABASE=${TYPEORM_DATABASE}" >> backend/.env
-            echo "ENVIRONMENT: production" >> backend/.env      
-      - run:
-          name: pre-Deploy backend
-          command: |
+            aws s3 cp s3://credentials-udapeople/.env ~/
             cd backend
             npm i
             npm run build
             cd ..
             # Zip the directory
-            tar -C backend -czvf artifact.tar.gz .
-            mkdir -v .circleci/ansible/roles/deploy/files
-            cp artifact.tar.gz .circleci/ansible/roles/deploy/files/artifact.tar.gz
-            cd .circleci/ansible/roles/deploy/files
-      - run:
-          name: Deploy backend
-          command: |
+            tar -C backend -czvf ~/artifact.tar.gz .
             cd .circleci/ansible
-            export BACKEND_IP=$(aws ec2 describe-instances \
-              --query 'Reservations[*].Instances[*].PublicIpAddress' \
-              --filters "Name=tag:Name,Values=backend-${CIRCLE_WORKFLOW_ID:0:7}" \
-              --output text)
             echo "Contents  of the inventory.txt file is -------"
-            echo "${BACKEND_IP}"
-            ansible-playbook -i ${BACKEND_IP} deploy-backend.yml
-      # Here's where you will add some code to rollback on failure
+            cat ~/workspace/inventory.txt
+            ansible-playbook -i ~/workspace/inventory.txt deploy-backend.yml
       - destroy-environment
-      - revert-migrations 
+      - revert-migrations
 
   
                               
